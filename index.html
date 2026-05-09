@@ -1833,68 +1833,71 @@
         // ==========================================
         // 🦎 MOTOR CAMALEÓN V2: TRADUCTOR Y COLORES
         // ==========================================
-        function aplicarSkinGlobal() {
-    // 1. Detectar si el LINK tiene la palabra "beauty" o "estetica"
-    const esLinkBeauty = window.location.href.toLowerCase().includes('beauty') || window.location.href.toLowerCase().includes('estetica');
-    
-    // 2. Obtener datos del local si ya inició sesión
-    const idx = (typeof bIdx !== 'undefined' && bIdx !== -1) ? bIdx : (typeof kiosko_bIdx !== 'undefined' && kiosko_bIdx !== -1 ? kiosko_bIdx : -1);
-    const b = (idx !== -1 && db.barberias[idx]) ? db.barberias[idx] : null;
+              function aplicarSkinGlobal() {
+            setTimeout(() => {
+                // 1. Detectar si el LINK tiene la palabra "beauty" o "estetica"
+                const esLinkBeauty = window.location.href.toLowerCase().includes('beauty') || window.location.href.toLowerCase().includes('estetica');
+                
+                // 2. Obtener datos del local si ya inició sesión
+                const idx = (typeof bIdx !== 'undefined' && bIdx !== -1) ? bIdx : (typeof kiosko_bIdx !== 'undefined' && kiosko_bIdx !== -1 ? kiosko_bIdx : -1);
+                const b = (idx !== -1 && typeof db !== 'undefined' && db.barberias && db.barberias[idx]) ? db.barberias[idx] : null;
 
-    // 🚩 DECISIÓN FINAL: ¿Es estética? (Por Link o por Base de Datos)
-    const esEstetica = esLinkBeauty || (b && b.tipoNegocio === 'estetica');
+                // 🚩 DECISIÓN FINAL: ¿Es estética?
+                const esEstetica = esLinkBeauty || (b && b.tipoNegocio === 'estetica');
 
-    if (esEstetica) {
-        document.body.classList.add('theme-estetica');
-        
-        // --- TRANSFORMACIÓN VISUAL DEL LOGIN (Imagen 2) ---
-        const mainTitle = document.getElementById('main-title-text');
-        const subTitle = document.getElementById('sub-title-text');
-        const beautyLogo = document.getElementById('beauty-logo-header');
-        const beautyPhrase = document.getElementById('beauty-phrase');
-        const btnLogin = document.getElementById('btn-login-text');
-        const btnCreate = document.getElementById('btn-create-text');
-        const pwaText = document.getElementById('pwa-text');
+                if (esEstetica) {
+                    document.body.classList.add('theme-estetica');
+                    
+                    // --- TRANSFORMACIÓN VISUAL DEL LOGIN ---
+                    const mainTitle = document.getElementById('main-title-text');
+                    const subTitle = document.getElementById('sub-title-text');
+                    const beautyLogo = document.getElementById('beauty-logo-header');
+                    const beautyPhrase = document.getElementById('beauty-phrase');
+                    const btnLogin = document.getElementById('btn-login-text');
+                    const btnCreate = document.getElementById('btn-create-text');
+                    const pwaText = document.getElementById('pwa-text');
 
-        if (mainTitle) {
-            mainTitle.innerText = "ZEUS BEAUTY";
-            mainTitle.className = "text-4xl sm:text-5xl font-black italic mb-2 uppercase tracking-tighter bg-gradient-to-r from-rose-400 via-fuchsia-500 to-pink-600 text-transparent bg-clip-text";
+                    if (mainTitle) {
+                        mainTitle.innerText = "ZEUS BEAUTY";
+                        mainTitle.className = "text-4xl sm:text-5xl font-black italic mb-2 uppercase tracking-tighter bg-gradient-to-r from-rose-400 via-fuchsia-500 to-pink-600 text-transparent bg-clip-text";
+                    }
+                    if (subTitle) subTitle.innerText = "PELUQUERÍA / ESTÉTICA";
+                    if (beautyLogo) beautyLogo.classList.remove('hidden');
+                    if (beautyPhrase) beautyPhrase.classList.remove('hidden');
+                    if (btnLogin) btnLogin.innerText = "ENTRAR A ZEUS-BEAUTY ⚡";
+                    if (btnCreate) btnCreate.innerText = "Crear Mi Negocio ✨";
+                    if (pwaText) pwaText.innerText = "INSTALAR ZEUS BEAUTY APP";
+
+                    // --- TRADUCCIÓN DE TEXTOS EN TODA LA APP ---
+                    const elementosTextos = document.querySelectorAll('h1, h2, h3, h4, p, span, button, option, label, div');
+                    elementosTextos.forEach(el => {
+                        if (el.children.length === 0 && el.innerHTML) { 
+                            let txt = el.innerHTML;
+                            let cambiado = false;
+                            if (txt.includes('BARBEROS')) { txt = txt.replace(/BARBEROS/g, 'ESTILISTAS'); cambiado = true; }
+                            if (txt.includes('Barberos')) { txt = txt.replace(/Barberos/g, 'Estilistas'); cambiado = true; }
+                            if (txt.includes('BARBERO')) { txt = txt.replace(/BARBERO/g, 'ESTILISTA'); cambiado = true; }
+                            if (txt.includes('Barbero')) { txt = txt.replace(/Barbero/g, 'Estilista'); cambiado = true; }
+                            if (txt.includes('BARBERÍA')) { txt = txt.replace(/BARBERÍA/g, 'SPA / PELUQUERÍA'); cambiado = true; }
+                            if (txt.includes('💈')) { txt = txt.replace(/💈/g, '✨'); cambiado = true; }
+                            if (cambiado) el.innerHTML = txt;
+                        }
+                    });
+
+                    // Traductor de Cajas Fantasma
+                    document.querySelectorAll('input, textarea').forEach(input => {
+                        if (input.placeholder) {
+                            input.placeholder = input.placeholder.replace(/BARBERO/g, 'ESTILISTA').replace(/Barbero/g, 'Estilista');
+                        }
+                    });
+                } else {
+                    document.body.classList.remove('theme-estetica');
+                }
+            }, 100); // ⏱️ Los 100ms son vitales para que no se ejecute antes de tiempo
         }
-        if (subTitle) subTitle.innerText = "PELUQUERÍA / ESTÉTICA";
-        if (beautyLogo) beautyLogo.classList.remove('hidden');
-        if (beautyPhrase) beautyPhrase.classList.remove('hidden');
-        if (btnLogin) btnLogin.innerText = "ENTRAR A ZEUS-BEAUTY ⚡";
-        if (btnCreate) btnCreate.innerText = "Crear Mi Negocio ✨";
-        if (pwaText) pwaText.innerText = "INSTALAR ZEUS BEAUTY APP";
-
-        // --- TRADUCCIÓN DE TEXTOS EN TODA LA APP ---
-        const elementosTextos = document.querySelectorAll('h1, h2, h3, h4, p, span, button, option, label, div');
-        elementosTextos.forEach(el => {
-            if (el.children.length === 0 && el.innerHTML) { 
-                let txt = el.innerHTML;
-                let cambiado = false;
-                if (txt.includes('BARBEROS')) { txt = txt.replace(/BARBEROS/g, 'ESTILISTAS'); cambiado = true; }
-                if (txt.includes('Barberos')) { txt = txt.replace(/Barberos/g, 'Estilistas'); cambiado = true; }
-                if (txt.includes('BARBERO')) { txt = txt.replace(/BARBERO/g, 'ESTILISTA'); cambiado = true; }
-                if (txt.includes('Barbero')) { txt = txt.replace(/Barbero/g, 'Estilista'); cambiado = true; }
-                if (txt.includes('BARBERÍA')) { txt = txt.replace(/BARBERÍA/g, 'SPA / PELUQUERÍA'); cambiado = true; }
-                if (txt.includes('💈')) { txt = txt.replace(/💈/g, '✨'); cambiado = true; }
-                if (cambiado) el.innerHTML = txt;
-            }
-        });
-
-        // Placeholder translator
-        document.querySelectorAll('input, textarea').forEach(input => {
-            if (input.placeholder) {
-                input.placeholder = input.placeholder.replace(/BARBERO/g, 'ESTILISTA').replace(/Barbero/g, 'Estilista');
-            }
-        });
-    } else {
-        document.body.classList.remove('theme-estetica');
-    }
-}
-
-        function renderLoginLogo() {
+        
+        // Disparador de seguridad al arrancar la app
+        window.addEventListener('DOMContentLoaded', aplicarSkinGlobal);        function renderLoginLogo() {
             const loginImg = document.getElementById('login-custom-logo'); const loginText = document.getElementById('login-default-text');
             if (bIdx !== -1 && db.barberias[bIdx] && db.barberias[bIdx].logo) { loginImg.src = db.barberias[bIdx].logo; loginImg.classList.remove('hidden'); loginText.classList.add('hidden'); }
             else if (db && db.mainLogo) { loginImg.src = db.mainLogo; loginImg.classList.remove('hidden'); loginText.classList.add('hidden'); }
