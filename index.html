@@ -60,6 +60,67 @@
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 10px; }
         @media print { body * { visibility: hidden; } #print-area, #print-area * { visibility: visible; color: #000 !important; } #print-area { position: absolute; left: 0; top: 0; width: 100% !important; margin: 0; padding: 0; background: #fff !important; } .fixed, #app-nav, #app-content, #splash-screen { display: none !important; } }
+
+        /* ========================================= */
+        /* 🦎 MOTOR CAMALEÓN: TEMA ESTÉTICA/SPA      */
+        /* ========================================= */
+        body.theme-estetica .text-indigo-500 { color: #f43f5e !important; } /* Rose-500 */
+        body.theme-estetica .text-indigo-400 { color: #fb7185 !important; } /* Rose-400 */
+        body.theme-estetica .bg-indigo-600 { background-color: #e11d48 !important; } /* Rose-600 */
+        body.theme-estetica .bg-indigo-500 { background-color: #f43f5e !important; } /* Rose-500 */
+        body.theme-estetica .border-indigo-500 { border-color: #f43f5e !important; }
+        body.theme-estetica .border-indigo-500\/30 { border-color: rgba(244, 63, 94, 0.3) !important; }
+        body.theme-estetica .border-indigo-500\/50 { border-color: rgba(244, 63, 94, 0.5) !important; }
+        body.theme-estetica .shadow-indigo-600\/20 { box-shadow: 0 4px 14px 0 rgba(225, 29, 72, 0.2) !important; }
+        body.theme-estetica .focus\:border-indigo-500:focus { border-color: #f43f5e !important; }
+        body.theme-estetica .peer-checked\:border-indigo-500:checked ~ div { border-color: #f43f5e !important; }
+
+/* ========================================= */
+/* ✨ SKIN PREMIUM ZEUS BEAUTY (LOGIN BLANCO) */
+/* ========================================= */
+.theme-estetica #view-login {
+    background: white !important;
+    color: #1a1a1a !important;
+    border: 1px solid #fce7f3 !important; /* Borde rosa muy suave */
+}
+
+/* Subtítulo en rosa fuerte */
+.theme-estetica #view-login #sub-title-text {
+    color: #be185d !important; 
+    font-weight: 900;
+}
+
+/* Ajuste de los inputs de PIN en fondo blanco */
+.theme-estetica #view-login input {
+    background: #fff5f8 !important;
+    color: #be185d !important;
+    border: 2px solid #fbcfe8 !important;
+}
+
+/* Botones con degradado rosa/fucsia como la foto */
+.theme-estetica #view-login button {
+    background: linear-gradient(to r, #fb7185, #d946ef) !important;
+    color: white !important;
+    border: none !important;
+    box-shadow: 0 10px 20px rgba(217, 70, 239, 0.3) !important;
+}
+
+/* El botón de "Crear Negocio" en verde esmeralda para que resalte */
+.theme-estetica #view-login button[onclick="crearCuentaNueva()"] {
+    background: linear-gradient(to r, #10b981, #059669) !important;
+    box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2) !important;
+}
+
+/* Los botones pequeños de Kiosko y Locales */
+.theme-estetica #view-login .glass {
+    background: #fff !important;
+    border: 1px solid #fbcfe8 !important;
+    color: #be185d !important;
+}
+
+
+
+
     </style>
 </head>
 
@@ -104,36 +165,49 @@
             <button type="button" onclick="detenerAudio(); actionLogout()" class="bg-red-900/10 text-red-500 px-4 py-2 rounded-xl text-[10px] font-bold border border-red-900/30 btn-press">SALIR</button>
         </nav>
 
+
         <section id="view-login" class="view-section active max-w-md mx-auto mt-4 sm:mt-12 p-8 sm:p-10 glass rounded-[3rem] text-center border border-zinc-900 shadow-2xl min-h-[85vh] flex flex-col justify-center relative">
-            <div id="contenedor-instalar-pwa" class="hidden w-full flex justify-center mb-6">
-                <button id="btn-instalar-pwa" class="bg-indigo-600 text-white px-6 py-3 rounded-full font-black text-xs uppercase shadow-[0_0_15px_rgba(79,70,229,0.5)] border border-indigo-400/50 flex items-center gap-2 hover:bg-indigo-500 transition-all btn-press">
-                    <span class="text-lg">📲</span> INSTALAR ZEUS APP
-                </button>
-            </div>
-            <div id="login-logo-container" class="flex justify-center mb-8 h-40 items-center">
-                <img id="login-custom-logo" src="" alt="Logo Principal" class="hidden h-full w-auto rounded-[2rem] shadow-lg object-contain">
-                <div id="login-default-text" class="w-full">
-                    <h2 class="text-4xl sm:text-5xl font-black italic mb-2 uppercase tracking-tighter bg-gradient-to-r from-[#66ff66] via-[#0cd1b8] to-[#1e61ea] text-transparent bg-clip-text">ZEUS BARBER</h2>
-                    <p class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mt-2">Software de Nube</p>
-                </div>
-            </div>
-            <div class="mt-auto mb-auto">
-                <input type="password" inputmode="numeric" id="login-pin" placeholder="INGRESE PIN" class="w-full p-6 rounded-3xl text-center text-4xl font-black mb-6 border border-zinc-800 shadow-inner tracking-widest bg-[#050505] focus:border-indigo-500 outline-none transition-colors text-white">
-                <button type="button" onclick="actionLogin()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-6 rounded-3xl text-xl font-black uppercase italic shadow-lg shadow-indigo-600/20 btn-press transition-colors text-white mb-6">Entrar a Zeus ⚡</button>
-                <hr class="border-zinc-800 mb-6">
-                <button type="button" onclick="crearCuentaNueva()" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 py-5 rounded-3xl text-sm font-black uppercase text-white shadow-[0_0_20px_rgba(16,185,129,0.2)] hover:shadow-[0_0_25px_rgba(16,185,129,0.4)] btn-press transition-all mb-4">🚀 Crear Mi Barbería</button>
-                <div class="grid grid-cols-2 gap-3 mt-4">
-                    <button type="button" onclick="abrirKioskoPublico()" class="w-full glass bg-white/5 hover:bg-white/10 py-4 rounded-2xl text-[10px] font-black uppercase text-indigo-400 border border-indigo-500/30 btn-press transition-all duration-300 shadow-[0_0_15px_rgba(99,102,241,0.1)] hover:shadow-[0_0_20px_rgba(99,102,241,0.2)]">📅 Kiosko</button>
-                    <button type="button" onclick="abrirMapaLocales()" class="w-full glass bg-white/5 hover:bg-white/10 py-4 rounded-2xl text-[10px] font-black uppercase text-blue-400 border border-blue-500/30 btn-press transition-all duration-300 shadow-[0_0_15px_rgba(59,130,246,0.1)] hover:shadow-[0_0_20px_rgba(59,130,246,0.2)]">📍 Locales</button>
-               </div>
-            </div>
+    <div id="contenedor-instalar-pwa" class="hidden w-full flex justify-center mb-6">
+        <button id="btn-instalar-pwa" class="bg-indigo-600 text-white px-6 py-3 rounded-full font-black text-xs uppercase shadow-[0_0_15px_rgba(79,70,229,0.5)] border border-indigo-400/50 flex items-center gap-2 hover:bg-indigo-500 transition-all btn-press">
+            <span id="pwa-icon">📲</span> <span id="pwa-text">INSTALAR ZEUS APP</span>
+        </button>
+    </div>
 
-            <div class="mt-10 flex flex-col items-center gap-4">
-                <p class="text-[9px] text-zinc-600 cursor-pointer hover:text-red-500 uppercase font-bold tracking-widest transition-colors" onclick="hardReset()">🔄 Limpiar Sistema (Reset)</p>
-                <p class="text-[9px] text-zinc-500 cursor-pointer hover:text-indigo-400 uppercase font-bold tracking-widest transition-colors" onclick="verPoliticas()">📄 Políticas de Privacidad</p>
-            </div>
-            </section>
+    <div id="login-logo-container" class="flex flex-col justify-center mb-8 items-center">
+    <div id="beauty-logo-header" class="hidden mb-4">
+        <img src="https://github.com/Amaya0623/zeus-beauty/blob/main/logo-estetica.png?raw=true" alt="Zeus Beauty" class="h-32 w-auto animate-pulse">
+    </div>
+    
+    <div id="login-default-text" class="w-full">
+        <h2 id="main-title-text" class="text-4xl sm:text-5xl font-black italic mb-2 uppercase tracking-tighter bg-gradient-to-r from-[#66ff66] via-[#0cd1b8] to-[#1e61ea] text-transparent bg-clip-text">ZEUS BARBER</h2>
+        <p id="sub-title-text" class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mt-2">Software de Nube</p>
+    </div>
 
+    <p id="beauty-phrase" class="hidden text-[10px] italic text-rose-400 mt-4 font-bold tracking-widest">"Belleza que inspira, tecnología que transforma"</p>
+</div>
+
+
+    <div class="mt-auto mb-auto">
+        <input type="password" inputmode="numeric" id="login-pin" placeholder="INGRESE PIN" class="w-full p-6 rounded-3xl text-center text-4xl font-black mb-6 border border-zinc-800 shadow-inner tracking-widest bg-[#050505] focus:border-indigo-500 outline-none transition-colors text-white">
+        <button type="button" onclick="actionLogin()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-6 rounded-3xl text-xl font-black uppercase italic shadow-lg shadow-indigo-600/20 btn-press transition-colors text-white mb-6">
+            <span id="btn-login-text">Entrar a Zeus ⚡</span>
+        </button>
+        <hr class="border-zinc-800 mb-6">
+        <button type="button" onclick="crearCuentaNueva()" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 py-5 rounded-3xl text-sm font-black uppercase text-white shadow-[0_0_20px_rgba(16,185,129,0.2)] btn-press transition-all mb-4">
+            🚀 <span id="btn-create-text">Crear Mi Barbería</span>
+        </button>
+        <div class="grid grid-cols-2 gap-3 mt-4">
+            <button type="button" onclick="abrirKioskoPublico()" class="w-full glass bg-white/5 hover:bg-white/10 py-4 rounded-2xl text-[10px] font-black uppercase text-indigo-400 border border-indigo-500/30 btn-press transition-all shadow-[0_0_15px_rgba(99,102,241,0.1)]">📅 Kiosko</button>
+            <button type="button" onclick="abrirMapaLocales()" class="w-full glass bg-white/5 hover:bg-white/10 py-4 rounded-2xl text-[10px] font-black uppercase text-blue-400 border border-blue-500/30 btn-press transition-all shadow-[0_0_15px_rgba(59,130,246,0.1)]">📍 Locales</button>
+       </div>
+    </div>
+
+    <div class="mt-10 flex flex-col items-center gap-4">
+        <p class="text-[10px] text-indigo-400 cursor-pointer hover:text-indigo-300 uppercase font-black tracking-widest transition-colors flex items-center gap-2 bg-indigo-900/20 px-4 py-2 rounded-full border border-indigo-500/30" onclick="guiaInstalacion()">📲 ¿Cómo instalar la App?</p>
+        <p class="text-[9px] text-zinc-500 cursor-pointer hover:text-white uppercase font-bold tracking-widest transition-colors" onclick="verPoliticas()">📄 Políticas de Privacidad</p>
+        <p class="text-[9px] text-zinc-700 cursor-pointer hover:text-red-500 uppercase font-bold tracking-widest transition-colors mt-2" onclick="hardReset()">🔄 Limpiar Sistema (Reset)</p>
+    </div>
+</section>
         
 
 
@@ -1450,22 +1524,42 @@
             });
         }
 
+
+
         async function crearCuentaNueva() {
-            if (!isOnline) return Swal.fire({ title: 'Sin Internet', text: 'Necesitas conexión para registrar tu barbería.', icon: 'warning', background: '#0a0a0a', color: '#fff' });
+            if (!isOnline) return Swal.fire({ title: 'Sin Internet', text: 'Necesitas conexión para registrar tu local.', icon: 'warning', background: '#0a0a0a', color: '#fff' });
 
             const modalHtml = `
             <div class="text-center p-2">
-                <div class="flex justify-center mb-6"><span class="text-6xl tracking-tighter">⚡</span></div>
-                <h2 class="text-3xl font-black italic mb-2 uppercase tracking-tighter bg-gradient-to-r from-[#66ff66] via-[#0cd1b8] to-[#1e61ea] text-transparent bg-clip-text">NUEVO LOCAL</h2>
-                <p class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-8">15 Días de Premium Gratis</p>
+                <div class="flex justify-center mb-4"><span class="text-5xl tracking-tighter">⚡</span></div>
+                <h2 class="text-2xl font-black italic mb-2 uppercase tracking-tighter text-white">NUEVO NEGOCIO</h2>
+                <p class="text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-6">Selecciona el tipo de plataforma</p>
+                
+                <div class="grid grid-cols-2 gap-3 mb-6">
+                    <label class="cursor-pointer">
+                        <input type="radio" id="tipo-barberia" name="tipo_negocio" value="barberia" class="peer sr-only" checked>
+                        <div class="p-4 rounded-2xl bg-[#050505] border-2 border-zinc-800 peer-checked:border-indigo-500 peer-checked:bg-indigo-900/30 text-center transition-all hover:border-zinc-600">
+                            <span class="text-4xl block mb-2 drop-shadow-md">💈</span>
+                            <span class="text-[10px] font-black text-white uppercase tracking-widest">Barbería</span>
+                        </div>
+                    </label>
+                    <label class="cursor-pointer">
+                        <input type="radio" id="tipo-estetica" name="tipo_negocio" value="estetica" class="peer sr-only">
+                        <div class="p-4 rounded-2xl bg-[#050505] border-2 border-zinc-800 peer-checked:border-rose-500 peer-checked:bg-rose-900/30 text-center transition-all hover:border-zinc-600">
+                            <span class="text-4xl block mb-2 drop-shadow-md">✨</span>
+                            <span class="text-[10px] font-black text-white uppercase tracking-widest">Peluquería / Spa</span>
+                        </div>
+                    </label>
+                </div>
+
                 <div class="space-y-4 text-left">
                     <div>
-                        <label class="text-[9px] font-bold text-zinc-500 uppercase tracking-widest ml-3 mb-1 block">Nombre de la Barbería</label>
-                        <input id="swal-nombre" type="text" class="w-full p-5 rounded-2xl bg-[#050505] border border-zinc-800 text-white font-black uppercase text-sm focus:border-indigo-500 outline-none transition-colors" placeholder="Ej: Barber Pro">
+                        <label class="text-[9px] font-bold text-zinc-500 uppercase tracking-widest ml-3 mb-1 block">Nombre del Local</label>
+                        <input id="swal-nombre" type="text" class="w-full p-4 rounded-2xl bg-[#050505] border border-zinc-800 text-white font-black uppercase text-sm focus:border-indigo-500 outline-none transition-colors" placeholder="Ej: Zeus Studio">
                     </div>
                     <div>
                         <label class="text-[9px] font-bold text-zinc-500 uppercase tracking-widest ml-3 mb-1 block">Tu PIN Maestro (4 Números)</label>
-                        <input id="swal-pin" type="password" inputmode="numeric" maxlength="4" class="w-full p-5 rounded-2xl bg-[#050505] border border-zinc-800 text-indigo-400 font-black tracking-[1em] text-2xl focus:border-indigo-500 outline-none text-center placeholder-zinc-800" placeholder="••••">
+                        <input id="swal-pin" type="password" inputmode="numeric" maxlength="4" class="w-full p-4 rounded-2xl bg-[#050505] border border-zinc-800 text-indigo-400 font-black tracking-[1em] text-2xl focus:border-indigo-500 outline-none text-center placeholder-zinc-800" placeholder="••••">
                     </div>
                 </div>
             </div>
@@ -1473,14 +1567,17 @@
 
             const { value: formValues } = await Swal.fire({
                 html: modalHtml, focusConfirm: false, showCancelButton: true, confirmButtonText: 'CREAR MI SISTEMA 🚀', cancelButtonText: 'CANCELAR', background: '#111', color: '#fff',
-                customClass: { popup: 'rounded-[3rem] border border-zinc-900 shadow-2xl', confirmButton: 'w-full bg-indigo-600 hover:bg-indigo-500 py-5 rounded-3xl text-sm font-black uppercase italic shadow-lg shadow-indigo-600/20 btn-press transition-colors text-white mt-4 mx-2', cancelButton: 'w-full bg-zinc-900 hover:bg-[#111] py-4 rounded-3xl text-xs font-black uppercase text-zinc-500 btn-press transition-colors mt-2 mx-2', actions: 'flex flex-col w-full mt-6 px-4' }, buttonsStyling: false,
+                customClass: { popup: 'rounded-[3rem] border border-zinc-900 shadow-2xl', confirmButton: 'w-full bg-white hover:bg-gray-200 py-5 rounded-3xl text-sm font-black text-black uppercase italic shadow-lg btn-press transition-colors mt-4 mx-2', cancelButton: 'w-full bg-zinc-900 hover:bg-[#111] py-4 rounded-3xl text-xs font-black uppercase text-zinc-500 btn-press transition-colors mt-2 mx-2', actions: 'flex flex-col w-full mt-6 px-4' }, buttonsStyling: false,
                 preConfirm: () => {
                     const nombre = document.getElementById('swal-nombre').value.trim().toUpperCase();
                     const pin = document.getElementById('swal-pin').value.trim();
+                    const tipo = document.getElementById('tipo-estetica').checked ? 'estetica' : 'barberia'; // Capturamos el tipo
+                    
                     if (!nombre) { Swal.showValidationMessage('Ingresa el nombre del local'); return false; }
                     if (pin.length !== 4) { Swal.showValidationMessage('El PIN debe ser exactamente de 4 NÚMEROS'); return false; }
                     if (esPinInseguro(pin)) { Swal.showValidationMessage('El PIN es muy fácil (No uses 1234, 1111, etc)'); return false; }
-                    return { nombre, pin };
+                    
+                    return { nombre, pin, tipo }; // Retornamos el tipo también
                 }
             });
 
@@ -1490,7 +1587,8 @@
                     const { data, error } = await supabaseClient.from('stores').insert([{ name: formValues.nombre, owner_pin: formValues.pin }]).select().single();
                     if (error) throw error;
 
-                    const newB = { id: "B-" + Math.random().toString(36).substr(2, 4).toUpperCase(), id_nube: data.id, nombre: formValues.nombre, pinAdmin: formValues.pin, creadoEn: Date.now(), diasSuscripcion: 15, bloqueado: false, maxBarberos: 5, barberos: [], servicios: [], productos: [], ventas: [], gastos: [], citas: [], tickets: [], clientes: {}, horaApertura: "08:00", horaCierre: "20:00", intervaloCitas: 60, lastActiveClock: Date.now(), moneda: 'COP', wpTemplate: '¡Hola {cliente}! Te recordamos tu cita para {servicio} con {barbero} a las {hora}. ¡Te esperamos!', msgBienvenida: 'Gracias por visitarnos, esperamos que hayas tenido una gran experiencia.', msgDespedida: '¡Te esperamos pronto!', ticketFooter: 'Documento no válido como factura fiscal.', logo: null };
+                    // 🚨 MAGIA: Guardamos el "tipoNegocio" en la base de datos
+                    const newB = { id: "B-" + Math.random().toString(36).substr(2, 4).toUpperCase(), id_nube: data.id, nombre: formValues.nombre, pinAdmin: formValues.pin, tipoNegocio: formValues.tipo, creadoEn: Date.now(), diasSuscripcion: 15, bloqueado: false, maxBarberos: 5, barberos: [], servicios: [], productos: [], ventas: [], gastos: [], citas: [], tickets: [], clientes: {}, horaApertura: "08:00", horaCierre: "20:00", intervaloCitas: 60, lastActiveClock: Date.now(), moneda: 'COP', wpTemplate: '¡Hola {cliente}! Te recordamos tu cita para {servicio} con {barbero} a las {hora}. ¡Te esperamos!', msgBienvenida: 'Gracias por visitarnos, esperamos que hayas tenido una gran experiencia.', msgDespedida: '¡Te esperamos pronto!', ticketFooter: 'Documento no válido como factura fiscal.', logo: null };
                     db.barberias.push(newB);
                     await supabaseClient.from('stores').update({ json_data: newB }).eq('id', data.id);
 
@@ -1499,11 +1597,14 @@
                     saveDB(true);
                     saveSession();
 
+                    // Mensaje de éxito dinámico
+                    let iconoExito = formValues.tipo === 'estetica' ? '✨' : '✂️';
+                    
                     Swal.fire({
                         title: '¡SISTEMA LISTO!',
                         html: `<p class="text-xs text-zinc-300 mt-2">Bienvenido a <b>${formValues.nombre}</b>.</p><div class="bg-black border border-zinc-800 p-4 rounded-2xl mt-4 mb-2"><p class="text-[9px] text-zinc-500 uppercase tracking-widest mb-1">TU PIN MAESTRO ES</p><p class="text-green-400 font-black text-3xl tracking-[0.5em]">${formValues.pin}</p></div><p class="text-[9px] text-zinc-500 italic">No lo olvides, es tu única llave de acceso.</p>`,
-                        icon: 'success', confirmButtonText: '¡EMPEZAR A TRABAJAR! ✂️', background: '#0a0a0a', color: '#fff',
-                        customClass: { confirmButton: 'w-full bg-indigo-600 hover:bg-indigo-500 py-5 rounded-3xl text-sm font-black uppercase italic shadow-lg shadow-indigo-600/20 btn-press transition-colors text-white mt-4' }, buttonsStyling: false,
+                        icon: 'success', confirmButtonText: `¡EMPEZAR A TRABAJAR! ${iconoExito}`, background: '#0a0a0a', color: '#fff',
+                        customClass: { confirmButton: `w-full ${formValues.tipo === 'estetica' ? 'bg-rose-600 hover:bg-rose-500 shadow-rose-600/20' : 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-600/20'} py-5 rounded-3xl text-sm font-black uppercase italic shadow-lg btn-press transition-colors text-white mt-4` }, buttonsStyling: false,
                     }).then(() => { window.location.reload(); });
                 } catch (e) {
                     console.error("Error Creando Cuenta:", e);
@@ -1511,6 +1612,9 @@
                 }
             }
         }
+
+
+
 
         // ==========================================
         // 5. SESIÓN Y LOGIN
@@ -1721,7 +1825,74 @@
             if (id === 'view-barbero') renderBarbero();
             if (id === 'view-agenda') { tempServicios = []; document.getElementById('agenda-filtro-fecha').value = getTodayYMD(); renderAgendaList(); }
             if (id === 'view-superadmin') { renderSuperAdmin(); if (isiBtn) isiBtn.classList.remove('hidden'); }
+            
+            // 🚀 EJECUTAMOS EL MOTOR CAMALEÓN AL CAMBIAR DE PANTALLA
+            aplicarSkinGlobal();
         }
+
+        // ==========================================
+        // 🦎 MOTOR CAMALEÓN V2: TRADUCTOR Y COLORES
+        // ==========================================
+        function aplicarSkinGlobal() {
+    // 1. Detectar si el LINK tiene la palabra "beauty" o "estetica"
+    const esLinkBeauty = window.location.href.toLowerCase().includes('beauty') || window.location.href.toLowerCase().includes('estetica');
+    
+    // 2. Obtener datos del local si ya inició sesión
+    const idx = (typeof bIdx !== 'undefined' && bIdx !== -1) ? bIdx : (typeof kiosko_bIdx !== 'undefined' && kiosko_bIdx !== -1 ? kiosko_bIdx : -1);
+    const b = (idx !== -1 && db.barberias[idx]) ? db.barberias[idx] : null;
+
+    // 🚩 DECISIÓN FINAL: ¿Es estética? (Por Link o por Base de Datos)
+    const esEstetica = esLinkBeauty || (b && b.tipoNegocio === 'estetica');
+
+    if (esEstetica) {
+        document.body.classList.add('theme-estetica');
+        
+        // --- TRANSFORMACIÓN VISUAL DEL LOGIN (Imagen 2) ---
+        const mainTitle = document.getElementById('main-title-text');
+        const subTitle = document.getElementById('sub-title-text');
+        const beautyLogo = document.getElementById('beauty-logo-header');
+        const beautyPhrase = document.getElementById('beauty-phrase');
+        const btnLogin = document.getElementById('btn-login-text');
+        const btnCreate = document.getElementById('btn-create-text');
+        const pwaText = document.getElementById('pwa-text');
+
+        if (mainTitle) {
+            mainTitle.innerText = "ZEUS BEAUTY";
+            mainTitle.className = "text-4xl sm:text-5xl font-black italic mb-2 uppercase tracking-tighter bg-gradient-to-r from-rose-400 via-fuchsia-500 to-pink-600 text-transparent bg-clip-text";
+        }
+        if (subTitle) subTitle.innerText = "PELUQUERÍA / ESTÉTICA";
+        if (beautyLogo) beautyLogo.classList.remove('hidden');
+        if (beautyPhrase) beautyPhrase.classList.remove('hidden');
+        if (btnLogin) btnLogin.innerText = "ENTRAR A ZEUS-BEAUTY ⚡";
+        if (btnCreate) btnCreate.innerText = "Crear Mi Negocio ✨";
+        if (pwaText) pwaText.innerText = "INSTALAR ZEUS BEAUTY APP";
+
+        // --- TRADUCCIÓN DE TEXTOS EN TODA LA APP ---
+        const elementosTextos = document.querySelectorAll('h1, h2, h3, h4, p, span, button, option, label, div');
+        elementosTextos.forEach(el => {
+            if (el.children.length === 0 && el.innerHTML) { 
+                let txt = el.innerHTML;
+                let cambiado = false;
+                if (txt.includes('BARBEROS')) { txt = txt.replace(/BARBEROS/g, 'ESTILISTAS'); cambiado = true; }
+                if (txt.includes('Barberos')) { txt = txt.replace(/Barberos/g, 'Estilistas'); cambiado = true; }
+                if (txt.includes('BARBERO')) { txt = txt.replace(/BARBERO/g, 'ESTILISTA'); cambiado = true; }
+                if (txt.includes('Barbero')) { txt = txt.replace(/Barbero/g, 'Estilista'); cambiado = true; }
+                if (txt.includes('BARBERÍA')) { txt = txt.replace(/BARBERÍA/g, 'SPA / PELUQUERÍA'); cambiado = true; }
+                if (txt.includes('💈')) { txt = txt.replace(/💈/g, '✨'); cambiado = true; }
+                if (cambiado) el.innerHTML = txt;
+            }
+        });
+
+        // Placeholder translator
+        document.querySelectorAll('input, textarea').forEach(input => {
+            if (input.placeholder) {
+                input.placeholder = input.placeholder.replace(/BARBERO/g, 'ESTILISTA').replace(/Barbero/g, 'Estilista');
+            }
+        });
+    } else {
+        document.body.classList.remove('theme-estetica');
+    }
+}
 
         function renderLoginLogo() {
             const loginImg = document.getElementById('login-custom-logo'); const loginText = document.getElementById('login-default-text');
@@ -1729,7 +1900,6 @@
             else if (db && db.mainLogo) { loginImg.src = db.mainLogo; loginImg.classList.remove('hidden'); loginText.classList.add('hidden'); }
             else { loginImg.src = ""; loginImg.classList.add('hidden'); loginText.classList.remove('hidden'); }
         }
-
 
         function abrirMapaLocales() {
             document.getElementById('modal-mapa').classList.remove('hidden');
@@ -1739,7 +1909,6 @@
 
             let htmlList = ''; let htmlPines = '';
 
-            // 🚀 AQUÍ ESTÁ EL FIX: Agregamos z-20 y pointer-events-auto directo al JS
             pinesCtn.className = "absolute inset-0 flex flex-wrap justify-center items-center gap-5 p-6 overflow-y-auto scroll-safe z-20 pointer-events-auto";
 
             db.barberias.forEach((b) => {
