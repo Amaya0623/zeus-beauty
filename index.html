@@ -76,47 +76,42 @@
         body.theme-estetica .peer-checked\:border-indigo-500:checked ~ div { border-color: #f43f5e !important; }
 
 /* ========================================= */
-/* ✨ SKIN PREMIUM ZEUS BEAUTY (LOGIN BLANCO) */
+/* ✨ SKIN PREMIUM ZEUS BEAUTY (NEON DARK)   */
 /* ========================================= */
+/* Colores base para toda la app en modo belleza */
+body.theme-estetica { background: #050505 !important; }
+body.theme-estetica .text-indigo-500 { color: #d946ef !important; } /* Fucsia Neón */
+body.theme-estetica .text-indigo-400 { color: #f472b6 !important; } /* Rosa Suave */
+body.theme-estetica .bg-indigo-600 { background-color: #d946ef !important; }
+body.theme-estetica .bg-indigo-500 { background-color: #ec4899 !important; }
+body.theme-estetica .border-indigo-500 { border-color: #d946ef !important; }
+body.theme-estetica .shadow-indigo-600\/20 { box-shadow: 0 4px 15px rgba(217, 70, 239, 0.3) !important; }
+
+/* El Login de Belleza Oscuro */
 .theme-estetica #view-login {
-    background: white !important;
-    color: #1a1a1a !important;
-    border: 1px solid #fce7f3 !important; /* Borde rosa muy suave */
+    background: rgba(10, 5, 15, 0.95) !important; /* Negro con un tinte súper leve de morado */
+    border: 1px solid rgba(217, 70, 239, 0.2) !important;
+    box-shadow: 0 0 40px rgba(217, 70, 239, 0.1) !important;
 }
 
-/* Subtítulo en rosa fuerte */
-.theme-estetica #view-login #sub-title-text {
-    color: #be185d !important; 
-    font-weight: 900;
-}
-
-/* Ajuste de los inputs de PIN en fondo blanco */
-.theme-estetica #view-login input {
-    background: #fff5f8 !important;
-    color: #be185d !important;
-    border: 2px solid #fbcfe8 !important;
-}
-
-/* Botones con degradado rosa/fucsia como la foto */
-.theme-estetica #view-login button {
-    background: linear-gradient(to r, #fb7185, #d946ef) !important;
+/* El botón de Login de Belleza (Degradado Fucsia-Morado) */
+.theme-estetica #view-login button[onclick="actionLogin()"] {
+    background: linear-gradient(to right, #ec4899, #8b5cf6) !important;
+    box-shadow: 0 10px 25px rgba(236, 72, 153, 0.4) !important;
     color: white !important;
     border: none !important;
-    box-shadow: 0 10px 20px rgba(217, 70, 239, 0.3) !important;
 }
 
-/* El botón de "Crear Negocio" en verde esmeralda para que resalte */
-.theme-estetica #view-login button[onclick="crearCuentaNueva()"] {
-    background: linear-gradient(to r, #10b981, #059669) !important;
-    box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2) !important;
-}
+/* Subtítulo de Estética */
+.theme-estetica #view-login #sub-title-text { color: #f472b6 !important; letter-spacing: 0.4em; }
 
-/* Los botones pequeños de Kiosko y Locales */
-.theme-estetica #view-login .glass {
-    background: #fff !important;
-    border: 1px solid #fbcfe8 !important;
-    color: #be185d !important;
+/* Los inputs oscuros con borde rosa */
+.theme-estetica #view-login input {
+    background: #000 !important;
+    border: 1px solid rgba(236, 72, 153, 0.3) !important;
+    color: white !important;
 }
+.theme-estetica #view-login input:focus { border-color: #ec4899 !important; }
 
 
 
@@ -1831,44 +1826,52 @@
         }
 
         // ==========================================
-        // 🦎 MOTOR CAMALEÓN V2: TRADUCTOR Y COLORES
+        // 🦎 MOTOR CAMALEÓN V4: INDEPENDENCIA TOTAL
         // ==========================================
-              function aplicarSkinGlobal() {
+        function aplicarSkinGlobal() {
             setTimeout(() => {
-                // 1. Detectar si el LINK tiene la palabra "beauty" o "estetica"
+                // 1. ¿Dónde estamos?
+                const estaEnLogin = document.getElementById('view-login') && document.getElementById('view-login').classList.contains('active');
                 const esLinkBeauty = window.location.href.toLowerCase().includes('beauty') || window.location.href.toLowerCase().includes('estetica');
                 
-                // 2. Obtener datos del local si ya inició sesión
-                const idx = (typeof bIdx !== 'undefined' && bIdx !== -1) ? bIdx : (typeof kiosko_bIdx !== 'undefined' && kiosko_bIdx !== -1 ? kiosko_bIdx : -1);
-                const b = (idx !== -1 && typeof db !== 'undefined' && db.barberias && db.barberias[idx]) ? db.barberias[idx] : null;
+                // 2. ¿Quién está conectado?
+                let b = null;
+                if (typeof bIdx !== 'undefined' && bIdx !== -1 && typeof db !== 'undefined' && db.barberias) {
+                    b = db.barberias[bIdx];
+                } else if (typeof kiosko_bIdx !== 'undefined' && kiosko_bIdx !== -1 && typeof db !== 'undefined' && db.barberias) {
+                    b = db.barberias[kiosko_bIdx];
+                }
 
-                // 🚩 DECISIÓN FINAL: ¿Es estética?
-                const esEstetica = esLinkBeauty || (b && b.tipoNegocio === 'estetica');
+                // 🚩 REGLA DE ORO: Si es Login obedece al Link. Si está adentro, obedece a la Base de Datos.
+                let esEstetica = false;
+                if (estaEnLogin) {
+                    esEstetica = esLinkBeauty;
+                } else {
+                    esEstetica = (b && b.tipoNegocio === 'estetica');
+                }
+
+                const mainTitle = document.getElementById('main-title-text');
+                const subTitle = document.getElementById('sub-title-text');
+                const beautyLogo = document.getElementById('beauty-logo-header');
+                const beautyPhrase = document.getElementById('beauty-phrase');
+                const btnLogin = document.getElementById('btn-login-text');
 
                 if (esEstetica) {
                     document.body.classList.add('theme-estetica');
                     
                     // --- TRANSFORMACIÓN VISUAL DEL LOGIN ---
-                    const mainTitle = document.getElementById('main-title-text');
-                    const subTitle = document.getElementById('sub-title-text');
-                    const beautyLogo = document.getElementById('beauty-logo-header');
-                    const beautyPhrase = document.getElementById('beauty-phrase');
-                    const btnLogin = document.getElementById('btn-login-text');
-                    const btnCreate = document.getElementById('btn-create-text');
-                    const pwaText = document.getElementById('pwa-text');
-
-                    if (mainTitle) {
-                        mainTitle.innerText = "ZEUS BEAUTY";
-                        mainTitle.className = "text-4xl sm:text-5xl font-black italic mb-2 uppercase tracking-tighter bg-gradient-to-r from-rose-400 via-fuchsia-500 to-pink-600 text-transparent bg-clip-text";
+                    if (estaEnLogin) {
+                        if (mainTitle) {
+                            mainTitle.innerText = "ZEUS-BEAUTY";
+                            mainTitle.className = "text-4xl sm:text-5xl font-black italic mb-2 uppercase tracking-tighter bg-gradient-to-r from-[#f472b6] via-[#d946ef] to-[#fbbf24] text-transparent bg-clip-text";
+                        }
+                        if (subTitle) subTitle.innerText = "PELUQUERÍA / ESTÉTICA";
+                        if (beautyLogo) beautyLogo.classList.remove('hidden');
+                        if (beautyPhrase) beautyPhrase.classList.remove('hidden');
+                        if (btnLogin) btnLogin.innerText = "ENTRAR A ZEUS-BEAUTY ⚡";
                     }
-                    if (subTitle) subTitle.innerText = "PELUQUERÍA / ESTÉTICA";
-                    if (beautyLogo) beautyLogo.classList.remove('hidden');
-                    if (beautyPhrase) beautyPhrase.classList.remove('hidden');
-                    if (btnLogin) btnLogin.innerText = "ENTRAR A ZEUS-BEAUTY ⚡";
-                    if (btnCreate) btnCreate.innerText = "Crear Mi Negocio ✨";
-                    if (pwaText) pwaText.innerText = "INSTALAR ZEUS BEAUTY APP";
 
-                    // --- TRADUCCIÓN DE TEXTOS EN TODA LA APP ---
+                    // --- TRADUCCIÓN DE TEXTOS ---
                     const elementosTextos = document.querySelectorAll('h1, h2, h3, h4, p, span, button, option, label, div');
                     elementosTextos.forEach(el => {
                         if (el.children.length === 0 && el.innerHTML) { 
@@ -1884,17 +1887,29 @@
                         }
                     });
 
-                    // Traductor de Cajas Fantasma
                     document.querySelectorAll('input, textarea').forEach(input => {
-                        if (input.placeholder) {
-                            input.placeholder = input.placeholder.replace(/BARBERO/g, 'ESTILISTA').replace(/Barbero/g, 'Estilista');
-                        }
+                        if (input.placeholder) { input.placeholder = input.placeholder.replace(/BARBERO/g, 'ESTILISTA').replace(/Barbero/g, 'Estilista'); }
                     });
+
                 } else {
+                    // MODO BARBERÍA PURA (Restaura todo si un barbero entró por error al link de beauty)
                     document.body.classList.remove('theme-estetica');
+                    
+                    if (estaEnLogin) {
+                        if (mainTitle) {
+                            mainTitle.innerText = "ZEUS BARBER";
+                            mainTitle.className = "text-4xl sm:text-5xl font-black italic mb-2 uppercase tracking-tighter bg-gradient-to-r from-[#66ff66] via-[#0cd1b8] to-[#1e61ea] text-transparent bg-clip-text";
+                        }
+                        if (subTitle) subTitle.innerText = "Software de Nube";
+                        if (beautyLogo) beautyLogo.classList.add('hidden');
+                        if (beautyPhrase) beautyPhrase.classList.add('hidden');
+                        if (btnLogin) btnLogin.innerText = "Entrar a Zeus ⚡";
+                    }
                 }
-            }, 100); // ⏱️ Los 100ms son vitales para que no se ejecute antes de tiempo
+            }, 100);
         }
+        window.addEventListener('DOMContentLoaded', aplicarSkinGlobal);
+
         
         // Disparador de seguridad al arrancar la app
         window.addEventListener('DOMContentLoaded', aplicarSkinGlobal);        function renderLoginLogo() {
@@ -4738,7 +4753,7 @@
 
         // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.21"; 
+            const VERSION_ACTUAL = "1.22"; 
             const versionGuardada = localStorage.getItem('zeus_version');
             if (versionGuardada !== VERSION_ACTUAL) {
                 console.log("¡Actualización detectada! Destruyendo caché...");
