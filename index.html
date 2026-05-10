@@ -11,10 +11,14 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#050505">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+
+
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -78,39 +82,27 @@
 /* ========================================= */
 /* ✨ SKIN PREMIUM ZEUS BEAUTY (NEON DARK)   */
 /* ========================================= */
-/* Colores base para toda la app en modo belleza */
 body.theme-estetica { background: #050505 !important; }
-body.theme-estetica .text-indigo-500 { color: #d946ef !important; } /* Fucsia Neón */
-body.theme-estetica .text-indigo-400 { color: #f472b6 !important; } /* Rosa Suave */
+body.theme-estetica .text-indigo-500 { color: #d946ef !important; } 
+body.theme-estetica .text-indigo-400 { color: #f472b6 !important; } 
 body.theme-estetica .bg-indigo-600 { background-color: #d946ef !important; }
 body.theme-estetica .bg-indigo-500 { background-color: #ec4899 !important; }
 body.theme-estetica .border-indigo-500 { border-color: #d946ef !important; }
-body.theme-estetica .shadow-indigo-600\/20 { box-shadow: 0 4px 15px rgba(217, 70, 239, 0.3) !important; }
+
+/* 💄 DESTRUIR LOS BORDES AZULES DEL INTERIOR Y VOLVERLOS ROSA */
+body.theme-estetica .border-blue-500 { border-color: #ec4899 !important; }
+body.theme-estetica .border-blue-900\/30 { border-color: rgba(236, 72, 153, 0.3) !important; }
+body.theme-estetica .border-blue-900\/50 { border-color: rgba(236, 72, 153, 0.5) !important; }
+body.theme-estetica .border-indigo-900\/30 { border-color: rgba(217, 70, 239, 0.3) !important; }
+body.theme-estetica .text-blue-400 { color: #f472b6 !important; }
+body.theme-estetica .bg-blue-600 { background-color: #d946ef !important; }
+body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow: 0 0 15px rgba(236, 72, 153, 0.2) !important; }
 
 /* El Login de Belleza Oscuro */
-.theme-estetica #view-login {
-    background: rgba(10, 5, 15, 0.95) !important; /* Negro con un tinte súper leve de morado */
-    border: 1px solid rgba(217, 70, 239, 0.2) !important;
-    box-shadow: 0 0 40px rgba(217, 70, 239, 0.1) !important;
-}
-
-/* El botón de Login de Belleza (Degradado Fucsia-Morado) */
-.theme-estetica #view-login button[onclick="actionLogin()"] {
-    background: linear-gradient(to right, #ec4899, #8b5cf6) !important;
-    box-shadow: 0 10px 25px rgba(236, 72, 153, 0.4) !important;
-    color: white !important;
-    border: none !important;
-}
-
-/* Subtítulo de Estética */
+.theme-estetica #view-login { background: rgba(10, 5, 15, 0.95) !important; border: 1px solid rgba(217, 70, 239, 0.2) !important; box-shadow: 0 0 40px rgba(217, 70, 239, 0.1) !important; }
+.theme-estetica #view-login button[onclick="actionLogin()"] { background: linear-gradient(to right, #ec4899, #8b5cf6) !important; box-shadow: 0 10px 25px rgba(236, 72, 153, 0.4) !important; color: white !important; border: none !important; }
 .theme-estetica #view-login #sub-title-text { color: #f472b6 !important; letter-spacing: 0.4em; }
-
-/* Los inputs oscuros con borde rosa */
-.theme-estetica #view-login input {
-    background: #000 !important;
-    border: 1px solid rgba(236, 72, 153, 0.3) !important;
-    color: white !important;
-}
+.theme-estetica #view-login input { background: #000 !important; border: 1px solid rgba(236, 72, 153, 0.3) !important; color: white !important; }
 .theme-estetica #view-login input:focus { border-color: #ec4899 !important; }
 
 
@@ -121,11 +113,17 @@ body.theme-estetica .shadow-indigo-600\/20 { box-shadow: 0 4px 15px rgba(217, 70
 
 <body>
 
-    <div id="splash-screen" class="flex items-center justify-center h-screen w-screen fixed inset-0 z-[9999] bg-[#050505]">
-        <div class="relative w-64 mx-auto rounded-[2.5rem] overflow-hidden shadow-[0_0_30px_rgba(12,209,184,0.15)] border border-zinc-800">
+  <div id="splash-screen" class="flex flex-col items-center justify-center h-screen w-screen fixed inset-0 z-[9999] bg-[#050505]">
+        <div class="relative w-64 mx-auto rounded-[2.5rem] overflow-hidden shadow-[0_0_30px_rgba(12,209,184,0.15)] border border-zinc-800 bg-black">
+            
             <img src="video.gif" alt="Iniciando Zeus Barber..." class="w-full h-auto block pointer-events-none">
+            
             <div class="absolute bottom-0 right-0 w-14 h-8 bg-[#181820] z-10 rounded-br-[2.5rem]"></div>
         </div>
+
+        <p class="text-white text-[12px] font-bold uppercase tracking-widest mt-6 text-center w-64">
+           
+        </p>
     </div>
 
     <div id="print-area"></div>
@@ -169,18 +167,17 @@ body.theme-estetica .shadow-indigo-600\/20 { box-shadow: 0 4px 15px rgba(217, 70
     </div>
 
     <div id="login-logo-container" class="flex flex-col justify-center mb-8 items-center">
-    <div id="beauty-logo-header" class="hidden mb-4">
-        <img src="https://github.com/Amaya0623/zeus-beauty/blob/main/logo-estetica.png?raw=true" alt="Zeus Beauty" class="h-32 w-auto animate-pulse">
-    </div>
-    
-    <div id="login-default-text" class="w-full">
-        <h2 id="main-title-text" class="text-4xl sm:text-5xl font-black italic mb-2 uppercase tracking-tighter bg-gradient-to-r from-[#66ff66] via-[#0cd1b8] to-[#1e61ea] text-transparent bg-clip-text">ZEUS BARBER</h2>
-        <p id="sub-title-text" class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mt-2">Software de Nube</p>
-    </div>
+        <div id="beauty-logo-header" class="hidden mb-4">
+            <img src="https://github.com/Amaya0623/zeus-beauty/blob/main/logo-estetica.png?raw=true" alt="Zeus Beauty" class="h-40 w-auto animate-pulse">
+        </div>
+        
+        <div id="login-default-text" class="w-full">
+            <h2 id="main-title-text" class="text-4xl sm:text-5xl font-black italic mb-2 uppercase tracking-tighter bg-gradient-to-r from-[#66ff66] via-[#0cd1b8] to-[#1e61ea] text-transparent bg-clip-text">ZEUS BARBER</h2>
+            <p id="sub-title-text" class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mt-2">Software de Nube</p>
+        </div>
 
-    <p id="beauty-phrase" class="hidden text-[10px] italic text-rose-400 mt-4 font-bold tracking-widest">"Belleza que inspira, tecnología que transforma"</p>
-</div>
-
+        <p id="beauty-phrase" class="hidden text-[10px] italic text-rose-400 mt-4 mb-4 font-bold tracking-widest">"Belleza que inspira, tecnología que transforma"</p>
+    </div>
 
     <div class="mt-auto mb-auto">
         <input type="password" inputmode="numeric" id="login-pin" placeholder="INGRESE PIN" class="w-full p-6 rounded-3xl text-center text-4xl font-black mb-6 border border-zinc-800 shadow-inner tracking-widest bg-[#050505] focus:border-indigo-500 outline-none transition-colors text-white">
@@ -197,13 +194,22 @@ body.theme-estetica .shadow-indigo-600\/20 { box-shadow: 0 4px 15px rgba(217, 70
        </div>
     </div>
 
-    <div class="mt-10 flex flex-col items-center gap-4">
-        <p class="text-[10px] text-indigo-400 cursor-pointer hover:text-indigo-300 uppercase font-black tracking-widest transition-colors flex items-center gap-2 bg-indigo-900/20 px-4 py-2 rounded-full border border-indigo-500/30" onclick="guiaInstalacion()">📲 ¿Cómo instalar la App?</p>
-        <p class="text-[9px] text-zinc-500 cursor-pointer hover:text-white uppercase font-bold tracking-widest transition-colors" onclick="verPoliticas()">📄 Políticas de Privacidad</p>
-        <p class="text-[9px] text-zinc-700 cursor-pointer hover:text-red-500 uppercase font-bold tracking-widest transition-colors mt-2" onclick="hardReset()">🔄 Limpiar Sistema (Reset)</p>
+    <div id="beauty-features" class="hidden grid grid-cols-4 gap-2 mt-6 mb-4 text-center">
+        <div class="flex flex-col items-center"><span class="text-2xl mb-1">👩‍🦰</span><span class="text-[7px] font-black text-fuchsia-400 uppercase tracking-widest">Peluquería</span><span class="text-[6px] text-zinc-500 uppercase mt-1">Corte, Color<br>y más</span></div>
+        <div class="flex flex-col items-center"><span class="text-2xl mb-1">💅</span><span class="text-[7px] font-black text-fuchsia-400 uppercase tracking-widest">Estética</span><span class="text-[6px] text-zinc-500 uppercase mt-1">Uñas, Facial<br>y más</span></div>
+        <div class="flex flex-col items-center"><span class="text-2xl mb-1">📅</span><span class="text-[7px] font-black text-fuchsia-400 uppercase tracking-widest">Agenda</span><span class="text-[6px] text-zinc-500 uppercase mt-1">Rápido y<br>Sencillo</span></div>
+        <div class="flex flex-col items-center"><span class="text-2xl mb-1">📈</span><span class="text-[7px] font-black text-fuchsia-400 uppercase tracking-widest">Gestión</span><span class="text-[6px] text-zinc-500 uppercase mt-1">Control Total<br>Negocio</span></div>
+    </div>
+
+    <div class="mt-4 flex flex-col items-center gap-4 border-t border-zinc-800 pt-6">
+        <p class="text-[10px] text-indigo-400 cursor-pointer hover:text-indigo-300 uppercase font-black tracking-widest transition-colors flex items-center gap-2 bg-indigo-900/20 px-4 py-2 rounded-full border border-indigo-500/30" onclick="guiaInstalacion()">📲 ¿CÓMO INSTALAR LA APP?</p>
+        <p class="text-[9px] text-zinc-500 cursor-pointer hover:text-white uppercase font-bold tracking-widest transition-colors" onclick="verPoliticas()">📄 Privacidad</p>
+        <p class="text-[9px] text-zinc-700 cursor-pointer hover:text-red-500 uppercase font-bold tracking-widest transition-colors mt-2" onclick="hardReset()">🔄 Limpiar Sistema</p>
     </div>
 </section>
         
+
+
 
 
         <section id="view-kiosko" class="view-section p-4 max-w-md mx-auto mt-6">
@@ -211,19 +217,34 @@ body.theme-estetica .shadow-indigo-600\/20 { box-shadow: 0 4px 15px rgba(217, 70
                 <h2 id="kio-titulo-local" class="text-3xl font-black italic text-indigo-500 uppercase mb-2 text-center leading-none">RESERVA TU TURNO</h2>
                 <p class="text-[9px] text-zinc-400 text-center uppercase tracking-widest mb-6">Estado de los barberos en tiempo real</p>
                 <div id="kiosko-semaforo" class="flex justify-center gap-4 mb-6 flex-wrap"></div>
+                
                 <div class="space-y-4">
-                    <div><label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-2">Tu Nombre:</label><input type="text" id="kio-nombre" placeholder="Ej: Juan Perez" class="w-full p-4 mt-1 rounded-2xl bg-black text-white border border-zinc-800 font-bold uppercase text-sm focus:border-indigo-500"></div>
-                    <div><label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-2">Tu WhatsApp (Puntos y Alertas):</label><input type="text" inputmode="numeric" id="kio-celular" placeholder="Ej: 3001234567" class="w-full p-4 mt-1 rounded-2xl bg-black text-white border border-zinc-800 font-bold tracking-widest text-sm focus:border-indigo-500"></div>
                     <div>
-                        <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-2">Servicios Deseados:</label>
-                        <div class="flex gap-2 mt-1">
-                            <select id="kio-servicio" class="w-full p-4 rounded-2xl bg-black text-green-400 border border-zinc-800 font-bold text-xs uppercase focus:border-green-500 appearance-none"><option value="">-- ELIGE SERVICIO --</option></select>
-                            <button type="button" onclick="agregarServicioTemp('kio')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 rounded-2xl font-black text-xl btn-press">+</button>
-                        </div>
-                        <div id="kio-servicios-seleccionados" class="space-y-1 mt-2 max-h-24 overflow-y-auto"></div>
+                        <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-2">Tu Nombre:</label>
+                        <input type="text" id="kio-nombre" placeholder="Ej: Juan Perez" class="w-full p-4 mt-1 rounded-2xl bg-black text-white border border-zinc-800 font-bold uppercase text-sm focus:border-indigo-500 outline-none transition-colors">
                     </div>
+                    
+                    <div>
+                        <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-2">Tu WhatsApp (Puntos y Alertas):</label>
+                        <input type="text" inputmode="numeric" id="kio-celular" placeholder="Ej: 3001234567" class="w-full p-4 mt-1 rounded-2xl bg-black text-white border border-zinc-800 font-bold tracking-widest text-sm focus:border-indigo-500 outline-none transition-colors">
+                    </div>
+
+                    <div class="mt-4 mb-2">
+                        <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-2 mb-2 block">Selecciona tus Servicios:</label>
+                        <div id="kio-catalogo-servicios" class="flex flex-col gap-3 max-h-[300px] overflow-y-auto pr-2 scroll-safe">
+                            </div>
+                    </div>
+                    
+                    <div id="contenedor-servicios-elegidos" class="hidden bg-indigo-900/10 border border-indigo-500/30 p-4 rounded-2xl mb-4 shadow-inner">
+                        <p class="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-2 flex items-center justify-between"><span>🛒 Servicios Añadidos</span> <span id="kio-total-temp" class="text-white text-xs">$0</span></p>
+                        <div id="kio-servicios-seleccionados" class="space-y-2"></div>
+                    </div>
+
                     <div class="grid grid-cols-2 gap-3">
-                        <div><label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-2">Fecha:</label><input type="date" id="kio-fecha" onchange="renderKioskoSlots()" class="w-full p-4 mt-1 rounded-2xl bg-black text-white border border-zinc-800 font-bold text-xs focus:border-indigo-500 uppercase"></div>
+                        <div>
+                            <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-2">Fecha:</label>
+                            <input type="date" id="kio-fecha" onchange="renderKioskoSlots()" class="w-full p-4 mt-1 rounded-2xl bg-black text-white border border-zinc-800 font-bold text-xs focus:border-indigo-500 uppercase outline-none transition-colors cursor-pointer">
+                        </div>
                         <div>
                             <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-2">Barbero:</label>
                             <div class="flex items-center gap-2 mt-1">
@@ -231,22 +252,28 @@ body.theme-estetica .shadow-indigo-600\/20 { box-shadow: 0 4px 15px rgba(217, 70
                                     <img id="kio-barbero-img" src="" class="w-full h-full object-cover hidden absolute inset-0 z-10">
                                     <span id="kio-barbero-icon" class="flex items-center justify-center h-full text-xs w-full absolute inset-0 z-0">💈</span>
                                 </div>
-                                <select id="kio-barbero" onchange="actualizarFotoBarbero('kio'); renderKioskoSlots()" class="w-full p-3 rounded-2xl bg-black text-indigo-400 border border-zinc-800 font-bold text-[10px] uppercase focus:border-indigo-500 appearance-none text-center"><option value="">-- ELIGE --</option></select>
+                                <select id="kio-barbero" onchange="actualizarFotoBarbero('kio'); renderKioskoSlots()" class="w-full p-3 rounded-2xl bg-black text-indigo-400 border border-zinc-800 font-bold text-[10px] uppercase focus:border-indigo-500 appearance-none text-center outline-none cursor-pointer transition-colors"><option value="">-- ELIGE --</option></select>
                             </div>
                         </div>
                     </div>
+
                     <div class="bg-black/50 p-4 rounded-2xl border border-zinc-800 shadow-inner min-h-[100px] mt-4">
                         <p class="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-3 text-center">Horarios Disponibles</p>
                         <div id="kio-slots-container" class="grid grid-cols-3 gap-2">
                             <p class="text-[10px] text-zinc-600 col-span-3 text-center py-2 italic">Selecciona fecha y barbero.</p>
                         </div>
                     </div>
-                    <button type="button" onclick="kioskoAgendar()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-5 rounded-3xl font-black text-lg uppercase shadow-lg shadow-indigo-600/20 btn-press mt-2 text-white">AGENDAR AHORA ⚡</button>
+                    <button type="button" onclick="kioskoAgendar()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-5 rounded-3xl font-black text-lg uppercase shadow-lg shadow-indigo-600/20 btn-press mt-2 text-white transition-colors">AGENDAR AHORA ⚡</button>
                     <div id="kio-redes-sociales" class="hidden"></div>
                     <button type="button" onclick="volverAInicioKiosko()" class="text-zinc-500 hover:text-white transition-colors text-[10px] font-bold uppercase mt-6 block mx-auto text-center p-2 btn-press">Volver al Inicio</button>
                 </div>
             </div>
         </section>
+
+
+
+
+
 
         <div id="modal-mapa" class="hidden fixed inset-0 z-[600] bg-black/98 flex items-center justify-center p-4 sm:p-6 text-center">
             <div class="glass p-6 sm:p-8 rounded-[3rem] max-w-md w-full border border-blue-900/50 shadow-2xl relative flex flex-col h-[85vh]">
@@ -254,15 +281,17 @@ body.theme-estetica .shadow-indigo-600\/20 { box-shadow: 0 4px 15px rgba(217, 70
                     <h3 class="text-blue-500 font-black text-2xl sm:text-3xl uppercase tracking-tighter flex items-center gap-2"><span class="text-xl">📍</span> Locales</h3>
                     <button type="button" onclick="cerrarModales()" class="w-10 h-10 bg-zinc-900 border border-zinc-800 text-zinc-500 rounded-full flex items-center justify-center font-bold text-lg btn-press hover:text-white hover:bg-red-900/50 transition-colors z-50 relative">✕</button>
                 </div>
+
                 <p class="text-zinc-500 text-[10px] uppercase tracking-widest mb-6 text-left">Encuentra tu Zeus Barber más cercano.</p>
-                <div id="radar-map" class="w-full flex-1 min-h-[200px] rounded-3xl border border-blue-900/30 mb-4 relative overflow-hidden bg-[radial-gradient(circle,_#1e3a8a_0%,_#000000_100%)] shadow-inner">
-                    <div class="absolute inset-0 border-[1px] border-blue-500/20 rounded-full animate-[ping_3s_cubic-bezier(0,0,0.2,1)_infinite] pointer-events-none z-0"></div>
-                    <div id="mapa-pines-container" class="absolute inset-0 z-20 pointer-events-none"></div>
-                </div>
+                
+                <div id="mapa-real-osm" class="w-full flex-1 min-h-[250px] rounded-3xl border border-blue-900/30 mb-4 shadow-inner z-10 overflow-hidden relative"></div>
+                
                 <div id="mapa-lista-locales" class="space-y-2 max-h-[30vh] overflow-y-auto pr-2 scroll-safe text-left relative z-10"></div>
                 <button type="button" onclick="cerrarModales()" class="w-full mt-4 bg-zinc-900 py-4 rounded-2xl font-black uppercase text-zinc-400 border border-zinc-800 btn-press hover:bg-zinc-800 hover:text-white transition-colors text-[10px] tracking-widest shadow-lg relative z-10">Volver al Inicio</button>
             </div>
         </div>
+
+
 
         <section id="view-admin" class="view-section p-6 max-w-5xl mx-auto space-y-6 text-left">
             <div class="glass p-8 sm:p-10 rounded-[3rem] border-l-8 border-indigo-600 shadow-2xl relative overflow-hidden">
@@ -584,6 +613,8 @@ body.theme-estetica .shadow-indigo-600\/20 { box-shadow: 0 4px 15px rgba(217, 70
                         </div>
                     </div>
 
+
+
                     <div class="bg-black/50 rounded-[2rem] border border-zinc-900 overflow-hidden">
                         <button type="button" onclick="toggleAcc('acc-personal', 'icon-personal')" class="w-full flex justify-between items-center p-6 text-left hover:bg-white/5 transition-colors btn-press">
                             <span class="text-[11px] font-black text-zinc-300 uppercase tracking-widest flex items-center gap-2"><span class="text-lg">💈</span> Personal y Servicios</span><span id="icon-personal" class="text-zinc-500 font-black transition-transform duration-300">▼</span>
@@ -601,16 +632,27 @@ body.theme-estetica .shadow-indigo-600\/20 { box-shadow: 0 4px 15px rgba(217, 70
                                     <div><input type="text" inputmode="numeric" id="cfg-intervalo" placeholder="Mins/Cita" class="w-full p-3 rounded-xl text-xs font-bold text-center border border-zinc-800 bg-[#050505] text-white"></div>
                                 </div>
                             </div>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+
+
+
+                           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                
                                 <div class="bg-zinc-950 p-6 rounded-[1.5rem] border border-zinc-800 shadow-inner">
                                     <p class="text-[10px] font-black text-green-400 mb-4 uppercase tracking-widest">Servicios</p>
+                                    
                                     <div class="grid grid-cols-12 gap-2 mb-4">
                                         <input type="hidden" id="edit-s-id" value="">
-                                        <input type="text" id="add-s-nom" placeholder="Nombre" class="col-span-12 p-3 text-xs rounded-xl uppercase font-bold bg-[#050505] border border-zinc-800 w-full text-white outline-none focus:border-green-500">
-                                        <input type="text" inputmode="numeric" id="add-s-pre" placeholder="Precio" class="col-span-6 p-3 text-xs rounded-xl font-bold text-center bg-[#050505] border border-zinc-800 w-full text-white outline-none focus:border-green-500">
-                                        <label class="col-span-4 flex items-center justify-center gap-2 bg-[#050505] border border-yellow-900/50 rounded-xl text-[10px] font-black text-yellow-500 uppercase cursor-pointer hover:bg-yellow-900/20 transition-colors p-2"><input type="checkbox" id="add-s-premium" class="accent-yellow-500 w-4 h-4">👑</label>
-                                        <button type="button" onclick="configAddServicio()" class="col-span-2 bg-green-600 text-white rounded-xl font-black btn-press transition-colors">+</button>
+                                        <input type="text" id="add-s-nom" placeholder="Nombre (Ej: Experiencia Gold)" class="col-span-12 md:col-span-7 p-3 text-xs rounded-xl uppercase font-bold bg-[#050505] border border-zinc-800 w-full text-white outline-none focus:border-green-500">
+                                        <input type="text" inputmode="numeric" id="add-s-pre" placeholder="Precio (Ej: 85000)" class="col-span-6 md:col-span-5 p-3 text-xs rounded-xl font-bold bg-[#050505] border border-zinc-800 w-full text-white outline-none focus:border-green-500">
+                                        
+                                        <input type="text" id="add-s-dur" placeholder="Duración (Ej: 1h 40min)" class="col-span-6 md:col-span-4 p-3 text-xs rounded-xl font-bold bg-[#050505] border border-zinc-800 w-full text-white outline-none focus:border-green-500">
+                                        <label class="col-span-6 md:col-span-4 flex items-center justify-center gap-2 bg-[#050505] border border-yellow-900/50 rounded-xl text-[9px] font-black text-yellow-500 uppercase cursor-pointer hover:bg-yellow-900/20 transition-colors p-2"><input type="checkbox" id="add-s-premium" class="accent-yellow-500 w-4 h-4">👑 Destacar</label>
+                                        <button type="button" onclick="configAddServicio()" class="col-span-12 md:col-span-4 bg-green-600 text-white rounded-xl font-black btn-press transition-colors text-xs py-2 uppercase">Guardar</button>
+                                        
+                                        <textarea id="add-s-desc" rows="2" placeholder="Descripción detallada. Puedes usar emojis ✂️🧴💆‍♂️..." class="col-span-12 p-3 text-xs rounded-xl font-bold bg-[#050505] border border-zinc-800 w-full text-zinc-300 outline-none focus:border-green-500 resize-none mt-1"></textarea>
                                     </div>
+
                                     <div id="cfg-lista-s" class="space-y-2 max-h-48 overflow-y-auto pr-1 scroll-safe"></div>
                                 </div>
                                 <div class="bg-zinc-950 p-6 rounded-[1.5rem] border border-zinc-800 shadow-inner">
@@ -867,6 +909,11 @@ body.theme-estetica .shadow-indigo-600\/20 { box-shadow: 0 4px 15px rgba(217, 70
             <div id="sa-lista" class="space-y-4 max-h-[600px] overflow-y-auto pr-2 pb-10 scroll-safe"></div>
         </section>
 
+
+
+
+
+
         <div id="modal-pago-anticipado" class="hidden fixed inset-0 z-[600] bg-black/98 flex items-center justify-center p-6 text-center">
             <div class="glass p-8 rounded-[3rem] max-w-sm w-full border border-yellow-900/50 shadow-2xl relative max-h-[90vh] overflow-y-auto scroll-safe">
                 <button type="button" onclick="cerrarModalespos()" class="absolute top-5 right-5 w-8 h-8 bg-black border border-zinc-800 text-zinc-500 rounded-full flex items-center justify-center font-bold text-sm btn-press hover:text-white transition-colors">✕</button>
@@ -890,6 +937,52 @@ body.theme-estetica .shadow-indigo-600\/20 { box-shadow: 0 4px 15px rgba(217, 70
                 <button type="button" id="btn-kio-confirmar" onclick="confirmarPagoAnticipado()" disabled class="w-full bg-yellow-600 py-5 rounded-3xl font-black uppercase text-black shadow-xl opacity-20 cursor-not-allowed transition-all hover:bg-yellow-500">YA PAGUÉ, CONFIRMAR ✅</button>
             </div>
         </div>
+
+
+
+
+
+
+<div id="modal-detalle-servicio" class="hidden fixed inset-0 z-[700] bg-black/90 backdrop-blur-sm flex items-end sm:items-center justify-center sm:p-6 transition-all">
+            <div class="bg-[#0a0a0a] w-full sm:max-w-md rounded-t-[2.5rem] sm:rounded-[2.5rem] border-t border-x border-zinc-800 p-6 sm:p-8 relative shadow-[0_-10px_40px_rgba(0,0,0,0.8)] animate-[transform_0.3s_ease-out]">
+                <button type="button" onclick="document.getElementById('modal-detalle-servicio').classList.add('hidden')" class="absolute top-5 right-5 w-8 h-8 bg-zinc-900 border border-zinc-800 text-zinc-400 rounded-full flex items-center justify-center font-bold text-sm btn-press hover:text-white transition-colors z-50">✕</button>
+                
+                <div class="mb-4 pr-8">
+                    <h3 id="mdl-srv-nombre" class="text-2xl font-black text-white uppercase tracking-tighter leading-tight mb-1">Nombre Servicio</h3>
+                    <p id="mdl-srv-duracion" class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest flex items-center gap-1">⏱️ 00 min</p>
+                </div>
+                
+                <div class="border-t border-zinc-800 pt-4 mb-6">
+                    <p class="text-[10px] text-zinc-500 uppercase font-black tracking-widest mb-3">Tu experiencia incluye:</p>
+                    <div id="mdl-srv-desc" class="text-xs text-zinc-300 font-medium whitespace-pre-line leading-relaxed max-h-[40vh] overflow-y-auto scroll-safe pr-2">
+                        Descripción detallada...
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center bg-black p-4 rounded-2xl border border-zinc-800">
+                    <div class="flex flex-col">
+                        <span class="text-[9px] text-zinc-500 font-bold uppercase tracking-widest">Valor</span>
+                        <span id="mdl-srv-precio" class="text-xl font-black text-white tracking-tighter">$0</span>
+                    </div>
+                    <button type="button" id="btn-mdl-add" class="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-4 rounded-[1rem] font-black uppercase text-xs btn-press shadow-lg shadow-indigo-600/20 transition-all">Añadir</button>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         <div id="modal-qr" class="hidden fixed inset-0 z-[200] bg-black/98 flex items-center justify-center p-6 text-center">
             <div class="glass p-8 rounded-[3rem] max-w-sm w-full border border-zinc-800 shadow-2xl max-h-[90vh] overflow-y-auto relative text-left scroll-safe">
@@ -1826,7 +1919,7 @@ body.theme-estetica .shadow-indigo-600\/20 { box-shadow: 0 4px 15px rgba(217, 70
         }
 
         // ==========================================
-        // 🦎 MOTOR CAMALEÓN V4: INDEPENDENCIA TOTAL
+        // 🦎 MOTOR CAMALEÓN V4.1: CON ICONOS ACTIVOS
         // ==========================================
         function aplicarSkinGlobal() {
             setTimeout(() => {
@@ -1850,11 +1943,13 @@ body.theme-estetica .shadow-indigo-600\/20 { box-shadow: 0 4px 15px rgba(217, 70
                     esEstetica = (b && b.tipoNegocio === 'estetica');
                 }
 
+                // Capturamos todos los elementos de la pantalla
                 const mainTitle = document.getElementById('main-title-text');
                 const subTitle = document.getElementById('sub-title-text');
                 const beautyLogo = document.getElementById('beauty-logo-header');
                 const beautyPhrase = document.getElementById('beauty-phrase');
                 const btnLogin = document.getElementById('btn-login-text');
+                const beautyFeatures = document.getElementById('beauty-features'); // <-- AQUÍ ATRAPAMOS LOS ICONOS
 
                 if (esEstetica) {
                     document.body.classList.add('theme-estetica');
@@ -1868,6 +1963,7 @@ body.theme-estetica .shadow-indigo-600\/20 { box-shadow: 0 4px 15px rgba(217, 70
                         if (subTitle) subTitle.innerText = "PELUQUERÍA / ESTÉTICA";
                         if (beautyLogo) beautyLogo.classList.remove('hidden');
                         if (beautyPhrase) beautyPhrase.classList.remove('hidden');
+                        if (beautyFeatures) beautyFeatures.classList.remove('hidden'); // <-- AQUÍ LOS MOSTRAMOS EN PANTALLA
                         if (btnLogin) btnLogin.innerText = "ENTRAR A ZEUS-BEAUTY ⚡";
                     }
 
@@ -1903,93 +1999,119 @@ body.theme-estetica .shadow-indigo-600\/20 { box-shadow: 0 4px 15px rgba(217, 70
                         if (subTitle) subTitle.innerText = "Software de Nube";
                         if (beautyLogo) beautyLogo.classList.add('hidden');
                         if (beautyPhrase) beautyPhrase.classList.add('hidden');
+                        if (beautyFeatures) beautyFeatures.classList.add('hidden'); // <-- AQUÍ LOS OCULTAMOS PARA LOS BARBEROS
                         if (btnLogin) btnLogin.innerText = "Entrar a Zeus ⚡";
                     }
                 }
             }, 100);
         }
+
         window.addEventListener('DOMContentLoaded', aplicarSkinGlobal);
 
-        
         // Disparador de seguridad al arrancar la app
-        window.addEventListener('DOMContentLoaded', aplicarSkinGlobal);        function renderLoginLogo() {
-            const loginImg = document.getElementById('login-custom-logo'); const loginText = document.getElementById('login-default-text');
-            if (bIdx !== -1 && db.barberias[bIdx] && db.barberias[bIdx].logo) { loginImg.src = db.barberias[bIdx].logo; loginImg.classList.remove('hidden'); loginText.classList.add('hidden'); }
-            else if (db && db.mainLogo) { loginImg.src = db.mainLogo; loginImg.classList.remove('hidden'); loginText.classList.add('hidden'); }
-            else { loginImg.src = ""; loginImg.classList.add('hidden'); loginText.classList.remove('hidden'); }
+        window.addEventListener('DOMContentLoaded', aplicarSkinGlobal);
+        
+        function renderLoginLogo() {
+            const loginImg = document.getElementById('login-custom-logo'); 
+            const loginText = document.getElementById('login-default-text');
+            const beautyLogo = document.getElementById('beauty-logo-header');
+            
+            let tieneCustomLogo = false;
+            
+            if (bIdx !== -1 && db.barberias[bIdx] && db.barberias[bIdx].logo) { 
+                loginImg.src = db.barberias[bIdx].logo; 
+                loginImg.classList.remove('hidden'); 
+                loginText.classList.add('hidden'); 
+                tieneCustomLogo = true;
+            } else if (db && db.mainLogo) { 
+                loginImg.src = db.mainLogo; 
+                loginImg.classList.remove('hidden'); 
+                loginText.classList.add('hidden'); 
+                tieneCustomLogo = true;
+            } else { 
+                loginImg.src = ""; 
+                loginImg.classList.add('hidden'); 
+                loginText.classList.remove('hidden'); 
+            }
+
+            // Si tiene logo custom, escondemos la corona por defecto para que no se vean dos logos
+            if(tieneCustomLogo && beautyLogo) {
+                beautyLogo.classList.add('hidden');
+            }
         }
+
+        // ==========================================
+        // 🗺️ MOTOR DE MAPAS REALES (LEAFLET + OSM)
+        // ==========================================
+        let miMapaReal = null;
 
         function abrirMapaLocales() {
             document.getElementById('modal-mapa').classList.remove('hidden');
-            const ctn = document.getElementById('mapa-lista-locales');
-            const pinesCtn = document.getElementById('mapa-pines-container');
-            const baseWebUrl = window.location.href.split('?')[0];
 
-            let htmlList = ''; let htmlPines = '';
+            // Le damos 300ms de respiro al modal para que se abra antes de pintar el mapa
+            setTimeout(() => {
+                // 1. Iniciar el mapa si no existe
+                if (!miMapaReal) {
+                    miMapaReal = L.map('mapa-real-osm').setView([4.6097, -74.0817], 12); // Centro en Bogotá por defecto
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '© OpenStreetMap'
+                    }).addTo(miMapaReal);
+                } else {
+                    miMapaReal.invalidateSize(); // Refresca el tamaño si el modal estaba oculto
+                }
 
-            pinesCtn.className = "absolute inset-0 flex flex-wrap justify-center items-center gap-5 p-6 overflow-y-auto scroll-safe z-20 pointer-events-auto";
+                // 2. Limpiar pines viejos
+                miMapaReal.eachLayer((layer) => {
+                    if (layer instanceof L.Marker) {
+                        miMapaReal.removeLayer(layer);
+                    }
+                });
 
-            db.barberias.forEach((b) => {
-                const kioLink = baseWebUrl + '?kiosk=' + (b.id_nube || b.id);
-                const iconHtml = b.logo ? `<img src="${b.logo}" class="w-full h-full object-cover rounded-full">` : `<span class="text-[14px]">💈</span>`;
+                const ctn = document.getElementById('mapa-lista-locales');
+                const baseWebUrl = window.location.href.split('?')[0];
+                let htmlList = '';
 
-                htmlPines += `
-            <div class="relative flex flex-col items-center group cursor-pointer transition-all duration-300 hover:scale-110 btn-press w-[30%] z-30 pointer-events-auto" onclick="mostrarInfoLocalRed('${b.nombre}', '${b.horaApertura || '09:00'}', '${b.horaCierre || '20:00'}', '${b.direccion || 'Dirección no registrada'}')">
-                <div class="w-16 h-16 bg-black rounded-full border-[3px] border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.6)] flex items-center justify-center group-hover:border-indigo-400 group-hover:shadow-[0_0_30px_rgba(99,102,241,0.9)] transition-all mb-2">
-                    ${iconHtml}
-                </div>
-                <div class="bg-black/80 px-2 py-1 rounded-lg border border-blue-900/50 shadow-lg text-[8px] font-black text-white text-center w-full break-words leading-tight group-hover:text-indigo-300 transition-colors">
-                    ${b.nombre}
-                </div>
-            </div>`;
+                // Truco temporal: Si no tienen latitud/longitud en la DB, los esparcimos cerquita
+                let latBase = 4.6097; 
+                let lonBase = -74.0817; 
 
-                htmlList += `
-            <div class="bg-[#050505] p-4 rounded-[1.5rem] border border-blue-900/30 flex justify-between items-center shadow-inner mb-3 transition-transform hover:scale-[1.02] cursor-pointer">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-full bg-black border-2 border-zinc-800 overflow-hidden flex-shrink-0 shadow-[0_0_10px_rgba(59,130,246,0.2)]">
-                        ${b.logo ? `<img src="${b.logo}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center text-sm">💈</div>`}
-                    </div>
-                    <div>
-                        <h4 class="font-black text-white text-xs uppercase tracking-wide">${b.nombre}</h4>
-                        <p class="text-[9px] text-blue-400 mt-1 uppercase tracking-widest font-bold">📍 Ver y Agendar</p>
-                    </div>
-                </div>
-                <button type="button" onclick="window.open('${kioLink}', '_blank')" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-3 rounded-xl font-black text-[10px] uppercase btn-press shadow-lg shadow-blue-900/50 transition-colors">AGENDAR</button>
-            </div>`;
-            });
+                db.barberias.forEach((b) => {
+                    const kioLink = baseWebUrl + '?kiosk=' + (b.id_nube || b.id);
 
-            ctn.innerHTML = htmlList || '<p class="text-zinc-500 text-xs italic text-center py-4">No hay locales conectados a la red.</p>';
-            pinesCtn.innerHTML = htmlPines;
-        }
+                    // Simulamos coordenadas si aún no las has configurado en la base de datos
+                    let lat = b.lat || (latBase + (Math.random() * 0.05 - 0.025));
+                    let lon = b.lon || (lonBase + (Math.random() * 0.05 - 0.025));
 
-       function mostrarInfoLocalRed(nombre, abre, cierra, direccion) {
-            Swal.fire({
-                title: nombre,
-                html: `
-                <div class="text-left mt-4 space-y-3">
-                    <div class="bg-black p-3 rounded-xl border border-zinc-800 flex items-center gap-3">
-                        <span class="text-xl">⏰</span>
-                        <div>
-                            <p class="text-[9px] text-zinc-500 font-bold uppercase tracking-wider">Horario</p>
-                            <p class="text-sm font-black text-indigo-400">${formatTime12h(abre)} - ${formatTime12h(cierra)}</p>
+                    // 3. Crear el Pin en el mapa
+                    let marker = L.marker([lat, lon]).addTo(miMapaReal);
+                    
+                    // 4. Crear el globito de información al tocar el Pin
+                    marker.bindPopup(`
+                        <div class="text-center p-1" style="font-family: 'Inter', sans-serif;">
+                            <b style="color: #4f46e5; font-size: 14px; text-transform: uppercase;">${b.nombre}</b><br>
+                            <span style="font-size: 11px; color: #666;">${b.direccion || 'Dirección no registrada'}</span><br>
+                            <a href="${kioLink}" target="_blank" style="margin-top: 8px; display: inline-block; background: #2563eb; color: white; padding: 6px 12px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 12px;">Agendar Aquí</a>
                         </div>
-                    </div>
-                    <div class="bg-black p-3 rounded-xl border border-zinc-800 flex items-center justify-between gap-3">
-                        <div class="flex items-center gap-3">
-                            <span class="text-xl">📍</span>
+                    `);
+
+                    // 5. Crear la lista inferior (Al tocarla, el mapa "vuela" hacia ese local)
+                    htmlList += `
+                    <div class="bg-[#050505] p-4 rounded-[1.5rem] border border-blue-900/30 flex justify-between items-center shadow-inner mb-3 transition-transform hover:scale-[1.02] cursor-pointer" onclick="miMapaReal.flyTo([${lat}, ${lon}], 16); setTimeout(()=>marker.openPopup(), 500);">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-full bg-black border-2 border-zinc-800 overflow-hidden flex-shrink-0 shadow-[0_0_10px_rgba(59,130,246,0.2)]">
+                                ${b.logo ? `<img src="${b.logo}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center text-sm">💈</div>`}
+                            </div>
                             <div>
-                                <p class="text-[9px] text-zinc-500 font-bold uppercase tracking-wider">Dirección</p>
-                                <p class="text-xs font-black text-white">${direccion}</p>
+                                <h4 class="font-black text-white text-xs uppercase tracking-wide">${b.nombre}</h4>
+                                <p class="text-[9px] text-blue-400 mt-1 uppercase tracking-widest font-bold">📍 Toca para centrar mapa</p>
                             </div>
                         </div>
-                        <button type="button" onclick="navigator.clipboard.writeText('${direccion}'); Swal.fire({toast:true, position:'top-end', icon:'success', title:'Copiada', showConfirmButton:false, timer:1500, background:'#111', color:'#fff'})" class="bg-zinc-800 p-2 rounded-lg hover:bg-indigo-600 transition-colors" title="Copiar Dirección">
-                            <span class="text-sm">📋</span>
-                        </button>
-                    </div>
-                </div>
-            `,
-                icon: 'info', background: '#111', color: '#fff', confirmButtonColor: '#3b82f6', confirmButtonText: 'Volver al Mapa'
-            });
+                        <button type="button" onclick="window.open('${kioLink}', '_blank'); event.stopPropagation();" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-3 rounded-xl font-black text-[10px] uppercase btn-press shadow-lg shadow-blue-900/50 transition-colors">AGENDAR</button>
+                    </div>`;
+                });
+
+                ctn.innerHTML = htmlList || '<p class="text-zinc-500 text-xs italic text-center py-4">No hay locales conectados a la red.</p>';
+            }, 300);
         }
 
         // ==========================================
@@ -2541,7 +2663,7 @@ body.theme-estetica .shadow-indigo-600\/20 { box-shadow: 0 4px 15px rgba(217, 70
         }
 
         // ==========================================
-        // 10. KIOSKO PÚBLICO
+        // 10. KIOSKO PÚBLICO (MODO FRESHA VIP)
         // ==========================================
         function iniciarKiosko(idx) {
             kiosko_bIdx = idx; const b = db.barberias[kiosko_bIdx];
@@ -2562,7 +2684,10 @@ body.theme-estetica .shadow-indigo-600\/20 { box-shadow: 0 4px 15px rgba(217, 70
 
             if (!b.barberos || b.barberos.length === 0 || !b.servicios || b.servicios.length === 0) return Swal.fire('Local Incompleto', 'El administrador debe configurar barberos y servicios.', 'warning');
             document.getElementById('kio-fecha').value = getTodayYMD(); document.getElementById('kio-titulo-local').innerText = b.nombre;
-            tempServicios = []; renderServiciosTemp('kio'); renderSemaforoKiosko(); 
+            
+            tempServicios = []; // Limpiamos el carrito al iniciar
+            renderServiciosTempKiosko(); // Renderizamos el carrito vacío
+            renderSemaforoKiosko(); 
             
             // 🚀 REDES SOCIALES (MOSTRAR EN KIOSKO DE CLIENTES)
             const redesCtn = document.getElementById('kio-redes-sociales');
@@ -2585,95 +2710,166 @@ body.theme-estetica .shadow-indigo-600\/20 { box-shadow: 0 4px 15px rgba(217, 70
             showScreen('view-kiosko');
         }
 
-
-
         function renderSemaforoKiosko() {
             const b = db.barberias[kiosko_bIdx];
             const barberosActivos = (b.barberos || []).filter(barb => barb.estado !== 'ALMUERZO' && barb.estado !== 'DESCANSO');
 
             document.getElementById('kiosko-semaforo').innerHTML = barberosActivos.map(barb => {
                 const l = barb.estado === 'LIBRE';
-                return `
-            <div class="bg-[#111] p-3 rounded-2xl border border-zinc-800 flex flex-col items-center justify-center min-w-[80px] shadow-inner cursor-pointer hover:bg-zinc-900 transition-colors" onclick="document.getElementById('kio-barbero').value = '${barb.nom}'; actualizarFotoBarbero('kio'); renderKioskoSlots();">
-                <div class="relative w-12 h-12 mb-2 flex items-center justify-center">
-                    <div class="absolute inset-0 rounded-full border-4 ${l ? 'border-green-500 status-pulse-green' : 'border-red-500 status-pulse-red'}"></div>
-                    ${barb.foto ? `<img src="${barb.foto}" class="w-10 h-10 rounded-full object-cover z-10">` : `<span class="text-xs z-10">💈</span>`}
-                </div>
-                <span class="text-[9px] font-black uppercase text-white">${barb.nom}</span>
-            </div>`;
+                return `<div class="bg-[#111] p-3 rounded-2xl border border-zinc-800 flex flex-col items-center justify-center min-w-[80px] shadow-inner cursor-pointer hover:bg-zinc-900 transition-colors" onclick="document.getElementById('kio-barbero').value = '${barb.nom}'; actualizarFotoBarbero('kio'); renderKioskoSlots();">
+                <div class="relative w-12 h-12 mb-2 flex items-center justify-center"><div class="absolute inset-0 rounded-full border-4 ${l ? 'border-green-500 status-pulse-green' : 'border-red-500 status-pulse-red'}"></div>${barb.foto ? `<img src="${barb.foto}" class="w-10 h-10 rounded-full object-cover z-10">` : `<span class="text-xs z-10">💈</span>`}</div>
+                <span class="text-[9px] font-black uppercase text-white">${barb.nom}</span></div>`;
             }).join('');
 
-            let prevB = document.getElementById('kio-barbero').value; document.getElementById('kio-barbero').innerHTML = '<option value="">-- ELIGE TU BARBERO --</option>' + barberosActivos.map(bar => `<option value="${bar.nom}">${bar.nom}</option>`).join(''); document.getElementById('kio-barbero').value = prevB;
-            let prevS = document.getElementById('kio-servicio').value; document.getElementById('kio-servicio').innerHTML = '<option value="">-- ELIGE UN SERVICIO --</option>' + (b.servicios || []).map(s => `<option value="${s.nom}">${s.premium ? '👑 ' : ''}${s.nom} - ${fMoney(s.pre)}</option>`).join(''); document.getElementById('kio-servicio').value = prevS;
+            let prevB = document.getElementById('kio-barbero').value; 
+            document.getElementById('kio-barbero').innerHTML = '<option value="">-- ELIGE TU BARBERO --</option>' + barberosActivos.map(bar => `<option value="${bar.nom}">${bar.nom}</option>`).join(''); 
+            document.getElementById('kio-barbero').value = prevB;
+
+            // RENDERIZAR LAS TARJETAS ESTILO FRESHA
+            const catalogoCtn = document.getElementById('kio-catalogo-servicios');
+            if(catalogoCtn) {
+                catalogoCtn.innerHTML = (b.servicios || []).map((s, idx) => {
+                    return `
+                    <div class="bg-black border border-zinc-800 p-4 rounded-[1.5rem] flex justify-between items-center hover:border-indigo-500/50 transition-colors shadow-inner">
+                        <div class="flex flex-col flex-1 pr-4 cursor-pointer" onclick="abrirDetalleServicio(${idx})">
+                            <h4 class="text-sm font-black text-white uppercase leading-tight mb-1">${s.premium ? '👑 ' : ''}${s.nom}</h4>
+                            <p class="text-[10px] text-zinc-500 font-bold mb-2">${s.dur || '45 min'}</p>
+                            <p class="text-[11px] font-black text-indigo-400">${fMoney(s.pre)}</p>
+                        </div>
+                        <button type="button" onclick="abrirDetalleServicio(${idx})" class="w-10 h-10 rounded-full bg-white text-black font-black flex items-center justify-center text-xl shrink-0 btn-press shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:bg-zinc-200 transition-colors">+</button>
+                    </div>`;
+                }).join('') || '<p class="text-xs text-zinc-500 italic text-center py-4">No hay servicios disponibles.</p>';
+            }
+
             renderKioskoSlots();
+        }
+
+        function abrirDetalleServicio(idx) {
+            const b = db.barberias[kiosko_bIdx];
+            const s = b.servicios[idx];
+            if(!s) return;
+
+            document.getElementById('mdl-srv-nombre').innerText = s.nom;
+            document.getElementById('mdl-srv-duracion').innerHTML = `⏱️ ${s.dur || '45 min'}`;
+            document.getElementById('mdl-srv-desc').innerHTML = s.desc ? s.desc.replace(/\n/g, '<br>') : 'Corte profesional y asesoría de imagen.';
+            document.getElementById('mdl-srv-precio').innerText = fMoney(s.pre);
+
+            const btnAdd = document.getElementById('btn-mdl-add');
+            btnAdd.onclick = function() {
+                // 🛒 MAGIA: Ahora guardamos también la duración en el carrito
+                tempServicios.push({ nom: s.nom, pre: s.pre, dur: s.dur });
+                renderServiciosTempKiosko();
+                
+                // Actualizamos las horas disponibles al instante
+                if(document.getElementById('kio-fecha').value && document.getElementById('kio-barbero').value) {
+                    renderKioskoSlots(); 
+                }
+
+                document.getElementById('modal-detalle-servicio').classList.add('hidden');
+                Swal.fire({title:'¡Añadido!', toast:true, position:'top-end', timer:1500, showConfirmButton:false, background: '#111', color: '#fff', icon:'success'});
+            };
+            document.getElementById('modal-detalle-servicio').classList.remove('hidden');
         }
 
 
 
+        // 🛒 NUEVA FUNCIÓN PARA MOSTRAR EL CARRITO EN EL KIOSKO
+        function renderServiciosTempKiosko() {
+            const ctn = document.getElementById('contenedor-servicios-elegidos');
+            const lista = document.getElementById('kio-servicios-seleccionados');
+            const totalCtn = document.getElementById('kio-total-temp');
+            
+            if(tempServicios.length === 0) {
+                ctn.classList.add('hidden');
+            } else {
+                ctn.classList.remove('hidden');
+                let total = 0;
+                lista.innerHTML = tempServicios.map((s, i) => {
+                    total += s.pre; // Sumamos el precio
+                    return `<div class="flex justify-between bg-black px-3 py-2 rounded-xl text-[10px] text-white font-bold uppercase items-center border border-zinc-800">
+                        <span class="truncate pr-2">${s.nom}</span>
+                        <div class="flex items-center gap-3"><span class="text-indigo-400">${fMoney(s.pre)}</span><button type="button" onclick="tempServicios.splice(${i},1); renderServiciosTempKiosko()" class="text-red-500 font-black hover:scale-125 transition-transform bg-red-900/20 px-2 rounded">✕</button></div>
+                    </div>`;
+                }).join('');
+                totalCtn.innerText = fMoney(total);
+            }
+        }
+
+
+        // ⏱️ TRADUCTOR DE TIEMPO: Convierte "1h 30m", "45", "1 hora" a minutos matemáticos
+        function parseDuracionToMins(durStr) {
+            if (!durStr) return 0;
+            let str = durStr.toString().toLowerCase();
+            let mins = 0;
+            let hMatch = str.match(/(\d+)\s*(h|hora)/); if (hMatch) mins += parseInt(hMatch[1]) * 60;
+            let mMatch = str.match(/(\d+)\s*(m|min)/); if (mMatch) mins += parseInt(mMatch[1]);
+            if (!hMatch && !mMatch) { let num = parseInt(str.replace(/[^0-9]/g, '')); if (!isNaN(num)) mins = num; }
+            return mins;
+        }
+
+        // ==========================================
+        // 🗓️ CREADOR INTELIGENTE DE HORARIOS KIOSKO
+        // ==========================================
         function renderKioskoSlots() {
-            const fEl = document.getElementById('kio-fecha');
-            const bEl = document.getElementById('kio-barbero');
-            const ctn = document.getElementById('kio-slots-container');
+            const fEl = document.getElementById('kio-fecha'); const bEl = document.getElementById('kio-barbero'); const ctn = document.getElementById('kio-slots-container');
             if(!fEl || !bEl || !ctn) return;
 
-            const fecha = fEl.value;
-            const barbero = bEl.value;
-            ctn.innerHTML = '';
-
-            if(!fecha || !barbero) {
-                ctn.innerHTML = '<p class="text-[10px] text-zinc-600 col-span-3 text-center py-2 italic">Selecciona fecha y barbero.</p>';
-                selectedKioTime = null;
-                return;
-            }
+            const fecha = fEl.value; const barbero = bEl.value; ctn.innerHTML = '';
+            if(!fecha || !barbero) { ctn.innerHTML = '<p class="text-[10px] text-zinc-600 col-span-3 text-center py-2 italic">Selecciona fecha y barbero.</p>'; selectedKioTime = null; return; }
 
             const b = db.barberias[kiosko_bIdx];
-            
-            // 🚀 AQUÍ ESTÁ LA MAGIA: Buscamos las citas de ese día y ese barbero, PERO IGNORAMOS LAS CANCELADAS
             const citasDia = (b.citas || []).filter(c => c.fecha === fecha && c.barbero === barbero && c.estado !== 'CANCELADA');
-
-            // 🚀 LÓGICA DE HORARIOS POR BARBERO
             const barberoInfo = b.barberos.find(x => x.nom === barbero);
             
-            // Si el barbero tiene horario propio lo usamos, si no, usamos el del local
             let hEntrada = (barberoInfo && barberoInfo.horaInicio) ? barberoInfo.horaInicio : (b.horaApertura || "08:00");
             let hSalida = (barberoInfo && barberoInfo.horaFin) ? barberoInfo.horaFin : (b.horaCierre || "20:00");
 
             let act = timeToMins(hEntrada);
             const fin = timeToMins(hSalida);
-            const int = b.intervaloCitas || 60; // Mantenemos el intervalo de tiempo intacto
-            let html = '';
-            const ahora = new Date();
-            const esHoy = fecha === getTodayYMD();
-            const minAhora = ahora.getHours() * 60 + ahora.getMinutes();
+            const intBase = b.intervaloCitas || 60; 
+
+            // 🧮 CALCULAMOS CUÁNTO TIEMPO NECESITA EL CLIENTE BASADO EN SU CARRITO
+            let totalMinsCarrito = 0;
+            tempServicios.forEach(s => { totalMinsCarrito += parseDuracionToMins(s.dur); });
+            if (totalMinsCarrito === 0) totalMinsCarrito = intBase; // Si no hay duración, toma el tiempo por defecto del local
+
+            let html = ''; const ahora = new Date(); const esHoy = fecha === getTodayYMD(); const minAhora = ahora.getHours() * 60 + ahora.getMinutes();
 
             while(act < fin) {
                 let h = Math.floor(act / 60); let m = act % 60;
                 let horaStr = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
                 
-                // Ocultamos las horas que ya pasaron si el cliente está agendando para "hoy mismo"
-                if (!(esHoy && act <= minAhora)) {
-                    
-                    // 🔍 VERIFICAMOS SI LA HORA ESTÁ OCUPADA
-                    let ocupado = citasDia.some(c => c.hora === horaStr);
-                    
-                    // Si NO está ocupada, dibujamos el botón para que el cliente la pueda elegir
-                    if (!ocupado) {
-                        html += `<button type="button" onclick="seleccionarHoraKio('${horaStr}', this)" class="kio-slot-btn p-3 rounded-xl border border-zinc-800 text-zinc-400 font-black text-xs hover:border-indigo-500 hover:text-indigo-400 transition-colors">${formatTime12h(horaStr)}</button>`;
+                // Calculamos a qué hora terminaría este cliente si toma este turno
+                let finTurnoRequerido = act + totalMinsCarrito;
+
+                // 1. Que no se pase de la hora de cerrar
+                if (finTurnoRequerido <= fin) {
+                    // 2. Que no sea una hora que ya pasó (si es hoy)
+                    if (!(esHoy && act <= minAhora)) {
+                        
+                        // 3. Verificamos que este bloque de tiempo requerido NO choque con nadie más
+                        let ocupado = citasDia.some(c => {
+                            let cInicio = timeToMins(c.hora);
+                            let cFin = cInicio + (c.duracion || intBase); // Usamos la duración que se guardó de ese cliente
+                            return (act < cFin && finTurnoRequerido > cInicio); // FÓRMULA DE COLISIÓN DE TIEMPOS
+                        });
+
+                        if (!ocupado) {
+                            html += `<button type="button" onclick="seleccionarHoraKio('${horaStr}', this)" class="kio-slot-btn p-3 rounded-xl border border-zinc-800 text-zinc-400 font-black text-xs hover:border-indigo-500 hover:text-indigo-400 transition-colors">${formatTime12h(horaStr)}</button>`;
+                        }
                     }
                 }
-                act += int;
+                act += intBase; // Saltamos de 30 en 30, o 60 en 60 según configuración
             }
 
-            // Si todos los horarios están ocupados o ya pasaron
-            if(html === '') {
-                html = '<p class="text-[10px] text-red-500 col-span-3 text-center py-2 font-bold uppercase tracking-widest">Agenda Llena 🚫</p>';
-            }
-            
-            ctn.innerHTML = html;
-            selectedKioTime = null;
+            if(html === '') html = `<p class="text-[10px] text-red-500 col-span-3 text-center py-2 font-bold uppercase tracking-widest">Requiere ${totalMinsCarrito}min - Sin espacio 🚫</p>`;
+            ctn.innerHTML = html; selectedKioTime = null;
         }
 
-        // Función auxiliar para que el botón de la hora cambie de color al tocarlo
+
+
+
+
         function seleccionarHoraKio(hora, btn) {
             selectedKioTime = hora;
             document.querySelectorAll('.kio-slot-btn').forEach(b => {
@@ -2684,21 +2880,12 @@ body.theme-estetica .shadow-indigo-600\/20 { box-shadow: 0 4px 15px rgba(217, 70
             btn.classList.add('bg-indigo-600', 'text-white', 'border-indigo-500');
         }
 
-
-
-
-
-        function selectKioSlot(tS) {
-            selectedKioTime = tS;
-            document.querySelectorAll('.kio-slot-btn').forEach(b => { b.classList.remove('bg-indigo-600', 'border-indigo-500'); b.classList.add('bg-[#111]', 'border-zinc-700'); });
-            const sB = document.getElementById(`slot-${tS}`); sB.classList.remove('bg-[#111]', 'border-zinc-700'); sB.classList.add('bg-indigo-600', 'border-indigo-500');
-        }
-
         function kioskoAgendar() {
             const bLocal = db.barberias[kiosko_bIdx];
             const cli = cleanStr(document.getElementById('kio-nombre').value).toUpperCase();
             const f = document.getElementById('kio-fecha').value;
 
+            // Validamos que el carrito no esté vacío
             if (!cli || tempServicios.length === 0 || !f || !selectedKioTime) return Swal.fire({ title: '¡Faltan Datos!', text: 'Nombre, servicios, fecha y hora requeridos.', icon: 'warning', background: '#0a0a0a', color: '#fff' });
 
             if (bLocal.pagoAnticipadoActivo) {
@@ -2710,7 +2897,6 @@ body.theme-estetica .shadow-indigo-600\/20 { box-shadow: 0 4px 15px rgba(217, 70
             } else { confirmarPagoAnticipado(); }
         }
 
-        // 🚀 MEJORA: Comprime y guarda la foto del recibo en kiosko
         function validarComprobanteKiosko(input) {
             if (input.files && input.files[0]) {
                 compressImage(input.files[0], 600, (compressed) => {
@@ -2723,32 +2909,64 @@ body.theme-estetica .shadow-indigo-600\/20 { box-shadow: 0 4px 15px rgba(217, 70
             }
         }
 
+        // ==========================================
+        // 🔒 GUARDAR CITA CON LA DURACIÓN EXACTA
+        // ==========================================
         function confirmarPagoAnticipado() {
             const b = db.barberias[kiosko_bIdx]; const f = document.getElementById('kio-fecha').value; const h = selectedKioTime;
             const barb = document.getElementById('kio-barbero').value; const cli = document.getElementById('kio-nombre').value.toUpperCase();
-            const cel = cleanNum(document.getElementById('kio-celular').value); const srv = tempServicios.join(' + ');
+            const cel = cleanNum(document.getElementById('kio-celular').value); 
+            
+            const srv = tempServicios.map(s => s.nom).join(' + '); 
+
+            // Calculamos nuevamente la duración para guardarla en la base de datos
+            let totalMinsCarrito = 0;
+            tempServicios.forEach(s => { totalMinsCarrito += parseDuracionToMins(s.dur); });
+            if (totalMinsCarrito === 0) totalMinsCarrito = (b.intervaloCitas || 60);
 
             if (b.pagoAnticipadoActivo && !comprobanteTemp) return Swal.fire('Aviso', 'Sube la foto del comprobante para confirmar.', 'warning');
 
-            const choca = (b.citas || []).find(c => c.barbero === barb && c.fecha === f && c.hora === h && c.estado !== 'CANCELADA');
-            if (choca) { document.getElementById('modal-pago-anticipado').classList.add('hidden'); Swal.fire({ title: '¡Ups! Turno Ocupado', text: 'Alguien acaba de tomar este horario.', icon: 'error', background: '#0a0a0a', color: '#fff' }); renderKioskoSlots(); return; }
+            // Último filtro de seguridad anti-choques
+            const choca = (b.citas || []).find(c => {
+                if(c.barbero !== barb || c.fecha !== f || c.estado === 'CANCELADA') return false;
+                let cInicio = timeToMins(c.hora); let cFin = cInicio + (c.duracion || (b.intervaloCitas || 60));
+                let miInicio = timeToMins(h); let miFin = miInicio + totalMinsCarrito;
+                return (miInicio < cFin && miFin > cInicio);
+            });
+
+            if (choca) { document.getElementById('modal-pago-anticipado').classList.add('hidden'); Swal.fire({ title: '¡Ups! Turno Ocupado', text: 'Alguien acaba de tomar este horario o no hay tiempo suficiente.', icon: 'error', background: '#0a0a0a', color: '#fff' }); renderKioskoSlots(); return; }
 
             let pts = 0; const id = cel || cli; if (b.clientes && b.clientes[id]) pts = b.clientes[id].pts || 0;
             if (!b.citas) b.citas = [];
 
-            b.citas.push({ id: Date.now().toString(), nombre: cli, celular: cel, barbero: barb, servicio: srv, fecha: f, hora: h, estado: 'PENDIENTE', comprobante: comprobanteTemp });
+            // ✨ SE GUARDA LA PROPIEDAD "DURACION" PARA RESERVAR EL ESPACIO EXACTO
+            b.citas.push({ id: Date.now().toString(), nombre: cli, celular: cel, barbero: barb, servicio: srv, fecha: f, hora: h, estado: 'PENDIENTE', comprobante: comprobanteTemp, duracion: totalMinsCarrito });
             saveDB(true);
 
             document.getElementById('modal-pago-anticipado').classList.add('hidden'); comprobanteTemp = null;
 
-            Swal.fire({ title: '¡CONFIRMADO!', text: `Reservado el ${f} a las ${formatTime12h(h)}.`, icon: 'success', background: '#0a0a0a', color: '#fff', timer: 4000, showConfirmButton: false }).then(() => {
+            Swal.fire({ title: '¡CONFIRMADO!', text: `Reservado el ${f} a las ${formatTime12h(h)} (${totalMinsCarrito} min).`, icon: 'success', background: '#0a0a0a', color: '#fff', timer: 4000, showConfirmButton: false }).then(() => {
                 volverAInicioKiosko();
                 if (cel && cel.length >= 10 && isOnline) { let msj = `✅ CITA CONFIRMADA\n\nFecha: ${f}\nHora: ${formatTime12h(h)}\nBarbero: ${barb}\nServicio: ${srv}`; window.open(`https://wa.me/57${cel}?text=${encodeURIComponent(msj)}`, '_blank'); }
             });
         }
 
-        function volverAInicioKiosko() { document.getElementById('kio-nombre').value = ""; document.getElementById('kio-celular').value = ""; document.getElementById('kio-barbero').value = ""; tempServicios = []; renderServiciosTemp('kio'); renderKioskoSlots(); window.scrollTo(0, 0); showScreen('view-login'); }
+
+
+
+        function volverAInicioKiosko() { 
+            document.getElementById('kio-nombre').value = ""; 
+            document.getElementById('kio-celular').value = ""; 
+            document.getElementById('kio-barbero').value = ""; 
+            tempServicios = []; // Limpiamos el carrito
+            renderServiciosTempKiosko(); // Renderizamos el carrito
+            renderKioskoSlots(); 
+            window.scrollTo(0, 0); 
+            showScreen('view-login'); 
+        }
+
         function copiarLinkKiosko() { const link = document.getElementById('cfg-kiosko-link'); link.select(); document.execCommand('copy'); Swal.fire({ title: '¡Copiado!', icon: 'success', timer: 1500, showConfirmButton: false, toast: true, position: 'top-end', background: '#0a0a0a', color: '#fff' }); }
+        
         function imprimirQRKiosko() {
             const b = db.barberias[bIdx]; const qrCanvas = document.querySelector('#cfg-kiosko-qr canvas');
             if (!qrCanvas) return Swal.fire('Aviso', 'Genera el QR recargando la página.', 'info');
@@ -2756,6 +2974,8 @@ body.theme-estetica .shadow-indigo-600\/20 { box-shadow: 0 4px 15px rgba(217, 70
             let html = `<div style="text-align:center; font-family:sans-serif; padding: 20px; color:#000; background:#fff;"><h1 style="font-size:36px; margin-bottom:10px; text-transform:uppercase; font-weight:900;">${b.nombre}</h1><p style="font-size:18px; color:#333; margin-bottom: 20px;">Escanea este código y reserva tu turno sin filas</p><img src="${imgSrc}" style="width:300px; height:300px; margin:0 auto; border: 10px solid #000; border-radius: 20px;"><p style="font-size:14px; margin-top:20px; color:#666;">Zeus Barber Pro Cloud</p></div>`;
             document.getElementById('print-area').innerHTML = html; setTimeout(() => window.print(), 500);
         }
+
+
 
         // ==========================================
         // 11. MODALES (INVENTARIO, GASTOS, FACTURAS Y CLIENTES)
@@ -3299,6 +3519,32 @@ body.theme-estetica .shadow-indigo-600\/20 { box-shadow: 0 4px 15px rgba(217, 70
         setInterval(encenderRelojTV, 1000);
 
 
+         // ==========================================
+        // 📸 LECTOR DE FOTO DEL BARBERO
+        // ==========================================
+        function previewFotoBarbero(input) {
+            if (input.files && input.files[0]) {
+                // Mensaje de carga para que no se trabe el celular
+                Swal.fire({ title: 'Ajustando foto...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
+                
+                compressImage(input.files[0], 400, (compressed) => {
+                    fotoBarberoTemp = compressed; // Guardamos en la variable que usa configAddBarbero
+                    const preview = document.getElementById('preview-b-foto');
+                    const icon = document.getElementById('icon-b-foto');
+                    
+                    if(preview) {
+                        preview.src = compressed;
+                        preview.classList.remove('hidden');
+                    }
+                    if(icon) {
+                        icon.classList.add('hidden');
+                    }
+                    Swal.close();
+                });
+            }
+        }
+
+
 
         function editarBarbero(i) {
     const b = db.barberias[bIdx].barberos[i];
@@ -3345,23 +3591,49 @@ body.theme-estetica .shadow-indigo-600\/20 { box-shadow: 0 4px 15px rgba(217, 70
     fotoBarberoTemp = null; document.getElementById('preview-b-foto').classList.add('hidden'); document.getElementById('icon-b-foto').classList.remove('hidden'); 
     renderConfigLists();
 }
+       // ==========================================
+        // ⚙️ CREADOR DE SERVICIOS (SIN FANTASMAS)
+        // ==========================================
         function editarServicio(i) {
-            const s = db.barberias[bIdx].servicios[i]; document.getElementById('edit-s-id').value = i; document.getElementById('add-s-nom').value = s.nom; document.getElementById('add-s-pre').value = s.pre;
+            const s = db.barberias[bIdx].servicios[i]; 
+            document.getElementById('edit-s-id').value = i; 
+            document.getElementById('add-s-nom').value = s.nom; 
+            document.getElementById('add-s-pre').value = s.pre;
+            document.getElementById('add-s-dur').value = s.dur || "";
+            document.getElementById('add-s-desc').value = s.desc || ""; // Recupera la descripción
             const premEl = document.getElementById('add-s-premium'); if (premEl) premEl.checked = s.premium || false;
         }
 
         function configAddServicio() {
-            const idXEl = document.getElementById('edit-s-id'); const idX = idXEl.value;
-            const nEl = document.getElementById('add-s-nom'); const n = cleanStr(nEl.value).toUpperCase();
-            const pEl = document.getElementById('add-s-pre'); const p = parseInt(cleanNum(pEl.value));
-            const premEl = document.getElementById('add-s-premium'); const isPremium = premEl ? premEl.checked : false;
+            const idX = document.getElementById('edit-s-id').value; 
+            const n = cleanStr(document.getElementById('add-s-nom').value).toUpperCase();
+            const p = parseInt(cleanNum(document.getElementById('add-s-pre').value));
+            const d = document.getElementById('add-s-dur').value.trim(); // No quitamos letras para que permita "min" o "h"
+            const desc = document.getElementById('add-s-desc').value.trim();
+            const isPremium = document.getElementById('add-s-premium') ? document.getElementById('add-s-premium').checked : false;
+            
             if (!n || isNaN(p)) return Swal.fire('Error', 'Faltan datos numéricos o nombre', 'warning');
-            if (idX !== "") { db.barberias[bIdx].servicios[idX] = { nom: n, pre: p, premium: isPremium }; } else { db.barberias[bIdx].servicios.push({ nom: n, pre: p, premium: isPremium }); }
+            
+            if (idX !== "") { 
+                // Actualiza el existente
+                db.barberias[bIdx].servicios[idX] = { nom: n, pre: p, premium: isPremium, dur: d, desc: desc }; 
+            } else { 
+                // Crea uno nuevo
+                db.barberias[bIdx].servicios.push({ nom: n, pre: p, premium: isPremium, dur: d, desc: desc }); 
+            }
             saveDB(true);
-            idXEl.value = ""; nEl.value = ""; pEl.value = ""; if (premEl) premEl.checked = false; renderConfigLists();
-        }
 
-        // ==========================================
+            // 🧹 EL EXORCISMO: Limpiamos todos los campos automáticamente
+            document.getElementById('edit-s-id').value = ""; 
+            document.getElementById('add-s-nom').value = ""; 
+            document.getElementById('add-s-pre').value = ""; 
+            document.getElementById('add-s-dur').value = ""; 
+            document.getElementById('add-s-desc').value = ""; 
+            if(document.getElementById('add-s-premium')) document.getElementById('add-s-premium').checked = false; 
+            
+            renderConfigLists();
+            Swal.fire({title:'Guardado', toast:true, position:'top-end', timer:1500, showConfirmButton:false, background: '#111', color: '#fff', icon:'success'});
+        }        // ==========================================
         // 14. SUPERADMIN Y MASTER CONTROL
         // ==========================================
         function saCambiarMasterPin() { const oldP = cleanNum(document.getElementById('cfg-admin-pin').value); const newP = cleanNum(document.getElementById('cfg-new-admin-pin').value); const b = db.barberias[bIdx]; if (oldP !== cleanNum(b.pinAdmin)) return Swal.fire('Error', 'El PIN actual es incorrecto', 'error'); if (esPinInseguro(newP)) return Swal.fire('Error', 'El nuevo PIN es inseguro o muy corto', 'error'); b.pinAdmin = newP; saveDB(true); document.getElementById('cfg-admin-pin').value = ""; document.getElementById('cfg-new-admin-pin').value = ""; Swal.fire('Éxito', 'PIN actualizado correctamente', 'success'); }
@@ -4753,7 +5025,7 @@ body.theme-estetica .shadow-indigo-600\/20 { box-shadow: 0 4px 15px rgba(217, 70
 
         // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.22"; 
+            const VERSION_ACTUAL = "1.31"; 
             const versionGuardada = localStorage.getItem('zeus_version');
             if (versionGuardada !== VERSION_ACTUAL) {
                 console.log("¡Actualización detectada! Destruyendo caché...");
