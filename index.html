@@ -431,6 +431,9 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
             </div>
         </section>
 
+
+
+
         <section id="view-barbero" class="view-section p-4 max-w-2xl mx-auto text-left">
             <div class="glass p-6 sm:p-8 rounded-[3.5rem] border border-zinc-800 shadow-2xl">
                 <div class="flex justify-between items-center mb-4">
@@ -441,6 +444,10 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                         <button type="button" onclick="abrirCierreCaja()" class="bg-green-900/20 text-green-500 text-[9px] font-black px-3 py-2 rounded-xl border border-green-900/50 btn-press transition-colors hover:bg-green-900/40">💰 CIERRE</button>
                     </div>
                 </div>
+
+
+
+
 
                 <div class="bg-[#0a0a0a] p-5 rounded-3xl border border-zinc-800 mb-6 shadow-inner">
                     <h3 class="text-center font-black text-zinc-500 text-[9px] uppercase mb-3 tracking-widest">Mi Estado Actual</h3>
@@ -508,6 +515,10 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                     <option value="Daviplata">DAVIPLATA 📱</option>
                     <option value="Transferencia">TRANSFERENCIA BANCARIA 🏦</option>
                 </select>
+
+                <button type="button" onclick="iniciarZeusVoz()" class="w-full bg-gradient-to-r from-[#0cd1b8] to-[#1e61ea] text-white py-4 rounded-3xl font-black uppercase text-sm mb-4 shadow-[0_0_20px_rgba(12,209,184,0.4)] btn-press flex items-center justify-center gap-3 transition-all hover:scale-[1.02]">
+                    <span class="text-2xl animate-pulse">🎙️</span> ASISTENTE DE VOZ (TOCAR Y HABLAR)
+                </button>
 
                 <button type="button" id="pos-btn-cobrar" onclick="procesarVenta()" disabled class="w-full py-6 rounded-3xl text-2xl font-black uppercase opacity-20 cursor-not-allowed transition-all shadow-xl btn-press bg-green-600 text-white hover:bg-green-500">FINALIZAR COBRO</button>
             </div>
@@ -653,21 +664,28 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                                         <textarea id="add-s-desc" rows="2" placeholder="Descripción detallada. Puedes usar emojis ✂️🧴💆‍♂️..." class="col-span-12 p-3 text-xs rounded-xl font-bold bg-[#050505] border border-zinc-800 w-full text-zinc-300 outline-none focus:border-green-500 resize-none mt-1"></textarea>
                                     </div>
 
-                                    <div id="cfg-lista-s" class="space-y-2 max-h-48 overflow-y-auto pr-1 scroll-safe"></div>
-                                </div>
-                                <div class="bg-zinc-950 p-6 rounded-[1.5rem] border border-zinc-800 shadow-inner">
-                                    <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-4">Barberos</p>
-                                    <div class="flex flex-col gap-2 mb-4">
-                                        <input type="hidden" id="edit-b-id" value="">
-                                        <div class="flex items-center gap-3 bg-[#050505] border border-zinc-800 p-2 rounded-xl transition-colors focus-within:border-indigo-500">
-                                            <div class="w-12 h-12 bg-zinc-900 rounded-full flex flex-shrink-0 items-center justify-center cursor-pointer border border-zinc-700 overflow-hidden relative group" onclick="document.getElementById('add-b-foto').click()">
-                                                <img id="preview-b-foto" src="" class="w-full h-full object-cover hidden absolute inset-0 z-10">
-                                                <span id="icon-b-foto" class="text-xl group-hover:scale-110 transition-transform absolute z-0">📷</span>
-                                            </div>
-                                            <input type="file" id="add-b-foto" class="hidden" accept="image/*" onchange="previewFotoBarbero(this)">
-                                            <input type="text" id="add-b-nom" placeholder="NOMBRE BARBERO" class="w-full bg-transparent text-xs font-bold uppercase text-white outline-none">
-                                        </div>
 
+
+
+                                    <div class="flex items-center gap-2 bg-[#050505] border border-zinc-800 p-2 rounded-xl transition-colors focus-within:border-indigo-500">
+                                        
+                                        <input type="hidden" id="edit-b-id" value="">
+                                        
+                                        <div class="w-12 h-12 bg-zinc-900 rounded-full flex flex-shrink-0 items-center justify-center cursor-pointer border border-zinc-700 overflow-hidden relative group" onclick="document.getElementById('add-b-foto').click()" title="Foto de Perfil">
+                                            <img id="preview-b-foto" src="" class="w-full h-full object-cover hidden absolute inset-0 z-10">
+                                            <span id="icon-b-foto" class="text-xl group-hover:scale-110 transition-transform absolute z-0">👤</span>
+                                        </div>
+                                        <input type="file" id="add-b-foto" class="hidden" accept="image/*" onchange="previewFotoBarbero(this)">
+                                        
+                                        <div class="w-12 h-12 bg-zinc-900 rounded-xl flex flex-shrink-0 items-center justify-center cursor-pointer border border-zinc-700 overflow-hidden relative group" onclick="document.getElementById('add-b-qr').click()" title="QR para Propinas (Nequi/Daviplata)">
+                                            <img id="preview-b-qr" src="" class="w-full h-full object-cover hidden absolute inset-0 z-10">
+                                            <span id="icon-b-qr" class="text-xl group-hover:scale-110 transition-transform absolute z-0">📱</span>
+                                        </div>
+                                        <input type="file" id="add-b-qr" class="hidden" accept="image/*" onchange="previewQRBarbero(this)">
+
+                                        <input type="text" id="add-b-nom" placeholder="NOMBRE BARBERO" class="w-full bg-transparent text-[10px] font-bold uppercase text-white outline-none pl-1">
+                                    </div>
+                                    
 
 
 <div class="flex flex-col gap-3">
@@ -1004,23 +1022,36 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
             </div>
         </div>
 
+
+
         <div id="modal-ticket" class="hidden fixed inset-0 z-[300] bg-black/98 flex items-center justify-center p-6 text-center">
-            <div class="glass p-8 rounded-[2rem] max-w-sm w-full border border-zinc-800 shadow-2xl relative text-left max-h-[90vh] overflow-y-auto scroll-safe">
-                <div class="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-green-500 text-white w-14 h-14 rounded-full flex items-center justify-center text-3xl shadow-lg border-4 border-[#050505]">✓</div>
-                <h3 class="text-white font-black text-2xl uppercase mt-6 mb-1 text-center tracking-tighter">¡Exitoso!</h3>
-                <p id="ticket-fecha" class="text-zinc-500 text-[10px] font-bold uppercase mb-6 text-center">TK N° --- | 20/03/2026</p>
-                <div class="bg-black p-5 rounded-2xl border border-zinc-900 mb-6 text-left shadow-inner">
+            <div class="glass p-8 rounded-[2rem] max-w-sm w-full border border-zinc-800 shadow-2xl relative max-h-[90vh] overflow-y-auto scroll-safe flex flex-col items-center">
+                <div class="bg-green-500 text-white w-16 h-16 rounded-full flex items-center justify-center text-4xl shadow-[0_0_20px_rgba(34,197,94,0.5)] border-4 border-[#050505] -mt-12 mb-4 z-10 relative">✓</div>
+                
+                <h3 class="text-white font-black text-2xl uppercase mb-1 text-center tracking-tighter w-full">¡Exitoso!</h3>
+                <p id="ticket-fecha" class="text-zinc-500 text-[10px] font-bold uppercase mb-6 text-center w-full">TK N° --- | 20/03/2026</p>
+                
+                <div class="bg-black p-5 rounded-2xl border border-zinc-900 mb-6 text-left shadow-inner w-full">
                     <div id="ticket-items" class="space-y-2 mb-3 min-h-[50px] text-xs text-zinc-300"></div>
                     <div class="flex justify-between items-center border-t border-zinc-800 pt-3 mt-2"><span class="text-zinc-400 font-black text-[10px] uppercase">Total Pagado</span><span id="ticket-total" class="text-green-400 font-black text-2xl tracking-tighter">0</span></div>
                     <p id="ticket-metodo" class="text-right text-[8px] text-zinc-600 font-bold uppercase mt-1"></p>
                 </div>
-                <div class="flex gap-2 mb-3">
+
+                <div class="flex gap-2 mb-3 w-full">
                     <button type="button" onclick="cerrarModales()" class="flex-1 bg-zinc-900 py-4 rounded-xl font-black uppercase text-[10px] text-zinc-400 btn-press hover:bg-zinc-800 transition-colors">Cerrar</button>
                     <button type="button" id="btn-wp-ticket" class="hidden flex-[2] bg-[#25D366] text-[#050505] py-4 rounded-xl font-black uppercase text-[10px] btn-press hover:bg-[#20b858] transition-colors">💬 Enviar Ticket</button>
                 </div>
+                
+                <button type="button" id="btn-propina-barbero" onclick="mostrarQRPropina()" class="w-full mb-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-xl font-black uppercase text-[10px] btn-press shadow-[0_0_20px_rgba(217,70,239,0.3)] animate-pulse">
+                    💸 ¡DEJAR PROPINA AL BARBERO! 💸
+                </button>
+
                 <button type="button" onclick="imprimirTicketTermico()" class="w-full bg-white text-black py-4 rounded-xl font-black uppercase text-[10px] btn-press hover:bg-gray-200 transition-colors">🖨️ IMPRIMIR TICKET</button>
             </div>
         </div>
+
+
+
 
         <div id="modal-barberos" class="hidden fixed inset-0 z-[100] bg-black/98 flex items-center justify-center p-6">
             <div class="glass p-8 sm:p-10 rounded-[3rem] border border-blue-900/30 max-w-xl w-full max-h-[90vh] overflow-y-auto relative text-left scroll-safe">
@@ -2710,22 +2741,65 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
             showScreen('view-kiosko');
         }
 
+        // ==========================================
+        // 💈 KIOSKO: RENDERIZADO DE BARBEROS (ESTILO FRESHA PREMIUM)
+        // ==========================================
         function renderSemaforoKiosko() {
             const b = db.barberias[kiosko_bIdx];
             const barberosActivos = (b.barberos || []).filter(barb => barb.estado !== 'ALMUERZO' && barb.estado !== 'DESCANSO');
 
-            document.getElementById('kiosko-semaforo').innerHTML = barberosActivos.map(barb => {
-                const l = barb.estado === 'LIBRE';
-                return `<div class="bg-[#111] p-3 rounded-2xl border border-zinc-800 flex flex-col items-center justify-center min-w-[80px] shadow-inner cursor-pointer hover:bg-zinc-900 transition-colors" onclick="document.getElementById('kio-barbero').value = '${barb.nom}'; actualizarFotoBarbero('kio'); renderKioskoSlots();">
-                <div class="relative w-12 h-12 mb-2 flex items-center justify-center"><div class="absolute inset-0 rounded-full border-4 ${l ? 'border-green-500 status-pulse-green' : 'border-red-500 status-pulse-red'}"></div>${barb.foto ? `<img src="${barb.foto}" class="w-10 h-10 rounded-full object-cover z-10">` : `<span class="text-xs z-10">💈</span>`}</div>
-                <span class="text-[9px] font-black uppercase text-white">${barb.nom}</span></div>`;
-            }).join('');
+            // Convertimos el contenedor para las Tarjetas
+            const semaforoCtn = document.getElementById('kiosko-semaforo');
+            if(semaforoCtn) semaforoCtn.className = "grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-6";
+
+            if(semaforoCtn) {
+                semaforoCtn.innerHTML = barberosActivos.map(barb => {
+                    const l = barb.estado === 'LIBRE';
+                    const colorRing = l ? 'border-green-500' : 'border-red-500';
+                    const pulseClass = l ? 'status-pulse-green' : 'status-pulse-red';
+                    const statusText = l ? '<span class="text-green-500">Disponible</span>' : '<span class="text-red-500">Ocupado</span>';
+                    
+                    // 🧠 LÓGICA DE RANGO AUTOMÁTICO (Basado en la comisión del barbero)
+                    let rango = "Especialista";
+                    let comision = parseInt(barb.comision) || 50;
+                    if (comision > 50) rango = b.tipoNegocio === 'estetica' ? "Estilista Maestro" : "Barbero Maestro";
+                    else if (comision === 50) rango = b.tipoNegocio === 'estetica' ? "Estilista Senior" : "Barbero Senior";
+                    else rango = b.tipoNegocio === 'estetica' ? "Especialista" : "Barbero";
+
+                    // Creamos un ID único para la tarjeta
+                    const cardId = `kio-card-${barb.nom.replace(/[^a-zA-Z0-9]/g, '')}`;
+
+                    return `
+                    <div id="${cardId}" class="kio-barber-card relative bg-[#0a0a0a] rounded-[2rem] border border-zinc-800 p-4 sm:p-5 flex flex-col items-center cursor-pointer transition-all duration-300 hover:border-zinc-500 hover:-translate-y-1" onclick="seleccionarBarberoKio('${barb.nom}', '${cardId}')">
+                        
+                        <div class="relative w-20 h-20 sm:w-24 sm:h-24 mb-4 flex items-center justify-center">
+                            <div class="absolute inset-0 rounded-full border-2 ${colorRing} ${pulseClass} scale-105"></div>
+                            
+                            <div class="w-full h-full rounded-full bg-zinc-900 border-4 border-[#0a0a0a] overflow-hidden z-10 flex items-center justify-center shadow-inner">
+                                ${barb.foto ? `<img src="${barb.foto}" class="w-full h-full object-cover">` : `<span class="text-3xl sm:text-4xl">💈</span>`}
+                            </div>
+                            
+                            <div class="absolute -bottom-2 z-20 bg-white text-black text-[10px] sm:text-[11px] font-black px-2 sm:px-3 py-0.5 sm:py-1 rounded-full flex items-center gap-1 shadow-md border border-gray-200">
+                                <span class="text-yellow-500 text-xs sm:text-sm leading-none">★</span> 5.0
+                            </div>
+                        </div>
+
+                        <h4 class="text-xs sm:text-sm font-black text-white uppercase tracking-wide text-center w-full truncate mt-2">${barb.nom}</h4>
+                        <p class="text-[8px] sm:text-[9px] text-zinc-500 uppercase tracking-widest mt-1 text-center w-full truncate">${rango}</p>
+                        <p class="text-[7px] sm:text-[8px] font-bold mt-2 uppercase tracking-widest bg-zinc-900 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-zinc-800">${statusText}</p>
+                        
+                        <div class="kio-card-indicator hidden mt-3 sm:mt-4 w-full bg-indigo-600 text-white text-[9px] sm:text-[10px] font-black uppercase py-2 sm:py-2.5 rounded-xl text-center shadow-lg shadow-indigo-600/40 transition-all truncate px-1">
+                            ✔ ELEGIDO
+                        </div>
+                    </div>`;
+                }).join('');
+            }
 
             let prevB = document.getElementById('kio-barbero').value; 
             document.getElementById('kio-barbero').innerHTML = '<option value="">-- ELIGE TU BARBERO --</option>' + barberosActivos.map(bar => `<option value="${bar.nom}">${bar.nom}</option>`).join(''); 
             document.getElementById('kio-barbero').value = prevB;
 
-            // RENDERIZAR LAS TARJETAS ESTILO FRESHA
+            // RENDERIZAR LAS TARJETAS DE SERVICIOS
             const catalogoCtn = document.getElementById('kio-catalogo-servicios');
             if(catalogoCtn) {
                 catalogoCtn.innerHTML = (b.servicios || []).map((s, idx) => {
@@ -2741,6 +2815,33 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                 }).join('') || '<p class="text-xs text-zinc-500 italic text-center py-4">No hay servicios disponibles.</p>';
             }
 
+            renderKioskoSlots();
+        }
+
+        // 🟢 NUEVA FUNCIÓN MÁGICA: Hace que la tarjeta "brille" al tocarla
+        function seleccionarBarberoKio(nombre, cardId) {
+            // 1. Le decimos al sistema interno qué barbero se eligió
+            document.getElementById('kio-barbero').value = nombre;
+            
+            // 2. Apagamos todas las tarjetas (por si había otra seleccionada antes)
+            document.querySelectorAll('.kio-barber-card').forEach(card => {
+                card.classList.remove('border-indigo-500', 'bg-indigo-900/10', 'shadow-[0_0_30px_rgba(99,102,241,0.2)]', '-translate-y-2');
+                card.classList.add('border-zinc-800', 'bg-[#0a0a0a]');
+                const ind = card.querySelector('.kio-card-indicator');
+                if(ind) ind.classList.add('hidden');
+            });
+
+            // 3. Encendemos y levantamos la tarjeta que el cliente acaba de tocar
+            const selectedCard = document.getElementById(cardId);
+            if (selectedCard) {
+                selectedCard.classList.remove('border-zinc-800', 'bg-[#0a0a0a]');
+                selectedCard.classList.add('border-indigo-500', 'bg-indigo-900/10', 'shadow-[0_0_30px_rgba(99,102,241,0.2)]', '-translate-y-2');
+                const ind = selectedCard.querySelector('.kio-card-indicator');
+                if(ind) ind.classList.remove('hidden');
+            }
+
+            // 4. Disparamos la lógica original para que salgan los horarios de este barbero
+            actualizarFotoBarbero('kio'); 
             renderKioskoSlots();
         }
 
@@ -2771,8 +2872,6 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
             document.getElementById('modal-detalle-servicio').classList.remove('hidden');
         }
 
-
-
         // 🛒 NUEVA FUNCIÓN PARA MOSTRAR EL CARRITO EN EL KIOSKO
         function renderServiciosTempKiosko() {
             const ctn = document.getElementById('contenedor-servicios-elegidos');
@@ -2794,7 +2893,6 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                 totalCtn.innerText = fMoney(total);
             }
         }
-
 
         // ⏱️ TRADUCTOR DE TIEMPO: Convierte "1h 30m", "45", "1 hora" a minutos matemáticos
         function parseDuracionToMins(durStr) {
@@ -3520,78 +3618,112 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
 
 
          // ==========================================
-        // 📸 LECTOR DE FOTO DEL BARBERO
+        // 📸 GESTIÓN DE FOTOS Y QR DE BARBEROS
         // ==========================================
+        
+        // Usamos 'var' para el QR, y eliminamos la declaración de fotoBarberoTemp
+        // porque ya está declarada al inicio de tu archivo original. ¡Así evitamos el colapso!
+        var fotoQRBarberoTemp = null; 
+
         function previewFotoBarbero(input) {
             if (input.files && input.files[0]) {
-                // Mensaje de carga para que no se trabe el celular
                 Swal.fire({ title: 'Ajustando foto...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
-                
                 compressImage(input.files[0], 400, (compressed) => {
-                    fotoBarberoTemp = compressed; // Guardamos en la variable que usa configAddBarbero
-                    const preview = document.getElementById('preview-b-foto');
-                    const icon = document.getElementById('icon-b-foto');
-                    
-                    if(preview) {
-                        preview.src = compressed;
-                        preview.classList.remove('hidden');
-                    }
-                    if(icon) {
-                        icon.classList.add('hidden');
-                    }
+                    fotoBarberoTemp = compressed; 
+                    const preview = document.getElementById('preview-b-foto'); const icon = document.getElementById('icon-b-foto');
+                    if(preview) { preview.src = compressed; preview.classList.remove('hidden'); }
+                    if(icon) { icon.classList.add('hidden'); }
                     Swal.close();
                 });
             }
         }
 
-
+        function previewQRBarbero(input) {
+            if (input.files && input.files[0]) {
+                Swal.fire({ title: 'Ajustando QR...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
+                compressImage(input.files[0], 400, (compressed) => {
+                    fotoQRBarberoTemp = compressed; 
+                    const preview = document.getElementById('preview-b-qr'); const icon = document.getElementById('icon-b-qr');
+                    if(preview) { preview.src = compressed; preview.classList.remove('hidden'); }
+                    if(icon) { icon.classList.add('hidden'); }
+                    Swal.close();
+                });
+            }
+        }
 
         function editarBarbero(i) {
-    const b = db.barberias[bIdx].barberos[i];
-    document.getElementById('edit-b-id').value = i;
-    document.getElementById('add-b-nom').value = b.nom;
-    document.getElementById('add-b-pin').value = b.pin;
-    document.getElementById('add-b-comision').value = b.comision;
-    document.getElementById('add-b-inicio').value = b.horaInicio || "08:00";
-    document.getElementById('add-b-fin').value = b.horaFin || "20:00";
+            const b = db.barberias[bIdx].barberos[i];
+            
+            const elId = document.getElementById('edit-b-id'); if(elId) elId.value = i;
+            const elNom = document.getElementById('add-b-nom'); if(elNom) elNom.value = b.nom || "";
+            const elPin = document.getElementById('add-b-pin'); if(elPin) elPin.value = b.pin || "";
+            const elCom = document.getElementById('add-b-comision'); if(elCom) elCom.value = b.comision || 50;
+            const elIni = document.getElementById('add-b-inicio'); if(elIni) elIni.value = b.horaInicio || "08:00";
+            const elFin = document.getElementById('add-b-fin'); if(elFin) elFin.value = b.horaFin || "20:00";
 
-    if (b.foto) {
-        fotoBarberoTemp = b.foto;
-        const preview = document.getElementById('preview-b-foto');
-        preview.src = b.foto;
-        preview.classList.remove('hidden');
-        document.getElementById('icon-b-foto').classList.add('hidden');
-    }
-}
+            if (b.foto) {
+                fotoBarberoTemp = b.foto;
+                const prev = document.getElementById('preview-b-foto'); if(prev) { prev.src = b.foto; prev.classList.remove('hidden'); }
+                const ico = document.getElementById('icon-b-foto'); if(ico) ico.classList.add('hidden');
+            } else {
+                fotoBarberoTemp = null;
+                const prev = document.getElementById('preview-b-foto'); if(prev) { prev.src = ""; prev.classList.add('hidden'); }
+                const ico = document.getElementById('icon-b-foto'); if(ico) ico.classList.remove('hidden');
+            }
 
-
+            if (b.fotoQR) {
+                fotoQRBarberoTemp = b.fotoQR;
+                const prev = document.getElementById('preview-b-qr'); if(prev) { prev.src = b.fotoQR; prev.classList.remove('hidden'); }
+                const ico = document.getElementById('icon-b-qr'); if(ico) ico.classList.add('hidden');
+            } else {
+                fotoQRBarberoTemp = null;
+                const prev = document.getElementById('preview-b-qr'); if(prev) { prev.src = ""; prev.classList.add('hidden'); }
+                const ico = document.getElementById('icon-b-qr'); if(ico) ico.classList.remove('hidden');
+            }
+        }
 
         function configAddBarbero() {
-    const idXEl = document.getElementById('edit-b-id'); const idX = idXEl.value;
-    const nEl = document.getElementById('add-b-nom'); const n = cleanStr(nEl.value).toUpperCase();
-    const pEl = document.getElementById('add-b-pin'); const p = cleanNum(pEl.value);
-    const cEl = document.getElementById('add-b-comision'); let c = parseInt(cleanNum(cEl.value)) || 50;
-    
-    // Capturamos las horas
-    const hInicio = document.getElementById('add-b-inicio').value || "08:00";
-    const hFin = document.getElementById('add-b-fin').value || "20:00";
+            const getValSeguro = (id) => document.getElementById(id) ? document.getElementById(id).value : "";
+            
+            const idX = getValSeguro('edit-b-id');
+            const n = cleanStr(getValSeguro('add-b-nom')).toUpperCase();
+            const p = cleanNum(getValSeguro('add-b-pin'));
+            const cStr = getValSeguro('add-b-comision');
+            const c = parseInt(cleanNum(cStr)) || 50;
+            const hInicio = getValSeguro('add-b-inicio') || "08:00";
+            const hFin = getValSeguro('add-b-fin') || "20:00";
 
-    if (!n || esPinInseguro(p)) return Swal.fire('Error', 'PIN inseguro o faltan datos', 'error');
+            if (!n || !p) return Swal.fire('Faltan Datos', 'El nombre y el PIN son obligatorios.', 'error');
+            if (esPinInseguro(p)) return Swal.fire('PIN Inseguro', 'No uses 1234, 1111 ni secuencias fáciles.', 'warning');
 
-    if (idX !== "") { 
-        db.barberias[bIdx].barberos[idX] = { ...db.barberias[bIdx].barberos[idX], nom: n, pin: p, comision: c, foto: fotoBarberoTemp, horaInicio: hInicio, horaFin: hFin }; 
-    } else { 
-        db.barberias[bIdx].barberos.push({ nom: n, pin: p, comision: c, estado: 'LIBRE', foto: fotoBarberoTemp, horaInicio: hInicio, horaFin: hFin }); 
-    }
+            if (idX !== "") { 
+                db.barberias[bIdx].barberos[idX] = { ...db.barberias[bIdx].barberos[idX], nom: n, pin: p, comision: c, foto: fotoBarberoTemp, fotoQR: fotoQRBarberoTemp, horaInicio: hInicio, horaFin: hFin }; 
+            } else { 
+                db.barberias[bIdx].barberos.push({ nom: n, pin: p, comision: c, estado: 'LIBRE', foto: fotoBarberoTemp, fotoQR: fotoQRBarberoTemp, horaInicio: hInicio, horaFin: hFin }); 
+            }
 
-    saveDB(true);
-    // Limpiamos todo
-    idXEl.value = ""; nEl.value = ""; pEl.value = ""; cEl.value = ""; 
-    document.getElementById('add-b-inicio').value = ""; document.getElementById('add-b-fin').value = "";
-    fotoBarberoTemp = null; document.getElementById('preview-b-foto').classList.add('hidden'); document.getElementById('icon-b-foto').classList.remove('hidden'); 
-    renderConfigLists();
-}
-       // ==========================================
+            saveDB(true);
+            
+            if(document.getElementById('edit-b-id')) document.getElementById('edit-b-id').value = ""; 
+            if(document.getElementById('add-b-nom')) document.getElementById('add-b-nom').value = ""; 
+            if(document.getElementById('add-b-pin')) document.getElementById('add-b-pin').value = ""; 
+            if(document.getElementById('add-b-comision')) document.getElementById('add-b-comision').value = ""; 
+            if(document.getElementById('add-b-inicio')) document.getElementById('add-b-inicio').value = ""; 
+            if(document.getElementById('add-b-fin')) document.getElementById('add-b-fin').value = "";
+            
+            fotoBarberoTemp = null; fotoQRBarberoTemp = null;
+            
+            if(document.getElementById('preview-b-foto')) { document.getElementById('preview-b-foto').src = ""; document.getElementById('preview-b-foto').classList.add('hidden'); }
+            if(document.getElementById('icon-b-foto')) document.getElementById('icon-b-foto').classList.remove('hidden'); 
+            
+            if(document.getElementById('preview-b-qr')) { document.getElementById('preview-b-qr').src = ""; document.getElementById('preview-b-qr').classList.add('hidden'); }
+            if(document.getElementById('icon-b-qr')) document.getElementById('icon-b-qr').classList.remove('hidden'); 
+            
+            renderConfigLists();
+            Swal.fire({title:'¡Barbero Guardado!', toast:true, position:'top-end', timer:2000, showConfirmButton:false, background: '#111', color: '#fff', icon:'success'});
+        }
+
+        // ==========================================
         // ⚙️ CREADOR DE SERVICIOS (SIN FANTASMAS)
         // ==========================================
         function editarServicio(i) {
@@ -3600,7 +3732,7 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
             document.getElementById('add-s-nom').value = s.nom; 
             document.getElementById('add-s-pre').value = s.pre;
             document.getElementById('add-s-dur').value = s.dur || "";
-            document.getElementById('add-s-desc').value = s.desc || ""; // Recupera la descripción
+            document.getElementById('add-s-desc').value = s.desc || ""; 
             const premEl = document.getElementById('add-s-premium'); if (premEl) premEl.checked = s.premium || false;
         }
 
@@ -3608,22 +3740,19 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
             const idX = document.getElementById('edit-s-id').value; 
             const n = cleanStr(document.getElementById('add-s-nom').value).toUpperCase();
             const p = parseInt(cleanNum(document.getElementById('add-s-pre').value));
-            const d = document.getElementById('add-s-dur').value.trim(); // No quitamos letras para que permita "min" o "h"
+            const d = document.getElementById('add-s-dur').value.trim(); 
             const desc = document.getElementById('add-s-desc').value.trim();
             const isPremium = document.getElementById('add-s-premium') ? document.getElementById('add-s-premium').checked : false;
             
             if (!n || isNaN(p)) return Swal.fire('Error', 'Faltan datos numéricos o nombre', 'warning');
             
             if (idX !== "") { 
-                // Actualiza el existente
                 db.barberias[bIdx].servicios[idX] = { nom: n, pre: p, premium: isPremium, dur: d, desc: desc }; 
             } else { 
-                // Crea uno nuevo
                 db.barberias[bIdx].servicios.push({ nom: n, pre: p, premium: isPremium, dur: d, desc: desc }); 
             }
             saveDB(true);
 
-            // 🧹 EL EXORCISMO: Limpiamos todos los campos automáticamente
             document.getElementById('edit-s-id').value = ""; 
             document.getElementById('add-s-nom').value = ""; 
             document.getElementById('add-s-pre').value = ""; 
@@ -3633,8 +3762,38 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
             
             renderConfigLists();
             Swal.fire({title:'Guardado', toast:true, position:'top-end', timer:1500, showConfirmButton:false, background: '#111', color: '#fff', icon:'success'});
-        }        // ==========================================
-        // 14. SUPERADMIN Y MASTER CONTROL
+        }  
+
+        // ==========================================
+        // 💸 MOTOR DE PROPINA AL BARBERO
+        // ==========================================
+        function mostrarQRPropina() {
+            if (!lastTicketData || !lastTicketData.items || lastTicketData.items.length === 0) return;
+            const nombreBarbero = lastTicketData.items[0].barbero || session.nom;
+            const b = db.barberias[bIdx];
+            const dataBarbero = (b.barberos || []).find(x => x.nom === nombreBarbero);
+            
+            let imagenMostrar = dataBarbero && dataBarbero.fotoQR ? dataBarbero.fotoQR : 'https://cdn-icons-png.flaticon.com/512/3141/3141445.png';
+            let textoFaltaQR = (dataBarbero && !dataBarbero.fotoQR) ? '<p class="text-yellow-500 text-[10px] mt-2 animate-pulse">Este barbero no ha subido su QR en Ajustes.</p>' : '';
+
+            Swal.fire({
+                title: `<span class="text-pink-500 font-black text-3xl uppercase tracking-tighter">¡GRACIAS!</span>`,
+                html: `<p class="text-xs text-zinc-300 font-bold uppercase tracking-widest mb-4">Tu propina va directo a <b>${nombreBarbero}</b></p>${textoFaltaQR}`,
+                imageUrl: imagenMostrar,
+                imageAlt: 'QR Propina',
+                background: '#0a0a0a',
+                color: '#fff',
+                confirmButtonText: '¡PROPINA ENVIADA! ✔️',
+                confirmButtonColor: '#d946ef',
+                customClass: {
+                    image: 'rounded-2xl max-h-[40vh] object-contain border-2 border-pink-500 shadow-[0_0_20px_rgba(236,72,153,0.3)] bg-white p-2',
+                    confirmButton: 'w-full py-4 rounded-2xl font-black uppercase shadow-lg shadow-pink-600/30'
+                }
+            });
+        }
+
+        // ==========================================
+        // 👑 SUPERADMIN Y MASTER CONTROL
         // ==========================================
         function saCambiarMasterPin() { const oldP = cleanNum(document.getElementById('cfg-admin-pin').value); const newP = cleanNum(document.getElementById('cfg-new-admin-pin').value); const b = db.barberias[bIdx]; if (oldP !== cleanNum(b.pinAdmin)) return Swal.fire('Error', 'El PIN actual es incorrecto', 'error'); if (esPinInseguro(newP)) return Swal.fire('Error', 'El nuevo PIN es inseguro o muy corto', 'error'); b.pinAdmin = newP; saveDB(true); document.getElementById('cfg-admin-pin').value = ""; document.getElementById('cfg-new-admin-pin').value = ""; Swal.fire('Éxito', 'PIN actualizado correctamente', 'success'); }
         function saCambiarMaster() { const p = cleanNum(document.getElementById('sa-master-pin').value); if (esPinInseguro(p)) return Swal.fire('Error', 'El PIN debe tener 4 números y no ser obvio.', 'error'); db.superPIN = p; saveDB(true); document.getElementById('sa-master-pin').value = ""; Swal.fire({ title: '✅ ¡Éxito!', text: 'PIN Maestro actualizado correctamente.', icon: 'success', background: '#0a0a0a', color: '#fff' }); }
@@ -3650,37 +3809,49 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                 if (!b.pagosSaaS) b.pagosSaaS = [];
                 let totalPagado = b.pagosSaaS.reduce((sum, p) => sum + p.valor, 0); tSaaS += totalPagado;
                 if (b.pagosSaaS.length === 0) tP++; else tPre++;
-                const hoy = getTodayYMD(); const personal = `${(b.barberos || []).length}/${b.maxBarberos || 5}`; const citasHoy = (b.citas || []).filter(c => c.fecha === hoy && c.estado === 'PENDIENTE').length; const ventasHoy = (b.ventas || []).filter(v => v.fecha === hoy).reduce((a, v) => a + v.valor, 0);
-                const diffDays = Math.floor((Date.now() - (b.creadoEn || Date.now())) / (1000 * 60 * 60 * 24)); const restantes = (b.diasSuscripcion || 15) - diffDays;
-                const stDays = `EN ${restantes > 15 ? "PREMIUM" : "PRUEBA"}`; const stDaysClass = restantes > 15 ? "text-purple-400" : "text-green-400"; const stBlok = b.bloqueado ? "BLOQUEADO" : "ACTIVO"; const stBlokClass = b.bloqueado ? "bg-red-900/40 text-red-500" : "bg-green-900/40 text-green-500";
+                
+                const hoy = getTodayYMD(); const personal = `${(b.barberos || []).length}/${b.maxBarberos || 5}`; 
+                const diffDays = Math.floor((Date.now() - (b.creadoEn || Date.now())) / (1000 * 60 * 60 * 24)); 
+                const restantes = (b.diasSuscripcion || 15) - diffDays;
+                const citasHoy = (b.citas || []).filter(c => c.fecha === hoy && c.estado === 'PENDIENTE').length; 
+                const ventasHoy = (b.ventas || []).filter(v => v.fecha === hoy).reduce((a, v) => a + v.valor, 0);
+
+                // ✨ TEXTOS CLAROS DE DÍAS RESTANTES
+                let txtEstadoSuscrip = "";
+                if (b.bloqueado) {
+                    txtEstadoSuscrip = `<span class="text-red-500">BLOQUEADO MANUALMENTE</span>`;
+                } else if (restantes < 0) {
+                    txtEstadoSuscrip = `<span class="text-red-500">VENCIDO HACE ${Math.abs(restantes)} DÍAS</span>`;
+                } else if (restantes <= 3) {
+                    txtEstadoSuscrip = `<span class="text-yellow-500">¡VENCE EN ${restantes} DÍAS!</span>`;
+                } else {
+                    txtEstadoSuscrip = `<span class="text-green-400">QUEDAN ${restantes} DÍAS ACTIVOS</span>`;
+                }
 
                 return `
                 <div class="bg-[#111111] p-6 rounded-[2rem] border border-zinc-800 mb-6 relative">
                     <div class="flex justify-between items-start mb-5 pb-4 border-b border-zinc-900">
                         <div>
                             <h4 class="font-black text-xl text-white uppercase">${b.nombre}</h4>
-                            <p class="text-[9px] font-bold uppercase ${stDaysClass}">${stDays} (${Math.abs(restantes)} d)</p>
+                            <p class="text-[9px] font-bold uppercase tracking-widest mt-1">${txtEstadoSuscrip}</p>
                         </div>
                         <div class="flex items-center gap-3">
                             <span class="text-[10px] font-black uppercase bg-[#1a1a1a] px-3 py-1.5 rounded-lg text-zinc-400 border border-zinc-800">PIN: ${b.pinAdmin}</span>
-                            <span class="text-[9px] font-black uppercase ${stBlokClass} px-3 py-1.5 rounded-lg border border-red-900/50">${stBlok}</span>
                         </div>
                     </div>
                     
                     <div class="grid grid-cols-3 gap-4 text-center mb-6">
                         <div class="bg-black p-4 rounded-xl shadow-inner border border-zinc-900"><p class="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Personal</p><p class="text-sm font-black text-white">${personal}</p></div>
-                        <div class="bg-black p-4 rounded-xl shadow-inner border border-zinc-900"><p class="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Citas Hoy</p><p class="text-sm font-black text-white">${citasHoy}</p></div>
-                        <div class="bg-black p-4 rounded-xl shadow-inner border border-zinc-900"><p class="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Ventas Hoy</p><p class="text-sm font-black text-white">${fMoney(ventasHoy)}</p></div>
+                        <div class="bg-black p-4 rounded-xl shadow-inner border border-zinc-900"><p class="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Total Ingresos</p><p class="text-sm font-black text-green-400">${fMoney(totalPagado)}</p></div>
+                        <div class="bg-black p-2 rounded-xl shadow-inner border border-zinc-900 flex flex-col justify-center">
+                            <button type="button" onclick="sa_RegistrarPago('${b.id_nube}')" class="bg-green-900/30 text-green-400 border border-green-900/50 py-2 rounded-lg text-[8px] font-black uppercase btn-press hover:bg-green-600 hover:text-white transition-colors">💵 Reportar Pago</button>
+                        </div>
                     </div>
                     
                     <button type="button" onclick="forzarAccesoAdmin(${i})" class="w-full bg-indigo-600 text-white py-4 rounded-xl text-xs font-black uppercase mb-4 btn-press shadow-lg shadow-indigo-600/20">INGRESAR COMO DUEÑO</button>
 
-
-
-
-                    
                     <div class="bg-black/50 p-4 rounded-2xl border border-zinc-800 mb-4">
-                        <p class="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mb-2">Agencias Tiempo (Cobro)</p>
+                        <p class="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mb-2">Renovación de Tiempo (+ Días)</p>
                         <div class="grid grid-cols-4 gap-2 mb-3">
                             <button type="button" onclick="sa_AgregarDias('${b.id_nube}', 30)" class="bg-blue-900/20 text-blue-400 border border-blue-900/50 py-2 rounded-lg text-[10px] font-black btn-press">+30D</button>
                             <button type="button" onclick="sa_AgregarDias('${b.id_nube}', 90)" class="bg-indigo-900/20 text-indigo-400 border border-indigo-900/50 py-2 rounded-lg text-[10px] font-black btn-press">+3M</button>
@@ -3706,26 +3877,22 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                         </div>
                     </div>
 
-
-
-
-
-
                     <div class="grid grid-cols-2 gap-3 pt-3 border-t border-zinc-900">
-                        <button type="button" onclick="sa_ForzarBloqueo('${b.id_nube}')" class="bg-red-900/20 text-red-500 py-3 rounded-xl text-[10px] font-black uppercase btn-press">${b.bloqueado ? "DESBLOQUEAR" : "FORZAR BLOQUEO"}</button>
+                        <button type="button" onclick="sa_ForzarBloqueo('${b.id_nube}')" class="bg-red-900/20 text-red-500 py-3 rounded-xl text-[10px] font-black uppercase btn-press">${b.bloqueado ? "DESBLOQUEAR LOCAL" : "FORZAR BLOQUEO"}</button>
                         <button type="button" onclick="sa_BorrarInstancia('${b.id_nube}')" class="bg-black text-zinc-500 border border-red-900/50 py-3 rounded-xl text-[10px] font-black uppercase btn-press hover:bg-red-600 hover:text-white transition-colors">BORRAR INSTANCIA</button>
                     </div>
                 </div>`;
             }).join('');
-            document.getElementById('saas-total-revenue').innerText = `${fMoney(tSaaS)}`; document.getElementById('saas-total-trials').innerText = tP; document.getElementById('saas-total-premium').innerText = tPre;
+
+            const tSaaSBox = document.getElementById('saas-total-revenue');
+            if(tSaaSBox) {
+                tSaaSBox.innerHTML = `${fMoney(tSaaS)} <button onclick="sa_ResetearIngresos()" class="text-[8px] bg-red-900/30 text-red-500 px-2 py-1 rounded ml-2 align-middle hover:bg-red-600 hover:text-white btn-press">RESET</button>`;
+            }
+            document.getElementById('saas-total-trials').innerText = tP; 
+            document.getElementById('saas-total-premium').innerText = tPre;
         }
 
         function forzarAccesoAdmin(idx) { bIdx = idx; session = { rol: 'admin', nom: 'SUPERADMIN' }; saveDB(true); saveSession(); showScreen('view-admin'); }
-
-
-
-
-
 
         async function saCrearBarberia() {
             const n = document.getElementById('sa-nombre').value.trim().toUpperCase(); const p = cleanNum(document.getElementById('sa-pin').value);
@@ -3741,6 +3908,53 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
             } catch (e) { Swal.fire('Error', e.message, 'error'); }
         }
 
+        async function sa_RegistrarPago(idNube) {
+            if (!isOnline) return Swal.fire('Error', 'Sin internet.', 'error');
+            const { value: formValues } = await Swal.fire({
+                title: 'Reportar Pago Cliente',
+                html: `
+                    <input id="swal-pago-val" type="number" placeholder="Valor Pagado (Ej: 30000)" class="w-full p-4 rounded-xl bg-[#111] border border-zinc-800 text-white mb-3 outline-none">
+                    <select id="swal-pago-met" class="w-full p-4 rounded-xl bg-[#111] border border-zinc-800 text-zinc-400 outline-none">
+                        <option value="Nequi">Nequi</option>
+                        <option value="Daviplata">Daviplata</option>
+                        <option value="Bancolombia">Bancolombia</option>
+                        <option value="Efectivo">Efectivo</option>
+                    </select>
+                `,
+                background: '#0a0a0a', color: '#fff',
+                showCancelButton: true, confirmButtonText: 'Guardar Pago',
+                preConfirm: () => {
+                    return [ document.getElementById('swal-pago-val').value, document.getElementById('swal-pago-met').value ]
+                }
+            });
+
+            if (formValues && formValues[0]) {
+                Swal.fire({ title: 'Procesando...', didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
+                try {
+                    const { data: store } = await supabaseClient.from('stores').select('*').eq('id', idNube).single();
+                    let bSup = store.json_data; 
+                    if (!bSup.pagosSaaS) bSup.pagosSaaS = [];
+                    bSup.pagosSaaS.push({ fecha: getTodayYMD(), valor: parseInt(formValues[0]), metodo: formValues[1], desc: 'Suscripción/Extra' });
+                    
+                    await supabaseClient.from('stores').update({ json_data: bSup }).eq('id', idNube);
+                    db.barberias[db.barberias.findIndex(x => x.id_nube === idNube)] = bSup; saveDB(true); renderSuperAdmin();
+                    Swal.fire('¡Guardado!', 'Ingreso sumado a tus ganancias.', 'success');
+                } catch(e) { Swal.fire('Error', 'Falla de red.', 'error'); }
+            }
+        }
+
+        async function sa_ResetearIngresos() {
+            const { isConfirmed } = await Swal.fire({
+                title: '¿Resetear tus ganancias?',
+                text: 'Esto borrará el historial de pagos de TODAS las barberías. Útil si terminaste las pruebas.',
+                icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc2626', background: '#0a0a0a', color: '#fff'
+            });
+            if (isConfirmed) {
+                db.barberias.forEach(b => { b.pagosSaaS = []; });
+                saveDB(true); renderSuperAdmin();
+                Swal.fire('Reseteado', 'Las ganancias SaaS están en cero.', 'success');
+            }
+        }
          // ==========================================
         // 📸 FUNCIONES DE BRANDING GLOBAL Y LOGO (MASTER CONTROL)
         // ==========================================
@@ -4682,35 +4896,30 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
         }
 
         // ==========================================
-        // MOTOR DE ARRANQUE ABSOLUTO (FUERZA BRUTA)
+        // MOTOR DE ARRANQUE ABSOLUTO (FUERZA BRUTA BLINDADA)
         // ==========================================
         let appArrancada = false;
         function arrancarZeus() {
             if(appArrancada) return;
             
-            // 🔥 AQUÍ ESTÁ EL ARREGLO: Le devolvemos 2 segundos de vida al GIF para que se vea
             const splashDiv = document.getElementById('splash-screen');
             if (splashDiv) { 
                 setTimeout(() => {
                     splashDiv.style.opacity = '0'; 
                     setTimeout(() => splashDiv.style.display = 'none', 500); 
-                }, 2000); // 2000 milisegundos = 2 segundos de animación
+                }, 2000); 
             }
 
-            // Leemos la URL a lo bruto
             const url = window.location.href;
             
-            if (url.includes('screen=tv') || url.includes('kiosk=')) {
+            // 🚀 KIOSKO BLINDADO: Si el link tiene kiosk=, DESTRUYE cualquier sesión local admin atrapada.
+            if (url.includes('kiosk=')) {
+                try { sessionStorage.removeItem(typeof SESSION_KEY !== 'undefined' ? SESSION_KEY : 'ISI_SESSION_V70'); } catch(e){}
                 appArrancada = true;
-                let paramId = null;
-                if (url.includes('local=')) paramId = url.split('local=')[1].split('&')[0];
-                else if (url.includes('kiosk=')) paramId = url.split('kiosk=')[1].split('&')[0];
-
-                if (url.includes('screen=tv') && paramId) {
-                    autenticacionAnonimaTV(paramId);
-                } else if (typeof checkSession === 'function') {
-                    checkSession(); 
-                }
+                checkSession(); 
+            } else if (url.includes('screen=tv')) {
+                appArrancada = true;
+                checkSession();
             } else {
                 let sData = null;
                 try { sData = JSON.parse(sessionStorage.getItem(typeof SESSION_KEY !== 'undefined' ? SESSION_KEY : 'ISI_SESSION_V70')); } catch(e){}
@@ -4725,13 +4934,16 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                 }
             }
 
-            // Iniciar Relojes y Temporizadores
             if (typeof resetearTiempo === 'function') {
                 ['mousemove','click','touchstart','keypress'].forEach(evt => document.addEventListener(evt, resetearTiempo));
                 resetearTiempo();
             }
             if (typeof startClock === 'function') startClock();
         }
+
+
+
+
         // ==========================================
         // 17. SISTEMA DE NOTIFICACIONES Y PUNTOS ROJOS
         // ==========================================
@@ -5023,9 +5235,98 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
             });
         };
 
+        // ==========================================
+        // 🎙️ MOTOR DE INTELIGENCIA DE VOZ (ZEUS HANDS-FREE)
+        // ==========================================
+        function iniciarZeusVoz() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) return Swal.fire('Error', 'Tu navegador o dispositivo no soporta comandos de voz.', 'error');
+            
+            // Validamos que haya algo en el carrito
+            if (cart.length === 0) return Swal.fire('Aviso', 'Agrega un corte o producto al carrito primero.', 'warning');
+
+            const reconocimiento = new SpeechRecognition();
+            reconocimiento.lang = 'es-CO'; // Acento colombiano
+            reconocimiento.interimResults = false;
+            
+            Swal.fire({
+                title: 'Escuchando... 🎙️',
+                text: 'Di: "Cobrar en Efectivo", "Cobrar en Nequi" o "Cobrar Tarjeta"',
+                allowOutsideClick: false,
+                background: '#0a0a0a',
+                color: '#0cd1b8',
+                didOpen: () => Swal.showLoading()
+            });
+
+            reconocimiento.onresult = (event) => {
+                const comando = event.results[0][0].transcript.toLowerCase();
+                Swal.close();
+                
+                let metodoDetectado = "";
+                if (comando.includes('efectivo')) metodoDetectado = 'Efectivo';
+                else if (comando.includes('nequi')) metodoDetectado = 'Nequi';
+                else if (comando.includes('daviplata')) metodoDetectado = 'Daviplata';
+                else if (comando.includes('tarjeta') || comando.includes('crédito') || comando.includes('débito')) metodoDetectado = 'Tarjeta';
+                else if (comando.includes('transferencia')) metodoDetectado = 'Transferencia';
+                
+                if (metodoDetectado !== "") {
+                    document.getElementById('pos-metodo').value = metodoDetectado;
+                    validarBotonCobro();
+                    
+                    Swal.fire({
+                        title: 'Comando Aceptado ⚡',
+                        text: `Cobrando en ${metodoDetectado}...`,
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false,
+                        background: '#0a0a0a',
+                        color: '#fff'
+                    }).then(() => {
+                        procesarVenta(); 
+                    });
+                } else {
+                    Swal.fire('No te entendí 🤔', `Escuché: "${comando}". Intenta decir "Cobrar en Efectivo".`, 'question');
+                }
+            };
+
+            reconocimiento.onerror = () => { Swal.fire('Error', 'No pude escuchar el micrófono. Revisa los permisos de tu navegador.', 'error'); };
+            reconocimiento.start();
+        }
+
+        // ==========================================
+        // 💸 MOTOR DE PROPINAS DIRECTAS AL BARBERO
+        // ==========================================
+        function mostrarQRPropina() {
+            if (!lastTicketData || !lastTicketData.items || lastTicketData.items.length === 0) return;
+            
+            // Buscamos quién hizo el corte
+            const nombreBarbero = lastTicketData.items[0].barbero || session.nom;
+            const b = db.barberias[bIdx];
+            const dataBarbero = (b.barberos || []).find(x => x.nom === nombreBarbero);
+            
+            // Si el barbero subió su foto (con su QR), la mostramos. Si no, mostramos una genérica.
+            let imagenMostrar = dataBarbero && dataBarbero.foto ? dataBarbero.foto : 'https://cdn-icons-png.flaticon.com/512/3141/3141445.png';
+
+            Swal.fire({
+                title: `<span class="text-pink-500 font-black text-3xl uppercase tracking-tighter">¡GRACIAS!</span>`,
+                html: `<p class="text-xs text-zinc-300 font-bold uppercase tracking-widest mb-4">Tu propina va directo a <b>${nombreBarbero}</b></p>`,
+                imageUrl: imagenMostrar,
+                imageAlt: 'QR Propina',
+                background: '#0a0a0a',
+                color: '#fff',
+                confirmButtonText: '¡PROPINA ENVIADA! ✔️',
+                confirmButtonColor: '#d946ef',
+                customClass: {
+                    image: 'rounded-2xl max-h-[40vh] object-contain border-2 border-pink-500 shadow-[0_0_20px_rgba(236,72,153,0.3)] bg-white p-2',
+                    confirmButton: 'w-full py-4 rounded-2xl font-black uppercase shadow-lg shadow-pink-600/30'
+                }
+            });
+        }
+
         // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.31"; 
+            // Cambiamos a la versión 1.32 por las nuevas funciones (Voz y Propinas)
+            const VERSION_ACTUAL = "1.35"; 
             const versionGuardada = localStorage.getItem('zeus_version');
             if (versionGuardada !== VERSION_ACTUAL) {
                 console.log("¡Actualización detectada! Destruyendo caché...");
