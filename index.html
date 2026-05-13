@@ -1308,6 +1308,33 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
             reader.readAsDataURL(file);
         }
 
+         // ==========================================
+        // ☁️ MOTOR SUPABASE STORAGE (SUBIDA DE FOTOS SIN GASTAR DATOS)
+        // ==========================================
+        async function uploadImageToSupabase(base64Data, carpeta) {
+            try {
+                const res = await fetch(base64Data);
+                const blob = await res.blob();
+                const fileName = `${carpeta}/${Date.now()}_${Math.floor(Math.random() * 1000)}.jpg`;
+
+                // Aquí cambiamos 'zeus-storage' por 'perfiles'
+                const { data, error } = await supabaseClient
+                    .storage
+                    .from('perfiles')
+                    .upload(fileName, blob, { contentType: 'image/jpeg', upsert: false });
+
+                if (error) throw error;
+
+                // Aquí también cambiamos 'zeus-storage' por 'perfiles'
+                const { data: publicUrlData } = supabaseClient.storage.from('perfiles').getPublicUrl(fileName);
+                return publicUrlData.publicUrl;
+                
+            } catch (error) {
+                console.error("Error subiendo foto a Storage:", error);
+                return null;
+            }
+        }
+
         // ==========================================
         // 3. OPTIMIZADOR Y UTILIDADES GLOBALES
         // ==========================================
@@ -1908,9 +1935,14 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
         
         function actionLogout() { 
             if (!isLocalStorageBlocked) {
-                try { sessionStorage.removeItem(SESSION_KEY); } catch (e) { } 
+                try { sessionStorage.removeItem(typeof SESSION_KEY !== 'undefined' ? SESSION_KEY : 'ISI_SESSION_V70'); } catch (e) { } 
             }
-            window.location.replace(window.location.pathname); 
+            bIdx = -1; 
+            session = null;
+            const pinInput = document.getElementById('login-pin');
+            if(pinInput) pinInput.value = "";
+            if(typeof detenerAudio === 'function') detenerAudio();
+            showScreen('view-login'); 
         }
 
         function toggleAcc(idC, idI) { document.getElementById(idC).classList.toggle('hidden'); document.getElementById(idI).classList.toggle('rotate-180'); }
@@ -2364,26 +2396,40 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                 else if (b.numeroCuenta) new QRCode(document.getElementById("qr-caja"), { text: b.numeroCuenta, width: 180, height: 180 });
                 else document.getElementById('qr-caja').innerHTML = `<p class="text-zinc-500 text-xs py-10">Sin QR</p>`;
             } else { document.getElementById('qr-titular').innerText = "EVIDENCIA REQUERIDA"; document.getElementById('qr-caja').innerHTML = `<span class="text-7xl py-6">💵</span>`; }
-            comprobanteTemp = null; document.getElementById('btn-confirmar-qr').disabled = true; document.getElementById('btn-confirmar-qr').classList.add('opacity-20', 'cursor-not-allowed'); document.getElementById('modal-qr').classList.remove('hidden');
+            
+            comprobanteTemp = null; 
+            
+            // 🧹 MAGIA LIMPIADORA: Escondemos la foto vieja y mostramos el texto "Subir Foto"
+            document.getElementById('cfg-comprobante-img').src = "";
+            document.getElementById('cfg-comprobante-img').classList.add('hidden');
+            document.getElementById('cfg-comprobante-default').classList.remove('hidden');
+
+            document.getElementById('btn-confirmar-qr').disabled = true; document.getElementById('btn-confirmar-qr').classList.add('opacity-20', 'cursor-not-allowed'); document.getElementById('modal-qr').classList.remove('hidden');
         }
 
         function validarComprobante(input) {
             if (input.files && input.files[0]) {
-                // Ponemos un mensaje de carga para que el barbero espere 1 segundo y no toque dos veces
-                Swal.fire({ title: 'Procesando foto...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
+                Swal.fire({ title: 'Subiendo comprobante...', text: 'Ahorrando datos...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
                 
-                compressImage(input.files[0], 600, (compressed) => {
-                    comprobanteTemp = compressed;
-                    document.getElementById('cfg-comprobante-img').src = comprobanteTemp; 
-                    document.getElementById('cfg-comprobante-img').classList.remove('hidden'); 
-                    document.getElementById('cfg-comprobante-default').classList.add('hidden'); 
-                    document.getElementById('btn-confirmar-qr').disabled = false; 
-                    document.getElementById('btn-confirmar-qr').classList.remove('opacity-20', 'cursor-not-allowed');
-                    input.value = ""; // Limpiamos el input para que no se trabe en Android
-                    Swal.close(); // Cerramos el mensaje de carga
+                compressImage(input.files[0], 600, async (compressed) => {
+                    const linkCorto = await uploadImageToSupabase(compressed, 'comprobantes');
+                    
+                    if (linkCorto) {
+                        comprobanteTemp = linkCorto;
+                        document.getElementById('cfg-comprobante-img').src = linkCorto; 
+                        document.getElementById('cfg-comprobante-img').classList.remove('hidden'); 
+                        document.getElementById('cfg-comprobante-default').classList.add('hidden'); 
+                        document.getElementById('btn-confirmar-qr').disabled = false; 
+                        document.getElementById('btn-confirmar-qr').classList.remove('opacity-20', 'cursor-not-allowed');
+                        input.value = ""; 
+                        Swal.close(); 
+                    } else {
+                        Swal.fire('Error', 'Falla al subir comprobante', 'error');
+                    }
                 });
             }
         }
+
 
         function finalizarVentaOK() {
             try {
@@ -2997,16 +3043,25 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
 
         function validarComprobanteKiosko(input) {
             if (input.files && input.files[0]) {
-                compressImage(input.files[0], 600, (compressed) => {
-                    comprobanteTemp = compressed;
-                    document.getElementById('kio-comprobante-img').src = comprobanteTemp;
-                    document.getElementById('kio-comprobante-img').classList.remove('hidden');
-                    document.getElementById('kio-comprobante-default').classList.add('hidden');
-                    const btn = document.getElementById('btn-kio-confirmar'); btn.disabled = false; btn.classList.remove('opacity-20', 'cursor-not-allowed');
+                Swal.fire({ title: 'Subiendo comprobante...', text: 'Ahorrando datos...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
+                
+                compressImage(input.files[0], 600, async (compressed) => {
+                    const linkCorto = await uploadImageToSupabase(compressed, 'comprobantes_kiosko');
+                    
+                    if(linkCorto){
+                        comprobanteTemp = linkCorto;
+                        document.getElementById('kio-comprobante-img').src = linkCorto;
+                        document.getElementById('kio-comprobante-img').classList.remove('hidden');
+                        document.getElementById('kio-comprobante-default').classList.add('hidden');
+                        const btn = document.getElementById('btn-kio-confirmar'); btn.disabled = false; btn.classList.remove('opacity-20', 'cursor-not-allowed');
+                        input.value = "";
+                        Swal.close();
+                    } else {
+                        Swal.fire('Error', 'Falla al subir comprobante', 'error');
+                    }
                 });
             }
         }
-
         // ==========================================
         // 🔒 GUARDAR CITA CON LA DURACIÓN EXACTA
         // ==========================================
@@ -3372,14 +3427,24 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
         // ==========================================
         function subirLogoBarberia(input) {
             if (input.files && input.files[0]) {
-                compressImage(input.files[0], 300, (comp) => {
-                    db.barberias[bIdx].logo = comp; saveDB(true);
-                    const logoBox = document.getElementById('cfg-logo-box');
-                    if (logoBox) logoBox.innerHTML = `<img src="${comp}" class="w-full h-full object-cover absolute inset-0 rounded-[1rem]">`;
+                Swal.fire({ title: 'Subiendo a la nube...', text: 'Ahorrando datos...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
+                
+                compressImage(input.files[0], 300, async (comp) => {
+                    // Magia: Usamos el nuevo motor para obtener el link corto
+                    const linkCorto = await uploadImageToSupabase(comp, 'logos');
+                    
+                    if (linkCorto) {
+                        db.barberias[bIdx].logo = linkCorto; 
+                        saveDB(true);
+                        const logoBox = document.getElementById('cfg-logo-box');
+                        if (logoBox) logoBox.innerHTML = `<img src="${linkCorto}" class="w-full h-full object-cover absolute inset-0 rounded-[1rem]">`;
+                        Swal.fire({ title: '¡Logo Guardado!', icon: 'success', timer: 1500, showConfirmButton: false, background: '#0a0a0a', color: '#fff' });
+                    } else {
+                        Swal.fire('Error', 'No se pudo subir la imagen. Verifica Supabase Storage.', 'error');
+                    }
                 });
             }
         }
-
         function subirBannerTV(input) {
             if (input.files && input.files[0]) {
                 compressImage(input.files[0], 800, (comp) => { 
@@ -3627,26 +3692,36 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
 
         function previewFotoBarbero(input) {
             if (input.files && input.files[0]) {
-                Swal.fire({ title: 'Ajustando foto...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
-                compressImage(input.files[0], 400, (compressed) => {
-                    fotoBarberoTemp = compressed; 
-                    const preview = document.getElementById('preview-b-foto'); const icon = document.getElementById('icon-b-foto');
-                    if(preview) { preview.src = compressed; preview.classList.remove('hidden'); }
-                    if(icon) { icon.classList.add('hidden'); }
-                    Swal.close();
+                Swal.fire({ title: 'Subiendo foto...', text: 'Ahorrando datos...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
+                compressImage(input.files[0], 400, async (compressed) => {
+                    const linkCorto = await uploadImageToSupabase(compressed, 'barberos');
+                    if (linkCorto) {
+                        fotoBarberoTemp = linkCorto; 
+                        const preview = document.getElementById('preview-b-foto'); const icon = document.getElementById('icon-b-foto');
+                        if(preview) { preview.src = linkCorto; preview.classList.remove('hidden'); }
+                        if(icon) { icon.classList.add('hidden'); }
+                        Swal.close();
+                    } else {
+                        Swal.fire('Error', 'Falla al subir foto de perfil', 'error');
+                    }
                 });
             }
         }
 
         function previewQRBarbero(input) {
             if (input.files && input.files[0]) {
-                Swal.fire({ title: 'Ajustando QR...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
-                compressImage(input.files[0], 400, (compressed) => {
-                    fotoQRBarberoTemp = compressed; 
-                    const preview = document.getElementById('preview-b-qr'); const icon = document.getElementById('icon-b-qr');
-                    if(preview) { preview.src = compressed; preview.classList.remove('hidden'); }
-                    if(icon) { icon.classList.add('hidden'); }
-                    Swal.close();
+                Swal.fire({ title: 'Subiendo QR...', text: 'Ahorrando datos...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
+                compressImage(input.files[0], 400, async (compressed) => {
+                    const linkCorto = await uploadImageToSupabase(compressed, 'barberos_qr');
+                    if (linkCorto) {
+                        fotoQRBarberoTemp = linkCorto; 
+                        const preview = document.getElementById('preview-b-qr'); const icon = document.getElementById('icon-b-qr');
+                        if(preview) { preview.src = linkCorto; preview.classList.remove('hidden'); }
+                        if(icon) { icon.classList.add('hidden'); }
+                        Swal.close();
+                    } else {
+                        Swal.fire('Error', 'Falla al subir QR', 'error');
+                    }
                 });
             }
         }
@@ -5326,7 +5401,7 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
         // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES
         function comprobarVersionNube() {
             // Cambiamos a la versión 1.32 por las nuevas funciones (Voz y Propinas)
-            const VERSION_ACTUAL = "1.35"; 
+            const VERSION_ACTUAL = "1.36"; 
             const versionGuardada = localStorage.getItem('zeus_version');
             if (versionGuardada !== VERSION_ACTUAL) {
                 console.log("¡Actualización detectada! Destruyendo caché...");
