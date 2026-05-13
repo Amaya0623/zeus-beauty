@@ -3700,12 +3700,11 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                         const preview = document.getElementById('preview-b-foto'); const icon = document.getElementById('icon-b-foto');
                         if(preview) { preview.src = linkCorto; preview.classList.remove('hidden'); }
                         if(icon) { icon.classList.add('hidden'); }
-                        input.value = ""; // <-- ESTA LÍNEA DESTRABA EL CELULAR
                         Swal.close();
                     } else {
-                        Swal.fire('Error', 'Falla al subir foto', 'error');
-                        input.value = ""; // <-- AQUÍ TAMBIÉN
+                        Swal.fire('Error', 'Falla al subir foto de perfil', 'error');
                     }
+                    input.value = ""; // 🧹 LA ESCOBA QUE DESTRABA EL CELULAR
                 });
             }
         }
@@ -3724,9 +3723,11 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                     } else {
                         Swal.fire('Error', 'Falla al subir QR', 'error');
                     }
+                    input.value = ""; // 🧹 LA ESCOBA QUE DESTRABA EL CELULAR
                 });
             }
         }
+
 
         function editarBarbero(i) {
             const b = db.barberias[bIdx].barberos[i];
@@ -5403,7 +5404,7 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
         // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES
         function comprobarVersionNube() {
             // Cambiamos a la versión 1.32 por las nuevas funciones (Voz y Propinas)
-            const VERSION_ACTUAL = "1.37"; 
+            const VERSION_ACTUAL = "1.38"; 
             const versionGuardada = localStorage.getItem('zeus_version');
             if (versionGuardada !== VERSION_ACTUAL) {
                 console.log("¡Actualización detectada! Destruyendo caché...");
