@@ -558,11 +558,32 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
 
                             <input type="text" id="cfg-nombre" placeholder="Nombre Barbería" class="w-full p-4 rounded-xl font-black uppercase text-sm text-center bg-zinc-950 border border-zinc-800 text-white focus:border-indigo-500 outline-none transition-colors">
                             <input type="text" id="cfg-nit" placeholder="NIT / RUT / ID Fiscal" class="w-full p-4 rounded-xl text-xs font-bold text-center border border-zinc-800 bg-[#050505] text-white focus:border-indigo-500 outline-none transition-colors">
+
+
+
+
+
                             
                             <div class="flex gap-3">
                                 <input type="text" id="cfg-direccion" placeholder="Dirección Completa" class="w-full p-4 rounded-xl text-xs font-bold border border-zinc-800 bg-[#050505] text-white focus:border-indigo-500 outline-none transition-colors">
                                 <input type="text" inputmode="numeric" id="cfg-telefono" placeholder="Teléfono" class="w-1/2 p-4 rounded-xl text-xs font-bold text-center border border-zinc-800 bg-[#050505] text-white focus:border-indigo-500 outline-none transition-colors">
                             </div>
+
+                            <div class="bg-blue-900/10 p-5 rounded-[1.5rem] border border-blue-900/30 mt-3 shadow-inner">
+                                <div class="flex justify-between items-center mb-3">
+                                    <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest flex items-center gap-2"><span class="text-xl">📍</span> Ubicación GPS</p>
+                                    <button type="button" onclick="capturarUbicacionGPS()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl font-black text-[9px] uppercase btn-press shadow-lg shadow-blue-600/20 transition-all flex items-center gap-2">Capturar Auto</button>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div><p class="text-[8px] text-zinc-500 font-bold uppercase mb-1">Latitud</p><input type="text" id="cfg-lat" placeholder="Ej: 4.5981" class="w-full p-3 rounded-xl text-xs font-bold border border-zinc-800 bg-[#050505] text-zinc-300 focus:border-blue-500 outline-none transition-colors"></div>
+                                    <div><p class="text-[8px] text-zinc-500 font-bold uppercase mb-1">Longitud</p><input type="text" id="cfg-lon" placeholder="Ej: -74.0758" class="w-full p-3 rounded-xl text-xs font-bold border border-zinc-800 bg-[#050505] text-zinc-300 focus:border-blue-500 outline-none transition-colors"></div>
+                                </div>
+                                <p class="text-[8px] text-zinc-500 mt-2 uppercase italic text-center">Puedes capturar en el celular o pegar desde Google Maps.</p>
+                            </div>
+
+
+
+
                             
                             <textarea id="cfg-resolucion" rows="2" placeholder="Resolución DIAN o Texto Legal Fiscal" class="w-full p-4 rounded-xl text-xs font-bold border border-zinc-800 bg-[#050505] text-zinc-400 resize-none focus:border-indigo-500 outline-none transition-colors"></textarea>
                             
@@ -1524,86 +1545,68 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
             }
         }
 
-        function startClock() {
-            // 1. Bucle del Reloj (100% Local, sin internet)
-            setInterval(function() {
-                try {
-                    const now = new Date();
-                    const dEl = document.getElementById('live-date');
-                    const tEl = document.getElementById('live-time');
+        // ==========================================
+        // ⏱️ MOTOR DE RELOJ Y ESCUDO (BLINDADO)
+        // ==========================================
+        // 1. Reloj visual que arranca de inmediato
+        setInterval(() => {
+            const dEl = document.getElementById('live-date');
+            const tEl = document.getElementById('live-time');
+            if (dEl && tEl) {
+                const now = new Date();
+                let hh = now.getHours(); let mm = now.getMinutes().toString().padStart(2, '0'); let ss = now.getSeconds().toString().padStart(2, '0');
+                let ampm = hh >= 12 ? 'PM' : 'AM'; hh = hh % 12 || 12;
+                tEl.innerText = `${hh}:${mm}:${ss} ${ampm}`;
+                dEl.innerText = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()}`;
+            }
+        }, 1000);
+
+        // 2. Escudo de seguridad en segundo plano
+        setInterval(() => {
+            try {
+                const idx = (typeof bIdx !== 'undefined' && bIdx !== -1) ? bIdx : (typeof kiosko_bIdx !== 'undefined' ? kiosko_bIdx : -1);
+                if (idx !== -1 && db && db.barberias && db.barberias[idx]) {
+                    const b = db.barberias[idx];
+                    const ahora = Date.now();
+                    const diffDays = Math.floor((ahora - (b.creadoEn || ahora)) / (1000 * 60 * 60 * 24));
+                    const vencido = ((b.diasSuscripcion || 15) - diffDays) < 0;
                     
-                    if (dEl && tEl) {
-                        let hh = now.getHours();
-                        let mm = now.getMinutes().toString().padStart(2, '0');
-                        let ss = now.getSeconds().toString().padStart(2, '0');
-                        let ampm = hh >= 12 ? 'PM' : 'AM';
-                        hh = hh % 12 || 12; 
-                        
-                        tEl.innerText = hh + ":" + mm + ":" + ss + " " + ampm;
-                        
-                        let dia = now.getDate().toString().padStart(2, '0');
-                        let mes = (now.getMonth() + 1).toString().padStart(2, '0');
-                        let anio = now.getFullYear();
-                        dEl.innerText = dia + "/" + mes + "/" + anio;
+                    if (b.bloqueado || vencido) {
+                        const pb = document.getElementById('pantalla-bloqueo'); const ac = document.getElementById('app-content');
+                        if (pb && pb.classList.contains('hidden')) { pb.classList.remove('hidden'); if(ac) ac.classList.add('hidden'); }
                     }
-                } catch(e) {}
-            }, 1000);
+                }
+            } catch(e) {}
+        }, 5000);
 
-            // 2. Bucle del Escudo (100% Local, SIN WorldTimeAPI)
-            setInterval(function() {
-                try {
-                    const idx = (typeof bIdx !== 'undefined' && bIdx !== -1) ? bIdx : (typeof kiosko_bIdx !== 'undefined' ? kiosko_bIdx : -1);
-                    if (idx !== -1 && db.barberias[idx]) {
-                        const b = db.barberias[idx];
-                        const ahora = Date.now();
-                        
-                        const diffDays = Math.floor((ahora - (b.creadoEn || ahora)) / (1000 * 60 * 60 * 24));
-                        const suscrip = b.diasSuscripcion || 15;
-                        const vencido = (suscrip - diffDays) < 0;
-                        const trampa = b.lastActiveClock && (ahora + 10000) < b.lastActiveClock;
+        // 3. Alertas de Citas
+        setInterval(function() {
+            try {
+                if (typeof session !== 'undefined' && session && bIdx !== -1 && db.barberias[bIdx]) {
+                    const b = db.barberias[bIdx];
+                    const hoy = getTodayYMD();
+                    const now = new Date();
+                    const curMins = now.getHours() * 60 + now.getMinutes();
 
-                        if (b.bloqueado || vencido || trampa) {
-                            const pb = document.getElementById('pantalla-bloqueo');
-                            const ac = document.getElementById('app-content');
-                            if(pb) pb.classList.remove('hidden');
-                            if(ac) ac.classList.add('hidden');
-                        } else {
-                            if (!b.lastActiveClock || ahora > b.lastActiveClock) {
-                                b.lastActiveClock = ahora;
-                            }
-                        }
-                    }
-                } catch(e) {}
-            }, 5000);
-
-            // 3. Alertas de Citas
-            setInterval(function() {
-                try {
-                    if (typeof session !== 'undefined' && session && bIdx !== -1 && db.barberias[bIdx]) {
-                        const b = db.barberias[bIdx];
-                        const hoy = getTodayYMD();
-                        const now = new Date();
-                        const curMins = now.getHours() * 60 + now.getMinutes();
-
-                        if (b.citas) {
-                            b.citas.forEach(function(c) {
-                                if (c.estado === 'PENDIENTE' && c.fecha === hoy) {
-                                    const citaMins = timeToMins(c.hora);
-                                    if (citaMins - curMins === 10 && !c.notificado10) {
-                                        if (session.rol === 'admin' || session.nom === c.barbero) {
-                                            Swal.fire({ title: '⏰ Cita!', text: c.nombre + ' llega en 10 min', icon: 'info', toast: true, position: 'top-end', showConfirmButton: false, timer: 5000 });
-                                        }
-                                        c.notificado10 = true;
-                                        saveDB(false);
+                    if (b.citas) {
+                        b.citas.forEach(function(c) {
+                            if (c.estado === 'PENDIENTE' && c.fecha === hoy) {
+                                const citaMins = timeToMins(c.hora);
+                                if (citaMins - curMins === 10 && !c.notificado10) {
+                                    if (session.rol === 'admin' || session.nom === c.barbero) {
+                                        Swal.fire({ title: '⏰ Cita!', text: c.nombre + ' llega en 10 min', icon: 'info', toast: true, position: 'top-end', showConfirmButton: false, timer: 5000 });
                                     }
+                                    c.notificado10 = true;
+                                    saveDB(false);
                                 }
-                            });
-                        }
+                            }
+                        });
                     }
-                } catch(e) {}
-            }, 10000);
-        }
+                }
+            } catch(e) {}
+        }, 10000);
 
+        
         // ==========================================
         // FUNCIONES DE INICIO (CREAR, RESET Y KIOSKO)
         // ==========================================
@@ -2218,6 +2221,34 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
             }
 
             const restantes = (b.diasSuscripcion || 15) - diffDays;
+           // 🚨 SISTEMA DE COBRO AUTOMÁTICO (Alerta cuando quedan 3 días o menos)
+            if (restantes <= 3 && restantes >= 0 && !sessionStorage.getItem('alerta_pago_mostrada')) {
+                sessionStorage.setItem('alerta_pago_mostrada', 'true'); // Solo se muestra 1 vez por sesión para no ser molestos
+                
+                // TU NÚMERO Y LINK DE FOTO:
+                let miNequi = "3134941784"; // Tu WhatsApp real
+                let linkQR = "https://blfkwfmthsdifdjybssw.supabase.co/storage/v1/object/public/perfiles/Qr%20Bre-B.jpeg"; // <-- Pon el enlace de tu imagen QR aquí
+                let mensajeSoporte = `https://wa.me/57${miNequi}?text=Hola%20Soporte%20Zeus.%20Env%C3%ADo%20el%20comprobante%20de%20pago%20para%20renovar%20la%20suscripci%C3%B3n%20del%20local:%20${encodeURIComponent(b.nombre)}`;
+
+                Swal.fire({
+                    title: '⚠️ ¡Renovación Próxima!',
+                    html: `
+                    <p class="text-sm text-zinc-300 mb-4 font-bold">Tu licencia expira en <b class="text-red-500 text-xl">${restantes} días</b>.</p>
+                    <div class="bg-black p-4 rounded-3xl border border-indigo-900/50 mb-4 shadow-inner">
+                        <p class="text-[10px] text-zinc-400 uppercase tracking-widest mb-2 font-black">Escanea para renovar</p>
+                        <img src="${linkQR}" class="w-40 h-40 mx-auto rounded-xl border-2 border-indigo-500 p-1 bg-white mb-2" alt="QR Pago">
+                        <p class="text-sm text-indigo-400 font-black">Nequi / Daviplata: ${miNequi}</p>
+                    </div>
+                    <p class="text-[10px] text-zinc-500 uppercase">Evita el bloqueo automático de tu sistema.</p>`,
+                    background: '#0a0a0a', color: '#fff',
+                    showCancelButton: true, confirmButtonColor: '#25D366', cancelButtonColor: '#18181b',
+                    confirmButtonText: '📲 ENVIAR COMPROBANTE', cancelButtonText: 'CERRAR',
+                    customClass: { popup: 'border border-red-900/50 rounded-[3rem] shadow-[0_0_40px_rgba(239,68,68,0.2)]' }
+                }).then((res) => {
+                    if (res.isConfirmed) window.open(mensajeSoporte, '_blank');
+                });
+            }
+
             
             // 3. 🚫 BLOQUEO POR VENCIMIENTO O MANUAL
             if (restantes < 0 || b.bloqueado) {
@@ -3458,14 +3489,6 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
 
 
 
-
-
-
-
-
-
-
-
        // --- CEREBRO PARA CARGAR LA CONFIGURACIÓN (A PRUEBA DE ERRORES) ---
        function renderConfig() {
             const b = db.barberias[bIdx]; if(!b) return;
@@ -3511,7 +3534,7 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
             setVal('cfg-iva-pct', b.ivaPct || "");
             setVal('cfg-titular', b.titularCuenta || "");
             setVal('cfg-cuenta', b.numeroCuenta || "");
-            setVal('cfg-banco-tipo', b.bancoTipo || "GENERICO"); // NUEVO BANCO
+            setVal('cfg-banco-tipo', b.bancoTipo || "GENERICO"); 
 
             setVal('cfg-whatsapp', b.whatsapp || "");
             setChk('cfg-alertas', b.alertasActivas || false);
@@ -3540,8 +3563,17 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                 new QRCode(qrBox, { text: kioLink, width: 160, height: 160, colorDark: "#000", colorLight: "#fff", correctLevel: QRCode.CorrectLevel.L });
             }
 
+            // 📍 Mostrar GPS Guardado
+            setVal('cfg-lat', b.lat || "");
+            setVal('cfg-lon', b.lon || "");
+            tempLat = b.lat || null;
+            tempLon = b.lon || null;
+
+
             if(typeof renderConfigLists === 'function') renderConfigLists(); 
         }
+
+
 
         // --- BOTÓN DE GUARDAR INDESTRUCTIBLE ---
         function actionGuardarYSalir() {
@@ -3603,6 +3635,18 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
             b.configMkt.dias = parseInt(cleanNum(getVal('cfg-mkt-dias'))) || 30;
             b.configMkt.desc = getVal('cfg-mkt-desc');
             b.configMkt.msg = getVal('cfg-mkt-msg');
+
+            // 📍 GUARDADO DEL GPS EN LA BASE DE DATOS (Auto o Manual)
+            let mLat = parseFloat(getVal('cfg-lat'));
+            let mLon = parseFloat(getVal('cfg-lon'));
+            if (!isNaN(mLat) && !isNaN(mLon)) {
+                b.lat = mLat;
+                b.lon = mLon;
+            } else if (tempLat && tempLon) {
+                b.lat = tempLat;
+                b.lon = tempLon;
+            }  
+
 
             saveDB(true);
             showScreen('view-admin'); 
@@ -5404,7 +5448,7 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
         // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES
         function comprobarVersionNube() {
             // Cambiamos a la versión 1.32 por las nuevas funciones (Voz y Propinas)
-            const VERSION_ACTUAL = "1.38"; 
+            const VERSION_ACTUAL = "1.39"; 
             const versionGuardada = localStorage.getItem('zeus_version');
             if (versionGuardada !== VERSION_ACTUAL) {
                 console.log("¡Actualización detectada! Destruyendo caché...");
@@ -5424,6 +5468,32 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                 }, 1000);
             }
         }
+
+         function capturarUbicacionGPS() {
+            if (!navigator.geolocation) return Swal.fire('Error', 'Tu celular no soporta GPS.', 'error');
+            Swal.fire({ title: 'Buscando satélites... 🛰️', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    tempLat = position.coords.latitude;
+                    tempLon = position.coords.longitude;
+                    
+                    document.getElementById('cfg-lat').value = tempLat;
+                    document.getElementById('cfg-lon').value = tempLon;
+                    
+                    Swal.close();
+                    Swal.fire({title: '¡Coordenadas Listas!', text: 'Se capturó la ubicación. Dale al botón verde de "GUARDAR" abajo.', icon: 'success', background: '#0a0a0a', color: '#fff'});
+                },
+                (error) => {
+                    Swal.close();
+                    Swal.fire('Error de GPS', 'Intenta desde un celular o pega las coordenadas de Google Maps manualmente.', 'error');
+                },
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+            );
+        }
+
+
+
         comprobarVersionNube();
 
         // Ejecutar inmediatamente
