@@ -396,7 +396,7 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
             <div class="flex justify-between items-center mb-6">
                 <div class="flex items-center gap-3">
                     <span class="text-3xl sm:text-4xl drop-shadow-[0_0_15px_rgba(59,130,246,0.8)]">⏳</span>
-                    <h2 class="text-2xl sm:text-3xl font-black italic text-white uppercase tracking-tighter drop-shadow-md">ZEUS TIMELINE <span class="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500">PRO</span></h2>
+                    <h2 class="text-2xl sm:text-3xl font-black italic text-white uppercase tracking-tighter drop-shadow-md">ZEUS TIMELINE<span class="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500 pr-2">PRO</span></h2>
                 </div>
                 <button type="button" onclick="detenerAudio(); showScreen(session.rol==='admin'?'view-admin':'view-barbero')" class="w-10 h-10 bg-[#0b1121] text-zinc-400 rounded-full flex items-center justify-center font-black text-lg border border-zinc-700 btn-press hover:bg-red-500 hover:text-white transition-colors shadow-lg">✕</button>
             </div>
@@ -1348,7 +1348,7 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
         let bIdx = -1; let kiosko_bIdx = -1; let session = null; let cart = []; let tempServicios = [];
         let selectedKioTime = null; let fotoBarberoTemp = null; let currentAudio = null;
         let lastTicketData = null; let cloudSyncTimer = null; let comprobanteTemp = null; let saLogoTemp = null;
-        let chartMetodosInstance = null; let chartBarberosInstance = null;
+        let chartMetodosInstance = null; let chartBarberosInstance = null; let _cloudSyncDebounce = null;
 
         // ==========================================
         // 2. COMPRESOR DE IMÁGENES (Soluciona borrado de datos)
@@ -1473,28 +1473,28 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                 catch (e) { console.error("Error guardando local"); }
             }
 
-            // 2. Subida instantánea a la Nube (Sin retrasos)
+            // 2. Subida a la Nube (Con Debounce para no saturar Supabase)
             if (triggerCloudSync && isOnline) {
-                // Detectamos si estamos en el Admin/Barbero o si es un cliente en el Kiosko
-                let idx = bIdx !== -1 ? bIdx : kiosko_bIdx;
-
-                if (idx !== -1 && db.barberias[idx] && db.barberias[idx].id_nube) {
-                    supabaseClient.from('stores')
-                        .update({ json_data: db.barberias[idx] })
-                        .eq('id', db.barberias[idx].id_nube)
-                        .then(({ error }) => {
-                            if (!error) {
-                                console.log("Nube Sincronizada al instante ✅");
-                                // Obligamos a la pantalla a actualizarse para borrar fantasmas
-                                const vistaBarbero = document.getElementById('view-barbero');
-                                if (vistaBarbero && vistaBarbero.classList.contains('active')) {
-                                    renderBarbero();
+                clearTimeout(_cloudSyncDebounce);
+                _cloudSyncDebounce = setTimeout(() => {
+                    let idx = bIdx !== -1 ? bIdx : kiosko_bIdx;
+                    
+                    if (idx !== -1 && db.barberias[idx] && db.barberias[idx].id_nube) {
+                        supabaseClient.from('stores')
+                            .update({ json_data: db.barberias[idx] })
+                            .eq('id', db.barberias[idx].id_nube)
+                            .then(({ error }) => {
+                                if (!error) {
+                                    console.log("Nube sincronizada ✅");
+                                    if (document.getElementById('view-barbero')?.classList.contains('active')) {
+                                        renderBarbero();
+                                    }
+                                } else {
+                                    console.error("Error al subir a la nube:", error);
                                 }
-                            } else {
-                                console.error("Error al subir a la nube:", error);
-                            }
-                        });
-                }
+                            });
+                    }
+                }, 2000);
             }
         }
 
@@ -1703,7 +1703,7 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                 preConfirm: () => {
                     const pin = document.getElementById('swal-master-pin').value.trim();
                     const masterPinReal = db ? (db.superPIN || "9999") : "9999";
-                    if (pin === masterPinReal || pin === "9999") return true;
+                    if (pin === masterPinReal) return true;
                     Swal.showValidationMessage('PIN Maestro Incorrecto'); return false;
                 }
             }).then((result) => {
@@ -1896,7 +1896,7 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
             Swal.fire({ title: 'Autenticando...', text: 'Conectando con la nube...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() }, background: '#0a0a0a', color: '#fff' });
 
             if (isLocalStorageBlocked) { Swal.fire({ title: "Modo Protegido", text: "Abre la aplicación desde un servidor web.", icon: "error", background: "#0a0a0a", color: "#fff" }); pinInput.value = ""; return; }
-            if (pin === (db.superPIN || "9999") || pin === "9999") { Swal.close(); bIdx = -1; session = { rol: 'superadmin' }; saveSession(); showScreen('view-superadmin'); pinInput.value = ""; return; }
+            if (db.superPIN && pin === db.superPIN) { Swal.close(); bIdx = -1; session = { rol: 'superadmin' }; saveSession(); showScreen('view-superadmin'); pinInput.value = ""; return; }
 
             let localIdx = db.barberias.findIndex(x => x.pinAdmin === pin);
             let isBarbero = false; let barberoName = ""; 
@@ -2602,7 +2602,14 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
             html += `<div style="display:flex; justify-content:space-between; font-size:14px; font-weight:bold; margin:6px 0;"><span>TOTAL:</span><span>${fMoney(t.total)}</span></div>`;
             html += `<div style="display:flex; justify-content:space-between; font-size:11px;"><span>MÉTODO:</span><span>${t.metodo}</span></div>`;
             html += `<div style="text-align:center; font-size:9px; margin-top:10px;">${b.ticketFooter || ''}</div></div>`;
-            document.getElementById('print-area').innerHTML = html; setTimeout(() => { window.print(); }, 500);
+            
+            document.getElementById('print-area').innerHTML = html; 
+            
+            // 🔥 AQUÍ ESTÁ LA MAGIA QUE ELIMINA EL FANTASMA
+            setTimeout(() => { 
+                window.print(); 
+                document.getElementById('print-area').innerHTML = ''; // Borra la factura del fondo al terminar
+            }, 500);
         }
 
         // ==========================================
@@ -3327,7 +3334,14 @@ function renderAgendaList() {
             if (!qrCanvas) return Swal.fire('Aviso', 'Genera el QR recargando la página.', 'info');
             const imgSrc = qrCanvas.toDataURL("image/png");
             let html = `<div style="text-align:center; font-family:sans-serif; padding: 20px; color:#000; background:#fff;"><h1 style="font-size:36px; margin-bottom:10px; text-transform:uppercase; font-weight:900;">${b.nombre}</h1><p style="font-size:18px; color:#333; margin-bottom: 20px;">Escanea este código y reserva tu turno sin filas</p><img src="${imgSrc}" style="width:300px; height:300px; margin:0 auto; border: 10px solid #000; border-radius: 20px;"><p style="font-size:14px; margin-top:20px; color:#666;">Zeus Barber Pro Cloud</p></div>`;
-            document.getElementById('print-area').innerHTML = html; setTimeout(() => window.print(), 500);
+            
+            document.getElementById('print-area').innerHTML = html; 
+            
+            // 🔥 MAGIA APLICADA AQUÍ TAMBIÉN
+            setTimeout(() => { 
+                window.print(); 
+                document.getElementById('print-area').innerHTML = ''; // Borra el QR del fondo al terminar
+            }, 500);
         }
 
 
@@ -3725,7 +3739,7 @@ function renderAgendaList() {
                 setVal('cfg-mkt-msg', b.configMkt.msg || "");
             }
 
-            const baseWebUrl = "https://amaya0623.github.io/zeus-barber-pro";
+            const baseWebUrl = "https://zeusbarberpro.com";
             const kioLink = baseWebUrl + '?kiosk=' + (b.id_nube || b.id);
             setVal('cfg-kiosko-link', kioLink);
             const qrBox = document.getElementById('cfg-kiosko-qr');
@@ -4544,7 +4558,7 @@ function renderAgendaList() {
             
             let msgPlantilla = b.configMkt.msg || "¡Hola {cliente}! Queremos regalarte un descuento del {descuento}. Agenda aquí: {link}";
             let descuento = b.configMkt.desc || "15%";
-            let linkKiosko = "https://amaya0623.github.io/zeus-barber-pro?kiosk=" + (b.id_nube || b.id);
+            let linkKiosko = "https://zeusbarberpro.com/?kiosk=" + (b.id_nube || b.id);
 
             let success = 0;
             // Mandamos los mensajes uno por uno (Máximo 20 para no saturar el celular de golpe)
@@ -5145,12 +5159,23 @@ function renderAgendaList() {
             let baseWebUrl = window.location.href.split('?')[0];
             let tvLink = baseWebUrl + `?screen=tv&local=${b.id_nube || b.id}`;
             
-            // Copiamos al portapapeles y mostramos la alerta
+            // Copiamos al portapapeles y mostramos la alerta con los DOS botones
             navigator.clipboard.writeText(tvLink).then(() => {
                 Swal.fire({ 
                     title: 'Link Generado 📺', 
-                    html: `Abre el navegador en tu TV y pega esto:<br><div class="flex mt-4 gap-2"><input type="text" id="tv-link-input" value="${tvLink}" readonly class="w-full p-4 rounded-xl bg-[#050505] border border-zinc-800 text-indigo-400 font-bold text-xs outline-none"><button onclick="document.getElementById('tv-link-input').select(); document.execCommand('copy');" class="bg-indigo-600 px-5 rounded-xl font-black text-white hover:bg-indigo-500 transition-colors btn-press text-xl">📋</button></div>`, 
-                    icon: 'success', background: '#111', color: '#fff', confirmButtonColor: '#4f46e5', confirmButtonText: 'CERRAR' 
+                    html: `Abre el navegador en tu TV y pega esto:<br>
+                           <div class="flex mt-4 gap-2">
+                               <input type="text" id="tv-link-input" value="${tvLink}" readonly class="w-full p-4 rounded-xl bg-[#050505] border border-zinc-800 text-indigo-400 font-bold text-xs outline-none">
+                               
+                               <button onclick="document.getElementById('tv-link-input').select(); document.execCommand('copy');" class="bg-indigo-600 px-5 rounded-xl font-black text-white hover:bg-indigo-500 transition-colors btn-press text-xl" title="Copiar al portapapeles">📋</button>
+                               
+                               <button type="button" onclick="window.open(document.getElementById('tv-link-input').value, '_blank')" class="bg-cyan-600 hover:bg-cyan-500 text-white px-5 rounded-xl font-black transition-colors btn-press text-sm" title="Abrir en nueva pestaña">🌐 ABRIR</button>
+                           </div>`, 
+                    icon: 'success', 
+                    background: '#111', 
+                    color: '#fff', 
+                    confirmButtonColor: '#4f46e5', 
+                    confirmButtonText: 'CERRAR' 
                 });
             }).catch(err => {
                 Swal.fire('Error', 'No se pudo copiar el link automáticamente. Selecciónalo y cópialo a mano.', 'error');
@@ -5626,7 +5651,7 @@ function renderAgendaList() {
         // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES
         function comprobarVersionNube() {
             // Cambiamos a la versión 1.32 por las nuevas funciones (Voz y Propinas)
-            const VERSION_ACTUAL = "1.40"; 
+            const VERSION_ACTUAL = "1.41"; 
             const versionGuardada = localStorage.getItem('zeus_version');
             if (versionGuardada !== VERSION_ACTUAL) {
                 console.log("¡Actualización detectada! Destruyendo caché...");
@@ -5671,6 +5696,8 @@ function renderAgendaList() {
         }
 
 
+
+        comprobarVersionNube();
 
         comprobarVersionNube();
 
