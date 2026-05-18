@@ -298,12 +298,53 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
 
 
 
+<section id="view-franquicia" class="view-section p-6 max-w-5xl mx-auto space-y-6 text-left">
+            <div class="glass p-8 sm:p-10 rounded-[3rem] border-l-8 border-purple-600 shadow-2xl relative overflow-hidden">
+                <div class="flex flex-col md:flex-row md:justify-between md:items-end mb-6 border-b border-zinc-900 pb-4 gap-4 mt-2">
+                    <div>
+                        <h2 class="text-3xl font-black italic text-purple-400 uppercase tracking-tighter">CONTROL DE FRANQUICIA 👑</h2>
+<button type="button" onclick="escucharResumenFranquicia()" class="mt-2 bg-purple-900/30 text-purple-400 border border-purple-500/50 px-3 py-1 rounded-lg font-black text-[9px] uppercase hover:bg-purple-600 hover:text-white transition-all btn-press shadow-[0_0_10px_rgba(168,85,247,0.4)] flex items-center gap-2">🎙️ Escuchar Reporte Global</button>
+
+                          
+                        <p class="text-[10px] text-zinc-500 font-black uppercase tracking-widest mt-1">Consolidado Multisede</p>
+                    </div>
+                    <button type="button" onclick="actionLogout()" class="bg-red-900/10 text-red-500 px-4 py-2 rounded-xl text-[10px] font-bold border border-red-900/30 btn-press">CERRAR SESIÓN</button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <h2 id="fran-utilidad-total" class="text-5xl sm:text-6xl font-black italic text-green-500 tracking-tighter">$ 0</h2>
+                        <p class="text-[10px] text-zinc-500 font-black uppercase tracking-widest mt-1">Utilidad Neta Consolidada (Todas las sedes)</p>
+                    </div>
+                    <div class="bg-black/50 p-6 rounded-3xl space-y-3 border border-zinc-900 shadow-inner flex flex-col justify-center">
+                        <div class="flex justify-between text-xs font-bold uppercase text-zinc-400"><span>Efectivo Total:</span> <span class="text-white" id="fran-efectivo-total">0</span></div>
+                        <div class="flex justify-between text-xs font-bold uppercase text-zinc-400"><span>Bancos Total:</span> <span class="text-white" id="fran-bancos-total">0</span></div>
+                        <div class="flex justify-between text-xs font-bold uppercase text-zinc-400 border-t border-zinc-800 pt-3"><span>Gastos Totales:</span> <span class="text-red-500" id="fran-gastos-total">0</span></div>
+                    </div>
+                </div>
+
+
+<div class="bg-black/40 p-5 rounded-[2rem] border border-zinc-900/50 shadow-inner mb-8">
+                    <h3 class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-4 text-center">Comparativa de Sedes (Utilidad Neta)</h3>
+                    <div class="relative w-full h-48"><canvas id="chartFranquicia"></canvas></div>
+                </div>
+
+
+
+
+                <h3 class="text-[11px] font-black text-zinc-500 uppercase tracking-widest ml-2 mb-3 italic">Tus Sedes Vinculadas</h3>
+                <div id="franquicia-sedes-lista" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+            </div>
+        </section>
+
+
         <section id="view-admin" class="view-section p-6 max-w-5xl mx-auto space-y-6 text-left">
             <div class="glass p-8 sm:p-10 rounded-[3rem] border-l-8 border-indigo-600 shadow-2xl relative overflow-hidden">
                 <div class="flex flex-col md:flex-row md:justify-between md:items-end mb-6 border-b border-zinc-900 pb-4 gap-4 mt-2">
                     <p id="admin-utilidad-title" class="text-[10px] text-zinc-500 font-black uppercase tracking-widest">Utilidad Neta</p>
                     <div class="flex gap-2 items-center flex-wrap">
                         <button type="button" onclick="forzarSincronizacionNube()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl font-black text-[10px] uppercase btn-press shadow-lg shadow-blue-600/20 flex items-center gap-2 transition-colors">🔄 Sincronizar</button>
+<button type="button" id="btn-regresar-franquicia" onclick="showScreen('view-franquicia'); renderFranquiciaMaster();" class="hidden bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-xl font-black text-[10px] uppercase btn-press shadow-lg shadow-purple-600/20 transition-colors">👑 Franquicia</button>
                         <div class="bg-black py-2 px-4 rounded-xl border border-zinc-800 flex gap-3 items-center shadow-inner">
                             <div id="admin-license-badge" class="px-2 py-1 rounded flex items-center gap-1"><span class="text-[8px] uppercase font-bold text-zinc-400">Licencia:</span><span id="admin-license-days" class="text-[10px] font-black text-green-400">---</span></div>
                             <span class="text-zinc-700">|</span><span id="live-date" class="text-[10px] font-bold text-zinc-400 uppercase">00/00/0000</span><span class="text-zinc-700">|</span><span id="live-time" class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">00:00:00</span>
@@ -322,6 +363,9 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                         <div class="flex justify-between text-xs font-bold uppercase text-zinc-400 border-t border-zinc-800 pt-3"><span>Gastos:</span> <span class="text-red-500" id="admin-gastos">0</span></div>
                     </div>
                 </div>
+
+
+
 
                 <div class="grid grid-cols-2 gap-4 mb-8">
                     <div class="bg-blue-900/10 border border-blue-900/30 p-5 rounded-2xl text-center shadow-inner"><p class="text-[9px] text-zinc-400 font-black uppercase tracking-widest mb-1">Total Clientes</p><p id="metric-total-clientes" class="text-3xl font-black text-blue-400">0</p></div>
@@ -481,15 +525,25 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
 
         <section id="view-barbero" class="view-section p-4 max-w-2xl mx-auto text-left">
             <div class="glass p-6 sm:p-8 rounded-[3.5rem] border border-zinc-800 shadow-2xl">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-zinc-500 font-black text-[10px] uppercase tracking-[0.4em]">Punto de Venta</h2>
-                    <div class="flex gap-2">
-                        <button type="button" onclick="abrirGastos()" class="bg-red-900/20 text-red-400 text-[9px] font-black px-3 py-2 rounded-xl border border-red-900/50 btn-press transition-colors hover:bg-red-900/40">💸 GASTOS</button>
-                        <button type="button" onclick="abrirFacturas()" class="bg-blue-900/20 text-blue-400 text-[9px] font-black px-3 py-2 rounded-xl border border-blue-900/50 btn-press transition-colors hover:bg-blue-900/40">🧾 FACTURAS</button>
-                        <button type="button" onclick="abrirCierreCaja()" class="bg-green-900/20 text-green-500 text-[9px] font-black px-3 py-2 rounded-xl border border-green-900/50 btn-press transition-colors hover:bg-green-900/40">💰 CIERRE</button>
+                
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b border-zinc-800/50 pb-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-full border-2 border-indigo-500 overflow-hidden bg-black shadow-[0_0_15px_rgba(99,102,241,0.2)] shrink-0 relative">
+                            <img id="pos-barber-img" src="" class="w-full h-full object-cover hidden absolute inset-0 z-10">
+                            <span id="pos-barber-icon" class="w-full h-full flex items-center justify-center text-2xl absolute inset-0 z-0">💈</span>
+                        </div>
+                        <div class="flex flex-col">
+                            <p class="text-indigo-400 font-bold text-[8px] uppercase tracking-[0.3em] mb-0.5">TU PUNTO DE VENTA</p>
+                            <h2 id="pos-barber-name" class="text-white font-black text-xl sm:text-2xl uppercase tracking-tighter leading-none">NOMBRE</h2>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-2 w-full sm:w-auto">
+                        <button type="button" onclick="abrirGastos()" class="flex-1 sm:flex-none bg-red-900/20 text-red-400 text-[9px] font-black px-3 py-2.5 rounded-xl border border-red-900/50 btn-press transition-colors hover:bg-red-900/40">💸 GASTOS</button>
+                        <button type="button" onclick="abrirFacturas()" class="flex-1 sm:flex-none bg-blue-900/20 text-blue-400 text-[9px] font-black px-3 py-2.5 rounded-xl border border-blue-900/50 btn-press transition-colors hover:bg-blue-900/40">🧾 FACTS</button>
+                        <button type="button" onclick="abrirCierreCaja()" class="flex-1 sm:flex-none bg-green-900/20 text-green-500 text-[9px] font-black px-3 py-2.5 rounded-xl border border-green-900/50 btn-press transition-colors hover:bg-green-900/40">💰 CIERRE</button>
                     </div>
                 </div>
-
 
 
 
@@ -703,6 +757,9 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                             <span class="text-[11px] font-black text-zinc-300 uppercase tracking-widest flex items-center gap-2"><span class="text-lg">💈</span> Personal y Servicios</span><span id="icon-personal" class="text-zinc-500 font-black transition-transform duration-300">▼</span>
                         </button>
 
+
+
+
                         <div id="acc-personal" class="hidden px-6 pb-6 border-t border-zinc-800/50 pt-5">
                             
                             <div class="col-span-12 mb-4 p-4 rounded-xl border border-zinc-800 bg-[#111]">
@@ -714,6 +771,10 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                                 </div>
                             </div>
 
+
+
+
+
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div class="bg-zinc-950 p-6 rounded-[1.5rem] border border-zinc-800 shadow-inner">
                                     <p class="text-[10px] font-black text-green-400 mb-4 uppercase tracking-widest">Servicios</p>
@@ -723,7 +784,18 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                                         <input type="text" inputmode="numeric" id="add-s-pre" placeholder="Precio (Ej: 85000)" class="col-span-6 md:col-span-5 p-3 text-xs rounded-xl font-bold bg-[#050505] border border-zinc-800 w-full text-white outline-none focus:border-green-500">
                                         <input type="text" id="add-s-dur" placeholder="Duración (Ej: 1h 40min)" class="col-span-6 md:col-span-4 p-3 text-xs rounded-xl font-bold bg-[#050505] border border-zinc-800 w-full text-white outline-none focus:border-green-500">
                                         <label class="col-span-6 md:col-span-4 flex items-center justify-center gap-2 bg-[#050505] border border-yellow-900/50 rounded-xl text-[9px] font-black text-yellow-500 uppercase cursor-pointer hover:bg-yellow-900/20 transition-colors p-2"><input type="checkbox" id="add-s-premium" class="accent-yellow-500 w-4 h-4">👑 Destacar</label>
-                                        <button type="button" onclick="configAddServicio()" class="col-span-12 md:col-span-4 bg-green-600 text-white rounded-xl font-black btn-press transition-colors text-xs py-2 uppercase">Guardar</button>
+
+
+
+                                       <div class="col-span-12 md:col-span-4 flex flex-col sm:flex-row gap-2 h-full">
+    <button type="button" onclick="configAddServicio()" class="flex-1 bg-green-600 text-white rounded-xl font-black btn-press transition-colors text-xs py-3 uppercase shadow-lg shadow-green-600/20 h-full flex items-center justify-center">Guardar</button>
+
+    <button type="button" onclick="clonarCatalogoSedes()" class="flex-1 bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-black btn-press transition-colors text-[10px] py-3 uppercase shadow-lg shadow-purple-600/20 flex flex-col items-center justify-center leading-none h-full">
+        <span>🔄 CLONAR</span><span class="text-[8px] text-purple-200 mt-0.5">A OTRAS SEDES</span>
+    </button>
+</div>
+
+
                                         <textarea id="add-s-desc" rows="2" placeholder="Descripción detallada..." class="col-span-12 p-3 text-xs rounded-xl font-bold bg-[#050505] border border-zinc-800 w-full text-zinc-300 outline-none focus:border-green-500 resize-none mt-1"></textarea>
                                     </div>
                                     <div id="cfg-lista-s" class="space-y-2 max-h-48 overflow-y-auto pr-1 scroll-safe"></div>
@@ -755,6 +827,8 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                                             <input type="text" inputmode="numeric" id="add-b-comision-prod" placeholder="% Prod." title="% Comisión Productos" class="w-1/3 p-4 text-xs rounded-xl font-bold text-center text-purple-400 bg-[#050505] border border-zinc-800 outline-none focus:border-purple-500">
                                         </div>
 
+
+
                                         <div class="grid grid-cols-2 gap-2">
                                             <div class="bg-[#050505] border border-zinc-800 p-3 rounded-xl flex flex-col items-center justify-center transition-colors focus-within:border-indigo-500">
                                                 <span class="text-[8px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Entrada</span>
@@ -765,6 +839,9 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                                                 <input type="time" id="add-b-fin" class="w-full bg-transparent text-white text-sm font-black outline-none text-center cursor-pointer appearance-none">
                                             </div>
                                         </div>
+<input type="text" id="add-b-especialidades" placeholder="Especialidades separadas por coma (Ej: Degradados, Color, Tatuajes)" class="w-full bg-[#050505] border border-zinc-800 p-3.5 rounded-xl text-[10px] font-bold text-white uppercase focus:border-indigo-500 outline-none transition-colors mt-2">
+
+
 
                                         <button type="button" onclick="configAddBarbero()" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-black uppercase text-[10px] tracking-widest btn-press transition-colors shadow-lg shadow-indigo-600/20">GUARDAR BARBERO 👤</button>
                                     </div>
@@ -1348,7 +1425,7 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
         let bIdx = -1; let kiosko_bIdx = -1; let session = null; let cart = []; let tempServicios = [];
         let selectedKioTime = null; let fotoBarberoTemp = null; let currentAudio = null;
         let lastTicketData = null; let cloudSyncTimer = null; let comprobanteTemp = null; let saLogoTemp = null;
-        let chartMetodosInstance = null; let chartBarberosInstance = null; let _cloudSyncDebounce = null;
+        let chartMetodosInstance = null; let chartBarberosInstance = null; let chartFranquiciaInstance = null; let _cloudSyncDebounce = null;
 
         // ==========================================
         // 2. COMPRESOR DE IMÁGENES (Soluciona borrado de datos)
@@ -1404,15 +1481,21 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
         // ==========================================
         function optimizarBaseDeDatos() {
             if (!db || !db.barberias || isLocalStorageBlocked) return;
-            const hoyTime = new Date(getTodayYMD() + "T00:00:00").getTime(); let limpiado = false;
-            db.barberias.forEach(b => {
+            const hoyYMD = getTodayYMD(); // Fecha actual limpia (YYYY-MM-DD)
+            let limpiado = false;
+            
+            db.barberias.forEach(b => { 
                 if (b.citas) {
                     const initLen = b.citas.length;
-                    b.citas = b.citas.filter(c => new Date(normalizeDate(c.fecha) + "T00:00:00").getTime() >= hoyTime);
+                    // Solo mantenemos vivas las citas que correspondan a hoy o a fechas futuras
+                    b.citas = b.citas.filter(c => {
+                        const fechaCita = normalizeDate(c.fecha);
+                        return fechaCita >= hoyYMD;
+                    });
                     if (initLen !== b.citas.length) limpiado = true;
                 }
             });
-            if (limpiado) { saveDB(true); console.log("Citas antiguas optimizadas."); }
+            if (limpiado) { saveDB(true); console.log("Citas antiguas eliminadas del sistema automáticamente. 🧹"); }
         }
 
         window.onload = () => {
@@ -1449,7 +1532,13 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
         function timeToMins(t) { if (!t) return 0; const p = t.toString().replace(/p\.?\s*m\.?/gi, '').replace(/a\.?\s*m\.?/gi, '').trim().split(':'); return (parseInt(p[0]) || 0) * 60 + (parseInt(p[1]) || 0); }
         function esPinInseguro(p) { if (!p || p.length < 4) return true; if (/^(\d)\1+$/.test(p)) return true; if ("0123456789".includes(p) || "9876543210".includes(p)) return true; return false; }
 
-        function detenerAudio() { if (currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; } const sndAlerta = document.getElementById('snd-alerta'); if (sndAlerta) { sndAlerta.pause(); sndAlerta.currentTime = 0; } }
+        function detenerAudio() { 
+            if (currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; } 
+            const sndAlerta = document.getElementById('snd-alerta'); 
+            if (sndAlerta) { sndAlerta.pause(); sndAlerta.currentTime = 0; } 
+            // 🛑 APAGADO DE EMERGENCIA PARA LA VOZ DE ISI IA
+            if (window.speechSynthesis) { window.speechSynthesis.cancel(); } 
+        }
         function reproducirAudioExito() { detenerAudio(); const b = db.barberias[bIdx]; currentAudio = new Audio(b && b.customAudio ? b.customAudio : 'https://actions.google.com/sounds/v1/ui/digital_bell.ogg'); currentAudio.play().catch(e => console.error(e)); }
 
         // ==========================================
@@ -1833,7 +1922,7 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                 // 🚀 SOLUCIÓN KIOSKO: Descargar siempre el estado REAL de la nube
                 if (navigator.onLine && typeof supabaseClient !== 'undefined') {
                     Swal.fire({ title: 'Abriendo Kiosko...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() }, background: '#0a0a0a', color: '#fff' });
-                    supabaseClient.from('stores').select('*').eq('id', kioskId).single().then(({data, error}) => {
+                    supabaseClient.from('stores').select('id, name, json_data').eq('id', kioskId).single().then(({data, error}) => {
                         Swal.close();
                         if(!error && data && data.json_data) {
                             let bData = data.json_data;
@@ -1968,7 +2057,16 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                 if(typeof saveDB === 'function') saveDB(false); 
                 if(typeof saveSession === 'function') saveSession(); 
                 pinInput.value = ""; Swal.close(); 
-                showScreen(session.rol === 'admin' ? 'view-admin' : 'view-barbero'); 
+                if (session.rol === 'admin') {
+                    if (bVerif.franquiciaActiva) {
+                        showScreen('view-franquicia');
+                        renderFranquiciaMaster();
+                    } else {
+                        showScreen('view-admin');
+                    }
+                } else {
+                    showScreen('view-barbero');
+                } 
                 if(typeof forzarSincronizacionNube === 'function') forzarSincronizacionNube(true); 
                 return;
             } else {
@@ -2096,8 +2194,11 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                         if (input.placeholder) { input.placeholder = input.placeholder.replace(/BARBERO/g, 'ESTILISTA').replace(/Barbero/g, 'Estilista'); }
                     });
 
+
+
+
                 } else {
-                    // MODO BARBERÍA PURA (Restaura todo si un barbero entró por error al link de beauty)
+                    // MODO BARBERÍA PURA (Restaura todo si vienes de un Spa)
                     document.body.classList.remove('theme-estetica');
                     
                     if (estaEnLogin) {
@@ -2108,9 +2209,29 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                         if (subTitle) subTitle.innerText = "Software de Nube";
                         if (beautyLogo) beautyLogo.classList.add('hidden');
                         if (beautyPhrase) beautyPhrase.classList.add('hidden');
-                        if (beautyFeatures) beautyFeatures.classList.add('hidden'); // <-- AQUÍ LOS OCULTAMOS PARA LOS BARBEROS
+                        if (beautyFeatures) beautyFeatures.classList.add('hidden'); 
                         if (btnLogin) btnLogin.innerText = "Entrar a Zeus ⚡";
                     }
+
+                    // 🔄 TRADUCCIÓN INVERSA (De Spa/Peluquería de regreso a Barbería)
+                    const elementosTextos = document.querySelectorAll('h1, h2, h3, h4, p, span, button, option, label, div');
+                    elementosTextos.forEach(el => {
+                        if (el.children.length === 0 && el.innerHTML) { 
+                            let txt = el.innerHTML;
+                            let cambiado = false;
+                            if (txt.includes('ESTILISTAS')) { txt = txt.replace(/ESTILISTAS/g, 'BARBEROS'); cambiado = true; }
+                            if (txt.includes('Estilistas')) { txt = txt.replace(/Estilistas/g, 'Barberos'); cambiado = true; }
+                            if (txt.includes('ESTILISTA')) { txt = txt.replace(/ESTILISTA/g, 'BARBERO'); cambiado = true; }
+                            if (txt.includes('Estilista')) { txt = txt.replace(/Estilista/g, 'Barbero'); cambiado = true; }
+                            if (txt.includes('SPA / PELUQUERÍA')) { txt = txt.replace(/SPA \/ PELUQUERÍA/g, 'BARBERÍA'); cambiado = true; }
+                            if (txt.includes('✨')) { txt = txt.replace(/✨/g, '💈'); cambiado = true; }
+                            if (cambiado) el.innerHTML = txt;
+                        }
+                    });
+
+                    document.querySelectorAll('input, textarea').forEach(input => {
+                        if (input.placeholder) { input.placeholder = input.placeholder.replace(/ESTILISTA/g, 'BARBERO').replace(/Estilista/g, 'Barbero'); }
+                    });
                 }
             }, 100);
         }
@@ -2230,8 +2351,31 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
             const b = db.barberias[bIdx]; if (!b) return; 
             const hoyYMD = getTodayYMD();
 
+            // Mostrar botón "Franquicia" si hay más de una sede con el mismo PIN
+            const btnFran = document.getElementById('btn-regresar-franquicia');
+            if (btnFran) {
+                // Buscamos cuántas sedes comparten el PIN de la sede actual
+                const sedesVinculadas = db.barberias.filter(x => x.pinAdmin === b.pinAdmin);
+                
+                // Si hay más de 1 sede con el mismo PIN (y no estamos en modo Kiosko)
+                if (sedesVinculadas.length > 1 && session && session.rol === 'admin') {
+                    btnFran.classList.remove('hidden');
+                } else {
+                    btnFran.classList.add('hidden');
+                }
+            }
+
+            // 🧹 TRUCO MAESTRO: Barrido automático de citas pasadas para no acumular basura
+            if (b.citas) {
+                const totalAntes = b.citas.length;
+                b.citas = b.citas.filter(c => normalizeDate(c.fecha) >= hoyYMD);
+                if (b.citas.length !== totalAntes) {
+                    saveDB(true);
+                    console.log("Citas antiguas eliminadas automáticamente del monitor. 🧹");
+                }
+            }
+
             // 1. 🛡️ ESCUDO ANTI-RETROCESO DE FECHA (Anti-Abejas)
-            // Si la fecha actual del sistema es menor a la última registrada, bloqueamos.
             if (b.lastActiveClock && Date.now() < b.lastActiveClock) {
                 document.getElementById('pantalla-bloqueo').classList.remove('hidden');
                 document.getElementById('app-content').classList.add('hidden');
@@ -2244,55 +2388,85 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                 });
                 return;
             }
-            // Guardamos la marca de tiempo más alta alcanzada
             b.lastActiveClock = Date.now();
             saveDB(false);
 
             // 2. 🕒 CÁLCULO DE DÍAS (Validación Híbrida)
             let diffDays = Math.floor((Date.now() - (b.creadoEn || Date.now())) / (1000 * 60 * 60 * 24));
             
-            // Si hay internet, consultamos la hora real de un servidor externo para evitar engaños
             if (isOnline) {
                 try {
                     const res = await fetch('https://worldtimeapi.org/api/ip');
                     const data = await res.json();
                     const serverTime = new Date(data.datetime).getTime();
                     diffDays = Math.floor((serverTime - (b.creadoEn || Date.now())) / (1000 * 60 * 60 * 24));
-                } catch(e) { 
-                    // Si falla la API externa, seguimos con la local por seguridad
-                }
+                } catch(e) {}
             }
 
             const restantes = (b.diasSuscripcion || 15) - diffDays;
-           // 🚨 SISTEMA DE COBRO AUTOMÁTICO (Alerta cuando quedan 3 días o menos)
+
+            // 🚨 SISTEMA DE COBRO AUTOMÁTICO REPARADO (Contenedor cuadrado perfecto + Captura de Evidencia)
             if (restantes <= 3 && restantes >= 0 && !sessionStorage.getItem('alerta_pago_mostrada')) {
-                sessionStorage.setItem('alerta_pago_mostrada', 'true'); // Solo se muestra 1 vez por sesión para no ser molestos
+                sessionStorage.setItem('alerta_pago_mostrada', 'true');
                 
-                // TU NÚMERO Y LINK DE FOTO:
-                let miNequi = "3134941784"; // Tu WhatsApp real
-                let linkQR = "https://blfkwfmthsdifdjybssw.supabase.co/storage/v1/object/public/perfiles/Qr%20Bre-B.jpeg"; // <-- Pon el enlace de tu imagen QR aquí
-                let mensajeSoporte = `https://wa.me/57${miNequi}?text=Hola%20Soporte%20Zeus.%20Env%C3%ADo%20el%20comprobante%20de%20pago%20para%20renovar%20la%20suscripci%C3%B3n%20del%20local:%20${encodeURIComponent(b.nombre)}`;
+                let miNequi = "3134941784";
+                let linkQR = "https://blfkwfmthsdifdjybssw.supabase.co/storage/v1/object/public/perfiles/Qr%20Bre-B.jpeg";
 
                 Swal.fire({
                     title: '⚠️ ¡Renovación Próxima!',
                     html: `
                     <p class="text-sm text-zinc-300 mb-4 font-bold">Tu licencia expira en <b class="text-red-500 text-xl">${restantes} días</b>.</p>
-                    <div class="bg-black p-4 rounded-3xl border border-indigo-900/50 mb-4 shadow-inner">
-                        <p class="text-[10px] text-zinc-400 uppercase tracking-widest mb-2 font-black">Escanea para renovar</p>
-                        <img src="${linkQR}" class="w-40 h-40 mx-auto rounded-xl border-2 border-indigo-500 p-1 bg-white mb-2" alt="QR Pago">
-                        <p class="text-sm text-indigo-400 font-black">Nequi / Daviplata: ${miNequi}</p>
+                    <div class="bg-black p-6 rounded-3xl border border-zinc-800 mb-4 shadow-inner flex flex-col items-center justify-center">
+                        <p class="text-[10px] text-zinc-500 uppercase tracking-widest mb-3 font-black">Escanea para renovar</p>
+                        
+                        <div class="w-48 h-48 bg-white p-2 rounded-2xl border-2 border-indigo-500 flex items-center justify-center overflow-hidden shadow-lg">
+                            <img src="${linkQR}" class="w-full h-full object-contain" alt="QR Pago">
+                        </div>
+                        
+                        <p class="text-sm text-indigo-400 font-black mt-4">Nequi / Daviplata: ${miNequi}</p>
+                        <p class="text-[10px] text-zinc-400 font-bold uppercase mt-1">Titular: John Amaya</p>
                     </div>
                     <p class="text-[10px] text-zinc-500 uppercase">Evita el bloqueo automático de tu sistema.</p>`,
                     background: '#0a0a0a', color: '#fff',
                     showCancelButton: true, confirmButtonColor: '#25D366', cancelButtonColor: '#18181b',
                     confirmButtonText: '📲 ENVIAR COMPROBANTE', cancelButtonText: 'CERRAR',
-                    customClass: { popup: 'border border-red-900/50 rounded-[3rem] shadow-[0_0_40px_rgba(239,68,68,0.2)]' }
+                    customClass: { 
+                        popup: 'border border-zinc-800 rounded-[3rem] shadow-2xl max-w-sm w-[90%] mx-auto',
+                        confirmButton: 'bg-green-600 hover:bg-green-500 text-white font-black py-3 px-4 rounded-xl text-xs uppercase btn-press',
+                        cancelButton: 'bg-zinc-900 hover:bg-zinc-800 text-zinc-500 font-black py-3 px-4 rounded-xl text-xs uppercase btn-press'
+                    },
+                    buttonsStyling: false
                 }).then((res) => {
-                    if (res.isConfirmed) window.open(mensajeSoporte, '_blank');
+                    if (res.isConfirmed) {
+                        // Flujo inteligente: Pedir el comprobante de imagen antes de ir a WhatsApp
+                        Swal.fire({
+                            title: 'Subir Evidencia',
+                            text: 'Selecciona o toma una foto del comprobante de pago para proceder.',
+                            input: 'file',
+                            inputAttributes: { 'accept': 'image/*', 'capture': 'environment' },
+                            showCancelButton: true,
+                            confirmButtonText: 'ENVIAR A SOPORTE ➔',
+                            cancelButtonText: 'CANCELAR',
+                            background: '#0a0a0a', color: '#fff', confirmButtonColor: '#25D366'
+                        }).then((fileResult) => {
+                            if (fileResult.value) {
+                                Swal.fire({ title: 'Procesando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                                compressImage(fileResult.value, 600, async (compressed) => {
+                                    const linkComprobante = await uploadImageToSupabase(compressed, 'SaaS_pagos');
+                                    Swal.close();
+                                    if (linkComprobante) {
+                                        let msjCompleto = `Hola Soporte Zeus. Envío el comprobante de pago para renovar la suscripción del local: ${encodeURIComponent(b.nombre)}\n\n📸 Link del soporte: ${linkComprobante}`;
+                                        window.open(`https://wa.me/57${miNequi}?text=${encodeURIComponent(msjCompleto)}`, '_blank');
+                                    } else {
+                                        Swal.fire('Error', 'No se pudo subir la foto, intenta nuevamente.', 'error');
+                                    }
+                                });
+                            }
+                        });
+                    }
                 });
             }
 
-            
             // 3. 🚫 BLOQUEO POR VENCIMIENTO O MANUAL
             if (restantes < 0 || b.bloqueado) {
                 document.getElementById('pantalla-bloqueo').classList.remove('hidden');
@@ -2300,7 +2474,7 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                 return;
             }
 
-            // 4. 📊 ACTUALIZACIÓN DE MÉTRICAS (Resto del código original)
+            // 4. 📊 ACTUALIZACIÓN DE MÉTRICAS
             const bL = document.getElementById('admin-license-days');
             if (bL) {
                 if (restantes > 5) { 
@@ -2409,6 +2583,27 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
             const b = db.barberias[bIdx]; if (!b) return;
             let myB = (b.barberos || []).find(x => x.nom === session.nom);
             if (myB) {
+         // ✨ Inyectar Perfil Personalizado
+                const nameEl = document.getElementById('pos-barber-name');
+                if (nameEl) nameEl.innerText = myB.nom;
+                
+                const imgEl = document.getElementById('pos-barber-img');
+                const iconEl = document.getElementById('pos-barber-icon');
+                if (imgEl && iconEl) {
+                    if (myB.foto) {
+                        imgEl.src = myB.foto;
+                        imgEl.classList.remove('hidden');
+                        iconEl.classList.add('hidden');
+                    } else {
+                        imgEl.src = "";
+                        imgEl.classList.add('hidden');
+                        iconEl.classList.remove('hidden');
+                    }
+                }
+
+
+
+
                 if (!myB.estado) myB.estado = 'LIBRE';
                 ['LIBRE', 'OCUPADO', 'ALMUERZO', 'DESCANSO'].forEach(est => {
                     const btn = document.getElementById(`btn-estado-${est.toLowerCase()}`);
@@ -2985,54 +3180,69 @@ function renderAgendaList() {
         }
 
         // ==========================================
-        // 💈 KIOSKO: RENDERIZADO DE BARBEROS (ESTILO FRESHA PREMIUM)
+        // 💈 KIOSKO: RENDERIZADO DE BARBEROS (ESTILO TRADING CARD / NEÓN)
         // ==========================================
         function renderSemaforoKiosko() {
             const b = db.barberias[kiosko_bIdx];
             const barberosActivos = (b.barberos || []).filter(barb => barb.estado !== 'ALMUERZO' && barb.estado !== 'DESCANSO');
 
-            // Convertimos el contenedor para las Tarjetas
             const semaforoCtn = document.getElementById('kiosko-semaforo');
-            if(semaforoCtn) semaforoCtn.className = "grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-6";
+            
+            // Grid adaptable: 2 columnas en móvil, 3 en tablet/PC
+            if(semaforoCtn) semaforoCtn.className = "grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6";
 
             if(semaforoCtn) {
                 semaforoCtn.innerHTML = barberosActivos.map(barb => {
                     const l = barb.estado === 'LIBRE';
-                    const colorRing = l ? 'border-green-500' : 'border-red-500';
-                    const pulseClass = l ? 'status-pulse-green' : 'status-pulse-red';
-                    const statusText = l ? '<span class="text-green-500">Disponible</span>' : '<span class="text-red-500">Ocupado</span>';
                     
-                    // 🧠 LÓGICA DE RANGO AUTOMÁTICO (Basado en la comisión del barbero)
+                    // Colores Neón según estado
+                    const colorBorde = l ? 'border-green-500/50 hover:border-green-400' : 'border-red-500/50 hover:border-red-400';
+                    const colorSombra = l ? 'shadow-[0_0_15px_rgba(34,197,94,0.2)] hover:shadow-[0_0_25px_rgba(34,197,94,0.4)]' : 'shadow-[0_0_15px_rgba(239,68,68,0.2)] hover:shadow-[0_0_25px_rgba(239,68,68,0.4)]';
+                    const statusText = l ? '<span class="text-green-400">DISPONIBLE</span>' : '<span class="text-red-400">OCUPADO</span>';
+                    const puntoNeon = l ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.8)]' : 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)]';
+
+                    // Solo el PRIMER NOMBRE
+                    const primerNombre = barb.nom.split(' ')[0];
+
                     let rango = "Especialista";
                     let comision = parseInt(barb.comision) || 50;
                     if (comision > 50) rango = b.tipoNegocio === 'estetica' ? "Estilista Maestro" : "Barbero Maestro";
                     else if (comision === 50) rango = b.tipoNegocio === 'estetica' ? "Estilista Senior" : "Barbero Senior";
                     else rango = b.tipoNegocio === 'estetica' ? "Especialista" : "Barbero";
 
-                    // Creamos un ID único para la tarjeta
                     const cardId = `kio-card-${barb.nom.replace(/[^a-zA-Z0-9]/g, '')}`;
+                    const espSeguras = barb.especialidades ? barb.especialidades.replace(/'/g, "\\'") : "Atención General";
 
                     return `
-                    <div id="${cardId}" class="kio-barber-card relative bg-[#0a0a0a] rounded-[2rem] border border-zinc-800 p-4 sm:p-5 flex flex-col items-center cursor-pointer transition-all duration-300 hover:border-zinc-500 hover:-translate-y-1" onclick="seleccionarBarberoKio('${barb.nom}', '${cardId}')">
+                    <div id="${cardId}" class="kio-barber-card relative bg-[#050505] rounded-2xl border-2 ${colorBorde} ${colorSombra} flex flex-col items-center cursor-pointer transition-all duration-300 transform hover:-translate-y-2 overflow-hidden aspect-[3/4]" onclick="seleccionarBarberoKio('${barb.nom}', '${cardId}')">
                         
-                        <div class="relative w-20 h-20 sm:w-24 sm:h-24 mb-4 flex items-center justify-center">
-                            <div class="absolute inset-0 rounded-full border-2 ${colorRing} ${pulseClass} scale-105"></div>
+                        <div class="relative w-full h-[65%] shrink-0 cursor-help group bg-zinc-900 flex items-center justify-center" onclick="event.stopPropagation(); abrirPerfilBarbero('${barb.nom}', '${barb.foto || ''}', '${rango}', '${espSeguras}')">
+                            ${barb.foto ? `<img src="${barb.foto}" class="w-full h-full object-cover">` : `<span class="text-6xl opacity-30">💈</span>`}
                             
-                            <div class="w-full h-full rounded-full bg-zinc-900 border-4 border-[#0a0a0a] overflow-hidden z-10 flex items-center justify-center shadow-inner">
-                                ${barb.foto ? `<img src="${barb.foto}" class="w-full h-full object-cover">` : `<span class="text-3xl sm:text-4xl">💈</span>`}
+                            <div class="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/40 to-transparent"></div>
+                            
+                            <div class="absolute inset-0 bg-black/60 hidden group-hover:flex items-center justify-center transition-all backdrop-blur-sm">
+                                <span class="text-xs font-black text-white text-center tracking-widest leading-tight border border-white/50 px-3 py-1.5 rounded-lg">VER<br>PERFIL</span>
                             </div>
-                            
-                            <div class="absolute -bottom-2 z-20 bg-white text-black text-[10px] sm:text-[11px] font-black px-2 sm:px-3 py-0.5 sm:py-1 rounded-full flex items-center gap-1 shadow-md border border-gray-200">
-                                <span class="text-yellow-500 text-xs sm:text-sm leading-none">★</span> 5.0
+
+                            <div class="absolute top-2 right-2 bg-black/80 backdrop-blur-md text-white text-[9px] font-black px-2 py-1 rounded-full flex items-center gap-1 border border-white/10">
+                                <span class="text-yellow-500">★</span> 5.0
                             </div>
                         </div>
 
-                        <h4 class="text-xs sm:text-sm font-black text-white uppercase tracking-wide text-center w-full truncate mt-2">${barb.nom}</h4>
-                        <p class="text-[8px] sm:text-[9px] text-zinc-500 uppercase tracking-widest mt-1 text-center w-full truncate">${rango}</p>
-                        <p class="text-[7px] sm:text-[8px] font-bold mt-2 uppercase tracking-widest bg-zinc-900 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-zinc-800">${statusText}</p>
+                        <div class="flex flex-col items-center justify-end w-full h-[35%] pb-3 px-2 z-10 -mt-4">
+                            <h4 class="text-lg sm:text-xl font-black text-white uppercase tracking-tighter text-center w-full truncate drop-shadow-md">${primerNombre}</h4>
+                            <p class="text-[8px] font-black uppercase tracking-[0.2em] mt-0.5 text-center w-full truncate ${l ? 'text-green-500' : 'text-red-500'} drop-shadow-[0_0_5px_currentColor]">${rango}</p>
+                            
+                            <div class="flex items-center gap-1.5 mt-2 bg-white/5 px-2 py-1 rounded-full border border-white/10">
+                                <div class="w-2 h-2 rounded-full ${puntoNeon}"></div>
+                                <p class="text-[7px] font-bold uppercase tracking-widest">${statusText}</p>
+                            </div>
+                        </div>
                         
-                        <div class="kio-card-indicator hidden mt-3 sm:mt-4 w-full bg-indigo-600 text-white text-[9px] sm:text-[10px] font-black uppercase py-2 sm:py-2.5 rounded-xl text-center shadow-lg shadow-indigo-600/40 transition-all truncate px-1">
-                            ✔ ELEGIDO
+                        <div class="kio-card-indicator hidden absolute inset-0 bg-indigo-600/90 backdrop-blur-sm z-50 flex flex-col items-center justify-center transition-all border-2 border-indigo-400 rounded-2xl">
+                            <span class="text-3xl mb-1 drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]">✔️</span>
+                            <span class="text-white text-xs font-black uppercase tracking-widest">ELEGIDO</span>
                         </div>
                     </div>`;
                 }).join('');
@@ -3042,7 +3252,6 @@ function renderAgendaList() {
             document.getElementById('kio-barbero').innerHTML = '<option value="">-- ELIGE TU BARBERO --</option>' + barberosActivos.map(bar => `<option value="${bar.nom}">${bar.nom}</option>`).join(''); 
             document.getElementById('kio-barbero').value = prevB;
 
-            // RENDERIZAR LAS TARJETAS DE SERVICIOS
             const catalogoCtn = document.getElementById('kio-catalogo-servicios');
             if(catalogoCtn) {
                 catalogoCtn.innerHTML = (b.servicios || []).map((s, idx) => {
@@ -3059,6 +3268,61 @@ function renderAgendaList() {
             }
 
             renderKioskoSlots();
+        }
+
+        // ==========================================
+        // 🌟 PERFIL VIP DEL BARBERO (KIOSKO)
+        // ==========================================
+        function abrirPerfilBarbero(nombre, fotoUrl, rango, especialidades) {
+            
+            // Convertimos las especialidades en pastillas bonitas
+            let espHTML = especialidades.split(',').map(e => `
+                <span class="bg-indigo-900/30 text-indigo-300 border border-indigo-500/30 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-inner inline-block m-1">
+                    ✨ ${e.trim()}
+                </span>
+            `).join('');
+
+            // La foto del popup
+            let fotoHTML = fotoUrl ? `<img src="${fotoUrl}" class="w-32 h-32 object-cover rounded-full border-4 border-indigo-500 shadow-[0_0_20px_rgba(99,102,241,0.4)] mx-auto mb-4">` : `<div class="w-32 h-32 rounded-full border-4 border-indigo-500 bg-zinc-900 flex items-center justify-center mx-auto mb-4 shadow-[0_0_20px_rgba(99,102,241,0.4)]"><span class="text-5xl">💈</span></div>`;
+
+            Swal.fire({
+                html: `
+                    <div class="text-center pt-4">
+                        ${fotoHTML}
+                        <h2 class="text-3xl font-black uppercase text-white tracking-tighter mb-1">${nombre}</h2>
+                        <p class="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mb-6">${rango}</p>
+                        
+                        <div class="bg-black p-5 rounded-3xl border border-zinc-800 shadow-inner">
+                            <p class="text-[9px] text-zinc-500 font-black uppercase tracking-widest mb-3 border-b border-zinc-900 pb-2">Especialidades Destacadas</p>
+                            <div class="flex flex-wrap justify-center gap-1">
+                                ${espHTML}
+                            </div>
+                        </div>
+                    </div>
+                `,
+                background: '#0a0a0a',
+                color: '#fff',
+                showCancelButton: true,
+                confirmButtonColor: '#4f46e5',
+                cancelButtonColor: '#27272a',
+                confirmButtonText: '¡ELEGIR ESTE PROFESIONAL! ✔',
+                cancelButtonText: 'Cerrar',
+                customClass: {
+                    popup: 'rounded-[3rem] border border-zinc-800 shadow-2xl',
+                    confirmButton: 'w-full py-4 mt-2 rounded-[1.5rem] font-black uppercase shadow-lg btn-press text-xs',
+                    cancelButton: 'w-full py-3 mt-2 rounded-[1.5rem] font-bold uppercase text-zinc-400 hover:text-white btn-press text-[10px]'
+                },
+                buttonsStyling: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Si le da al botón, auto-seleccionamos a ese barbero en el Kiosko
+                    const cardId = `kio-card-${nombre.replace(/[^a-zA-Z0-9]/g, '')}`;
+                    seleccionarBarberoKio(nombre, cardId);
+                    
+                    // Nos desplazamos un poco hacia abajo para que vea los servicios
+                    document.getElementById('kio-catalogo-servicios').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            });
         }
 
         // 🟢 NUEVA FUNCIÓN MÁGICA: Hace que la tarjeta "brille" al tocarla
@@ -3087,6 +3351,7 @@ function renderAgendaList() {
             actualizarFotoBarbero('kio'); 
             renderKioskoSlots();
         }
+
 
         function abrirDetalleServicio(idx) {
             const b = db.barberias[kiosko_bIdx];
@@ -3558,7 +3823,87 @@ function renderAgendaList() {
             } else { document.getElementById('cc-admin-view').classList.add('hidden'); document.getElementById('cc-barbero-view').classList.remove('hidden'); }
         }
 
-        function procesarCierreFinalDay() { Swal.fire({ title: '¿Cerrar Día?', text: 'Esto enviará los reportes a 0 para mañana.', icon: 'warning', showCancelButton: true, confirmButtonColor: '#16a34a', background: '#0a0a0a', color: '#fff' }).then(r => { if (r.isConfirmed) { Swal.fire('Día Cerrado', '', 'success'); cerrarModales(); } }); }
+        // ==========================================
+        // 🎙️ CEREBRO DE VOZ: CIERRE DE CAJA (ISI IA)
+        // ==========================================
+        function procesarCierreFinalDay() {
+            const b = db.barberias[bIdx];
+            const hoy = getTodayYMD();
+
+            // 1. Cálculos Inteligentes del Día
+            const ventasHoy = (b.ventas || []).filter(v => v.fecha === hoy && !v.anulado);
+            const cortesTot = ventasHoy.filter(v => !v.esProducto).length;
+            const totalDinero = ventasHoy.reduce((a, v) => a + v.valor + (v.ivaAplicado || 0), 0);
+            const gastosHoy = (b.gastos || []).filter(g => g.fecha === hoy).reduce((a, g) => a + g.valor, 0);
+            const neto = totalDinero - gastosHoy;
+
+            // 2. IA: Descubrir al mejor barbero del día
+            let conteoBarberos = {};
+            ventasHoy.filter(v => !v.esProducto && v.barbero !== "ADMIN").forEach(v => {
+                conteoBarberos[v.barbero] = (conteoBarberos[v.barbero] || 0) + v.valor;
+            });
+            let mejorBarbero = "Ninguno"; let maxVentas = 0;
+            for (const [nombre, ventas] of Object.entries(conteoBarberos)) {
+                if (ventas > maxVentas) { maxVentas = ventas; mejorBarbero = nombre; }
+            }
+
+            Swal.fire({
+                title: '¿Realizar Cierre Z?',
+                text: 'ISI IA generará el reporte de voz y se archivará el día.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#16a34a', cancelButtonColor: '#dc2626',
+                confirmButtonText: 'Sí, Cerrar Caja 🔒', cancelButtonText: 'Cancelar',
+                background: '#0a0a0a', color: '#fff'
+            }).then(r => {
+                if (r.isConfirmed) {
+                    // 3. Generar el Guion para Jarvis (ISI)
+                    // Extraemos solo los números para que la IA lea la cifra correctamente
+                    let textoDinero = totalDinero.toString();
+                    let textoNeto = neto.toString();
+                    let textoGastos = gastosHoy.toString();
+
+                    let mensajeVoz = `Cierre de caja completado, Jefe. Hoy realizamos ${cortesTot} servicios. `;
+                    
+                    if (totalDinero === 0) {
+                        mensajeVoz += "No se registraron ingresos en el sistema hoy. ";
+                    } else {
+                        mensajeVoz += `Los ingresos brutos fueron de ${textoDinero} pesos. `;
+                        if (gastosHoy > 0) mensajeVoz += `Se registraron gastos por ${textoGastos} pesos. `;
+                        if (mejorBarbero !== "Ninguno") mensajeVoz += `El mejor estilista del día fue ${mejorBarbero}, excelente trabajo. `;
+                        mensajeVoz += `La utilidad libre para el local es de ${textoNeto} pesos. Buen descanso.`;
+                    }
+
+                    // 4. Activar el Motor de Voz (Nativo del Navegador)
+                    const synth = window.speechSynthesis;
+                    if (synth) {
+                        synth.cancel(); // Apaga cualquier voz anterior atascada
+                        let utterance = new SpeechSynthesisUtterance(mensajeVoz);
+                        utterance.lang = 'es-CO'; // Acento Latino/Colombiano
+                        utterance.rate = 1.05; // Velocidad dinámica
+                        utterance.pitch = 1.1; // Tono amigable y corporativo
+                        synth.speak(utterance);
+                    }
+
+                    // 5. Archivar el Cierre en la Base de Datos
+                    if (!b.cierresDiarios) b.cierresDiarios = [];
+                    // Borramos si ya había un cierre de este mismo día (para poder re-cerrar sin duplicar info)
+                    b.cierresDiarios = b.cierresDiarios.filter(c => c.fecha !== hoy);
+                    b.cierresDiarios.push({ fecha: hoy, ingresos: totalDinero, gastos: gastosHoy, neto: neto, cortes: cortesTot, mejorBarbero: mejorBarbero });
+                    
+                    saveDB(true);
+                    cerrarModales();
+
+                    Swal.fire({
+                        title: '🎙️ ISI Hablando...',
+                        text: 'Sube el volumen. Día cerrado y guardado correctamente.',
+                        icon: 'success',
+                        background: '#0a0a0a', color: '#fff',
+                        timer: 4000, showConfirmButton: false
+                    });
+                }
+            });
+        }
         function confirmarCierreTurnoBarbero() { Swal.fire('Turno Finalizado', 'Tus contadores han sido reportados al Administrador', 'success'); cerrarModales(); }
 
         function abrirCierreMes() {
@@ -3968,6 +4313,7 @@ function renderAgendaList() {
             const elComProd = document.getElementById('add-b-comision-prod'); if(elComProd) elComProd.value = b.comisionProd || 0; // NUEVA LINEA PRODUCTOS
             const elIni = document.getElementById('add-b-inicio'); if(elIni) elIni.value = b.horaInicio || "08:00";
             const elFin = document.getElementById('add-b-fin'); if(elFin) elFin.value = b.horaFin || "20:00";
+            const elEsp = document.getElementById('add-b-especialidades'); if(elEsp) elEsp.value = b.especialidades || "";
 
             if (b.foto) {
                 fotoBarberoTemp = b.foto;
@@ -4005,14 +4351,16 @@ function renderAgendaList() {
 
             const hInicio = getValSeguro('add-b-inicio') || "08:00";
             const hFin = getValSeguro('add-b-fin') || "20:00";
+            const esp = getValSeguro('add-b-especialidades').toUpperCase();
+
 
             if (!n || !p) return Swal.fire('Faltan Datos', 'El nombre y el PIN son obligatorios.', 'error');
             if (esPinInseguro(p)) return Swal.fire('PIN Inseguro', 'No uses 1234, 1111 ni secuencias fáciles.', 'warning');
 
-            if (idX !== "") { 
-                db.barberias[bIdx].barberos[idX] = { ...db.barberias[bIdx].barberos[idX], nom: n, pin: p, comision: c, comisionProd: cP, foto: fotoBarberoTemp, fotoQR: fotoQRBarberoTemp, horaInicio: hInicio, horaFin: hFin }; 
+           if (idX !== "") { 
+                db.barberias[bIdx].barberos[idX] = { ...db.barberias[bIdx].barberos[idX], nom: n, pin: p, comision: c, comisionProd: cP, foto: fotoBarberoTemp, fotoQR: fotoQRBarberoTemp, horaInicio: hInicio, horaFin: hFin, especialidades: esp }; 
             } else { 
-                db.barberias[bIdx].barberos.push({ nom: n, pin: p, comision: c, comisionProd: cP, estado: 'LIBRE', foto: fotoBarberoTemp, fotoQR: fotoQRBarberoTemp, horaInicio: hInicio, horaFin: hFin }); 
+                db.barberias[bIdx].barberos.push({ nom: n, pin: p, comision: c, comisionProd: cP, estado: 'LIBRE', foto: fotoBarberoTemp, fotoQR: fotoQRBarberoTemp, horaInicio: hInicio, horaFin: hFin, especialidades: esp }); 
             }
 
             saveDB(true);
@@ -4024,6 +4372,7 @@ function renderAgendaList() {
             if(document.getElementById('add-b-comision-prod')) document.getElementById('add-b-comision-prod').value = ""; 
             if(document.getElementById('add-b-inicio')) document.getElementById('add-b-inicio').value = ""; 
             if(document.getElementById('add-b-fin')) document.getElementById('add-b-fin').value = "";
+            if(document.getElementById('add-b-especialidades')) document.getElementById('add-b-especialidades').value = "";
             
             fotoBarberoTemp = null; fotoQRBarberoTemp = null;
             
@@ -4077,6 +4426,78 @@ function renderAgendaList() {
             renderConfigLists();
             Swal.fire({title:'Guardado', toast:true, position:'top-end', timer:1500, showConfirmButton:false, background: '#111', color: '#fff', icon:'success'});
         }  
+
+
+         // ==========================================
+        // 🔄 CLONADOR INTELIGENTE DE CATÁLOGOS (FRANQUICIAS)
+        // ==========================================
+        function clonarCatalogoSedes() {
+            const bMain = db.barberias[bIdx]; 
+            if (!bMain || !bMain.servicios || bMain.servicios.length === 0) return Swal.fire('Error', 'No hay servicios en esta sede para clonar.', 'error');
+            
+            // Buscar sedes "hermanas" (que compartan el mismo PIN de administración)
+            const sedesHermanas = db.barberias.filter(x => x.pinAdmin === bMain.pinAdmin && x.id !== bMain.id);
+            
+            if (sedesHermanas.length === 0) return Swal.fire('Sin sedes', 'No se encontraron otras sedes con el mismo PIN Maestro para clonar.', 'info');
+
+            let opcionesHTML = sedesHermanas.map((s, i) => `
+                <label class="flex items-center gap-3 p-3 bg-zinc-900 border border-zinc-700 rounded-xl mb-2 cursor-pointer hover:bg-purple-900/20 hover:border-purple-500 transition-colors">
+                    <input type="checkbox" class="sede-clon-chk w-5 h-5 accent-purple-500" value="${s.id}">
+                    <div class="text-left">
+                        <p class="text-xs font-black text-white uppercase">${s.nombre}</p>
+                        <p class="text-[9px] text-zinc-400">Servicios actuales: ${(s.servicios || []).length}</p>
+                    </div>
+                </label>
+            `).join('');
+
+            Swal.fire({
+                title: '🔄 Clonar Catálogo',
+                html: `
+                    <p class="text-xs text-zinc-300 mb-4 font-bold">Selecciona a qué sedes quieres enviar los <span class="text-purple-400 font-black">${bMain.servicios.length} servicios</span> de esta barbería:</p>
+                    <div class="max-h-60 overflow-y-auto scroll-safe text-left pr-2">
+                        ${opcionesHTML}
+                    </div>
+                    <div class="mt-4 bg-yellow-900/20 border border-yellow-600/50 p-3 rounded-xl text-left">
+                        <p class="text-[9px] text-yellow-500 font-black uppercase mb-1">⚠️ Cuidado</p>
+                        <p class="text-[9px] text-zinc-300 font-bold leading-tight">Esta acción sobreescribirá los servicios de las sedes seleccionadas con la lista exacta de esta sede.</p>
+                    </div>
+                `,
+                background: '#0a0a0a', color: '#fff',
+                showCancelButton: true, confirmButtonText: '¡CLONAR AHORA! 🚀', cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#9333ea',
+                preConfirm: () => {
+                    const seleccionadas = Array.from(document.querySelectorAll('.sede-clon-chk:checked')).map(cb => cb.value);
+                    if (seleccionadas.length === 0) { Swal.showValidationMessage('Debes seleccionar al menos 1 sede'); return false; }
+                    return seleccionadas;
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const idsClonar = result.value;
+                    let clonadosCount = 0;
+                    
+                    Swal.fire({ title: 'Clonando Catálogo...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
+
+                    idsClonar.forEach(idSede => {
+                        let idxClon = db.barberias.findIndex(x => x.id === idSede);
+                        if (idxClon !== -1) {
+                            // MAGIA: Hacemos una copia profunda (Deep Copy) para que no se crucen las referencias
+                            db.barberias[idxClon].servicios = JSON.parse(JSON.stringify(bMain.servicios));
+                            
+                            // ☁️ Forzamos la subida a la nube de esa sede específica
+                            if (navigator.onLine && db.barberias[idxClon].id_nube) {
+                                supabaseClient.from('stores').update({ json_data: db.barberias[idxClon] }).eq('id', db.barberias[idxClon].id_nube);
+                            }
+                            clonadosCount++;
+                        }
+                    });
+
+                    saveDB(false); // Guardado local silencioso
+                    Swal.fire('¡Éxito!', `El catálogo se clonó perfectamente a ${clonadosCount} sedes.`, 'success');
+                }
+            });
+        }
+
+
 
         // ==========================================
         // 💸 MOTOR DE PROPINA AL BARBERO
@@ -4182,6 +4603,9 @@ function renderAgendaList() {
                             </select>
                         </div>
 
+
+
+
                         <div class="flex justify-between items-center bg-[#050505] p-3 rounded-xl border border-zinc-900">
                             <span class="text-[10px] font-black uppercase text-zinc-400 tracking-widest">Límite Barberos: <span class="text-white">${b.maxBarberos || 5}</span></span>
                             <div class="flex gap-2">
@@ -4189,7 +4613,18 @@ function renderAgendaList() {
                                 <button type="button" onclick="sa_ModificarLimite('${b.id_nube}', 1)" class="bg-zinc-800 text-white w-8 h-8 rounded-lg font-black btn-press">+1</button>
                             </div>
                         </div>
-                    </div>
+                    </div> 
+
+
+<div class="flex justify-between items-center bg-[#050505] p-3 rounded-xl border border-zinc-900 mt-2">
+    <span class="text-[10px] font-black uppercase text-zinc-400 tracking-widest">Módulo Franquicia:</span>
+    <button type="button" onclick="sa_ToggleFranquicia('${b.id_nube}')" class="px-3 py-1.5 rounded-lg text-[9px] font-black uppercase btn-press ${b.franquiciaActiva ? 'bg-purple-600 text-white shadow-[0_0_10px_rgba(147,51,234,0.5)]' : 'bg-zinc-800 text-zinc-500'}">
+        ${b.franquiciaActiva ? '👑 ACTIVO' : '⚪ INACTIVO'}
+    </button>
+</div>
+
+
+
 
                     <div class="grid grid-cols-2 gap-3 pt-3 border-t border-zinc-900">
                         <button type="button" onclick="sa_ForzarBloqueo('${b.id_nube}')" class="bg-red-900/20 text-red-500 py-3 rounded-xl text-[10px] font-black uppercase btn-press">${b.bloqueado ? "DESBLOQUEAR LOCAL" : "FORZAR BLOQUEO"}</button>
@@ -4207,6 +4642,149 @@ function renderAgendaList() {
         }
 
         function forzarAccesoAdmin(idx) { bIdx = idx; session = { rol: 'admin', nom: 'SUPERADMIN' }; saveDB(true); saveSession(); showScreen('view-admin'); }
+
+        // ==========================================
+        // 👑 CONTROL DE MÓDULO FRANQUICIA (MASTER CONTROL)
+        // ==========================================
+        async function sa_ToggleFranquicia(idNube) {
+            if (!isOnline) return Swal.fire('Error', 'Sin conexión a internet', 'error');
+            Swal.fire({ title: 'Actualizando Módulo...', didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
+            try {
+                const { data: store } = await supabaseClient.from('stores').select('*').eq('id', idNube).single();
+                let bSup = store.json_data;
+                bSup.franquiciaActiva = !bSup.franquiciaActiva;
+                await supabaseClient.from('stores').update({ json_data: bSup }).eq('id', idNube);
+                db.barberias[db.barberias.findIndex(x => x.id_nube === idNube)] = bSup;
+                saveDB(true);
+                renderSuperAdmin();
+                Swal.fire({ title: 'Módulo Actualizado', icon: 'success', timer: 1500, showConfirmButton: false, background: '#0a0a0a', color: '#fff' });
+            } catch (e) { Swal.fire('Error', 'No se pudo contactar a la nube', 'error'); }
+        }
+
+        function renderFranquiciaMaster() {
+            const bMain = db.barberias[bIdx]; if (!bMain) return;
+            
+            const misSedes = db.barberias.filter(x => x.pinAdmin === bMain.pinAdmin);
+            
+            let utilidadGlobal = 0; let efectivoGlobal = 0; let bancosGlobal = 0; let gastosGlobal = 0;
+            let sedesHtml = '';
+            
+            misSedes.forEach(b => {
+                let totalIva = 0;
+                const tv = (b.ventas || []).reduce((a, v) => { if (v.ivaAplicado) totalIva += v.ivaAplicado; return a + v.valor + (v.ivaAplicado || 0); }, 0);
+                const tg = (b.gastos || []).reduce((a, g) => a + g.valor, 0);
+                const efec = (b.ventas || []).filter(v => v.tipo === "Efectivo").reduce((a, v) => a + v.valor + (v.ivaAplicado || 0), 0);
+                const digi = (b.ventas || []).filter(v => v.tipo !== "Efectivo").reduce((a, v) => a + v.valor + (v.ivaAplicado || 0), 0);
+                
+                let totalComisionBarberos = 0;
+                (b.ventas || []).forEach(v => {
+                    if (!v.esProducto && v.barbero !== "ADMIN") {
+                        const cBar = ((b.barberos || []).find(x => x.nom === v.barbero) || {}).comision || 50;
+                        totalComisionBarberos += v.valor * (cBar / 100);
+                    }
+                });
+                
+                let utilSede = tv - tg - totalIva - totalComisionBarberos;
+                
+                utilidadGlobal += utilSede; efectivoGlobal += efec; bancosGlobal += digi; gastosGlobal += tg;
+                
+                const idxReal = db.barberias.findIndex(x => x.id === b.id || x.id_nube === b.id_nube);
+                
+                sedesHtml += `
+                <div class="bg-[#111111] p-5 rounded-[2rem] border border-zinc-800 flex justify-between items-center shadow-md hover:border-purple-500/50 transition-all">
+                    <div>
+                        <h4 class="font-black text-white text-base uppercase tracking-tight">${b.nombre}</h4>
+                        <p class="text-[9px] text-zinc-500 uppercase tracking-widest mt-1">ID NUBE: ${b.id_nube || 'LOCAL'}</p>
+                        <p class="text-xs font-bold text-green-400 mt-2">Utilidad Sede: ${fMoney(utilSede)}</p>
+                    </div>
+                    <button type="button" onclick="bIdx = ${idxReal}; showScreen('view-admin');" class="bg-purple-600 hover:bg-purple-500 text-white px-4 py-3 rounded-xl font-black text-[10px] uppercase btn-press tracking-wider shadow-lg transition-colors">INGRESAR ➔</button>
+                </div>`;
+            });
+            
+            document.getElementById('fran-utilidad-total').innerText = fMoney(utilidadGlobal);
+            document.getElementById('fran-efectivo-total').innerText = fMoney(efectivoGlobal);
+            document.getElementById('fran-bancos-total').innerText = fMoney(bancosGlobal);
+            document.getElementById('fran-gastos-total').innerText = "-" + fMoney(gastosGlobal);
+            document.getElementById('franquicia-sedes-lista').innerHTML = sedesHtml;
+
+         // 📊 GENERACIÓN DE LA GRÁFICA COMPARATIVA
+            setTimeout(() => {
+                try {
+                    if (chartFranquiciaInstance) chartFranquiciaInstance.destroy();
+                    const ctxF = document.getElementById('chartFranquicia');
+                    
+                    if (ctxF && misSedes.length > 0) {
+                        const nombresSedes = [];
+                        const valoresSedes = [];
+                        
+                        misSedes.forEach(s => {
+                            let totalIva = 0;
+                            const tv = (s.ventas || []).reduce((a, v) => { if (v.ivaAplicado) totalIva += v.ivaAplicado; return a + v.valor + (v.ivaAplicado || 0); }, 0);
+                            const tg = (s.gastos || []).reduce((a, g) => a + g.valor, 0);
+                            let totalComisionBarberos = 0;
+                            (s.ventas || []).forEach(v => {
+                                if (!v.esProducto && v.barbero !== "ADMIN") {
+                                    const cBar = ((s.barberos || []).find(x => x.nom === v.barbero) || {}).comision || 50;
+                                    totalComisionBarberos += v.valor * (cBar / 100);
+                                }
+                            });
+                            
+                            nombresSedes.push(s.nombre);
+                            valoresSedes.push(tv - tg - totalIva - totalComisionBarberos);
+                        });
+
+                        chartFranquiciaInstance = new Chart(ctxF, { 
+                            type: 'bar', 
+                            data: { 
+                                labels: nombresSedes, 
+                                datasets: [{ 
+                                    data: valoresSedes, 
+                                    backgroundColor: '#9333ea', // Morado corporativo
+                                    borderRadius: 6 
+                                }] 
+                            }, 
+                            options: { 
+                                responsive: true, 
+                                maintainAspectRatio: false, 
+                                plugins: { legend: { display: false } },
+                                scales: {
+                                    y: { ticks: { color: '#a1a1aa' } },
+                                    x: { ticks: { color: '#a1a1aa', font: { size: 10 } } }
+                                }
+                            } 
+                        });
+                    }
+                } catch (ex) { console.error("Error al renderizar gráfica de franquicia", ex); }
+            }, 150);
+
+
+
+
+        }
+
+        // ==========================================
+        // 🎙️ RESUMEN DE VOZ CORPORATIVO (FRANQUICIA)
+        // ==========================================
+        function escucharResumenFranquicia() {
+            const utilidadStr = document.getElementById('fran-utilidad-total').innerText.replace(/[^0-9]/g, '');
+            const efectivoStr = document.getElementById('fran-efectivo-total').innerText.replace(/[^0-9]/g, '');
+            const bancosStr = document.getElementById('fran-bancos-total').innerText.replace(/[^0-9]/g, '');
+            
+            let mensajeVoz = `Atención corporativa. La utilidad neta consolidada de todas las sedes es de ${utilidadStr} pesos. `;
+            mensajeVoz += `Se han recaudado ${efectivoStr} pesos en efectivo, y ${bancosStr} pesos en bancos. El imperio de barberías sigue creciendo, Jefe.`;
+
+            const synth = window.speechSynthesis;
+            if (synth) {
+                synth.cancel();
+                let utterance = new SpeechSynthesisUtterance(mensajeVoz);
+                utterance.lang = 'es-CO';
+                utterance.pitch = 1.0;
+                synth.speak(utterance);
+                Swal.fire({ title: '🎙️ ISI Gerente...', text: 'Sube el volumen', icon: 'info', timer: 3000, showConfirmButton: false, background: '#0a0a0a', color: '#fff' });
+            }
+        }
+
+
 
         async function saCrearBarberia() {
             const n = document.getElementById('sa-nombre').value.trim().toUpperCase(); const p = cleanNum(document.getElementById('sa-pin').value);
@@ -4269,6 +4847,29 @@ function renderAgendaList() {
                 Swal.fire('Reseteado', 'Las ganancias SaaS están en cero.', 'success');
             }
         }
+function escucharResumenFranquicia() {
+            // Lee los números directamente de la pantalla gigante
+            const utilidadStr = document.getElementById('fran-utilidad-total').innerText.replace(/[^0-9]/g, '');
+            const efectivoStr = document.getElementById('fran-efectivo-total').innerText.replace(/[^0-9]/g, '');
+            const bancosStr = document.getElementById('fran-bancos-total').innerText.replace(/[^0-9]/g, '');
+            
+            let mensajeVoz = `Atención corporativa. La utilidad neta consolidada de todas las sedes es de ${utilidadStr} pesos. `;
+            mensajeVoz += `Se han recaudado ${efectivoStr} pesos en efectivo, y ${bancosStr} pesos en bancos. El imperio de barberías sigue creciendo, Jefe.`;
+
+            const synth = window.speechSynthesis;
+            if (synth) {
+                synth.cancel();
+                let utterance = new SpeechSynthesisUtterance(mensajeVoz);
+                utterance.lang = 'es-CO';
+                utterance.pitch = 1.0;
+                synth.speak(utterance);
+                Swal.fire({ title: '🎙️ ISI Gerente...', text: 'Sube el volumen', icon: 'info', timer: 3000, showConfirmButton: false, background: '#0a0a0a', color: '#fff' });
+            }
+        }
+
+
+
+
          // ==========================================
         // 📸 FUNCIONES DE BRANDING GLOBAL Y LOGO (MASTER CONTROL)
         // ==========================================
@@ -4392,6 +4993,14 @@ function renderAgendaList() {
                 Swal.fire('¡Días Agregados!', `Se registraron $${fMoney(valorCobrado)} de ingreso.`, 'success');
             } catch (e) { Swal.fire('Error', 'No se pudo contactar a la nube', 'error'); }
         }
+
+
+
+
+
+
+
+
 
         async function sa_ModificarLimite(idNube, cant) {
             if (!isOnline) return Swal.fire('Error', 'Sin conexión a internet', 'error');
@@ -4921,7 +5530,7 @@ function renderAgendaList() {
                 }, 1000);
             }
 
-            // 🚀 MOTOR SILENCIOSO DE AUTO-REFRESCO PARA LA TV (CADA 30 SEGUNDOS)
+            // 🚀 MOTOR SILENCIOSO DE AUTO-REFRESCO PARA LA TV (CADA 60 SEGUNDOS)
             if (!window.syncTVInterval) {
                 window.syncTVInterval = setInterval(async () => {
                     if (navigator.onLine && typeof supabaseClient !== 'undefined' && db.barberias[bIdx]) {
@@ -4934,8 +5543,10 @@ function renderAgendaList() {
                             }
                         } catch(e) {}
                     }
-                }, 5000); 
+                }, 60000); 
             }
+
+
         } // FIN DE LA FUNCIÓN iniciarSmartTVDescentralizado
 
         function actualizarSmartTVUI() {
@@ -5332,7 +5943,7 @@ function renderAgendaList() {
                 
                 // Siempre actualiza los botones rojos visualmente
                 actualizarBadgesCitas();
-            }, 5000); // 10000ms = 10 segundos
+            }, 45000); // 10000ms = 10 segundos
         }
 
 
@@ -5651,7 +6262,7 @@ function renderAgendaList() {
         // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES
         function comprobarVersionNube() {
             // Cambiamos a la versión 1.32 por las nuevas funciones (Voz y Propinas)
-            const VERSION_ACTUAL = "1.41"; 
+            const VERSION_ACTUAL = "1.42"; 
             const versionGuardada = localStorage.getItem('zeus_version');
             if (versionGuardada !== VERSION_ACTUAL) {
                 console.log("¡Actualización detectada! Destruyendo caché...");
