@@ -3180,7 +3180,7 @@ function renderAgendaList() {
         }
 
         // ==========================================
-        // 💈 KIOSKO: RENDERIZADO DE BARBEROS (ESTILO TRADING CARD / NEÓN)
+        // 💈 KIOSKO: RENDERIZADO DE BARBEROS (ESTILO TRADING CARD / NEÓN - V6 LETRA FINA)
         // ==========================================
         function renderSemaforoKiosko() {
             const b = db.barberias[kiosko_bIdx];
@@ -3188,61 +3188,59 @@ function renderAgendaList() {
 
             const semaforoCtn = document.getElementById('kiosko-semaforo');
             
-            // Grid adaptable: 2 columnas en móvil, 3 en tablet/PC
-            if(semaforoCtn) semaforoCtn.className = "grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6";
+            // Grid adaptable
+            if(semaforoCtn) semaforoCtn.className = "grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-6";
 
             if(semaforoCtn) {
                 semaforoCtn.innerHTML = barberosActivos.map(barb => {
                     const l = barb.estado === 'LIBRE';
                     
-                    // Colores Neón según estado
                     const colorBorde = l ? 'border-green-500/50 hover:border-green-400' : 'border-red-500/50 hover:border-red-400';
                     const colorSombra = l ? 'shadow-[0_0_15px_rgba(34,197,94,0.2)] hover:shadow-[0_0_25px_rgba(34,197,94,0.4)]' : 'shadow-[0_0_15px_rgba(239,68,68,0.2)] hover:shadow-[0_0_25px_rgba(239,68,68,0.4)]';
-                    const statusText = l ? '<span class="text-green-400">DISPONIBLE</span>' : '<span class="text-red-400">OCUPADO</span>';
+                    const statusText = l ? 'DISP.' : 'OCUP.'; 
                     const puntoNeon = l ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.8)]' : 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)]';
 
-                    // Solo el PRIMER NOMBRE
                     const primerNombre = barb.nom.split(' ')[0];
 
                     let rango = "Especialista";
                     let comision = parseInt(barb.comision) || 50;
-                    if (comision > 50) rango = b.tipoNegocio === 'estetica' ? "Estilista Maestro" : "Barbero Maestro";
-                    else if (comision === 50) rango = b.tipoNegocio === 'estetica' ? "Estilista Senior" : "Barbero Senior";
+                    if (comision > 50) rango = b.tipoNegocio === 'estetica' ? "Maestro" : "Maestro"; 
+                    else if (comision === 50) rango = b.tipoNegocio === 'estetica' ? "Senior" : "Senior"; 
                     else rango = b.tipoNegocio === 'estetica' ? "Especialista" : "Barbero";
 
                     const cardId = `kio-card-${barb.nom.replace(/[^a-zA-Z0-9]/g, '')}`;
                     const espSeguras = barb.especialidades ? barb.especialidades.replace(/'/g, "\\'") : "Atención General";
 
                     return `
-                    <div id="${cardId}" class="kio-barber-card relative bg-[#050505] rounded-2xl border-2 ${colorBorde} ${colorSombra} flex flex-col items-center cursor-pointer transition-all duration-300 transform hover:-translate-y-2 overflow-hidden aspect-[3/4]" onclick="seleccionarBarberoKio('${barb.nom}', '${cardId}')">
+                    <div id="${cardId}" class="kio-barber-card relative bg-zinc-900 rounded-[1.5rem] border-2 ${colorBorde} ${colorSombra} cursor-pointer transition-all duration-300 transform hover:-translate-y-2 overflow-hidden aspect-[3/4] group" onclick="seleccionarBarberoKio('${barb.nom}', '${cardId}')">
                         
-                        <div class="relative w-full h-[65%] shrink-0 cursor-help group bg-zinc-900 flex items-center justify-center" onclick="event.stopPropagation(); abrirPerfilBarbero('${barb.nom}', '${barb.foto || ''}', '${rango}', '${espSeguras}')">
-                            ${barb.foto ? `<img src="${barb.foto}" class="w-full h-full object-cover">` : `<span class="text-6xl opacity-30">💈</span>`}
-                            
-                            <div class="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/40 to-transparent"></div>
-                            
-                            <div class="absolute inset-0 bg-black/60 hidden group-hover:flex items-center justify-center transition-all backdrop-blur-sm">
-                                <span class="text-xs font-black text-white text-center tracking-widest leading-tight border border-white/50 px-3 py-1.5 rounded-lg">VER<br>PERFIL</span>
-                            </div>
-
-                            <div class="absolute top-2 right-2 bg-black/80 backdrop-blur-md text-white text-[9px] font-black px-2 py-1 rounded-full flex items-center gap-1 border border-white/10">
-                                <span class="text-yellow-500">★</span> 5.0
-                            </div>
-                        </div>
-
-                        <div class="flex flex-col items-center justify-end w-full h-[35%] pb-3 px-2 z-10 -mt-4">
-                            <h4 class="text-lg sm:text-xl font-black text-white uppercase tracking-tighter text-center w-full truncate drop-shadow-md">${primerNombre}</h4>
-                            <p class="text-[8px] font-black uppercase tracking-[0.2em] mt-0.5 text-center w-full truncate ${l ? 'text-green-500' : 'text-red-500'} drop-shadow-[0_0_5px_currentColor]">${rango}</p>
-                            
-                            <div class="flex items-center gap-1.5 mt-2 bg-white/5 px-2 py-1 rounded-full border border-white/10">
-                                <div class="w-2 h-2 rounded-full ${puntoNeon}"></div>
-                                <p class="text-[7px] font-bold uppercase tracking-widest">${statusText}</p>
-                            </div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            ${barb.foto ? `<img src="${barb.foto}" class="w-full h-full object-cover">` : `<span class="text-6xl opacity-20">💈</span>`}
                         </div>
                         
-                        <div class="kio-card-indicator hidden absolute inset-0 bg-indigo-600/90 backdrop-blur-sm z-50 flex flex-col items-center justify-center transition-all border-2 border-indigo-400 rounded-2xl">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent z-10 pointer-events-none"></div>
+
+                        <div class="absolute top-2 right-2 z-20 bg-black/80 backdrop-blur-md text-white text-[7px] font-black px-1.5 py-0.5 rounded-full flex items-center gap-1 border border-white/10 shadow-lg">
+                            <span class="text-yellow-500">★</span> 5.0
+                        </div>
+
+                        <div class="absolute inset-0 z-30 hidden group-hover:flex items-center justify-center">
+                             <button type="button" onclick="event.stopPropagation(); abrirPerfilBarbero('${barb.nom}', '${barb.foto || ''}', '${rango}', '${espSeguras}')" class="bg-black/60 border border-white/50 text-white text-[9px] font-black px-3 py-1.5 rounded-lg tracking-widest backdrop-blur-sm hover:bg-white/20 shadow-xl">VER PERFIL</button>
+                        </div>
+
+                        <div class="absolute bottom-0 left-0 right-0 pb-3 px-2 z-20 flex flex-col items-center justify-end">
+                            <h4 class="text-sm sm:text-base font-black text-white uppercase tracking-wider text-center w-full truncate drop-shadow-[0_2px_4px_rgba(0,0,0,1)] leading-none mb-1">${primerNombre}</h4>
+                            <p class="text-[6px] sm:text-[7px] font-black uppercase tracking-[0.2em] text-center w-full truncate ${l ? 'text-green-500' : 'text-red-500'} drop-shadow-[0_2px_2px_rgba(0,0,0,1)] mb-2">${rango}</p>
+                            
+                            <div class="flex items-center gap-1.5 bg-black/60 px-2.5 py-1 rounded-full border border-white/10 backdrop-blur-md shadow-lg">
+                                <div class="w-1.5 h-1.5 rounded-full ${puntoNeon}"></div>
+                                <p class="text-[6px] sm:text-[7px] font-bold uppercase tracking-widest text-white">${statusText}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="kio-card-indicator hidden absolute inset-0 bg-indigo-600/90 backdrop-blur-sm z-50 flex flex-col items-center justify-center transition-all border-2 border-indigo-400 rounded-[1.5rem]">
                             <span class="text-3xl mb-1 drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]">✔️</span>
-                            <span class="text-white text-xs font-black uppercase tracking-widest">ELEGIDO</span>
+                            <span class="text-white text-[9px] font-black uppercase tracking-widest">ELEGIDO</span>
                         </div>
                     </div>`;
                 }).join('');
@@ -4757,9 +4755,6 @@ function renderAgendaList() {
                 } catch (ex) { console.error("Error al renderizar gráfica de franquicia", ex); }
             }, 150);
 
-
-
-
         }
 
         // ==========================================
@@ -5730,13 +5725,6 @@ function escucharResumenFranquicia() {
 
 
 
-
-
-
-
-
-
-
         function toggleFullScreenTV() {
             let elem = document.documentElement;
             if (!document.fullscreenElement) elem.requestFullscreen().catch(err => {});
@@ -5877,9 +5865,6 @@ function escucharResumenFranquicia() {
             if (typeof startClock === 'function') startClock();
         }
 
-
-
-
         // ==========================================
         // 17. SISTEMA DE NOTIFICACIONES Y PUNTOS ROJOS
         // ==========================================
@@ -5946,8 +5931,6 @@ function escucharResumenFranquicia() {
             }, 45000); // 10000ms = 10 segundos
         }
 
-
-
         // ==========================================
         // 🛡️ TRAMPA ANTI-ESCAPE (VERSIÓN BLINDADA)
         // ==========================================
@@ -5981,10 +5964,6 @@ function escucharResumenFranquicia() {
                 }
             });
         }
-
-
-
-
 
 
         // Activamos la trampa cuando cargue la página
@@ -6022,7 +6001,6 @@ function escucharResumenFranquicia() {
                 }
             });
         }
-
 
         // =======================================================
         // 🛠️ MOTOR DE MANTENIMIENTO DINÁMICO (MASTER CONTROL)
@@ -6262,7 +6240,7 @@ function escucharResumenFranquicia() {
         // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES
         function comprobarVersionNube() {
             // Cambiamos a la versión 1.32 por las nuevas funciones (Voz y Propinas)
-            const VERSION_ACTUAL = "1.42"; 
+            const VERSION_ACTUAL = "1.43"; 
             const versionGuardada = localStorage.getItem('zeus_version');
             if (versionGuardada !== VERSION_ACTUAL) {
                 console.log("¡Actualización detectada! Destruyendo caché...");
@@ -6306,9 +6284,6 @@ function escucharResumenFranquicia() {
             );
         }
 
-
-
-        comprobarVersionNube();
 
         comprobarVersionNube();
 
