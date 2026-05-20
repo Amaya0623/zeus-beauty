@@ -790,10 +790,12 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                                        <div class="col-span-12 md:col-span-4 flex flex-col sm:flex-row gap-2 h-full">
     <button type="button" onclick="configAddServicio()" class="flex-1 bg-green-600 text-white rounded-xl font-black btn-press transition-colors text-xs py-3 uppercase shadow-lg shadow-green-600/20 h-full flex items-center justify-center">Guardar</button>
 
-    <button type="button" onclick="clonarCatalogoSedes()" class="flex-1 bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-black btn-press transition-colors text-[10px] py-3 uppercase shadow-lg shadow-purple-600/20 flex flex-col items-center justify-center leading-none h-full">
+    <button type="button" id="btn-clonar-sedes" onclick="clonarCatalogoSedes()" class="hidden bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-black btn-press transition-colors text-[10px] py-3 uppercase shadow-lg shadow-purple-600/20 flex-col items-center justify-center leading-none h-full">
         <span>🔄 CLONAR</span><span class="text-[8px] text-purple-200 mt-0.5">A OTRAS SEDES</span>
     </button>
 </div>
+
+
 
 
                                         <textarea id="add-s-desc" rows="2" placeholder="Descripción detallada..." class="col-span-12 p-3 text-xs rounded-xl font-bold bg-[#050505] border border-zinc-800 w-full text-zinc-300 outline-none focus:border-green-500 resize-none mt-1"></textarea>
@@ -4098,6 +4100,28 @@ function renderAgendaList() {
             tempLon = b.lon || null;
 
 
+// 👑 LÓGICA INTELIGENTE: Botón CLONAR solo para Franquicias
+            const btnClonar = document.getElementById('btn-clonar-sedes');
+            if (btnClonar) {
+                // Buscamos si existen otras sedes con el mismo PIN Maestro
+                const sedesHermanas = db.barberias.filter(x => x.pinAdmin === b.pinAdmin && x.id !== b.id);
+                
+                // Si la franquicia está activa Y existen otras sedes, mostramos el botón
+                if (b.franquiciaActiva && sedesHermanas.length > 0) {
+                    btnClonar.classList.remove('hidden');
+                    btnClonar.classList.add('flex', 'flex-1');
+                } else {
+                    btnClonar.classList.add('hidden');
+                    btnClonar.classList.remove('flex', 'flex-1');
+                }
+            }
+
+
+
+
+
+
+
             if(typeof renderConfigLists === 'function') renderConfigLists(); 
         }
 
@@ -4754,6 +4778,9 @@ function renderAgendaList() {
                     }
                 } catch (ex) { console.error("Error al renderizar gráfica de franquicia", ex); }
             }, 150);
+
+
+
 
         }
 
@@ -5865,6 +5892,9 @@ function escucharResumenFranquicia() {
             if (typeof startClock === 'function') startClock();
         }
 
+
+
+
         // ==========================================
         // 17. SISTEMA DE NOTIFICACIONES Y PUNTOS ROJOS
         // ==========================================
@@ -5931,6 +5961,8 @@ function escucharResumenFranquicia() {
             }, 45000); // 10000ms = 10 segundos
         }
 
+
+
         // ==========================================
         // 🛡️ TRAMPA ANTI-ESCAPE (VERSIÓN BLINDADA)
         // ==========================================
@@ -5964,6 +5996,10 @@ function escucharResumenFranquicia() {
                 }
             });
         }
+
+
+
+
 
 
         // Activamos la trampa cuando cargue la página
@@ -6001,6 +6037,7 @@ function escucharResumenFranquicia() {
                 }
             });
         }
+
 
         // =======================================================
         // 🛠️ MOTOR DE MANTENIMIENTO DINÁMICO (MASTER CONTROL)
@@ -6240,7 +6277,7 @@ function escucharResumenFranquicia() {
         // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES
         function comprobarVersionNube() {
             // Cambiamos a la versión 1.32 por las nuevas funciones (Voz y Propinas)
-            const VERSION_ACTUAL = "1.43"; 
+            const VERSION_ACTUAL = "1.44"; 
             const versionGuardada = localStorage.getItem('zeus_version');
             if (versionGuardada !== VERSION_ACTUAL) {
                 console.log("¡Actualización detectada! Destruyendo caché...");
