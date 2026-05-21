@@ -627,6 +627,12 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                     <option value="Transferencia">TRANSFERENCIA BANCARIA 🏦</option>
                 </select>
 
+<button type="button" onclick="gestionarPortafolio()" class="w-full bg-gradient-to-r from-pink-600 to-purple-600 text-white py-4 rounded-3xl font-black uppercase text-sm mb-4 shadow-[0_0_20px_rgba(236,72,153,0.4)] btn-press flex items-center justify-center gap-3 transition-all hover:scale-[1.02]">
+                    <span class="text-2xl">📸</span> GESTIONAR MI PORTAFOLIO
+                </button>
+                <input type="file" id="file-portafolio" class="hidden" accept="image/*" capture="environment" onchange="subirFotoPortafolio(this)">
+
+
                 <button type="button" onclick="iniciarZeusVoz()" class="w-full bg-gradient-to-r from-[#0cd1b8] to-[#1e61ea] text-white py-4 rounded-3xl font-black uppercase text-sm mb-4 shadow-[0_0_20px_rgba(12,209,184,0.4)] btn-press flex items-center justify-center gap-3 transition-all hover:scale-[1.02]">
                     <span class="text-2xl animate-pulse">🎙️</span> ASISTENTE DE VOZ (TOCAR Y HABLAR)
                 </button>
@@ -3364,44 +3370,41 @@ function renderAgendaList() {
         }
 
         // ==========================================
-        // 📸 SPRINT 1: PERFIL PREMIUM (MINI-INSTAGRAM & SOCIAL PROOF)
+        // 📸 SPRINT 1: PERFIL PREMIUM (CON FOTOS REALES)
         // ==========================================
         function abrirPerfilBarbero(nombre, foto, rango, especialidades) {
             
-            // 1. Simulación Inteligente de Base de Datos (Social Proof)
-            // Genera una calificación realista entre 4.7 y 5.0 y cantidad de reseñas
+            // 1. Simulación Inteligente de Calificaciones (Social Proof)
             const calificacion = (Math.random() * (5.0 - 4.7) + 4.7).toFixed(1); 
             const totalResenas = Math.floor(Math.random() * (250 - 80) + 80);
             
-            // Imágenes de portafolio dinámicas (Se adaptan si es belleza o barbería)
+            // 2. Colores Dinámicos
             const isBeauty = document.body.classList.contains('theme-estetica');
             const colorAcento = isBeauty ? 'text-pink-400' : 'text-cyan-400';
             const bgBoton = isBeauty ? 'bg-pink-600 hover:bg-pink-500 shadow-[0_0_20px_rgba(236,72,153,0.3)]' : 'bg-cyan-600 hover:bg-cyan-500 shadow-[0_0_20px_rgba(6,182,212,0.3)]';
             
-            const galeriaBarberia = [
-                'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?auto=format&fit=crop&w=300&q=80',
-                'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?auto=format&fit=crop&w=300&q=80',
-                'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&w=300&q=80'
-            ];
-            const galeriaBelleza = [
-                'https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&w=300&q=80',
-                'https://images.unsplash.com/photo-1600932800452-9b2f671ed87c?auto=format&fit=crop&w=300&q=80',
-                'https://images.unsplash.com/photo-1512496115851-a1c8f137e6a7?auto=format&fit=crop&w=300&q=80'
-            ];
-            const galeria = isBeauty ? galeriaBelleza : galeriaBarberia;
+            // 🚀 3. BÚSQUEDA DE FOTOS REALES EN LA BASE DE DATOS
+            const b = db.barberias[kiosko_bIdx];
+            const barberoData = (b.barberos || []).find(x => x.nom === nombre);
+            
+            let galeria = [];
+            // Si el barbero tiene fotos reales, las usamos. Si no, activamos la alerta de "SIN FOTOS"
+            if (barberoData && barberoData.galeria && barberoData.galeria.length > 0) {
+                galeria = barberoData.galeria;
+            } else {
+                galeria = ['SIN_FOTOS']; 
+            }
 
             const fotoPerfil = foto || 'https://via.placeholder.com/150/111/fff?text=💈';
             const especialidadesArray = especialidades ? especialidades.split(',').map(e => e.trim()) : ['General'];
 
-            // 2. Crear el contenedor de cristal (Glassmorphism)
             let modalCtn = document.getElementById('modal-perfil-premium');
-            if (modalCtn) modalCtn.remove(); // Limpiar si ya existe uno abierto
+            if (modalCtn) modalCtn.remove(); 
 
             modalCtn = document.createElement('div');
             modalCtn.id = 'modal-perfil-premium';
             modalCtn.className = 'fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-md transition-opacity duration-300';
             
-            // 3. Inyectar el diseño estilo Netflix / Tinder
             modalCtn.innerHTML = `
             <div class="bg-[#050505] w-full sm:w-[400px] h-[85vh] sm:h-auto sm:max-h-[85vh] rounded-t-[2rem] sm:rounded-[2rem] border border-zinc-800 flex flex-col overflow-hidden slide-up-modal shadow-[0_0_50px_rgba(0,0,0,0.8)] relative">
                 
@@ -3429,16 +3432,21 @@ function renderAgendaList() {
                         ${especialidadesArray.map(esp => `<span class="bg-white/5 border border-white/10 text-zinc-300 text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-lg shadow-inner">${esp}</span>`).join('')}
                     </div>
 
-                    <h3 class="text-white text-xs font-black uppercase tracking-widest mb-3 flex items-center gap-2">
-                        <span class="opacity-80">📸 Portafolio</span>
-                        <div class="h-[1px] flex-1 bg-gradient-to-r from-zinc-700 to-transparent"></div>
-                    </h3>
+                    <div class="flex justify-between items-end mb-3">
+                        <h3 class="text-white text-xs font-black uppercase tracking-widest flex items-center gap-2 m-0">
+                            <span class="opacity-80">📸 Portafolio</span>
+                        </h3>
+                        ${galeria.length > 3 && galeria[0] !== 'SIN_FOTOS' ? `<span class="text-[9px] text-indigo-400 font-black uppercase tracking-widest animate-pulse">Desliza ➔</span>` : '<div class="h-[1px] flex-1 bg-gradient-to-r from-zinc-700 to-transparent ml-2"></div>'}
+                    </div>
+
                     
                     <div class="flex gap-3 overflow-x-auto hide-scroll pb-2 mb-4 snap-x">
-                        ${galeria.map(img => `
-                            <div class="w-28 h-36 shrink-0 rounded-2xl overflow-hidden snap-center border border-zinc-800 shadow-md relative group cursor-pointer">
-                                <img src="${img}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
-                                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all"></div>
+                        ${galeria[0] === 'SIN_FOTOS' 
+                            ? `<div class="w-full h-32 flex flex-col items-center justify-center border border-zinc-800 rounded-2xl bg-zinc-900/50"><span class="text-2xl mb-2 opacity-50">📷</span><span class="text-[9px] text-zinc-500 uppercase tracking-widest font-bold">Aún no hay fotos en el portafolio</span></div>`
+                            : galeria.map(img => `
+                            <div class="w-28 h-36 shrink-0 rounded-2xl overflow-hidden snap-center border border-zinc-800 shadow-md relative group cursor-pointer bg-black" style="transform: translateZ(0);" onclick="Swal.fire({imageUrl: '${img}', background: '#0a0a0a', showConfirmButton: false, customClass: { image: 'rounded-2xl max-h-[80vh] object-contain' }})">
+                                <img src="${img}" class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110">
+                                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all pointer-events-none"></div>
                             </div>
                         `).join('')}
                     </div>
@@ -3453,8 +3461,94 @@ function renderAgendaList() {
             `;
             document.body.appendChild(modalCtn);
         }
+        // ==========================================
+        // 📸 GESTOR DE PORTAFOLIO VIP DEL BARBERO (BLINDADO V2)
+        // ==========================================
+        function gestionarPortafolio() {
+            const b = db.barberias[bIdx];
+            let myB = (b.barberos || []).find(x => x.nom === session.nom);
+            if (!myB) return Swal.fire('Error', 'No se encontró tu perfil.', 'error');
 
+            let galeria = myB.galeria || [];
+            
+            let htmlFotos = galeria.map((img, i) => `
+                <div class="relative rounded-2xl overflow-hidden border border-zinc-700 aspect-[3/4] shadow-lg group">
+                    <img src="${img}" class="w-full h-full object-cover">
+                    <button onclick="borrarFotoPortafolio(${i})" class="absolute top-2 right-2 bg-red-600/90 backdrop-blur-sm text-white w-7 h-7 flex items-center justify-center rounded-full font-black shadow-lg hover:scale-110 hover:bg-red-500 transition-all z-10">✕</button>
+                </div>
+            `).join('');
 
+            if(galeria.length === 0) htmlFotos = '<p class="text-zinc-500 text-xs italic col-span-3 text-center py-6">Aún no hay fotos. ¡Sube tu mejor corte!</p>';
+
+            Swal.fire({
+                title: '<span class="text-2xl font-black italic uppercase tracking-tighter text-pink-500">📸 Mi Portafolio</span>',
+                html: `
+                    <p class="text-[10px] text-zinc-400 font-bold mb-4 uppercase tracking-widest border-b border-zinc-800 pb-2">Límite: ${galeria.length} / 6 fotos permitidas</p>
+                    <div class="grid grid-cols-3 gap-2 mb-4 max-h-[40vh] overflow-y-auto scroll-safe p-1">
+                        ${htmlFotos}
+                    </div>
+                    <button onclick="document.getElementById('file-portafolio').click()" class="w-full bg-pink-600 hover:bg-pink-500 text-white py-4 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-pink-600/20 btn-press transition-colors ${galeria.length >= 6 ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}">
+                        ➕ SUBIR NUEVA FOTO
+                    </button>
+                `,
+                background: '#0a0a0a',
+                color: '#fff',
+                showConfirmButton: true,
+                confirmButtonText: 'CERRAR GESTOR',
+                confirmButtonColor: '#27272a',
+                customClass: { 
+                    popup: 'rounded-[3rem] border border-pink-900/50 shadow-2xl max-w-sm w-[95%]', 
+                    confirmButton: 'w-full py-4 mt-2 rounded-2xl font-black uppercase tracking-widest text-zinc-400 hover:text-white btn-press text-[10px]' 
+                }
+            });
+        }
+
+        function borrarFotoPortafolio(index) {
+            const b = db.barberias[bIdx];
+            let idxB = (b.barberos || []).findIndex(x => x.nom === session.nom);
+            if (idxB === -1 || !b.barberos[idxB].galeria) return;
+
+            b.barberos[idxB].galeria.splice(index, 1);
+            saveDB(true); 
+            gestionarPortafolio(); 
+        }
+
+        function subirFotoPortafolio(input) {
+            if (input.files && input.files[0]) {
+                const b = db.barberias[bIdx];
+                let idxB = (b.barberos || []).findIndex(x => x.nom === session.nom);
+                
+                if (idxB === -1) {
+                    input.value = ""; return Swal.fire('Error', 'No se encontró tu perfil.', 'error');
+                }
+                if (b.barberos[idxB].galeria && b.barberos[idxB].galeria.length >= 6) {
+                    input.value = ""; return Swal.fire('Límite Alcanzado', 'Ya tienes 6 fotos. Borra una antes de subir otra.', 'warning');
+                }
+
+                Swal.fire({ title: 'Subiendo al Kiosko...', text: 'Optimizando imagen...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
+                
+                const file = input.files[0];
+                input.value = ""; // Limpiamos inmediatamente la caché del celular
+                
+                compressImage(file, 600, async (compressed) => {
+                    const linkCorto = await uploadImageToSupabase(compressed, 'portafolios');
+                    
+                    if (linkCorto) {
+                        if (!b.barberos[idxB].galeria) b.barberos[idxB].galeria = [];
+                        b.barberos[idxB].galeria.unshift(linkCorto); // Pone la foto de primera
+                        saveDB(true); 
+                        
+                        // Damos un micro-respiro al sistema y abrimos el gestor nuevamente sin Toasts que rompan todo
+                        setTimeout(() => {
+                            gestionarPortafolio();
+                        }, 200);
+                        
+                    } else {
+                        Swal.fire('Error', 'No se pudo subir la imagen a la nube.', 'error');
+                    }
+                });
+            }
+        }
 
         // 🟢 NUEVA FUNCIÓN MÁGICA: Hace que la tarjeta "brille" al tocarla
         function seleccionarBarberoKio(nombre, cardId) {
@@ -6502,7 +6596,7 @@ function escucharResumenFranquicia() {
         // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES
         function comprobarVersionNube() {
             // Cambiamos a la versión 1.32 por las nuevas funciones (Voz y Propinas)
-            const VERSION_ACTUAL = "1.45"; 
+            const VERSION_ACTUAL = "1.46"; 
             const versionGuardada = localStorage.getItem('zeus_version');
             if (versionGuardada !== VERSION_ACTUAL) {
                 console.log("¡Actualización detectada! Destruyendo caché...");
