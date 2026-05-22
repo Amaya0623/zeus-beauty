@@ -3163,11 +3163,30 @@ function renderAgendaList() {
             }
         }
 
-        // 🟢 NUEVA FUNCIÓN COMPAÑERA: Convierte a la persona en espera en una cita real
+        // 🟢 NUEVA FUNCIÓN COMPAÑERA: Convierte a la persona en espera en una cita real (BLINDADA)
         function convertirEsperaEnCita(idEspera, horaLibre, fechaLibre, barberoLibre) {
             const b = db.barberias[bIdx];
             const espera = b.listaEspera.find(e => e.id === idEspera);
             if(!espera) return;
+
+            // 🛡️ RADAR ANTI-CHOQUES DE ÚLTIMO MILISEGUNDO
+            const miInicio = timeToMins(horaLibre);
+            const miFin = miInicio + (espera.duracion || b.intervaloCitas || 60);
+            
+            const choca = (b.citas || []).find(c => {
+                if (c.barbero !== barberoLibre || c.fecha !== fechaLibre || c.estado === 'CANCELADA') return false;
+                let cInicio = timeToMins(c.hora);
+                let cFin = cInicio + (c.duracion || b.intervaloCitas || 60);
+                return (miInicio < cFin && miFin > cInicio);
+            });
+
+            if (choca) {
+                return Swal.fire({
+                    title: '¡Ups! Espacio Tomado ⏰', 
+                    text: 'Alguien más ocupó este horario o el barbero ya no tiene el tiempo suficiente para este servicio. Contáctalo por WhatsApp.', 
+                    icon: 'error', background: '#0a0a0a', color: '#fff'
+                });
+            }
 
             // Lo sacamos de la fila de espera
             espera.estado = 'AGENDADO';
@@ -6704,7 +6723,7 @@ function escucharResumenFranquicia() {
         // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES
         function comprobarVersionNube() {
             // Cambiamos a la versión 1.32 por las nuevas funciones (Voz y Propinas)
-            const VERSION_ACTUAL = "1.47"; 
+            const VERSION_ACTUAL = "1.48"; 
             const versionGuardada = localStorage.getItem('zeus_version');
             if (versionGuardada !== VERSION_ACTUAL) {
                 console.log("¡Actualización detectada! Destruyendo caché...");
