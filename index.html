@@ -1582,28 +1582,61 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                 catch (e) { console.error("Error guardando local"); }
             }
 
-            // 2. Subida a la Nube (Con Debounce para no saturar Supabase)
+            // 2. Subida a la Nube Inteligente (ESCUDO ANTI-SOBREESCRITURA)
             if (triggerCloudSync && isOnline) {
                 clearTimeout(_cloudSyncDebounce);
-                _cloudSyncDebounce = setTimeout(() => {
+                _cloudSyncDebounce = setTimeout(async () => {
                     let idx = bIdx !== -1 ? bIdx : kiosko_bIdx;
                     
                     if (idx !== -1 && db.barberias[idx] && db.barberias[idx].id_nube) {
+                        try {
+                            // 🛡️ ESCUDO ANTI-FANTASMAS: Traemos la versión más reciente de la nube antes de aplastar
+                            const { data, error } = await supabaseClient.from('stores').select('json_data').eq('id', db.barberias[idx].id_nube).single();
+                            
+                            if (!error && data && data.json_data) {
+                                let nubeData = data.json_data;
+                                let localData = db.barberias[idx];
+                                
+                                // 👑 PROTEGEMOS TUS PAGOS: El Kiosko jamás podrá borrar los días o el plan del SuperAdmin
+                                localData.diasSuscripcion = nubeData.diasSuscripcion !== undefined ? nubeData.diasSuscripcion : localData.diasSuscripcion;
+                                localData.bloqueado = nubeData.bloqueado !== undefined ? nubeData.bloqueado : localData.bloqueado;
+                                localData.plan = nubeData.plan || localData.plan;
+                                localData.pagosSaaS = nubeData.pagosSaaS || localData.pagosSaaS;
+
+                                // 📅 FUSIONAMOS LAS CITAS (Para que el cliente no borre las citas de los demás)
+                                let fusionCitas = [...(nubeData.citas || [])];
+                                (localData.citas || []).forEach(cLocal => {
+                                    let coincidencia = fusionCitas.find(cNube => cNube.id === cLocal.id);
+                                    if (!coincidencia) fusionCitas.push(cLocal); // Metemos la cita nueva
+                                    else coincidencia.estado = cLocal.estado; // Actualizamos estado si ya existía
+                                });
+                                localData.citas = fusionCitas;
+                                
+                                // 🔔 FUSIONAMOS LA LISTA DE ESPERA
+                                let fusionEspera = [...(nubeData.listaEspera || [])];
+                                (localData.listaEspera || []).forEach(eLocal => {
+                                    let coincidencia = fusionEspera.find(eNube => eNube.id === eLocal.id);
+                                    if (!coincidencia) fusionEspera.push(eLocal);
+                                    else coincidencia.estado = eLocal.estado;
+                                });
+                                localData.listaEspera = fusionEspera;
+
+                                db.barberias[idx] = localData; // Actualizamos la memoria del celular con la verdad
+                            }
+                        } catch(e) { console.error("Error en Escudo de Sync:", e); }
+
+                        // AHORA SÍ, subimos la data protegida y blindada
                         supabaseClient.from('stores')
                             .update({ json_data: db.barberias[idx] })
                             .eq('id', db.barberias[idx].id_nube)
                             .then(({ error }) => {
                                 if (!error) {
-                                    console.log("Nube sincronizada ✅");
-                                    if (document.getElementById('view-barbero')?.classList.contains('active')) {
-                                        renderBarbero();
-                                    }
-                                } else {
-                                    console.error("Error al subir a la nube:", error);
+                                    console.log("Nube sincronizada ✅ (Protegida anti-errores)");
+                                    if (document.getElementById('view-barbero')?.classList.contains('active')) renderBarbero();
                                 }
                             });
                     }
-                }, 2000);
+                }, 1500); 
             }
         }
 
@@ -2950,20 +2983,29 @@ function renderAgendaList() {
             if (coll) return Swal.fire('¡Horario Ocupado! ⏰', `${barb} ya tiene una cita reservada cerca de las ${formatTime12h(coll.hora)}. No se permiten duplicados.`, 'error');
 
             if (!b.citas) b.citas = [];
-            b.citas.push({ id: Date.now().toString(), nombre: cli, celular: cel, barbero: barb, servicio: tempServicios.join(' + '), fecha: f, hora: h, estado: 'PENDIENTE' });
+            
+            // Calculamos cuánto dura la cita para guardarla bien
+            let totalMinsCarrito = 0; tempServicios.forEach(s => { totalMinsCarrito += parseDuracionToMins(s.dur); });
+            if (totalMinsCarrito === 0) totalMinsCarrito = intv;
 
-            // 🚀 NUEVA MAGIA: Agregamos al cliente al directorio automáticamente
+            b.citas.push({ id: Date.now().toString(), nombre: cli, celular: cel, barbero: barb, servicio: tempServicios.map(s=>s.nom || s).join(' + '), fecha: f, hora: h, estado: 'PENDIENTE', duracion: totalMinsCarrito });
+
             const idCli = cel || cli;
             if (!b.clientes) b.clientes = {};
             if (!b.clientes[idCli]) b.clientes[idCli] = { nombre: cli, celular: cel, pts: 0, visitas: 0 };
 
             saveDB(true); 
-            document.getElementById('agenda-cli').value = ""; document.getElementById('agenda-cel').value = ""; tempServicios = []; renderServiciosTemp('agenda');
             
-            // Refrescamos todo para que los números suban de inmediato
-            renderAgendaList(); 
-            renderAdmin(); 
-            actualizarBadgesCitas();
+            // 🧹 LIMPIEZA PROFUNDA DEL FORMULARIO Y LA FOTO
+            document.getElementById('agenda-cli').value = ""; 
+            document.getElementById('agenda-cel').value = ""; 
+            document.getElementById('agenda-fecha').value = ""; 
+            document.getElementById('agenda-hora').value = ""; 
+            document.getElementById('agenda-barbero').value = ""; 
+            actualizarFotoBarbero('agenda'); // Esconde la foto del barbero anterior
+            
+            tempServicios = []; renderServiciosTemp('agenda');
+            renderAgendaList(); renderAdmin(); actualizarBadgesCitas();
             
             Swal.fire({ title: '¡Cita Guardada!', icon: 'success', background: '#0a0a0a', color: '#fff', timer: 1500 });
         }
@@ -3039,7 +3081,7 @@ function renderAgendaList() {
         }
 
         // =======================================================
-        // ⏳ SPRINT 3: MOTOR DE LISTA DE ESPERA (WAITLIST)
+        // ⏳ SPRINT 3: MOTOR DE LISTA DE ESPERA (WAITLIST V2)
         // =======================================================
         function unirseListaEspera(horaStr) {
             const b = db.barberias[kiosko_bIdx];
@@ -3054,14 +3096,17 @@ function renderAgendaList() {
 
             if (!b.listaEspera) b.listaEspera = [];
 
-            // Evitar que un desesperado hunda el botón 20 veces
             const yaEsta = b.listaEspera.find(e => e.celular === cel && e.fecha === f && e.hora === horaStr && e.barbero === barb && e.estado === 'ESPERANDO');
-            if (yaEsta) {
-                return Swal.fire({title:'¡Ya estás en fila!', text:'Ya tenemos tus datos. Te avisaremos si este espacio se libera.', icon:'info', background: '#0a0a0a', color: '#fff'});
-            }
+            if (yaEsta) return Swal.fire({title:'¡Ya estás en fila!', text:'Ya tenemos tus datos. Te avisaremos si este espacio se libera.', icon:'info', background: '#0a0a0a', color: '#fff'});
+
+            // 🧠 Guardamos qué servicio quería para poder auto-agendarlo después
+            let srvStr = tempServicios.map(s => s.nom).join(' + ') || 'Atención General';
+            let durMins = 0; tempServicios.forEach(s => { durMins += parseDuracionToMins(s.dur); });
+            if (durMins === 0) durMins = b.intervaloCitas || 60;
 
             b.listaEspera.push({
-                id: Date.now().toString(), nombre: cli, celular: cel, fecha: f, hora: horaStr, barbero: barb, estado: 'ESPERANDO'
+                id: Date.now().toString(), nombre: cli, celular: cel, fecha: f, hora: horaStr, barbero: barb, estado: 'ESPERANDO',
+                servicio: srvStr, duracion: durMins
             });
 
             saveDB(true);
@@ -3077,7 +3122,6 @@ function renderAgendaList() {
             const b = db.barberias[bIdx];
             if (!b.listaEspera) return;
 
-            // Busca si alguien en la sombra estaba esperando ese mismo horario exacto
             const afortunados = b.listaEspera.filter(e => 
                 e.fecha === citaCancelada.fecha && 
                 e.barbero === citaCancelada.barbero && 
@@ -3089,29 +3133,71 @@ function renderAgendaList() {
                 let linkKiosko = "https://zeusbarberpro.com/?kiosk=" + (b.id_nube || b.id);
                 
                 let htmlAfortunados = afortunados.map(a => {
-                    let msg = `¡Hola ${a.nombre}! 🔔 Buenas noticias: Se acaba de liberar un cupo con ${a.barbero} hoy a las ${formatTime12h(a.hora)}. \n\n¡Resérvalo rápido antes de que te lo ganen entrando aquí!\n👉 ${linkKiosko}`;
-                    return `<button onclick="window.open('https://wa.me/57${a.celular}?text=${encodeURIComponent(msg)}', '_blank'); this.classList.add('opacity-50', 'pointer-events-none');" class="w-full bg-[#25D366] hover:bg-[#1ebd59] text-black font-black py-4 rounded-xl mb-2 flex flex-col items-center justify-center gap-1 btn-press shadow-lg shadow-green-900/20 transition-all">
-                        <span class="text-xs">💬 AVISAR A ${a.nombre}</span>
-                        <span class="text-[9px] font-bold opacity-70">${a.celular}</span>
-                    </button>`;
+                    let msg = `¡Hola ${a.nombre}! 🔔 Buenas noticias: Se acaba de liberar un cupo con ${a.barbero} hoy a las ${formatTime12h(citaCancelada.hora)}. \n\n¡Resérvalo rápido antes de que te lo ganen entrando aquí!\n👉 ${linkKiosko}`;
+                    return `
+                    <div class="bg-[#111] p-4 rounded-2xl border border-orange-500/30 mb-3 flex flex-col gap-2 shadow-inner text-left">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-white font-black text-sm uppercase">${a.nombre}</p>
+                                <p class="text-[9px] text-zinc-400 font-bold uppercase">${a.servicio || 'Servicio General'}</p>
+                            </div>
+                            <span class="text-[8px] bg-orange-900/30 text-orange-500 px-2 py-1 rounded font-black">ESPERANDO</span>
+                        </div>
+                        <div class="flex gap-2 mt-2">
+                            <button onclick="window.open('https://wa.me/57${a.celular}?text=${encodeURIComponent(msg)}', '_blank'); this.classList.add('opacity-50');" class="flex-1 bg-[#25D366] hover:bg-[#1ebd59] text-black font-black py-3 rounded-xl btn-press transition-all text-[9px] uppercase shadow-lg">💬 Avisar por WS</button>
+                            <button onclick="convertirEsperaEnCita('${a.id}', '${citaCancelada.hora}', '${citaCancelada.fecha}', '${citaCancelada.barbero}')" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-black py-3 rounded-xl btn-press transition-all text-[9px] uppercase shadow-lg shadow-indigo-600/20">📅 METER A LA AGENDA</button>
+                        </div>
+                    </div>`;
                 }).join('');
 
-                // Moddal Cibernético de Recuperación de Dinero
                 Swal.fire({
-                    title: '¡Dinero Recuperado! 💸',
-                    html: `<p class="text-sm text-zinc-300 mb-4 font-bold">Un cliente estaba esperando este turno que se acaba de cancelar. <b class="text-green-400">¡Avísale con un toque!</b></p>` + htmlAfortunados,
+                    title: '¡Oportunidad de Oro! 💸',
+                    html: `<p class="text-xs text-zinc-300 mb-4 font-bold">Un cliente estaba esperando este turno que se acaba de cancelar. Puedes avisarle o agendarlo de inmediato en este hueco:</p>` + htmlAfortunados,
                     background: '#0a0a0a',
                     color: '#fff',
                     showConfirmButton: true,
-                    confirmButtonText: 'Cerrar',
+                    confirmButtonText: 'CERRAR',
                     confirmButtonColor: '#27272a',
-                    customClass: { popup: 'rounded-[2rem] border border-orange-500/50 shadow-[0_0_40px_rgba(249,115,22,0.2)]' }
+                    customClass: { popup: 'rounded-[2.5rem] border border-orange-500/50 shadow-[0_0_40px_rgba(249,115,22,0.2)]' }
                 });
-
-                // Marcar como notificados para no volver a molestar
-                afortunados.forEach(a => a.estado = 'NOTIFICADO');
-                saveDB(false);
             }
+        }
+
+        // 🟢 NUEVA FUNCIÓN COMPAÑERA: Convierte a la persona en espera en una cita real
+        function convertirEsperaEnCita(idEspera, horaLibre, fechaLibre, barberoLibre) {
+            const b = db.barberias[bIdx];
+            const espera = b.listaEspera.find(e => e.id === idEspera);
+            if(!espera) return;
+
+            // Lo sacamos de la fila de espera
+            espera.estado = 'AGENDADO';
+
+            // Lo metemos directo a la agenda real
+            if (!b.citas) b.citas = [];
+            b.citas.push({
+                id: Date.now().toString(),
+                nombre: espera.nombre,
+                celular: espera.celular,
+                barbero: barberoLibre,
+                servicio: espera.servicio || 'Servicio Recuperado',
+                fecha: fechaLibre,
+                hora: horaLibre,
+                estado: 'PENDIENTE',
+                duracion: espera.duracion || (b.intervaloCitas || 60)
+            });
+
+            saveDB(true);
+            renderAgendaList();
+            renderAdmin();
+            if(session.rol === 'barbero') renderBarbero();
+            
+            Swal.fire({
+                title: '¡Turno Rescatado! 📅', 
+                text: `${espera.nombre} ha sido agendado exitosamente a las ${formatTime12h(horaLibre)}. ¡Dinero recuperado!`, 
+                icon: 'success', 
+                background: '#0a0a0a', 
+                color: '#fff'
+            });
         }
 
         function enviarRecordatorioWp(idCita) {
@@ -6279,6 +6365,28 @@ function escucharResumenFranquicia() {
                 actualizarBadgesCitas();
             }, 45000); // 10000ms = 10 segundos
         }
+       // 🔄 MOTOR SILENCIOSO PARA KIOSKO PÚBLICO (Mantiene turnos al día cada 20s)
+        if (!window.kioskoSyncInterval) {
+            window.kioskoSyncInterval = setInterval(async () => {
+                // Solo si el usuario está viendo la pantalla de reserva de Kiosko
+                if (typeof kiosko_bIdx !== 'undefined' && kiosko_bIdx > -1 && isOnline && typeof supabaseClient !== 'undefined' && document.getElementById('view-kiosko').classList.contains('active')) {
+                    try {
+                        const b = db.barberias[kiosko_bIdx];
+                        const { data, error } = await supabaseClient.from('stores').select('json_data').eq('id', b.id_nube || b.id).single();
+                        if (!error && data && data.json_data) {
+                            // Actualizamos solo los datos visuales
+                            db.barberias[kiosko_bIdx].citas = data.json_data.citas || [];
+                            db.barberias[kiosko_bIdx].bloqueado = data.json_data.bloqueado;
+                            db.barberias[kiosko_bIdx].diasSuscripcion = data.json_data.diasSuscripcion;
+                            
+                            // Re-renderizamos silenciosamente
+                            if (typeof renderKioskoSlots === 'function') renderKioskoSlots();
+                            if (typeof renderSemaforoKiosko === 'function') renderSemaforoKiosko();
+                        }
+                    } catch(e) {}
+                }
+            }, 20000); // Se actualiza cada 20 segundos
+        }
 
 
 
@@ -6596,7 +6704,7 @@ function escucharResumenFranquicia() {
         // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES
         function comprobarVersionNube() {
             // Cambiamos a la versión 1.32 por las nuevas funciones (Voz y Propinas)
-            const VERSION_ACTUAL = "1.46"; 
+            const VERSION_ACTUAL = "1.47"; 
             const versionGuardada = localStorage.getItem('zeus_version');
             if (versionGuardada !== VERSION_ACTUAL) {
                 console.log("¡Actualización detectada! Destruyendo caché...");
