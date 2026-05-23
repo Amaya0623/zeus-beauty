@@ -1582,7 +1582,7 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                 catch (e) { console.error("Error guardando local"); }
             }
 
-            // 2. Subida a la Nube Inteligente (ESCUDO ANTI-SOBREESCRITURA)
+            // 2. Subida a la Nube Inteligente (ESCUDO AHORRADOR DE DATOS 99%)
             if (triggerCloudSync && isOnline) {
                 clearTimeout(_cloudSyncDebounce);
                 _cloudSyncDebounce = setTimeout(async () => {
@@ -1590,29 +1590,37 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                     
                     if (idx !== -1 && db.barberias[idx] && db.barberias[idx].id_nube) {
                         try {
-                            // 🛡️ ESCUDO ANTI-FANTASMAS: Traemos la versión más reciente de la nube antes de aplastar
-                            const { data, error } = await supabaseClient.from('stores').select('json_data').eq('id', db.barberias[idx].id_nube).single();
+                            // 🛡️ PASO A: Preguntamos SOLO la versión actual (Gasta 10 bytes en vez de 200 KB)
+                            const { data: vData } = await supabaseClient.from('stores').select('v:json_data->>data_version').eq('id', db.barberias[idx].id_nube).single();
                             
-                            if (!error && data && data.json_data) {
-                                let nubeData = data.json_data;
+                            let vNube = (vData && vData.v) ? parseInt(vData.v) : 0;
+                            let necesitaFusion = false;
+                            let nubeData = null;
+
+                            // 🛡️ PASO B: Solo si la versión de la nube es diferente, descargamos el paquete pesado para fusionar
+                            if (vNube > 0 && db.barberias[idx].data_version !== vNube) {
+                                const { data } = await supabaseClient.from('stores').select('json_data').eq('id', db.barberias[idx].id_nube).single();
+                                if (data && data.json_data) {
+                                    nubeData = data.json_data;
+                                    necesitaFusion = true;
+                                }
+                            }
+
+                            if (necesitaFusion && nubeData) {
                                 let localData = db.barberias[idx];
-                                
-                                // 👑 PROTEGEMOS TUS PAGOS: El Kiosko jamás podrá borrar los días o el plan del SuperAdmin
                                 localData.diasSuscripcion = nubeData.diasSuscripcion !== undefined ? nubeData.diasSuscripcion : localData.diasSuscripcion;
                                 localData.bloqueado = nubeData.bloqueado !== undefined ? nubeData.bloqueado : localData.bloqueado;
                                 localData.plan = nubeData.plan || localData.plan;
                                 localData.pagosSaaS = nubeData.pagosSaaS || localData.pagosSaaS;
 
-                                // 📅 FUSIONAMOS LAS CITAS (Para que el cliente no borre las citas de los demás)
                                 let fusionCitas = [...(nubeData.citas || [])];
                                 (localData.citas || []).forEach(cLocal => {
                                     let coincidencia = fusionCitas.find(cNube => cNube.id === cLocal.id);
-                                    if (!coincidencia) fusionCitas.push(cLocal); // Metemos la cita nueva
-                                    else coincidencia.estado = cLocal.estado; // Actualizamos estado si ya existía
+                                    if (!coincidencia) fusionCitas.push(cLocal); 
+                                    else coincidencia.estado = cLocal.estado; 
                                 });
                                 localData.citas = fusionCitas;
                                 
-                                // 🔔 FUSIONAMOS LA LISTA DE ESPERA
                                 let fusionEspera = [...(nubeData.listaEspera || [])];
                                 (localData.listaEspera || []).forEach(eLocal => {
                                     let coincidencia = fusionEspera.find(eNube => eNube.id === eLocal.id);
@@ -1621,20 +1629,23 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                                 });
                                 localData.listaEspera = fusionEspera;
 
-                                db.barberias[idx] = localData; // Actualizamos la memoria del celular con la verdad
+                                db.barberias[idx] = localData; 
                             }
-                        } catch(e) { console.error("Error en Escudo de Sync:", e); }
 
-                        // AHORA SÍ, subimos la data protegida y blindada
-                        supabaseClient.from('stores')
-                            .update({ json_data: db.barberias[idx] })
-                            .eq('id', db.barberias[idx].id_nube)
-                            .then(({ error }) => {
-                                if (!error) {
-                                    console.log("Nube sincronizada ✅ (Protegida anti-errores)");
-                                    if (document.getElementById('view-barbero')?.classList.contains('active')) renderBarbero();
-                                }
-                            });
+                            // 💉 PASO C: INYECTAMOS LA NUEVA VERSIÓN AL GUARDAR
+                            db.barberias[idx].data_version = Date.now();
+
+                            // AHORA SÍ, subimos la data protegida
+                            supabaseClient.from('stores')
+                                .update({ json_data: db.barberias[idx] })
+                                .eq('id', db.barberias[idx].id_nube)
+                                .then(({ error }) => {
+                                    if (!error) {
+                                        console.log("Nube sincronizada ✅ (Escudo Ahorrador)");
+                                        if (document.getElementById('view-barbero')?.classList.contains('active')) renderBarbero();
+                                    }
+                                });
+                        } catch(e) { console.error("Error en Escudo de Sync:", e); }
                     }
                 }, 1500); 
             }
@@ -5976,16 +5987,26 @@ function escucharResumenFranquicia() {
                 }, 1000);
             }
 
-            // 🚀 MOTOR SILENCIOSO DE AUTO-REFRESCO PARA LA TV (CADA 60 SEGUNDOS)
+            // 🚀 MOTOR SILENCIOSO DE AUTO-REFRESCO PARA LA TV (CADA 60 SEGUNDOS) - AHORRADOR EXTREMO
             if (!window.syncTVInterval) {
                 window.syncTVInterval = setInterval(async () => {
                     if (navigator.onLine && typeof supabaseClient !== 'undefined' && db.barberias[bIdx]) {
                         try {
                             const b = db.barberias[bIdx];
-                            const { data, error } = await supabaseClient.from('stores').select('json_data').eq('id', b.id_nube || b.id).single();
-                            if (!error && data && data.json_data) {
-                                db.barberias[bIdx] = { ...db.barberias[bIdx], ...data.json_data };
-                                if (typeof actualizarSmartTVUI === 'function') actualizarSmartTVUI();
+                            
+                            // 🛡️ PREGUNTA RÁPIDA DE 10 BYTES PARA LA TV
+                            const { data: vData } = await supabaseClient.from('stores').select('v:json_data->>data_version').eq('id', b.id_nube || b.id).single();
+                            
+                            if (vData && vData.v) {
+                                let nVer = parseInt(vData.v) || 0;
+                                if (b.data_version && b.data_version === nVer) return; // 🛑 ABORTAR: NO GASTAR DATOS SI NO HAY CITAS NUEVAS
+                                
+                                const { data, error } = await supabaseClient.from('stores').select('json_data').eq('id', b.id_nube || b.id).single();
+                                if (!error && data && data.json_data) {
+                                    db.barberias[bIdx] = { ...db.barberias[bIdx], ...data.json_data };
+                                    db.barberias[bIdx].data_version = nVer; // Sincroniza la versión
+                                    if (typeof actualizarSmartTVUI === 'function') actualizarSmartTVUI();
+                                }
                             }
                         } catch(e) {}
                     }
@@ -6347,64 +6368,76 @@ function escucharResumenFranquicia() {
         // Motor silencioso para el Administrador (Busca citas nuevas cada 10 segundos)
         if (!window.notifCitasInterval) {
             window.notifCitasInterval = setInterval(async () => {
-                // Solo si eres admin, tienes internet y tienes el panel abierto
                 if (typeof bIdx !== 'undefined' && bIdx > -1 && session && session.rol === 'admin' && isOnline && typeof supabaseClient !== 'undefined') {
                     try {
                         const b = db.barberias[bIdx];
-                        const { data, error } = await supabaseClient.from('stores').select('json_data').eq('id', b.id_nube || b.id).single();
                         
-                        if (!error && data && data.json_data) {
-                            const citasNube = data.json_data.citas || [];
-                            const citasLocales = b.citas || [];
-                            const hoy = new Date(new Date().getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+                        // 🛡️ PREGUNTA RÁPIDA DE 10 BYTES
+                        const { data: vData } = await supabaseClient.from('stores').select('v:json_data->>data_version').eq('id', b.id_nube || b.id).single();
+                        
+                        if (vData && vData.v) {
+                            let nVer = parseInt(vData.v) || 0;
+                            if (b.data_version && b.data_version === nVer) return; // 🛑 ABORTAR: NO HAY CAMBIOS (Ahorro del 99%)
                             
-                            const pendNube = citasNube.filter(c => c.fecha === hoy && c.estado === 'PENDIENTE').length;
-                            const pendLocal = citasLocales.filter(c => c.fecha === hoy && c.estado === 'PENDIENTE').length;
-                            
-                            // Si la nube tiene más citas pendientes que tu compu ¡Suena la alarma! 🔔
-                            if (pendNube > pendLocal) {
-                                const snd = document.getElementById('snd-alerta');
-                                if(snd) { snd.play().catch(e => console.log("Audio bloqueado por el navegador")); }
-                            }
-                            
-                            // Actualizamos la memoria silenciosamente
-                            db.barberias[bIdx].citas = citasNube;
-                            if (typeof saveDB === 'function') saveDB(false);
-                            
-                            // Si tienes abierta la agenda en la pantalla, la redibuja para que veas la nueva cita
-                            const vistaAgenda = document.getElementById('view-agenda');
-                            if (vistaAgenda && vistaAgenda.classList.contains('active') && typeof renderAgendaList === 'function') {
-                                renderAgendaList();
+                            // Si cambió, hacemos la descarga pesada
+                            const { data, error } = await supabaseClient.from('stores').select('json_data').eq('id', b.id_nube || b.id).single();
+                            if (!error && data && data.json_data) {
+                                const citasNube = data.json_data.citas || [];
+                                const citasLocales = b.citas || [];
+                                const hoy = new Date(new Date().getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+                                
+                                const pendNube = citasNube.filter(c => c.fecha === hoy && c.estado === 'PENDIENTE').length;
+                                const pendLocal = citasLocales.filter(c => c.fecha === hoy && c.estado === 'PENDIENTE').length;
+                                
+                                if (pendNube > pendLocal) {
+                                    const snd = document.getElementById('snd-alerta');
+                                    if(snd) { snd.play().catch(e => console.log("Audio bloqueado por el navegador")); }
+                                }
+                                
+                                db.barberias[bIdx].citas = citasNube;
+                                db.barberias[bIdx].data_version = nVer; // Actualizamos la versión local
+                                if (typeof saveDB === 'function') saveDB(false);
+                                
+                                const vistaAgenda = document.getElementById('view-agenda');
+                                if (vistaAgenda && vistaAgenda.classList.contains('active') && typeof renderAgendaList === 'function') {
+                                    renderAgendaList();
+                                }
                             }
                         }
-                    } catch(e) { } // Si falla el internet un segundo, lo ignora y sigue
+                    } catch(e) { } 
                 }
-                
-                // Siempre actualiza los botones rojos visualmente
                 actualizarBadgesCitas();
-            }, 45000); // 10000ms = 10 segundos
+            }, 10000); 
         }
+
        // 🔄 MOTOR SILENCIOSO PARA KIOSKO PÚBLICO (Mantiene turnos al día cada 20s)
         if (!window.kioskoSyncInterval) {
             window.kioskoSyncInterval = setInterval(async () => {
-                // Solo si el usuario está viendo la pantalla de reserva de Kiosko
                 if (typeof kiosko_bIdx !== 'undefined' && kiosko_bIdx > -1 && isOnline && typeof supabaseClient !== 'undefined' && document.getElementById('view-kiosko').classList.contains('active')) {
                     try {
                         const b = db.barberias[kiosko_bIdx];
-                        const { data, error } = await supabaseClient.from('stores').select('json_data').eq('id', b.id_nube || b.id).single();
-                        if (!error && data && data.json_data) {
-                            // Actualizamos solo los datos visuales
-                            db.barberias[kiosko_bIdx].citas = data.json_data.citas || [];
-                            db.barberias[kiosko_bIdx].bloqueado = data.json_data.bloqueado;
-                            db.barberias[kiosko_bIdx].diasSuscripcion = data.json_data.diasSuscripcion;
+                        
+                        // 🛡️ PREGUNTA RÁPIDA DE 10 BYTES AL KIOSKO
+                        const { data: vData } = await supabaseClient.from('stores').select('v:json_data->>data_version').eq('id', b.id_nube || b.id).single();
+                        
+                        if (vData && vData.v) {
+                            let nVer = parseInt(vData.v) || 0;
+                            if (b.data_version && b.data_version === nVer) return; // 🛑 ABORTAR: NO HAY CAMBIOS (Ahorro del 99%)
                             
-                            // Re-renderizamos silenciosamente
-                            if (typeof renderKioskoSlots === 'function') renderKioskoSlots();
-                            if (typeof renderSemaforoKiosko === 'function') renderSemaforoKiosko();
+                            const { data, error } = await supabaseClient.from('stores').select('json_data').eq('id', b.id_nube || b.id).single();
+                            if (!error && data && data.json_data) {
+                                db.barberias[kiosko_bIdx].citas = data.json_data.citas || [];
+                                db.barberias[kiosko_bIdx].bloqueado = data.json_data.bloqueado;
+                                db.barberias[kiosko_bIdx].diasSuscripcion = data.json_data.diasSuscripcion;
+                                db.barberias[kiosko_bIdx].data_version = nVer; // Actualizamos versión
+                                
+                                if (typeof renderKioskoSlots === 'function') renderKioskoSlots();
+                                if (typeof renderSemaforoKiosko === 'function') renderSemaforoKiosko();
+                            }
                         }
                     } catch(e) {}
                 }
-            }, 20000); // Se actualiza cada 20 segundos
+            }, 20000); 
         }
 
 
@@ -6723,7 +6756,7 @@ function escucharResumenFranquicia() {
         // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES
         function comprobarVersionNube() {
             // Cambiamos a la versión 1.32 por las nuevas funciones (Voz y Propinas)
-            const VERSION_ACTUAL = "1.48"; 
+            const VERSION_ACTUAL = "1.49"; 
             const versionGuardada = localStorage.getItem('zeus_version');
             if (versionGuardada !== VERSION_ACTUAL) {
                 console.log("¡Actualización detectada! Destruyendo caché...");
