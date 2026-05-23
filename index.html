@@ -6753,14 +6753,15 @@ function escucharResumenFranquicia() {
             });
         }
 
-        // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES
+        // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES (CORREGIDO)
         function comprobarVersionNube() {
-            // Cambiamos a la versión 1.32 por las nuevas funciones (Voz y Propinas)
-            const VERSION_ACTUAL = "1.49"; 
+            const VERSION_ACTUAL = "1.50"; // Subimos la versión a 1.50 para forzar el arreglo en todos
             const versionGuardada = localStorage.getItem('zeus_version');
+            
             if (versionGuardada !== VERSION_ACTUAL) {
                 console.log("¡Actualización detectada! Destruyendo caché...");
                 localStorage.setItem('zeus_version', VERSION_ACTUAL);
+                
                 if ('serviceWorker' in navigator) {
                     navigator.serviceWorker.getRegistrations().then(function(registrations) {
                         for(let registration of registrations) { registration.unregister(); }
@@ -6771,8 +6772,12 @@ function escucharResumenFranquicia() {
                         names.forEach(name => caches.delete(name));
                     });
                 }
+                
                 setTimeout(() => { 
-                    window.location.href = window.location.href.split('?')[0] + "?v=" + new Date().getTime(); 
+                    // 🚀 LA MAGIA: Rescatamos el link original (con el Kiosko) y solo le inyectamos la versión
+                    let urlActual = new URL(window.location.href);
+                    urlActual.searchParams.set('v', new Date().getTime()); 
+                    window.location.href = urlActual.href; 
                 }, 1000);
             }
         }
