@@ -234,6 +234,13 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                 <h2 id="kio-titulo-local" class="text-3xl font-black italic text-indigo-500 uppercase mb-2 text-center leading-none">RESERVA TU TURNO</h2>
                 <p class="text-[9px] text-zinc-400 text-center uppercase tracking-widest mb-6">Estado de los barberos en tiempo real</p>
                 <div id="kiosko-semaforo" class="flex justify-center gap-4 mb-6 flex-wrap"></div>
+<div id="btn-tarjeta-vip-kio" class="hidden justify-center mb-6">
+                    <button type="button" onclick="abrirMiTarjetaVIP()" class="bg-gradient-to-r from-yellow-600 to-yellow-400 text-black px-6 py-2.5 rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(234,179,8,0.4)] btn-press hover:scale-105 transition-transform flex items-center gap-2">
+                        👑 SOY CLIENTE VIP
+                    </button>
+                </div>
+
+
                 
                 <div class="space-y-4">
                     <div>
@@ -608,8 +615,14 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                         <input type="text" id="pos-cli-nombre" placeholder="Nombre Completo" class="w-full bg-zinc-950 p-3 rounded-xl text-xs uppercase font-bold text-white border border-zinc-900 focus:border-blue-500 outline-none transition-colors">
                         <input type="text" id="pos-cli-idoc" placeholder="Cédula / Pasaporte" class="w-full bg-zinc-950 p-3 rounded-xl text-xs font-bold text-white border border-zinc-900 tracking-widest focus:border-blue-500 outline-none transition-colors">
                     </div>
+
+
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <input type="text" inputmode="numeric" id="pos-cli-celular" placeholder="Celular (Puntos)" class="w-full bg-zinc-950 p-3 rounded-xl text-xs font-bold text-white border border-zinc-900 tracking-widest focus:border-orange-500 transition-colors outline-none">
+
+                       <input type="text" inputmode="numeric" id="pos-cli-celular" onkeyup="updateCart()" placeholder="Celular (Puntos / VIP)" class="w-full bg-zinc-950 p-3 rounded-xl text-xs font-bold text-white border border-zinc-900 tracking-widest focus:border-orange-500 transition-colors outline-none">
+
+
+
                         <input type="email" id="pos-cli-correo" placeholder="Correo (Opcional)" class="w-full bg-zinc-950 p-3 rounded-xl text-xs font-bold text-white border border-zinc-900 focus:border-blue-500 outline-none transition-colors">
                         <div class="relative w-full">
                             <span class="absolute left-3 top-3 text-[10px] text-zinc-500 font-bold uppercase pointer-events-none">Cumple:</span>
@@ -984,6 +997,59 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                         </div>
                     </div>
                 </div>
+<div class="bg-black/50 rounded-[2rem] border border-zinc-900 overflow-hidden mt-4">
+                        <button type="button" onclick="toggleAcc('acc-club', 'icon-club')" class="w-full flex justify-between items-center p-6 text-left hover:bg-white/5 transition-colors btn-press">
+                            <span class="text-[11px] font-black text-yellow-500 uppercase tracking-widest flex items-center gap-2"><span class="text-lg">👑</span> Club VIP y Suscripciones</span><span id="icon-club" class="text-zinc-500 font-black transition-transform duration-300">▼</span>
+                        </button>
+                        
+                        <div id="acc-club" class="hidden px-6 pb-6 border-t border-zinc-800/50 pt-5 space-y-5">
+                            
+                            <div class="bg-yellow-900/10 p-6 rounded-[1.5rem] border border-yellow-500/30 shadow-[0_0_15px_rgba(234,179,8,0.1)]">
+                                <div class="flex justify-between items-center mb-4">
+                                    <div class="flex flex-col">
+                                        <p class="text-[11px] font-black text-yellow-500 uppercase tracking-widest">Zeus Pass (Suscripciones)</p>
+                                        <p class="text-[8px] text-zinc-400 font-bold uppercase mt-1">Vende mensualidades y cobra $0 en el POS</p>
+                                    </div>
+                                    <input type="checkbox" id="cfg-pass-activo" class="w-6 h-6 accent-yellow-500 cursor-pointer">
+                                </div>
+                                <div class="space-y-3">
+                                    <div class="bg-black border border-yellow-900/50 p-3 rounded-xl">
+                                        <input type="text" id="cfg-pass-plan1-nom" placeholder="Nombre Plan 1 (Ej: Plan Gold)" class="w-full p-2 bg-transparent text-white font-bold text-xs uppercase outline-none mb-2 border-b border-zinc-800">
+                                        <input type="text" inputmode="numeric" id="cfg-pass-plan1-pre" placeholder="Precio Mensual (Ej: 80000)" class="w-full p-2 bg-transparent text-yellow-400 font-black text-sm outline-none">
+                                    </div>
+                                    <div class="bg-black border border-yellow-900/50 p-3 rounded-xl">
+                                        <input type="text" id="cfg-pass-plan2-nom" placeholder="Nombre Plan 2 (Ej: Plan Black)" class="w-full p-2 bg-transparent text-white font-bold text-xs uppercase outline-none mb-2 border-b border-zinc-800">
+                                        <input type="text" inputmode="numeric" id="cfg-pass-plan2-pre" placeholder="Precio Mensual (Ej: 150000)" class="w-full p-2 bg-transparent text-yellow-400 font-black text-sm outline-none">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-indigo-900/10 p-6 rounded-[1.5rem] border border-indigo-500/30 shadow-[0_0_15px_rgba(99,102,241,0.1)]">
+                                <div class="flex justify-between items-center mb-4">
+                                    <div class="flex flex-col">
+                                        <p class="text-[11px] font-black text-indigo-400 uppercase tracking-widest">Caza-Recompensas</p>
+                                        <p class="text-[8px] text-zinc-400 font-bold uppercase mt-1">Convierte a clientes leales en vendedores</p>
+                                    </div>
+                                    <input type="checkbox" id="cfg-ref-activo" class="w-6 h-6 accent-indigo-500 cursor-pointer">
+                                </div>
+                                <div class="grid grid-cols-2 gap-3 mb-3">
+                                    <div>
+                                        <p class="text-[8px] text-zinc-500 uppercase font-bold mb-1">Visitas para ser VIP</p>
+                                        <input type="number" id="cfg-ref-meta" placeholder="Ej: 5" class="w-full p-3 rounded-xl text-xs font-black bg-[#050505] border border-zinc-800 text-white text-center focus:border-indigo-500 outline-none">
+                                    </div>
+                                    <div>
+                                        <p class="text-[8px] text-zinc-500 uppercase font-bold mb-1">% Desc. Nuevo Cliente</p>
+                                        <input type="number" id="cfg-ref-desc" placeholder="Ej: 15" class="w-full p-3 rounded-xl text-xs font-black bg-[#050505] border border-zinc-800 text-indigo-400 text-center focus:border-indigo-500 outline-none">
+                                    </div>
+                                </div>
+                                <p class="text-[8px] text-zinc-500 uppercase font-bold mb-1 mt-3">Premio para el que refiere (Ganancia)</p>
+                                <input type="text" id="cfg-ref-premio" placeholder="Ej: Corte Gratis o Cerveza" class="w-full p-3 rounded-xl text-xs font-bold bg-[#050505] border border-zinc-800 text-green-400 uppercase focus:border-indigo-500 outline-none">
+                            </div>
+
+                        </div>
+                    </div>
+
+
 
                 <button type="button" id="btn-guardar-config" onclick="actionGuardarYSalir()" class="bg-green-600 hover:bg-green-500 w-full py-6 rounded-[2rem] text-xl font-black uppercase italic shadow-xl shadow-green-600/20 transition-all text-white border-b-4 border-green-800 btn-press mt-6">GUARDAR Y VOLVER AL PANEL</button>
 
@@ -2739,15 +2805,61 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
         function updateCart() {
             const b = db.barberias[bIdx];
             let sCon = cart.reduce((a, i) => a + i.pre, 0);
+            
+            // 👑 1. LÓGICA ZEUS PASS (Suscripciones VIP)
+            let esSocioVIP = false;
+            let nombrePlanVIP = "";
+            const celInput = document.getElementById('pos-cli-celular');
+            const cel = celInput ? celInput.value.trim() : "";
+            
+            if (b.vipClub && b.vipClub.passActivo && cel && b.clientes && b.clientes[cel] && b.clientes[cel].planSuscripcion) {
+                esSocioVIP = true;
+                nombrePlanVIP = b.clientes[cel].planSuscripcion;
+                sCon = 0; // MAGIA: Todo el carrito pasa a $0
+            }
+
+            // 🚀 2. LÓGICA CAZA-RECOMPENSAS (Descuento a referidos en el Kiosko)
+            let esReferido = false;
+            let dctoReferido = 0;
+            const urlParams = new URLSearchParams(window.location.search);
+            const refSponsor = urlParams.get('ref');
+            
+            if (refSponsor && b.vipClub && b.vipClub.refActivo) {
+                const isKioskoPWA = document.getElementById('view-kiosko') && document.getElementById('view-kiosko').classList.contains('active');
+                if (isKioskoPWA) {
+                    esReferido = true;
+                    dctoReferido = b.vipClub.refDesc || 15;
+                    sCon = sCon - (sCon * (dctoReferido / 100)); // Aplica el descuento
+                }
+            }
+
             let iA = b.configIVA ? b.configIVA.activo : false;
             let iP = b.configIVA ? b.configIVA.porcentaje : 0;
-            let vI = iA ? Math.round(sCon * (iP / 100)) : 0; let tF = sCon + vI;
+            let vI = iA ? Math.round(sCon * (iP / 100)) : 0; 
+            let tF = sCon + vI;
 
-            document.getElementById('pos-carrito').innerHTML = cart.length === 0 ? '<p class="text-zinc-700 text-center text-xs mt-4">Vacío</p>' : cart.map(i => `<div class="flex justify-between items-center bg-white/5 p-3 rounded-2xl mb-2 border ${i.isProd ? 'border-purple-900/30' : 'border-transparent'}"><span class="text-[10px] font-black uppercase ${i.isProd ? 'text-purple-300' : 'text-white'} text-wrap-tight pr-2">${i.nom}</span><div class="flex items-center gap-3"><span class="text-zinc-400 text-xs font-bold whitespace-nowrap">${fMoney(Math.abs(i.pre))}</span><button type="button" onclick="removeFromCart('${i.idT}')" class="text-red-500 font-black px-3 py-1 hover:scale-125 transition-transform bg-red-900/20 rounded-lg">X</button></div></div>`).join('');
+            const ctnCarrito = document.getElementById('pos-carrito');
+            
+            if (cart.length === 0) {
+                ctnCarrito.innerHTML = '<p class="text-zinc-700 text-center text-xs mt-4">Vacío</p>';
+            } else {
+                let htmlCart = cart.map(i => `<div class="flex justify-between items-center bg-white/5 p-3 rounded-2xl mb-2 border ${i.isProd ? 'border-purple-900/30' : 'border-transparent'}"><span class="text-[10px] font-black uppercase ${i.isProd ? 'text-purple-300' : 'text-white'} text-wrap-tight pr-2">${i.nom}</span><div class="flex items-center gap-3"><span class="text-zinc-400 text-xs font-bold whitespace-nowrap">${esSocioVIP && !i.isProd ? '<span class="text-yellow-500 line-through mr-1">' + fMoney(Math.abs(i.pre)) + '</span>$0' : fMoney(Math.abs(i.pre))}</span><button type="button" onclick="removeFromCart('${i.idT}')" class="text-red-500 font-black px-3 py-1 hover:scale-125 transition-transform bg-red-900/20 rounded-lg">X</button></div></div>`).join('');
+                
+                if (esSocioVIP) {
+                    htmlCart = `<div class="bg-gradient-to-r from-yellow-600 to-yellow-400 p-2 rounded-xl mb-3 flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(234,179,8,0.3)] animate-pulse"><span class="text-xl">👑</span><span class="text-[10px] font-black text-black uppercase tracking-widest">Suscripción Activa: ${nombrePlanVIP}</span></div>` + htmlCart;
+                }
+                if (esReferido && !esSocioVIP) {
+                    htmlCart = `<div class="bg-gradient-to-r from-indigo-600 to-blue-500 p-2 rounded-xl mb-3 flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(99,102,241,0.3)]"><span class="text-xl">🎁</span><span class="text-[10px] font-black text-white uppercase tracking-widest">Invitado VIP: -${dctoReferido}% Aplicado</span></div>` + htmlCart;
+                }
+                ctnCarrito.innerHTML = htmlCart;
+            }
 
             let tD = document.getElementById('pos-total-breakdown');
-            if (iA && sCon > 0) tD.innerHTML = `<p class="text-[10px] text-zinc-400">SUB: ${fMoney(sCon)} | IMPUESTO: ${fMoney(vI)}</p><span id="pos-total" class="text-4xl font-black text-indigo-500">${fMoney(tF)}</span>`;
-            else tD.innerHTML = `<span id="pos-total" class="text-4xl font-black text-indigo-500">${fMoney(tF)}</span>`;
+            if (iA && sCon > 0 && !esSocioVIP) {
+                tD.innerHTML = `<p class="text-[10px] text-zinc-400">SUB: ${fMoney(sCon)} | IMPUESTO: ${fMoney(vI)}</p><span id="pos-total" class="text-4xl font-black text-indigo-500">${fMoney(tF)}</span>`;
+            } else {
+                tD.innerHTML = `<span id="pos-total" class="text-4xl font-black ${esSocioVIP ? 'text-yellow-400 drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]' : 'text-indigo-500'}">${fMoney(tF)}</span>`;
+            }
 
             validarBotonCobro();
         }
@@ -3370,6 +3482,12 @@ function renderAgendaList() {
 
             if (!b.barberos || b.barberos.length === 0 || !b.servicios || b.servicios.length === 0) return Swal.fire('Local Incompleto', 'El administrador debe configurar barberos y servicios.', 'warning');
             document.getElementById('kio-fecha').value = getTodayYMD(); document.getElementById('kio-titulo-local').innerText = b.nombre;
+// 👑 Mostrar el Botón VIP solo si el Admin activó los Referidos
+            const btnVipCtn = document.getElementById('btn-tarjeta-vip-kio');
+            if (btnVipCtn) {
+                if (b.vipClub && b.vipClub.refActivo) btnVipCtn.classList.replace('hidden', 'flex');
+                else btnVipCtn.classList.replace('flex', 'hidden');
+            }
             
             tempServicios = []; // Limpiamos el carrito al iniciar
             renderServiciosTempKiosko(); // Renderizamos el carrito vacío
@@ -3393,8 +3511,93 @@ function renderAgendaList() {
                 }
             }
 
+// 🚀 MAGIA CAZA-RECOMPENSAS (Verificar si el cliente que abre el kiosko es VIP)
+            if (b.vipClub && b.vipClub.refActivo) {
+                let miCelular = localStorage.getItem('mi_celular_zeus');
+                if (miCelular && b.clientes && b.clientes[miCelular]) {
+                    let miPerfil = b.clientes[miCelular];
+                    let meta = b.vipClub.refMeta || 5;
+                    
+                    if (miPerfil.visitas >= meta) {
+                        let linkReferido = window.location.href.split('?')[0] + `?kiosk=${b.id_nube || b.id}&ref=${miCelular}`;
+                        
+                        if (localStorage.getItem('alerta_ref_mostrada') !== getTodayYMD()) {
+                            localStorage.setItem('alerta_ref_mostrada', getTodayYMD());
+                            setTimeout(() => {
+                                Swal.fire({
+                                    title: '👑 ¡Eres Cliente VIP!',
+                                    html: `<p class="text-xs text-zinc-300 mb-4">Por tu lealtad, te hemos activado tu Link Black. Si un amigo agenda usando tu link, a él le damos <b>${b.vipClub.refDesc}% OFF</b> y a ti te regalamos: <br><b class="text-indigo-400 mt-2 block uppercase text-sm">${b.vipClub.refPremio}</b></p>
+                                    <input type="text" id="link-vip-kio" value="${linkReferido}" readonly class="w-full p-3 bg-black border border-zinc-800 rounded-xl text-indigo-400 text-[10px] font-bold outline-none text-center">`,
+                                    background: '#111', color: '#fff', confirmButtonText: '📋 COPIAR MI LINK', confirmButtonColor: '#4f46e5',
+                                    customClass: { popup: 'rounded-[2rem] border border-indigo-500/50 shadow-[0_0_30px_rgba(99,102,241,0.3)]', confirmButton: 'w-full py-4 rounded-xl font-black uppercase text-xs btn-press mt-2' }
+                                }).then((r) => {
+                                    if(r.isConfirmed) {
+                                        document.getElementById('link-vip-kio').select(); document.execCommand('copy');
+                                        Swal.fire({title: '¡Copiado!', text:'Envíalo por WhatsApp a tus amigos.', icon: 'success', background: '#111', color: '#fff', timer: 2000});
+                                    }
+                                });
+                            }, 1000);
+                        }
+                    }
+                }
+            }
+
+
             showScreen('view-kiosko');
         }
+
+
+
+// 🎁 MAGIA CAZA-RECOMPENSAS: Pantalla de Bienvenida para el Invitado
+            const urlP = new URLSearchParams(window.location.search);
+            const refID = urlP.get('ref');
+            
+            if (refID && b.vipClub && b.vipClub.refActivo && b.clientes && b.clientes[refID]) {
+                const nombreSponsor = b.clientes[refID].nombre;
+                const dctoInvitado = b.vipClub.refDesc || 15;
+                
+                // Usamos localStorage para no molestar al cliente mostrándole esto cada vez que recarga la página
+                if (localStorage.getItem('bienvenida_vip_mostrada') !== refID) {
+                    localStorage.setItem('bienvenida_vip_mostrada', refID);
+                    
+                    setTimeout(() => {
+                        Swal.fire({
+                            html: `
+                            <div class="relative p-8 rounded-[2rem] bg-gradient-to-br from-[#0a0a0a] to-[#000000] border border-indigo-500 shadow-[0_0_50px_rgba(99,102,241,0.4)] overflow-hidden text-left mt-4">
+                                <div class="absolute -top-10 -right-10 w-40 h-40 bg-indigo-500 rounded-full blur-[70px] opacity-20 pointer-events-none"></div>
+                                <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-blue-600 rounded-full blur-[70px] opacity-10 pointer-events-none"></div>
+                                
+                                <div class="relative z-10 flex flex-col items-center text-center">
+                                    <span class="text-5xl mb-4 drop-shadow-[0_0_20px_rgba(255,255,255,0.8)]">🎟️</span>
+                                    <p class="text-[10px] text-indigo-400 font-black uppercase tracking-[0.3em] mb-1">ACCESO VIP DESBLOQUEADO</p>
+                                    <h3 class="text-2xl font-black text-white uppercase italic tracking-tighter leading-tight mb-4">
+                                        <span class="text-indigo-400">${nombreSponsor}</span> te ha invitado a ${b.nombre}
+                                    </h3>
+                                    
+                                    <div class="bg-black/60 border border-zinc-800 p-5 rounded-2xl w-full mb-6">
+                                        <p class="text-[9px] text-zinc-400 uppercase font-bold tracking-widest mb-1">Beneficio Exclusivo:</p>
+                                        <p class="text-3xl font-black text-green-400 uppercase leading-none mb-1">-${dctoInvitado}%</p>
+                                        <p class="text-[8px] text-zinc-500 uppercase font-bold leading-tight">En tu primer servicio. El descuento se aplicará automáticamente en el carrito.</p>
+                                    </div>
+                                    
+                                    <button onclick="Swal.close()" class="w-full bg-gradient-to-r from-indigo-600 to-blue-500 text-white py-4 rounded-xl font-black uppercase text-xs tracking-widest btn-press shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:scale-105 transition-transform">
+                                        ¡RESERVAR AHORA! ⚡
+                                    </button>
+                                </div>
+                            </div>
+                            `,
+                            showConfirmButton: false,
+                            showCloseButton: false,
+                            background: 'transparent',
+                            allowOutsideClick: false,
+                            customClass: { popup: 'p-0 bg-transparent shadow-none' }
+                        });
+                    }, 500); // Pequeño retraso para que el Kiosko cargue primero
+                }
+            }
+
+
+
 
         // ==========================================
         // 💈 KIOSKO: RENDERIZADO DE BARBEROS (ESTILO TRADING CARD / NEÓN - V6 LETRA FINA)
@@ -4004,6 +4207,8 @@ function renderAgendaList() {
             // ✨ SE GUARDA LA PROPIEDAD "DURACION" PARA RESERVAR EL ESPACIO EXACTO
             b.citas.push({ id: Date.now().toString(), nombre: cli, celular: cel, barbero: barb, servicio: srv, fecha: f, hora: h, estado: 'PENDIENTE', comprobante: comprobanteTemp, duracion: totalMinsCarrito });
             saveDB(true);
+// Guardamos el celular en la memoria local para reconocerlo en su próxima visita (Caza-Recompensas)
+            if (cel && cel.length >= 10) { localStorage.setItem('mi_celular_zeus', cel); }
 
             document.getElementById('modal-pago-anticipado').classList.add('hidden'); comprobanteTemp = null;
 
@@ -4226,8 +4431,67 @@ function renderAgendaList() {
 
         function renderClientes() {
             const term = (document.getElementById('search-cliente').value || "").toLowerCase(); const cData = db.barberias[bIdx].clientes || {};
+            const b = db.barberias[bIdx];
+            const clubActivo = b.vipClub && b.vipClub.passActivo;
+
             const lista = Object.keys(cData).filter(k => cData[k].nombre.toLowerCase().includes(term) || (cData[k].celular && cData[k].celular.includes(term)));
-            document.getElementById('clientes-lista').innerHTML = lista.map(k => `<div class="bg-blue-900/10 p-4 rounded-xl border border-blue-900/30 mb-2 flex justify-between items-center"><div><p class="font-black text-white text-xs uppercase">${cData[k].nombre}</p><p class="text-blue-400 font-black text-[10px] mt-1">${cData[k].pts} Puntos | 📞 ${cData[k].celular || 'N/A'}</p></div>${cData[k].celular ? `<button type="button" onclick="window.open('https://wa.me/57${cData[k].celular}', '_blank')" class="bg-[#25D366]/20 text-[#25D366] px-3 py-2 rounded-lg font-black text-[9px] uppercase btn-press border border-[#25D366]/50">Chat</button>` : ''}</div>`).join('') || '<p class="text-zinc-500 text-xs italic text-center py-4">No hay clientes</p>';
+            
+            document.getElementById('clientes-lista').innerHTML = lista.map(k => {
+                let c = cData[k];
+                let esVip = c.planSuscripcion ? true : false;
+                
+                let btnSuscripcion = clubActivo ? `
+                    <button type="button" onclick="gestionarSuscripcionCliente('${k}')" class="px-3 py-1.5 rounded-lg font-black text-[8px] uppercase btn-press border transition-colors ${esVip ? 'bg-yellow-900/30 text-yellow-500 border-yellow-500/50 shadow-[0_0_10px_rgba(234,179,8,0.2)]' : 'bg-zinc-900 text-zinc-500 border-zinc-700 hover:text-white'}">
+                        ${esVip ? '👑 ' + c.planSuscripcion : '💳 Vender Plan'}
+                    </button>
+                ` : '';
+
+                return `<div class="bg-blue-900/10 p-4 rounded-xl border ${esVip ? 'border-yellow-500/50' : 'border-blue-900/30'} mb-2 flex flex-col gap-2">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="font-black ${esVip ? 'text-yellow-400' : 'text-white'} text-xs uppercase flex items-center gap-1">${esVip ? '👑 ' : ''}${c.nombre}</p>
+                            <p class="text-blue-400 font-black text-[10px] mt-1">${c.pts} Puntos | 📞 ${c.celular || 'N/A'}</p>
+                        </div>
+                        <div class="flex flex-col gap-1 items-end">
+                            ${btnSuscripcion}
+                            ${c.celular ? `<button type="button" onclick="window.open('https://wa.me/57${c.celular}', '_blank')" class="bg-[#25D366]/20 text-[#25D366] px-3 py-1.5 rounded-lg font-black text-[8px] uppercase btn-press border border-[#25D366]/50">💬 Chat WP</button>` : ''}
+                        </div>
+                    </div>
+                </div>`;
+            }).join('') || '<p class="text-zinc-500 text-xs italic text-center py-4">No hay clientes</p>';
+        }
+
+        // 👑 NUEVA FUNCIÓN COMPAÑERA (Suscripciones VIP)
+        async function gestionarSuscripcionCliente(idCli) {
+            const b = db.barberias[bIdx];
+            const c = b.clientes[idCli];
+            const p1 = b.vipClub.plan1Nom || "PLAN 1"; const p2 = b.vipClub.plan2Nom || "PLAN 2";
+
+            const opciones = {};
+            opciones[p1] = p1;
+            opciones[p2] = p2;
+            opciones["CANCELAR_PLAN"] = "🚫 Cancelar Suscripción";
+
+            const { value: planElegido } = await Swal.fire({
+                title: `<span class="text-yellow-500 font-black uppercase text-xl">Suscripción Zeus Pass</span>`,
+                text: `Elige el plan para ${c.nombre}:`,
+                input: 'select',
+                inputOptions: opciones,
+                background: '#111', color: '#fff', showCancelButton: true, confirmButtonColor: '#eab308',
+                customClass: { popup: 'rounded-[2rem] border border-yellow-500/50 shadow-2xl', input: 'bg-black text-white p-3 rounded-xl border border-zinc-800 outline-none' }
+            });
+
+            if (planElegido) {
+                if (planElegido === "CANCELAR_PLAN") {
+                    delete c.planSuscripcion;
+                    Swal.fire({title: 'Cancelado', text: 'Suscripción removida', icon: 'info', background: '#111', color: '#fff', timer: 1500, showConfirmButton: false});
+                } else {
+                    c.planSuscripcion = planElegido;
+                    Swal.fire({title: '¡Socio VIP!', text: `${c.nombre} ahora tiene el ${planElegido}`, icon: 'success', background: '#111', color: '#fff', timer: 2000, showConfirmButton: false});
+                }
+                saveDB(true);
+                renderClientes();
+            }
         }
 
         function enviarMensajeMasivo() {
@@ -6755,7 +7019,7 @@ function escucharResumenFranquicia() {
 
         // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES (CORREGIDO)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.50"; // Subimos la versión a 1.50 para forzar el arreglo en todos
+            const VERSION_ACTUAL = "1.51"; // Subimos la versión a 1.50 para forzar el arreglo en todos
             const versionGuardada = localStorage.getItem('zeus_version');
             
             if (versionGuardada !== VERSION_ACTUAL) {
@@ -6803,6 +7067,88 @@ function escucharResumenFranquicia() {
                 },
                 { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
             );
+        }
+         // ==========================================
+        // 👑 SPRINT 5: TARJETA BLACK VIP (SIN QR)
+        // ==========================================
+        async function abrirMiTarjetaVIP() {
+            const b = db.barberias[kiosko_bIdx];
+            if (!b.vipClub || !b.vipClub.refActivo) return;
+
+            // 1. Pedimos el celular
+            const { value: cel } = await Swal.fire({
+                title: '<span class="text-xl font-black text-yellow-500 uppercase italic">Ingreso Black 👑</span>',
+                text: 'Ingresa tu WhatsApp para verificar tu nivel de cliente:',
+                input: 'text',
+                inputAttributes: { inputmode: 'numeric', placeholder: 'Ej: 3001234567' },
+                background: '#050505', color: '#fff',
+                showCancelButton: true, confirmButtonText: 'VERIFICAR', cancelButtonText: 'Cerrar',
+                confirmButtonColor: '#eab308',
+                customClass: { 
+                    popup: 'rounded-[2rem] border border-yellow-500/30 shadow-[0_0_30px_rgba(234,179,8,0.2)]',
+                    input: 'bg-black text-white font-black tracking-widest text-center rounded-xl border border-zinc-800 focus:border-yellow-500 outline-none p-4' 
+                }
+            });
+
+            if (!cel) return;
+            const cNum = cleanNum(cel);
+            const cli = b.clientes && b.clientes[cNum] ? b.clientes[cNum] : null;
+            const meta = b.vipClub.refMeta || 5; // Visitas necesarias configuradas por el admin
+
+            // 2. Si es cliente nuevo
+            if (!cli) {
+                return Swal.fire({
+                    title: 'Aún no eres miembro',
+                    text: 'No encontramos historial con este número. ¡Agenda turnos para acumular visitas y ganar recompensas!',
+                    icon: 'warning', background: '#111', color: '#fff'
+                });
+            }
+
+            // 3. Si es cliente pero le faltan visitas
+            if (cli.visitas < meta) {
+                let faltan = meta - cli.visitas;
+                return Swal.fire({
+                    title: '¡Casi lo logras! 🚀',
+                    html: `<p class="text-zinc-300 text-sm">Llevas <b class="text-white text-lg">${cli.visitas}</b> visitas.</p>
+                           <p class="text-zinc-400 text-xs mt-2">Te faltan <b>${faltan}</b> cortes para desbloquear tu Tarjeta Black y ganar cortes gratis.</p>`,
+                    icon: 'info', background: '#111', color: '#fff', confirmButtonColor: '#4f46e5'
+                });
+            }
+
+            // 4. 👑 SI ES VIP: Creamos el link y la experiencia Social Premium
+            let linkReferido = window.location.href.split('?')[0] + `?kiosk=${b.id_nube || b.id}&ref=${cNum}`;
+            let dctoAmigo = b.vipClub.refDesc || 15;
+            
+            // Texto pre-armado para WhatsApp (¡Mentalidad Viral!)
+            let msgShare = `¡Hey! 👑 Soy cliente VIP en ${b.nombre}. Si agendas tu primer corte con mi link exclusivo, te regalan ${dctoAmigo}% de descuento de una vez. ¡Aprovéchalo!\n\n👉 ${linkReferido}`;
+
+            Swal.fire({
+                html: `
+                <div class="relative p-8 rounded-[2rem] bg-gradient-to-br from-[#0a0a0a] to-[#000000] border border-yellow-500 shadow-[0_0_50px_rgba(234,179,8,0.4)] overflow-hidden text-left mt-4">
+                    <div class="absolute -top-10 -right-10 w-40 h-40 bg-yellow-500 rounded-full blur-[70px] opacity-20 pointer-events-none"></div>
+                    <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-yellow-600 rounded-full blur-[70px] opacity-10 pointer-events-none"></div>
+                    
+                    <div class="relative z-10">
+                        <p class="text-[9px] text-yellow-500 font-black uppercase tracking-[0.4em] mb-1">MIEMBRO OFICIAL</p>
+                        <h3 class="text-3xl font-black text-white uppercase italic tracking-tighter leading-none mb-6 drop-shadow-md">${cli.nombre}</h3>
+                        
+                        <div class="bg-black/60 border border-zinc-800 p-5 rounded-2xl mb-6">
+                            <p class="text-[9px] text-zinc-400 uppercase font-bold tracking-widest mb-1">Tu Recompensa Actual:</p>
+                            <p class="text-lg font-black text-green-400 uppercase leading-tight">${b.vipClub.refPremio || 'Premio Sorpresa'}</p>
+                            <p class="text-[8px] text-zinc-500 uppercase mt-2 font-bold leading-tight">Por cada amigo que agende con tu link y asista a su cita, este premio se cargará a tu cuenta.</p>
+                        </div>
+                        
+                        <button onclick="window.open('https://wa.me/?text=${encodeURIComponent(msgShare)}', '_blank')" class="w-full bg-gradient-to-r from-[#25D366] to-[#1DA851] text-black py-4 rounded-xl font-black uppercase text-xs tracking-widest btn-press shadow-[0_0_20px_rgba(37,211,102,0.3)] flex items-center justify-center gap-2">
+                            <span>💬 ENVIAR LINK POR WHATSAPP</span>
+                        </button>
+                    </div>
+                </div>
+                `,
+                showConfirmButton: false,
+                showCloseButton: true,
+                background: 'transparent',
+                customClass: { popup: 'p-0 bg-transparent shadow-none', closeButton: 'text-white bg-black/50 hover:bg-red-500 transition-colors rounded-full w-10 h-10 right-0 top-0' }
+            });
         }
 
 
