@@ -4783,6 +4783,19 @@ function renderAgendaList() {
                 setVal('cfg-mkt-msg', b.configMkt.msg || "");
             }
 
+// 👑 CARGAR CLUB VIP Y REFERIDOS
+            if(!b.vipClub) b.vipClub = {};
+            setChk('cfg-pass-activo', b.vipClub.passActivo || false);
+            setVal('cfg-pass-plan1-nom', b.vipClub.plan1Nom || "");
+            setVal('cfg-pass-plan1-pre', b.vipClub.plan1Pre || "");
+            setVal('cfg-pass-plan2-nom', b.vipClub.plan2Nom || "");
+            setVal('cfg-pass-plan2-pre', b.vipClub.plan2Pre || "");
+            
+            setChk('cfg-ref-activo', b.vipClub.refActivo || false);
+            setVal('cfg-ref-meta', b.vipClub.refMeta || "");
+            setVal('cfg-ref-desc', b.vipClub.refDesc || "");
+            setVal('cfg-ref-premio', b.vipClub.refPremio || "");
+
             const baseWebUrl = "https://zeusbarberpro.com";
             const kioLink = baseWebUrl + '?kiosk=' + (b.id_nube || b.id);
             setVal('cfg-kiosko-link', kioLink);
@@ -4886,6 +4899,18 @@ function renderAgendaList() {
             b.configMkt.dias = parseInt(cleanNum(getVal('cfg-mkt-dias'))) || 30;
             b.configMkt.desc = getVal('cfg-mkt-desc');
             b.configMkt.msg = getVal('cfg-mkt-msg');
+// 👑 GUARDAR CLUB VIP Y REFERIDOS
+            if(!b.vipClub) b.vipClub = {};
+            b.vipClub.passActivo = getChk('cfg-pass-activo');
+            b.vipClub.plan1Nom = getVal('cfg-pass-plan1-nom');
+            b.vipClub.plan1Pre = parseInt(cleanNum(getVal('cfg-pass-plan1-pre'))) || 0;
+            b.vipClub.plan2Nom = getVal('cfg-pass-plan2-nom');
+            b.vipClub.plan2Pre = parseInt(cleanNum(getVal('cfg-pass-plan2-pre'))) || 0;
+            
+            b.vipClub.refActivo = getChk('cfg-ref-activo');
+            b.vipClub.refMeta = parseInt(cleanNum(getVal('cfg-ref-meta'))) || 5;
+            b.vipClub.refDesc = parseInt(cleanNum(getVal('cfg-ref-desc'))) || 15;
+            b.vipClub.refPremio = getVal('cfg-ref-premio');
 
             // 📍 GUARDADO DEL GPS EN LA BASE DE DATOS (Auto o Manual)
             let mLat = parseFloat(getVal('cfg-lat'));
@@ -7019,7 +7044,7 @@ function escucharResumenFranquicia() {
 
         // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES (CORREGIDO)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.51"; // Subimos la versión a 1.50 para forzar el arreglo en todos
+            const VERSION_ACTUAL = "1.52"; // Subimos la versión a 1.50 para forzar el arreglo en todos
             const versionGuardada = localStorage.getItem('zeus_version');
             
             if (versionGuardada !== VERSION_ACTUAL) {
