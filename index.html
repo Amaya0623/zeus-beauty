@@ -144,10 +144,11 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
         <div class="glass p-10 rounded-[3rem] border border-red-900/50 shadow-2xl max-w-md w-full">
             <span class="text-7xl mb-4 block">🔒</span>
             <h1 class="text-3xl font-black text-red-500 mb-2 uppercase italic">SISTEMA BLOQUEADO</h1>
-            <p class="text-zinc-400 text-sm mb-6">Tu periodo de suscripción expiró, tienda desactivada o hay anomalía de reloj.</p>
-            <button type="button" onclick="sessionStorage.removeItem('ISI_SESSION_V70'); window.location.reload();" class="w-full bg-red-900/20 hover:bg-red-900/40 text-red-500 border border-red-900/50 py-4 rounded-2xl font-black uppercase btn-press transition-colors">ACTUALIZAR ESTADO</button>
+            <p class="text-zinc-400 text-sm mb-6">Suscripción expirada o anomalía detectada. Si ya pagaste, presiona el botón abajo para verificar en la nube.</p>
+            <button type="button" onclick="rescatarSuscripcionLocal()" class="w-full bg-red-600 hover:bg-red-500 text-white py-4 rounded-2xl font-black uppercase btn-press transition-colors shadow-lg shadow-red-600/30">VERIFICAR PAGO EN LA NUBE ☁️</button>
         </div>
     </div>
+
 
     <div id="app-content">
         <audio id="snd-cash"><source src="https://assets.mixkit.co/active_storage/sfx/2017/2017-preview.mp3" type="audio/mpeg"></audio>
@@ -1003,6 +1004,8 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                         </button>
                         
                         <div id="acc-club" class="hidden px-6 pb-6 border-t border-zinc-800/50 pt-5 space-y-5">
+
+
                             
                             <div class="bg-yellow-900/10 p-6 rounded-[1.5rem] border border-yellow-500/30 shadow-[0_0_15px_rgba(234,179,8,0.1)]">
                                 <div class="flex justify-between items-center mb-4">
@@ -1012,17 +1015,16 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                                     </div>
                                     <input type="checkbox" id="cfg-pass-activo" class="w-6 h-6 accent-yellow-500 cursor-pointer">
                                 </div>
-                                <div class="space-y-3">
-                                    <div class="bg-black border border-yellow-900/50 p-3 rounded-xl">
-                                        <input type="text" id="cfg-pass-plan1-nom" placeholder="Nombre Plan 1 (Ej: Plan Gold)" class="w-full p-2 bg-transparent text-white font-bold text-xs uppercase outline-none mb-2 border-b border-zinc-800">
-                                        <input type="text" inputmode="numeric" id="cfg-pass-plan1-pre" placeholder="Precio Mensual (Ej: 80000)" class="w-full p-2 bg-transparent text-yellow-400 font-black text-sm outline-none">
-                                    </div>
-                                    <div class="bg-black border border-yellow-900/50 p-3 rounded-xl">
-                                        <input type="text" id="cfg-pass-plan2-nom" placeholder="Nombre Plan 2 (Ej: Plan Black)" class="w-full p-2 bg-transparent text-white font-bold text-xs uppercase outline-none mb-2 border-b border-zinc-800">
-                                        <input type="text" inputmode="numeric" id="cfg-pass-plan2-pre" placeholder="Precio Mensual (Ej: 150000)" class="w-full p-2 bg-transparent text-yellow-400 font-black text-sm outline-none">
-                                    </div>
+                                
+                                <div class="flex justify-between items-center mb-3 mt-4 border-t border-yellow-900/50 pt-4">
+                                    <p class="text-[10px] text-yellow-500 font-bold uppercase tracking-widest">Catálogo de Planes</p>
+                                    <button type="button" onclick="abrirCreadorPlanVIP()" class="bg-yellow-600 hover:bg-yellow-500 text-black px-3 py-1.5 rounded-lg font-black text-[9px] uppercase btn-press transition-colors shadow-[0_0_10px_rgba(234,179,8,0.3)]">➕ Crear Plan</button>
                                 </div>
+                                <div id="cfg-lista-planes-vip" class="space-y-2 max-h-48 overflow-y-auto pr-1 scroll-safe">
+                                    </div>
                             </div>
+
+
 
                             <div class="bg-indigo-900/10 p-6 rounded-[1.5rem] border border-indigo-500/30 shadow-[0_0_15px_rgba(99,102,241,0.1)]">
                                 <div class="flex justify-between items-center mb-4">
@@ -2806,17 +2808,31 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
             const b = db.barberias[bIdx];
             let sCon = cart.reduce((a, i) => a + i.pre, 0);
             
-            // 👑 1. LÓGICA ZEUS PASS (Suscripciones VIP)
+            // 👑 1. LÓGICA ZEUS PASS (Suscripciones VIP Inteligentes)
             let esSocioVIP = false;
             let nombrePlanVIP = "";
+            let cortesQueLeQuedan = 0;
+            let planEstaVencido = false;
+
             const celInput = document.getElementById('pos-cli-celular');
             const cel = celInput ? celInput.value.trim() : "";
             
             if (b.vipClub && b.vipClub.passActivo && cel && b.clientes && b.clientes[cel] && b.clientes[cel].planSuscripcion) {
-                esSocioVIP = true;
-                nombrePlanVIP = b.clientes[cel].planSuscripcion;
-                sCon = 0; // MAGIA: Todo el carrito pasa a $0
+                const cData = b.clientes[cel];
+                const hoy = getTodayYMD();
+                
+                if (cData.planVence && cData.planVence < hoy) {
+                    planEstaVencido = true; // El plan ya caducó por fecha
+                } else if (cData.cortesRestantes !== undefined && cData.cortesRestantes === 0) {
+                    planEstaVencido = true; // Se le acabaron los cortes
+                } else {
+                    esSocioVIP = true;
+                    nombrePlanVIP = cData.planSuscripcion;
+                    cortesQueLeQuedan = cData.cortesRestantes;
+                    sCon = 0; // MAGIA: Todo el carrito pasa a $0
+                }
             }
+
 
             // 🚀 2. LÓGICA CAZA-RECOMPENSAS (Descuento a referidos en el Kiosko)
             let esReferido = false;
@@ -2846,8 +2862,13 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                 let htmlCart = cart.map(i => `<div class="flex justify-between items-center bg-white/5 p-3 rounded-2xl mb-2 border ${i.isProd ? 'border-purple-900/30' : 'border-transparent'}"><span class="text-[10px] font-black uppercase ${i.isProd ? 'text-purple-300' : 'text-white'} text-wrap-tight pr-2">${i.nom}</span><div class="flex items-center gap-3"><span class="text-zinc-400 text-xs font-bold whitespace-nowrap">${esSocioVIP && !i.isProd ? '<span class="text-yellow-500 line-through mr-1">' + fMoney(Math.abs(i.pre)) + '</span>$0' : fMoney(Math.abs(i.pre))}</span><button type="button" onclick="removeFromCart('${i.idT}')" class="text-red-500 font-black px-3 py-1 hover:scale-125 transition-transform bg-red-900/20 rounded-lg">X</button></div></div>`).join('');
                 
                 if (esSocioVIP) {
-                    htmlCart = `<div class="bg-gradient-to-r from-yellow-600 to-yellow-400 p-2 rounded-xl mb-3 flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(234,179,8,0.3)] animate-pulse"><span class="text-xl">👑</span><span class="text-[10px] font-black text-black uppercase tracking-widest">Suscripción Activa: ${nombrePlanVIP}</span></div>` + htmlCart;
+                    let txtRestantes = cortesQueLeQuedan === 0 ? 'Ilimitados' : `Quedan: ${cortesQueLeQuedan} cortes`;
+                    htmlCart = `<div class="bg-gradient-to-r from-yellow-600 to-yellow-400 p-2 rounded-xl mb-3 flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(234,179,8,0.3)] animate-pulse"><span class="text-xl">👑</span><div class="flex flex-col"><span class="text-[10px] font-black text-black uppercase tracking-widest leading-none">VIP: ${nombrePlanVIP}</span><span class="text-[8px] font-bold text-black uppercase mt-0.5">${txtRestantes}</span></div></div>` + htmlCart;
+                } else if (planEstaVencido) {
+                    htmlCart = `<div class="bg-red-900/30 border border-red-500/50 p-2 rounded-xl mb-3 flex items-center justify-center gap-2 shadow-inner"><span class="text-xl">⚠️</span><div class="flex flex-col"><span class="text-[9px] font-black text-red-500 uppercase tracking-widest leading-none">Plan Vencido o Agotado</span><span class="text-[7px] font-bold text-zinc-400 uppercase mt-0.5">Dile al cliente que renueve.</span></div></div>` + htmlCart;
                 }
+
+
                 if (esReferido && !esSocioVIP) {
                     htmlCart = `<div class="bg-gradient-to-r from-indigo-600 to-blue-500 p-2 rounded-xl mb-3 flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(99,102,241,0.3)]"><span class="text-xl">🎁</span><span class="text-[10px] font-black text-white uppercase tracking-widest">Invitado VIP: -${dctoReferido}% Aplicado</span></div>` + htmlCart;
                 }
@@ -2921,6 +2942,12 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                     if (!b.clientes[idCli]) b.clientes[idCli] = { nombre: cNom, celular: cCel, pts: 0, visitas: 0 };
                     b.clientes[idCli].pts += cart.filter(x => !x.isProd).length; b.clientes[idCli].visitas += 1; ptsActuales = b.clientes[idCli].pts;
                 }
+                 // 👑 MAGIA VIP: DESCONTAR CORTES SI ES SUSCRIPTOR
+                if (b.clientes[idCli] && b.clientes[idCli].planSuscripcion && b.clientes[idCli].cortesRestantes > 0) {
+                    let serviciosRealizados = cart.filter(x => !x.isProd).length;
+                    b.clientes[idCli].cortesRestantes = Math.max(0, b.clientes[idCli].cortesRestantes - serviciosRealizados);
+                }
+
 
                 const fA = getTodayYMD(); const hA = new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
                 const sV = cart.reduce((a, i) => a + i.pre, 0); const iA = b.configIVA && b.configIVA.activo;
@@ -4461,36 +4488,74 @@ function renderAgendaList() {
             }).join('') || '<p class="text-zinc-500 text-xs italic text-center py-4">No hay clientes</p>';
         }
 
-        // 👑 NUEVA FUNCIÓN COMPAÑERA (Suscripciones VIP)
+        // 👑 GESTIÓN DE VENTA DE PLANES VIP (Cerebro Dinámico)
         async function gestionarSuscripcionCliente(idCli) {
             const b = db.barberias[bIdx];
             const c = b.clientes[idCli];
-            const p1 = b.vipClub.plan1Nom || "PLAN 1"; const p2 = b.vipClub.plan2Nom || "PLAN 2";
+            const planes = (b.vipClub && b.vipClub.planes) ? b.vipClub.planes : [];
 
-            const opciones = {};
-            opciones[p1] = p1;
-            opciones[p2] = p2;
-            opciones["CANCELAR_PLAN"] = "🚫 Cancelar Suscripción";
+            if (planes.length === 0) return Swal.fire('Sin Planes', 'Debes crear planes VIP en Configuración primero.', 'warning');
 
-            const { value: planElegido } = await Swal.fire({
-                title: `<span class="text-yellow-500 font-black uppercase text-xl">Suscripción Zeus Pass</span>`,
-                text: `Elige el plan para ${c.nombre}:`,
-                input: 'select',
-                inputOptions: opciones,
-                background: '#111', color: '#fff', showCancelButton: true, confirmButtonColor: '#eab308',
-                customClass: { popup: 'rounded-[2rem] border border-yellow-500/50 shadow-2xl', input: 'bg-black text-white p-3 rounded-xl border border-zinc-800 outline-none' }
+            let botonesHTML = planes.map(p => `
+                <button id="btn-sell-p${p.id}" class="bg-black border border-yellow-600 p-4 rounded-xl text-yellow-500 font-black uppercase hover:bg-yellow-900/30 transition-all flex justify-between items-center shadow-lg btn-press text-left">
+                    <div class="flex flex-col">
+                        <span>${p.nom}</span>
+                        <span class="text-[8px] text-zinc-400 mt-1">${p.cortes === 0 ? 'Cortes: Ilimitados' : 'Cortes: ' + p.cortes} | Válido: ${p.dias} Días</span>
+                    </div>
+                    <span class="bg-yellow-500 text-black px-2 py-1 rounded text-[10px] shrink-0 ml-2">${fMoney(p.pre)}</span>
+                </button>
+            `).join('');
+
+            const { isConfirmed, value: planElegido } = await Swal.fire({
+                title: `<span class="text-yellow-500 font-black uppercase text-xl">Vender Zeus Pass</span>`,
+                html: `
+                    <p class="text-xs text-zinc-400 mb-4">Elige el plan a vender para <b class="text-white">${c.nombre}</b></p>
+                    <div class="flex flex-col gap-3">
+                        ${botonesHTML}
+                        ${c.planSuscripcion ? `<button id="btn-sell-cancel" class="bg-red-900/20 border border-red-900/50 p-4 rounded-xl text-red-500 font-black uppercase hover:bg-red-900/40 mt-2 btn-press">🚫 Cancelar Suscripción Actual</button>` : ''}
+                    </div>
+                `,
+                background: '#111', color: '#fff', showConfirmButton: false, showCloseButton: true,
+                customClass: { popup: 'rounded-[2rem] border border-yellow-500/50 shadow-2xl max-w-sm w-[95%]' },
+                didOpen: () => {
+                    planes.forEach(p => { document.getElementById(`btn-sell-p${p.id}`).onclick = () => Swal.clickConfirm({ tipo: 'vender', plan: p }); });
+                    const bc = document.getElementById('btn-sell-cancel'); if(bc) bc.onclick = () => Swal.clickConfirm({ tipo: 'cancelar' });
+                }
             });
 
-            if (planElegido) {
-                if (planElegido === "CANCELAR_PLAN") {
-                    delete c.planSuscripcion;
-                    Swal.fire({title: 'Cancelado', text: 'Suscripción removida', icon: 'info', background: '#111', color: '#fff', timer: 1500, showConfirmButton: false});
-                } else {
-                    c.planSuscripcion = planElegido;
-                    Swal.fire({title: '¡Socio VIP!', text: `${c.nombre} ahora tiene el ${planElegido}`, icon: 'success', background: '#111', color: '#fff', timer: 2000, showConfirmButton: false});
+            if (isConfirmed && planElegido) {
+                if (planElegido.tipo === 'cancelar') {
+                    delete c.planSuscripcion; delete c.planVence; delete c.cortesRestantes;
+                    saveDB(true); renderClientes(); return Swal.fire({title: 'Cancelado', text: 'Suscripción removida.', icon: 'info', background: '#111', color: '#fff', timer: 1500, showConfirmButton: false});
                 }
-                saveDB(true);
-                renderClientes();
+
+                const { value: metodoPago } = await Swal.fire({
+                    title: 'Método de Pago', text: `Cobrando ${fMoney(planElegido.plan.pre)} por el ${planElegido.plan.nom}`,
+                    input: 'select', inputOptions: { 'Efectivo': 'Efectivo 💵', 'Nequi': 'Nequi 📱', 'Daviplata': 'Daviplata 📱', 'Transferencia': 'Banco 🏦', 'Tarjeta': 'Tarjeta 💳' },
+                    showCancelButton: true, confirmButtonText: 'CONFIRMAR PAGO ✅', confirmButtonColor: '#16a34a', background: '#111', color: '#fff'
+                });
+
+                if (metodoPago) {
+                    const fA = getTodayYMD(); const hA = new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+                    const tId = (b.prefijoFactura || "TK-") + (b.consecutivoFactura || 1);
+                    
+                    if (!b.ventas) b.ventas = []; if (!b.tickets) b.tickets = [];
+                    b.ventas.push({ ticketId: tId, barbero: "ADMIN", servicio: `VIP: ${planElegido.plan.nom}`, valor: planElegido.plan.pre, ivaAplicado: 0, metodo: metodoPago, tipo: metodoPago === "Efectivo" ? "Efectivo" : "Digital", fecha: fA, hora: hA, esProducto: true });
+                    b.tickets.push({ nombreNegocio: b.nombre, fecha: fA, hora: hA, cliente: c.nombre, celular: c.celular, metodo: metodoPago, total: planElegido.plan.pre, ticketId: tId, items: [{ nom: `Suscripción VIP (${planElegido.plan.nom})`, pre: planElegido.plan.pre }] });
+                    b.consecutivoFactura = (b.consecutivoFactura || 1) + 1;
+
+                    // ⚡ ACTIVACIÓN DE LÍMITES INTELIGENTES
+                    let fechaVencimiento = new Date();
+                    fechaVencimiento.setDate(fechaVencimiento.getDate() + planElegido.plan.dias);
+                    
+                    c.planSuscripcion = planElegido.plan.nom;
+                    c.planInicia = fA;
+                    c.planVence = fechaVencimiento.toISOString().split('T')[0]; // Fecha en formato YYYY-MM-DD
+                    c.cortesRestantes = planElegido.plan.cortes; // 0 = Ilimitado
+
+                    saveDB(true); renderClientes(); if(session.rol === 'admin') renderAdmin();
+                    Swal.fire({title: '¡Venta Exitosa! 💸', html: `<p class="text-xs text-zinc-300">El dinero ingresó a la caja.<br>El plan vence el <b class="text-white">${c.planVence}</b>.</p>`, icon: 'success', background: '#111', color: '#fff'});
+                }
             }
         }
 
@@ -5325,7 +5390,8 @@ function renderAgendaList() {
                         <div class="bg-black p-4 rounded-xl shadow-inner border border-zinc-900"><p class="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Personal</p><p class="text-sm font-black text-white">${personal}</p></div>
                         <div class="bg-black p-4 rounded-xl shadow-inner border border-zinc-900"><p class="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Total Ingresos</p><p class="text-sm font-black text-green-400">${fMoney(totalPagado)}</p></div>
                         <div class="bg-black p-2 rounded-xl shadow-inner border border-zinc-900 flex flex-col justify-center">
-                            <button type="button" onclick="sa_RegistrarPago('${b.id_nube}')" class="bg-green-900/30 text-green-400 border border-green-900/50 py-2 rounded-lg text-[8px] font-black uppercase btn-press hover:bg-green-600 hover:text-white transition-colors">💵 Reportar Pago</button>
+                            <button type="button" onclick="sa_RegistrarPago('${b.id_nube}')" class="bg-green-900/30 text-green-400 border border-green-900/50 py-2 rounded-lg text-[8px] font-black uppercase btn-press hover:bg-green-600 hover:text-white transition-colors">💵 Pago Extra</button>
+<button type="button" onclick="sa_VerPagosSaaS('${b.id_nube}')" class="bg-blue-900/30 text-blue-400 border border-blue-900/50 py-2 rounded-lg text-[8px] font-black uppercase btn-press hover:bg-blue-600 hover:text-white transition-colors mt-2">✏️ Editar Pagos</button>
                         </div>
                     </div>
                     
@@ -5701,52 +5767,88 @@ function escucharResumenFranquicia() {
             } catch (e) { Swal.fire('Error', 'No se pudo borrar.', 'error'); }
         }
 
+
+
         async function sa_AgregarDias(idNube, dias) {
             if (!isOnline) return Swal.fire('Error', 'Sin conexión a internet', 'error');
 
             let txtDias = dias === 30 ? '+30 Días' : dias === 90 ? '+3 Meses' : dias === 180 ? '+6 Meses' : '+1 Año';
 
-            // Modal de la Imagen 2 (Cobro de Días)
             const { value: valorCobrado, isConfirmed } = await Swal.fire({
-                title: `<span class="text-green-400">✅</span> Cobro de ${txtDias}`,
-                text: 'Ingresa el valor cobrado.',
+                title: `<span class="text-green-400">✅</span> Agregar ${txtDias}`,
+                text: 'Ingresa el valor (Si es prueba o corrección, déjalo en 0)',
                 input: 'number',
-                inputPlaceholder: 'Valor',
+                inputValue: 0,
                 showCancelButton: true,
                 confirmButtonText: 'Procesar',
                 cancelButtonText: 'Cancelar',
-                confirmButtonColor: '#6366f1',
-                cancelButtonColor: '#4b5563',
-                background: '#0a0a0a',
-                color: '#fff',
+                confirmButtonColor: '#6366f1', cancelButtonColor: '#4b5563',
+                background: '#0a0a0a', color: '#fff',
                 customClass: { popup: 'rounded-[2rem] border border-zinc-800 shadow-2xl' }
             });
 
-            if (!isConfirmed || !valorCobrado) return;
+            if (!isConfirmed) return;
 
             Swal.fire({ title: 'Procesando...', didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
             try {
                 const { data: store } = await supabaseClient.from('stores').select('*').eq('id', idNube).single();
                 let bSup = store.json_data; 
-                bSup.diasSuscripcion = (bSup.diasSuscripcion || 15) + dias;
-                if (!bSup.pagosSaaS) bSup.pagosSaaS = [];
                 
-                // Sumamos el valor ingresado a los ingresos SaaS
-                bSup.pagosSaaS.push({ fecha: getTodayYMD(), dias: dias, valor: parseInt(valorCobrado) }); 
+                bSup.diasSuscripcion = (bSup.diasSuscripcion || 15) + dias;
+                bSup.lastActiveClock = Date.now(); // 🛠️ REPARA EL BUG DEL RELOJ INVERTIDO
+                bSup.bloqueado = false; // 🛠️ DESBLOQUEA LA TIENDA AUTOMÁTICAMENTE
+                
+                let cobroNum = parseInt(valorCobrado) || 0;
+                
+                // Si pusiste 0, NO entra a la contabilidad SaaS
+                if (cobroNum > 0) {
+                    if (!bSup.pagosSaaS) bSup.pagosSaaS = [];
+                    bSup.pagosSaaS.push({ id_pago: Date.now(), fecha: getTodayYMD(), dias: dias, valor: cobroNum }); 
+                }
                 
                 await supabaseClient.from('stores').update({ json_data: bSup }).eq('id', idNube);
                 db.barberias[db.barberias.findIndex(x => x.id_nube === idNube)] = bSup; saveDB(true); renderSuperAdmin();
-                Swal.fire('¡Días Agregados!', `Se registraron $${fMoney(valorCobrado)} de ingreso.`, 'success');
+                Swal.fire('¡Días Agregados!', cobroNum > 0 ? `Se sumaron $${fMoney(cobroNum)} al balance.` : 'Días sumados gratis.', 'success');
             } catch (e) { Swal.fire('Error', 'No se pudo contactar a la nube', 'error'); }
         }
 
+        // 🛠️ NUEVA FUNCIÓN MAESTRA: ELIMINAR PAGOS EQUIVOCADOS DEL SAAS
+        async function sa_VerPagosSaaS(idNube) {
+            const b = db.barberias.find(x => x.id_nube === idNube);
+            if(!b || !b.pagosSaaS || b.pagosSaaS.length === 0) return Swal.fire('Aviso', 'No hay pagos de esta sede.', 'info');
 
+            let htmlPagos = b.pagosSaaS.map((p, i) => `
+                <div class="flex justify-between items-center bg-[#050505] border border-zinc-800 p-3 rounded-xl mb-2">
+                    <div class="text-left">
+                        <p class="text-xs text-green-400 font-black">${fMoney(p.valor)}</p>
+                        <p class="text-[9px] text-zinc-500 uppercase font-bold">${p.fecha} | ${p.desc || (p.dias ? '+'+p.dias+' Días' : 'Extra')}</p>
+                    </div>
+                    <button onclick="sa_BorrarPagoSaaS('${idNube}', ${i})" class="bg-red-900/30 text-red-500 border border-red-900/50 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase hover:bg-red-600 hover:text-white transition-colors">Borrar</button>
+                </div>
+            `).join('');
 
+            Swal.fire({
+                title: 'Historial de Pagos',
+                html: `<div class="max-h-64 overflow-y-auto pr-2">${htmlPagos}</div>`,
+                background: '#111', color: '#fff', showConfirmButton: true, confirmButtonText: 'CERRAR', confirmButtonColor: '#4f46e5',
+                customClass: { popup: 'rounded-[2rem] border border-zinc-800 shadow-2xl' }
+            });
+        }
 
-
-
-
-
+        async function sa_BorrarPagoSaaS(idNube, idxPago) {
+            if (!isOnline) return Swal.fire('Error', 'Sin conexión', 'error');
+            Swal.fire({ title: 'Borrando...', didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
+            try {
+                const { data: store } = await supabaseClient.from('stores').select('*').eq('id', idNube).single();
+                let bSup = store.json_data;
+                if (bSup.pagosSaaS && bSup.pagosSaaS[idxPago]) {
+                    bSup.pagosSaaS.splice(idxPago, 1); // Cortamos el pago del arreglo
+                    await supabaseClient.from('stores').update({ json_data: bSup }).eq('id', idNube);
+                    db.barberias[db.barberias.findIndex(x => x.id_nube === idNube)] = bSup; saveDB(true); renderSuperAdmin();
+                    Swal.fire({title:'¡Borrado!', text:'El pago desapareció de la contabilidad', icon:'success', timer: 1500, background: '#0a0a0a', color: '#fff', showConfirmButton: false});
+                }
+            } catch(e) { Swal.fire('Error', 'Falla en la nube', 'error'); }
+        }
 
         async function sa_ModificarLimite(idNube, cant) {
             if (!isOnline) return Swal.fire('Error', 'Sin conexión a internet', 'error');
@@ -5772,7 +5874,6 @@ function escucharResumenFranquicia() {
                 return Swal.fire('Error', 'PIN Maestro Incorrecto', 'error');
             }
 
-            // Si es sumar un barbero (+1), preguntamos si tuvo costo para sumarlo al SaaS
             let valorCobrado = 0;
             if (cant > 0) {
                 const { value: valor, isConfirmed: valConfirmed } = await Swal.fire({
@@ -5801,7 +5902,6 @@ function escucharResumenFranquicia() {
 
                 if (valorCobrado > 0) {
                     if (!bSup.pagosSaaS) bSup.pagosSaaS = [];
-                    // Sumamos el valor del barbero a los ingresos SaaS
                     bSup.pagosSaaS.push({ fecha: getTodayYMD(), dias: 0, valor: valorCobrado, desc: 'Barbero Adicional' });
                 }
 
@@ -5809,6 +5909,33 @@ function escucharResumenFranquicia() {
                 db.barberias[db.barberias.findIndex(x => x.id_nube === idNube)] = bSup; saveDB(true); renderSuperAdmin();
                 Swal.fire({title:'Límite Modificado', toast:true, position:'top-end', timer:1500, showConfirmButton:false, background: '#0a0a0a', color: '#fff'});
             } catch (e) { Swal.fire('Error', 'No se pudo contactar a la nube', 'error'); }
+        }
+
+        // 🛠️ FUNCIÓN PARA RESCATAR CLIENTES BLOQUEADOS QUE LA LLAMA EL BOTÓN NUEVO DE LA PANTALLA ROJA
+        async function rescatarSuscripcionLocal() {
+            if (!isOnline) return Swal.fire('Sin Internet', 'Conéctate a WiFi para validar tu licencia con Isi Control.', 'warning');
+            const { value: pinInput, isConfirmed } = await Swal.fire({
+                title: 'Validar Licencia', text: 'Ingresa el PIN maestro de tu local para sincronizar con la base de datos:', input: 'password', inputAttributes: { inputmode: 'numeric' }, background: '#111', color: '#fff', showCancelButton: true, confirmButtonText: 'Verificar ☁️', confirmButtonColor: '#25D366'
+            });
+            
+            if (isConfirmed && pinInput) {
+                Swal.fire({ title: 'Buscando tu pago...', allowOutsideClick: false, didOpen:()=>Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
+                try {
+                    let { data: stores } = await supabaseClient.from('stores').select('*').eq('owner_pin', pinInput).limit(1);
+                    if (stores && stores.length > 0) {
+                        let st = stores[0].json_data;
+                        let idx = db.barberias.findIndex(b => b.id_nube === stores[0].id);
+                        if (idx > -1) {
+                            db.barberias[idx].diasSuscripcion = st.diasSuscripcion;
+                            db.barberias[idx].bloqueado = st.bloqueado;
+                            db.barberias[idx].lastActiveClock = Date.now(); // 🛠️ ARREGLA EL RELOJ FANTASMA
+                            saveDB(false);
+                        }
+                    }
+                    sessionStorage.removeItem('ISI_SESSION_V70');
+                    window.location.reload();
+                } catch(e) { Swal.fire('Error', 'Servidores ocupados. Intenta en 1 minuto.', 'error'); }
+            }
         }
 
         // ==========================================
@@ -6566,17 +6693,25 @@ function escucharResumenFranquicia() {
         });
 
         // ==========================================
-        // 14. CIERRE AUTOMÁTICO POR INACTIVIDAD
+        // 14. CIERRE AUTOMÁTICO POR INACTIVIDAD (REPARADO)
         // ==========================================
         let tiempoInactividad;
         function resetearTiempo() {
             clearTimeout(tiempoInactividad);
-            tiempoInactividad = setTimeout(cerrarSesionPorInactividad, 600000); // 10 Minutos
+            // Solo activar la bomba de tiempo si hay una sesión abierta de admin o barbero
+            if (session && (session.rol === 'admin' || session.rol === 'barbero')) {
+                tiempoInactividad = setTimeout(cerrarSesionPorInactividad, 600000); // 10 Minutos = 600,000ms
+            }
         }
         function cerrarSesionPorInactividad() {
-            if (typeof bIdx !== 'undefined' && bIdx !== -1 && typeof session !== 'undefined' && session) {
-                try { sessionStorage.removeItem(typeof SESSION_KEY !== 'undefined' ? SESSION_KEY : 'ISI_SESSION_V70'); } catch(e){}
-                location.reload(); 
+            if (session && (session.rol === 'admin' || session.rol === 'barbero')) {
+                Swal.fire({
+                    title: '⏳ Sesión Expirada',
+                    text: 'Se cerró por inactividad de 10 minutos por seguridad.',
+                    icon: 'info', timer: 4000, showConfirmButton: false, background: '#0a0a0a', color: '#fff'
+                }).then(() => {
+                    actionLogout();
+                });
             }
         }
 
@@ -7044,7 +7179,7 @@ function escucharResumenFranquicia() {
 
         // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES (CORREGIDO)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.52"; // Subimos la versión a 1.50 para forzar el arreglo en todos
+            const VERSION_ACTUAL = "1.53"; // Subimos la versión a 1.50 para forzar el arreglo en todos
             const versionGuardada = localStorage.getItem('zeus_version');
             
             if (versionGuardada !== VERSION_ACTUAL) {
@@ -7174,6 +7309,56 @@ function escucharResumenFranquicia() {
                 background: 'transparent',
                 customClass: { popup: 'p-0 bg-transparent shadow-none', closeButton: 'text-white bg-black/50 hover:bg-red-500 transition-colors rounded-full w-10 h-10 right-0 top-0' }
             });
+        }
+// ==========================================
+        // 👑 SPRINT 7: CREADOR DINÁMICO DE PLANES VIP
+        // ==========================================
+        async function abrirCreadorPlanVIP() {
+            const { value: formValues } = await Swal.fire({
+                title: '<span class="text-yellow-500 font-black uppercase text-xl">Nuevo Zeus Pass</span>',
+                html: `
+                    <input id="swal-plan-nom" type="text" placeholder="Nombre (Ej: Plan Gold)" class="w-full p-4 rounded-xl bg-[#111] border border-zinc-800 text-white font-bold uppercase mb-3 outline-none focus:border-yellow-500">
+                    <input id="swal-plan-pre" type="number" placeholder="Precio (Ej: 80000)" class="w-full p-4 rounded-xl bg-[#111] border border-zinc-800 text-yellow-400 font-black mb-3 outline-none focus:border-yellow-500">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-[9px] text-zinc-500 font-bold uppercase">Duración (Días)</label>
+                            <input id="swal-plan-dias" type="number" placeholder="Ej: 30" value="30" class="w-full p-3 rounded-xl bg-[#111] border border-zinc-800 text-white font-bold text-center outline-none focus:border-yellow-500">
+                        </div>
+                        <div>
+                            <label class="text-[9px] text-zinc-500 font-bold uppercase">Límite Cortes</label>
+                            <input id="swal-plan-cortes" type="number" placeholder="0 = Ilimitado" value="0" class="w-full p-3 rounded-xl bg-[#111] border border-zinc-800 text-white font-bold text-center outline-none focus:border-yellow-500">
+                        </div>
+                    </div>
+                `,
+                background: '#0a0a0a', color: '#fff', showCancelButton: true, confirmButtonText: 'Guardar Plan', cancelButtonText: 'Cancelar', confirmButtonColor: '#eab308',
+                customClass: { popup: 'rounded-[2rem] border border-yellow-500/50 shadow-2xl max-w-sm w-[95%]', confirmButton: 'w-full py-4 mt-2 rounded-2xl font-black uppercase tracking-widest text-black btn-press text-[10px]' },
+                preConfirm: () => {
+                    const nom = document.getElementById('swal-plan-nom').value.trim().toUpperCase();
+                    const pre = parseInt(document.getElementById('swal-plan-pre').value);
+                    if (!nom || isNaN(pre)) { Swal.showValidationMessage('Nombre y precio son obligatorios'); return false; }
+                    return {
+                        nom: nom,
+                        pre: pre,
+                        dias: parseInt(document.getElementById('swal-plan-dias').value) || 30,
+                        cortes: parseInt(document.getElementById('swal-plan-cortes').value) || 0 // 0 significa ilimitado
+                    }
+                }
+            });
+
+            if (formValues) {
+                const b = db.barberias[bIdx];
+                if (!b.vipClub) b.vipClub = {};
+                if (!b.vipClub.planes) b.vipClub.planes = [];
+                b.vipClub.planes.push({ id: Date.now().toString(), nom: formValues.nom, pre: formValues.pre, dias: formValues.dias, cortes: formValues.cortes });
+                saveDB(true); renderConfigLists();
+                Swal.fire({title: 'Plan Creado', icon: 'success', timer: 1500, showConfirmButton: false, background: '#111', color: '#fff'});
+            }
+        }
+
+        function borrarPlanVIP(idPlan) {
+            const b = db.barberias[bIdx];
+            b.vipClub.planes = b.vipClub.planes.filter(p => p.id !== idPlan);
+            saveDB(true); renderConfigLists();
         }
 
 
