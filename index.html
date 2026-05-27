@@ -39,7 +39,7 @@
         input[type="date"]::-webkit-calendar-picker-indicator, input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
         .text-wrap-tight { word-break: break-word; overflow-wrap: break-word; white-space: normal; }
         #radar-map { background: #000 !important; background-image: linear-gradient(rgba(30, 58, 138, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(30, 58, 138, 0.3) 1px, transparent 1px) !important; background-size: 20px 20px !important; }
-        .glass { background: rgba(18, 18, 18, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
+.glass { background: rgba(18, 18, 18, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); transform: translateZ(0); will-change: transform; }
         .view-section:not(.active) { display: none !important; }
         .view-section.active { animation: fadeIn 0.3s ease-in-out; }
         .btn-press { transition: transform 0.1s; }
@@ -6596,12 +6596,11 @@ function escucharResumenFranquicia() {
         }
 
         // ==========================================
-        // 12. HERRAMIENTAS ÉLITE (SMART TV)
+        // 12. HERRAMIENTAS ÉLITE (SMART TV) - BLINDADO PARA TVS
         // ==========================================
         window.obtenerLinkTVElite = function() {
             const b = db.barberias[bIdx];
             
-            // Verificamos el plan
             if (!b || b.plan === 'BASICO' || b.plan === 'PRO') {
                 return Swal.fire({ 
                     title: 'Plan ÉLITE Requerido 👑', 
@@ -6610,31 +6609,31 @@ function escucharResumenFranquicia() {
                 });
             }
             
-            // Generamos el link
             let baseWebUrl = window.location.href.split('?')[0];
             let tvLink = baseWebUrl + `?screen=tv&local=${b.id_nube || b.id}`;
             
-            // Copiamos al portapapeles y mostramos la alerta con los DOS botones
-            navigator.clipboard.writeText(tvLink).then(() => {
+            const mostrarModalSeguro = () => {
                 Swal.fire({ 
-                    title: 'Link Generado 📺', 
-                    html: `Abre el navegador en tu TV y pega esto:<br>
-                           <div class="flex mt-4 gap-2">
-                               <input type="text" id="tv-link-input" value="${tvLink}" readonly class="w-full p-4 rounded-xl bg-[#050505] border border-zinc-800 text-indigo-400 font-bold text-xs outline-none">
-                               
-                               <button onclick="document.getElementById('tv-link-input').select(); document.execCommand('copy');" class="bg-indigo-600 px-5 rounded-xl font-black text-white hover:bg-indigo-500 transition-colors btn-press text-xl" title="Copiar al portapapeles">📋</button>
-                               
-                               <button type="button" onclick="window.open(document.getElementById('tv-link-input').value, '_blank')" class="bg-cyan-600 hover:bg-cyan-500 text-white px-5 rounded-xl font-black transition-colors btn-press text-sm" title="Abrir en nueva pestaña">🌐 ABRIR</button>
-                           </div>`, 
-                    icon: 'success', 
+                    title: 'Link de Smart TV 📺', 
+                    html: `<p class="text-xs text-zinc-400 mb-4">Puedes copiar este link, o si ya estás en el televisor, presiona el botón azul para abrir la pantalla gigante:</p>
+                           <input type="text" id="tv-link-input" value="${tvLink}" readonly class="w-full p-4 rounded-xl bg-[#050505] border border-zinc-800 text-cyan-400 font-bold text-xs outline-none text-center mb-4">
+                           
+                           <button type="button" onclick="window.open('${tvLink}', '_self')" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white py-4 rounded-xl font-black uppercase transition-colors btn-press shadow-lg shadow-cyan-600/30">🚀 ABRIR PANTALLA DE TV AQUÍ</button>`, 
+                    icon: 'info', 
                     background: '#111', 
                     color: '#fff', 
-                    confirmButtonColor: '#4f46e5', 
-                    confirmButtonText: 'CERRAR' 
+                    showConfirmButton: true,
+                    confirmButtonText: 'CERRAR',
+                    confirmButtonColor: '#3f3f46'
                 });
-            }).catch(err => {
-                Swal.fire('Error', 'No se pudo copiar el link automáticamente. Selecciónalo y cópialo a mano.', 'error');
-            });
+            };
+
+            // Intentamos copiar automáticamente. Si el TV lo rechaza, atrapamos el error y mostramos la ventana de todos modos.
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(tvLink).then(mostrarModalSeguro).catch(mostrarModalSeguro);
+            } else {
+                mostrarModalSeguro();
+            }
         };
 
         // ==========================================
@@ -7147,7 +7146,7 @@ function escucharResumenFranquicia() {
 
         // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES (CORREGIDO)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.54"; // Subimos la versión a 1.50 para forzar el arreglo en todos
+            const VERSION_ACTUAL = "1.55"; // Subimos la versión a 1.50 para forzar el arreglo en todos
             const versionGuardada = localStorage.getItem('zeus_version');
             
             if (versionGuardada !== VERSION_ACTUAL) {
