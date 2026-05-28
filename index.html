@@ -6536,20 +6536,29 @@ function escucharResumenFranquicia() {
                         }
                     } catch(e) {}
 
-                    // 2. LUEGO INTENTAR HABLAR (Solo si el TV lo soporta)
+                    // 2. LUEGO INTENTAR HABLAR (HACK DE GOOGLE PARA SMART TVS MUDOS)
                     setTimeout(() => {
                         try {
-                            if ('speechSynthesis' in window) {
-                                const synth = window.speechSynthesis; 
-                                synth.cancel(); // Limpia audios atascados
-                                let msg = new SpeechSynthesisUtterance(`Atención, ${c.nombre}, tu turno está listo.`); 
-                                msg.lang = 'es-CO'; 
-                                msg.rate = 1.0;
-                                synth.speak(msg); 
-                            }
-                        } catch(e) { console.log("TV no soporta voz TTS"); }
+                            // Convertimos el texto a formato web
+                            let textoHablar = encodeURIComponent(`Atención, ${c.nombre}, tu turno está listo.`);
+                            // Le pedimos a Google Translate que genere un MP3 al vuelo
+                            let urlGoogleVoz = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=es-US&q=${textoHablar}`;
+                            
+                            // Reproducimos el MP3 de Google en el TV
+                            let audioVoz = new Audio(urlGoogleVoz);
+                            audioVoz.play().catch(err => {
+                                // PLAN B: Si Google falla, usamos el motor normal del celular/PC
+                                if ('speechSynthesis' in window) {
+                                    window.speechSynthesis.cancel();
+                                    let msg = new SpeechSynthesisUtterance(`Atención, ${c.nombre}, tu turno está listo.`);
+                                    msg.lang = 'es-CO';
+                                    window.speechSynthesis.speak(msg);
+                                }
+                            });
+                        } catch(e) { console.log("Error en motor de voz"); }
                     }, 1500); // Espera 1.5s a que termine de sonar la campana
-                }
+
+
                 htmlEspera += `
                 <div class="flex items-center justify-between py-2 border-b border-zinc-800/50">
                     <div class="flex items-center gap-3 w-full">
@@ -7184,7 +7193,7 @@ function escucharResumenFranquicia() {
 
         // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES (CORREGIDO)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.56"; // Subimos la versión a 1.50 para forzar el arreglo en todos
+            const VERSION_ACTUAL = "1.57"; // Subimos la versión a 1.50 para forzar el arreglo en todos
             const versionGuardada = localStorage.getItem('zeus_version');
             
             if (versionGuardada !== VERSION_ACTUAL) {
