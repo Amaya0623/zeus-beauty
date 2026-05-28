@@ -1629,14 +1629,30 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
         }
         function reproducirAudioExito() { detenerAudio(); const b = db.barberias[bIdx]; currentAudio = new Audio(b && b.customAudio ? b.customAudio : 'https://actions.google.com/sounds/v1/ui/digital_bell.ogg'); currentAudio.play().catch(e => console.error(e)); }
 
+
         // ==========================================
-        // 4. ESTADO DE RED, RELOJ Y SINCRONIZACIÓN
+        // 4. ESTADO DE RED, RELOJ Y SINCRONIZACIÓN (BLINDADO OFFLINE-FIRST)
         // ==========================================
         let isOnline = navigator.onLine;
-        window.addEventListener('online', () => { isOnline = true; updateNetworkStatusUI(); });
-        window.addEventListener('offline', () => { isOnline = false; updateNetworkStatusUI(); });
+        
+        window.addEventListener('online', () => { 
+            isOnline = true; 
+            updateNetworkStatusUI(); 
+            // 🚀 MAGIA: Apenas vuelve el WiFi, empuja automáticamente todo lo guardado a la nube
+            if (typeof saveDB === 'function') {
+                console.log("🌐 Internet restaurado. Subiendo datos pendientes a la nube...");
+                saveDB(true); 
+            }
+        });
+        
+        window.addEventListener('offline', () => { 
+            isOnline = false; 
+            updateNetworkStatusUI(); 
+            // 🛑 MODO SUPERVIVENCIA: Avisa al sistema que solo use el disco duro
+            console.log("📵 Sin internet. Trabajando 100% en memoria local...");
+        });
 
-        function updateNetworkStatusUI() {
+                function updateNetworkStatusUI() {
             const banner = document.getElementById('offline-banner'); if (banner) banner.classList.toggle('hidden', !isOnline);
             const s = document.getElementById('nav-status'); if (!s) return;
             if (isOnline) { s.innerHTML = '🟢 ONLINE'; s.className = 'text-[8px] text-green-500 font-bold uppercase tracking-widest bg-black px-1.5 py-0.5 rounded border border-green-900/50'; }
@@ -7194,7 +7210,7 @@ function escucharResumenFranquicia() {
 
         // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES (CORREGIDO)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.57"; // Subimos la versión a 1.50 para forzar el arreglo en todos
+            const VERSION_ACTUAL = "1.58"; // Subimos la versión a 1.50 para forzar el arreglo en todos
             const versionGuardada = localStorage.getItem('zeus_version');
             
             if (versionGuardada !== VERSION_ACTUAL) {
