@@ -1822,12 +1822,9 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
             if (limpiado) { saveDB(true); console.log("Citas antiguas eliminadas del sistema automáticamente. 🧹"); }
         }
 
-        window.onload = () => {
+       window.onload = () => {
             try { optimizarBaseDeDatos(); } catch (e) { console.warn("Optimizador saltado", e); }
-            const splash = document.getElementById('splash-screen');
-            if (splash) {
-                setTimeout(() => { splash.style.opacity = '0'; setTimeout(() => { splash.style.display = 'none'; checkSession(); }, 500); }, 2000);
-            } else { checkSession(); }
+            // 🛑 SE ELIMINÓ EL DOBLE ARRANQUE AQUÍ. AHORA EL CONTROL ABSOLUTO LO TIENE LA FUNCIÓN arrancarZeus()
         };
 
         function getTodayYMD() { return new Date(new Date().getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0]; }
@@ -2313,10 +2310,16 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
             const kioskId = urlParams.get('kiosk');
             if (kioskId) { 
                 // 🚀 SOLUCIÓN KIOSKO: Descargar siempre el estado REAL de la nube
+
                 if (navigator.onLine && typeof supabaseClient !== 'undefined') {
-                    Swal.fire({ title: 'Abriendo Kiosko...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() }, background: '#0a0a0a', color: '#fff' });
+                    const esVip = urlParams.get('vip') === 'true';
+                    Swal.fire({ title: esVip ? 'Abriendo Club VIP...' : 'Abriendo Kiosko...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() }, background: '#0a0a0a', color: '#fff' });
+
                     supabaseClient.from('stores').select('id, name, json_data').eq('id', kioskId).single().then(({data, error}) => {
+
+
                         Swal.close();
+
                         if(!error && data && data.json_data) {
                             let bData = data.json_data;
                             bData.id_nube = data.id; bData.nombre = data.name;
@@ -3895,8 +3898,8 @@ function renderAgendaList() {
                     // 🚀 DETECTOR AUTOMÁTICO DE LINK VIP
                     const urlParams = new URLSearchParams(window.location.search);
                     if (urlParams.get('vip') === 'true' && !window.vipModalShown) {
-                        window.vipModalShown = true; // Para que no se abra 2 veces seguidas
-                        setTimeout(() => abrirFormularioRegistroVIP(), 800);
+                        window.vipModalShown = true; 
+                        setTimeout(() => abrirFormularioRegistroVIP(), 500); // ⚡ Más rápido ahora que no hay choques
                     }
 
                 } else {
@@ -7680,7 +7683,7 @@ function escucharResumenFranquicia() {
 
         // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES (CORREGIDO)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.61"; // Subimos la versión a 1.50 para forzar el arreglo en todos
+            const VERSION_ACTUAL = "1.62"; // Subimos la versión a 1.50 para forzar el arreglo en todos
             const versionGuardada = localStorage.getItem('zeus_version');
             
             if (versionGuardada !== VERSION_ACTUAL) {
