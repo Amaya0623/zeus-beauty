@@ -4555,7 +4555,9 @@ function renderAgendaList() {
                     </div>
                 `,
                 background: '#111', color: '#fff',
-                showCancelButton: true, confirmButtonText: '¡INSCRIBIRME AHORA! 🚀', cancelButtonText: 'Saltar',
+                allowOutsideClick: false, // 🛡️ ESCUDO: Evita que se cierre al tocar por fuera
+                allowEscapeKey: false,    // 🛡️ ESCUDO: Evita que se cierre con el botón atrás
+                showCancelButton: true, confirmButtonText: '¡INSCRIBIRME AHORA! 🚀', cancelButtonText: 'Más Tarde',
                 confirmButtonColor: '#dc2626', cancelButtonColor: '#27272a',
                 customClass: { popup: 'rounded-[3rem] border border-red-500/30 shadow-[0_0_40px_rgba(239,68,68,0.2)] w-[90%] max-w-sm', confirmButton: 'w-full py-5 mt-2 rounded-2xl font-black uppercase text-white btn-press shadow-lg shadow-red-600/30 text-xs tracking-widest', cancelButton: 'w-full py-4 mt-2 rounded-2xl font-bold uppercase text-zinc-500 hover:text-white btn-press text-[10px]' },
                 preConfirm: () => {
@@ -4572,14 +4574,14 @@ function renderAgendaList() {
                     if (!b.clientes[data.cel]) {
                         b.clientes[data.cel] = { nombre: data.nom, celular: data.cel, cumple: data.cumple, pts: 0, visitas: 0, fechaRegistro: getTodayYMD() };
                         saveDB(true);
-                        Swal.fire({title: '¡Bienvenido al Club! 👑', text: 'Ya estás registrado. Sigue agendando tu cita.', icon: 'success', background: '#0a0a0a', color: '#fff', timer: 3000}).then(()=> {
+                        Swal.fire({title: '¡Bienvenido al Club! 👑', text: 'Ya estás registrado. Sigue agendando tu cita.', icon: 'success', background: '#0a0a0a', color: '#fff', timer: 3000, allowOutsideClick: false}).then(()=> {
                             // Pre-llenamos el formulario del Kiosko y desaparecemos el banner mágicamente
                             document.getElementById('kio-nombre').value = data.nom;
                             document.getElementById('kio-celular').value = data.cel;
                             verificarClienteKiosko();
                         });
                     } else {
-                        Swal.fire('Atención', 'Este número ya pertenece al Club VIP. Sigue agendando normal.', 'info').then(()=>{
+                        Swal.fire({title: 'Atención', text: 'Este número ya pertenece al Club VIP. Sigue agendando normal.', icon: 'info', allowOutsideClick: false}).then(()=>{
                              document.getElementById('kio-nombre').value = b.clientes[data.cel].nombre;
                              document.getElementById('kio-celular').value = data.cel;
                              verificarClienteKiosko();
@@ -7678,7 +7680,7 @@ function escucharResumenFranquicia() {
 
         // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES (CORREGIDO)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.60"; // Subimos la versión a 1.50 para forzar el arreglo en todos
+            const VERSION_ACTUAL = "1.61"; // Subimos la versión a 1.50 para forzar el arreglo en todos
             const versionGuardada = localStorage.getItem('zeus_version');
             
             if (versionGuardada !== VERSION_ACTUAL) {
