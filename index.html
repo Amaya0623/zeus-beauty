@@ -119,13 +119,13 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* ✨ TARJETA DE FIDELIZACIÓN VIP (HUD PREMIUM & GIRO PERFECTO) */
-.card-container { width: 340px; height: 215px; perspective: 1000px; margin: 0 auto; position: relative; z-index: 50; }
-.card-3d { width: 100%; height: 100%; position: absolute; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); }
-.card-3d.flipped { transform: rotateY(180deg); }
-.card-front, .card-back { position: absolute; top: 0; left: 0; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 1.25rem; background-color: #050505; border: 1px solid #ef4444; box-shadow: 0 15px 30px rgba(0,0,0,0.8), inset 0 0 15px rgba(239, 68, 68, 0.2); overflow: hidden; display: flex; flex-direction: column; }
-.card-back { transform: rotateY(180deg); }
-.card-bg-neon { position: absolute; top: -50px; left: -50px; width: 150px; height: 150px; background: #ef4444; border-radius: 50%; filter: blur(70px); opacity: 0.25; pointer-events: none; z-index: 0; }
+/* ✨ TARJETA DE FIDELIZACIÓN VIP (HUD PREMIUM & GIRO PERFECTO PARA IPHONE) */
+.card-container { width: 340px; height: 215px; perspective: 1000px; -webkit-perspective: 1000px; margin: 0 auto; position: relative; z-index: 50; }
+.card-3d { width: 100%; height: 100%; position: absolute; transform-style: preserve-3d; -webkit-transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); -webkit-transition: -webkit-transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); }
+.card-3d.flipped { transform: rotateY(180deg); -webkit-transform: rotateY(180deg); }
+.card-front, .card-back { position: absolute; top: 0; left: 0; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 1.25rem; background-color: #050505; border: 1px solid #ef4444; box-shadow: 0 15px 30px rgba(0,0,0,0.8), inset 0 0 15px rgba(239, 68, 68, 0.2); overflow: hidden; display: flex; flex-direction: column; transform: translateZ(1px); -webkit-transform: translateZ(1px); }
+.card-back { transform: rotateY(180deg) translateZ(1px); -webkit-transform: rotateY(180deg) translateZ(1px); }
+.card-bg-neon { position: absolute; top: -50px; left: -50px; width: 150px; height: 150px; background: #ef4444; border-radius: 50%; filter: blur(70px); -webkit-filter: blur(70px); opacity: 0.25; pointer-events: none; z-index: 0; }
 .card-texture { position: absolute; inset: 0; background-image: radial-gradient(rgba(239,68,68,0.15) 1px, transparent 1px); background-size: 14px 14px; opacity: 0.5; pointer-events: none; z-index: 0; }
 
     </style>
@@ -689,7 +689,7 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
 <button type="button" onclick="gestionarPortafolio()" class="w-full bg-gradient-to-r from-pink-600 to-purple-600 text-white py-4 rounded-3xl font-black uppercase text-sm mb-4 shadow-[0_0_20px_rgba(236,72,153,0.4)] btn-press flex items-center justify-center gap-3 transition-all hover:scale-[1.02]">
                     <span class="text-2xl">📸</span> GESTIONAR MI PORTAFOLIO
                 </button>
-                <input type="file" id="file-portafolio" class="hidden" accept="image/*" capture="environment" onchange="subirFotoPortafolio(this)">
+                <input type="file" id="file-portafolio" class="hidden" accept="image/*" onchange="subirFotoPortafolio(this)">
 
 
                 <button type="button" onclick="iniciarZeusVoz()" class="w-full bg-gradient-to-r from-[#0cd1b8] to-[#1e61ea] text-white py-4 rounded-3xl font-black uppercase text-sm mb-4 shadow-[0_0_20px_rgba(12,209,184,0.4)] btn-press flex items-center justify-center gap-3 transition-all hover:scale-[1.02]">
@@ -1072,7 +1072,7 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                                     <div><p class="text-[8px] text-zinc-500 uppercase font-bold mb-1">Descuento / Cupón</p><input type="text" id="cfg-mkt-desc" placeholder="Ej: 15%" class="w-full p-4 rounded-xl text-sm font-black bg-[#050505] border border-zinc-800 text-indigo-400 text-center focus:border-indigo-500 outline-none"></div>
                                 </div>
                                 <p class="text-[8px] text-zinc-500 uppercase font-bold mb-1 mt-3">Plantilla (Usa: {cliente}, {descuento}, {link})</p>
-                                <textarea id="cfg-mkt-msg" rows="3" class="w-full p-4 rounded-xl text-xs font-bold bg-[#050505] border border-zinc-800 text-white resize-none focus:border-indigo-500 outline-none"></textarea>
+                                <textarea id="cfg-mkt-msg" rows="3" placeholder="Ej: ¡Hola {cliente}! Hace mucho no te vemos por aquí. Te regalamos un {descuento} en tu próximo corte. Reserva ya en: {link}" class="w-full p-4 rounded-xl text-xs font-bold bg-[#050505] border border-zinc-800 text-white resize-none focus:border-indigo-500 outline-none"></textarea>
                             </div>
                         </div>
                     </div>
@@ -1097,23 +1097,37 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
         </div>
         <input type="checkbox" id="cfg-tarjeta-vip-activa" class="w-6 h-6 accent-red-500 cursor-pointer">
     </div>
-    <div class="grid grid-cols-3 gap-3 mb-3">
+    <div class="grid grid-cols-2 gap-3 mb-3">
         <div>
             <p class="text-[8px] text-zinc-500 uppercase font-bold mb-1">Meta Cortes</p>
             <input type="number" id="cfg-vip-meta" placeholder="Ej: 10" class="w-full p-3 rounded-xl text-xs font-black bg-[#050505] border border-zinc-800 text-white text-center focus:border-red-500 outline-none">
-        </div>
-        <div>
-            <p class="text-[8px] text-zinc-500 uppercase font-bold mb-1">Premio</p>
-            <input type="text" id="cfg-vip-premio" placeholder="Ej: 50% OFF" class="w-full p-3 rounded-xl text-xs font-black bg-[#050505] border border-zinc-800 text-red-400 text-center focus:border-red-500 outline-none">
         </div>
         <div>
             <p class="text-[8px] text-zinc-500 uppercase font-bold mb-1">Días Validez</p>
             <input type="number" id="cfg-vip-dias" placeholder="Ej: 30" class="w-full p-3 rounded-xl text-xs font-black bg-[#050505] border border-zinc-800 text-white text-center focus:border-red-500 outline-none">
         </div>
     </div>
+    <div>
+        <p class="text-[8px] text-zinc-500 uppercase font-bold mb-1">Premio</p>
+        <input type="text" id="cfg-vip-premio" placeholder="Ej: 50% OFF o CORTE GRATIS" class="w-full p-3 rounded-xl text-xs font-black bg-[#050505] border border-zinc-800 text-red-400 text-center focus:border-red-500 outline-none">
+    </div>
 </div>
 
-                            
+<div class="bg-indigo-900/10 p-6 rounded-[1.5rem] border border-indigo-500/30 mb-5 shadow-inner flex flex-col items-center">
+    <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2 text-center">QR de Autoregistro VIP</p>
+    <p class="text-[8px] text-zinc-400 font-bold uppercase text-center mb-5">Imprime este QR para que los clientes se registren desde la sala de espera</p>
+    
+    <div class="flex flex-col sm:flex-row w-full gap-2 mb-4">
+        <input type="text" id="cfg-vip-link-directo" readonly class="flex-1 p-3 rounded-xl bg-[#050505] border border-zinc-800 text-[10px] font-bold text-zinc-400 focus:outline-none text-center sm:text-left">
+        <button type="button" onclick="copiarLinkVIP()" class="bg-indigo-600 text-white px-5 py-3 sm:py-0 rounded-xl font-black text-[10px] uppercase btn-press hover:bg-indigo-500 transition-colors shadow-lg shadow-indigo-600/20">Copiar Link</button>
+    </div>
+    
+    <div class="bg-white p-3 rounded-2xl mb-4 shadow-[0_0_20px_rgba(99,102,241,0.2)]"><div id="cfg-vip-qr-print"></div></div>
+    
+    <button type="button" onclick="imprimirQRVIP()" class="w-full bg-white text-black py-4 rounded-xl font-black text-[10px] uppercase tracking-widest btn-press hover:bg-gray-200 transition-colors shadow-md">🖨️ Imprimir Cartel VIP</button>
+</div>
+
+<div class="bg-yellow-900/10 p-6 rounded-[1.5rem] border border-yellow-500/30 shadow-[0_0_15px_rgba(234,179,8,0.1)]">                            
                             <div class="bg-yellow-900/10 p-6 rounded-[1.5rem] border border-yellow-500/30 shadow-[0_0_15px_rgba(234,179,8,0.1)]">
                                 <div class="flex justify-between items-center mb-4">
                                     <div class="flex flex-col">
@@ -1882,6 +1896,15 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
         }
 
         function saveDB(triggerCloudSync = true) {
+            let idx = bIdx !== -1 ? bIdx : kiosko_bIdx;
+            
+            // 🛡️ ESCUDO: Si guardamos sin internet, marcamos que tenemos datos pendientes de subir
+            if (idx !== -1 && db.barberias[idx]) {
+                if (!isOnline) {
+                    db.barberias[idx].pendientesSync = true; 
+                }
+            }
+
             // 1. Guardado local seguro
             if (!isLocalStorageBlocked) {
                 try { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
@@ -1892,19 +1915,18 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
             if (triggerCloudSync && isOnline) {
                 clearTimeout(_cloudSyncDebounce);
                 _cloudSyncDebounce = setTimeout(async () => {
-                    let idx = bIdx !== -1 ? bIdx : kiosko_bIdx;
-                    
                     if (idx !== -1 && db.barberias[idx] && db.barberias[idx].id_nube) {
                         try {
-                            // 🛡️ PASO A: Preguntamos SOLO la versión actual (Gasta 10 bytes en vez de 200 KB)
                             const { data: vData } = await supabaseClient.from('stores').select('v:json_data->>data_version').eq('id', db.barberias[idx].id_nube).single();
                             
                             let vNube = (vData && vData.v) ? parseInt(vData.v) : 0;
                             let necesitaFusion = false;
                             let nubeData = null;
 
-                            // 🛡️ PASO B: Solo si la versión de la nube es diferente, descargamos el paquete pesado para fusionar
-                            if (vNube > 0 && db.barberias[idx].data_version !== vNube) {
+                            // 🛡️ MAGIA OFFLINE: Si hay pendientes locales, APLASTAMOS LA NUBE. Si no, fusionamos normal.
+                            if (db.barberias[idx].pendientesSync) {
+                                db.barberias[idx].pendientesSync = false; // Quitamos la bandera porque ya vamos a imponer nuestra ley
+                            } else if (vNube > 0 && db.barberias[idx].data_version !== vNube) {
                                 const { data } = await supabaseClient.from('stores').select('json_data').eq('id', db.barberias[idx].id_nube).single();
                                 if (data && data.json_data) {
                                     nubeData = data.json_data;
@@ -1947,7 +1969,7 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                                 .eq('id', db.barberias[idx].id_nube)
                                 .then(({ error }) => {
                                     if (!error) {
-                                        console.log("Nube sincronizada ✅ (Escudo Ahorrador)");
+                                        console.log("Nube sincronizada ✅");
                                         if (document.getElementById('view-barbero')?.classList.contains('active')) renderBarbero();
                                     }
                                 });
@@ -1959,13 +1981,16 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
 
         async function forzarSincronizacionNube(silent = false) {
             let idx = bIdx !== -1 ? bIdx : kiosko_bIdx;
-            
-            // Si no hay local seleccionado o no existe en la DB, salimos
             if (idx === -1 || !db.barberias[idx]) return;
-            
             const b = db.barberias[idx];
 
-            // 🛡️ 1. ESCUDO ANTI-DESCONEXIÓN PERMANENTE
+            // 🛡️ EVITAR QUE LA NUBE APLASTE LOS CAMBIOS LOCALES PENDIENTES
+            if (b.pendientesSync) {
+                saveDB(true); // Forzamos la subida en vez de descargar
+                if (!silent) Swal.fire({ title: '¡Subiendo cambios locales!', text: 'Tus datos creados sin internet se están subiendo a la nube.', icon: 'success', timer: 2500, background: '#0a0a0a', color: '#fff', showConfirmButton: false});
+                return;
+            }
+
             const tresDiasEnMS = 3 * 24 * 60 * 60 * 1000;
             if (!isOnline && b.lastSyncTime && (Date.now() - b.lastSyncTime > tresDiasEnMS)) {
                 document.getElementById('pantalla-bloqueo').classList.remove('hidden');
@@ -1982,7 +2007,6 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
             if (!silent) Swal.fire({ title: 'Sincronizando...', text: 'Descargando datos, por favor espera...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() }, background: '#0a0a0a', color: '#fff' });
             
             try {
-                // ⏱️ AUMENTAMOS EL TIEMPO DE ESPERA A 30 SEGUNDOS (30000ms)
                 const timeoutPromiseFetch = new Promise((_, r) => setTimeout(() => r(new Error("TimeoutNube")), 30000));
                 
                 let { data, error } = await Promise.race([
@@ -1998,14 +2022,13 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
 
                     localB.bloqueado = cloudB.bloqueado; 
                     localB.diasSuscripcion = cloudB.diasSuscripcion;
-                    localB.plan = cloudB.plan || localB.plan; // Mantenemos el plan sincronizado
+                    localB.plan = cloudB.plan || localB.plan;
                     localB.maxBarberos = cloudB.maxBarberos || localB.maxBarberos; 
                     localB.barberos = cloudB.barberos || localB.barberos;
                     localB.servicios = cloudB.servicios || localB.servicios; 
                     localB.productos = cloudB.productos || localB.productos;
-                    localB.configMkt = cloudB.configMkt || localB.configMkt; // Mantenemos marketing sincronizado
+                    localB.configMkt = cloudB.configMkt || localB.configMkt;
 
-                    // Fusionar citas (Nube + Local)
                     let mergedCitas = [...localB.citas];
                     (cloudB.citas || []).forEach(cC => {
                         let lMatch = mergedCitas.find(lC => lC.id === cC.id);
@@ -2745,8 +2768,14 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
         // 7. ADMINISTRADOR Y MÉTRICAS
         // ==========================================
         async function renderAdmin() {
-            const b = db.barberias[bIdx]; if (!b) return; 
+            const b = db.barberias[bIdx]; if (!b) return;
+        // 🧹 MAGIA: CERRAR MENÚ DE GESTIÓN AL ENTRAR AL ADMIN
+            const menuAcc = document.getElementById('acc-admin-menu');
+            const menuIcon = document.getElementById('icon-admin-menu');
+            if (menuAcc) menuAcc.classList.add('hidden');
+            if (menuIcon) menuIcon.classList.remove('rotate-180'); 
             const hoyYMD = getTodayYMD();
+
 
             // Mostrar botón "Franquicia" si hay más de una sede con el mismo PIN
             const btnFran = document.getElementById('btn-regresar-franquicia');
@@ -3854,9 +3883,22 @@ function renderAgendaList() {
                     const qrAfiliacion = document.getElementById('kio-qr-afiliacion');
                     if (qrAfiliacion) {
                         qrAfiliacion.innerHTML = '';
-                        const linkKiosko = window.location.href.split('?')[0] + '?kiosk=' + (b.id_nube || b.id);
-                        new QRCode(qrAfiliacion, { text: linkKiosko, width: 60, height: 60, colorDark: "#000", colorLight: "#fff", correctLevel: QRCode.CorrectLevel.L });
+                        // 🚀 Modificamos el link agregándole "&vip=true"
+                        const linkVIP = window.location.href.split('?')[0] + '?kiosk=' + (b.id_nube || b.id) + '&vip=true';
+                        new QRCode(qrAfiliacion, { text: linkVIP, width: 60, height: 60, colorDark: "#000", colorLight: "#fff", correctLevel: QRCode.CorrectLevel.L });
+                        
+                        // Hacemos que el cuadrito sea un botón clickeable
+                        qrAfiliacion.parentElement.classList.add('cursor-pointer', 'hover:scale-110', 'transition-transform', 'btn-press');
+                        qrAfiliacion.parentElement.setAttribute('onclick', 'ampliarQRVIP()');
                     }
+
+                    // 🚀 DETECTOR AUTOMÁTICO DE LINK VIP
+                    const urlParams = new URLSearchParams(window.location.search);
+                    if (urlParams.get('vip') === 'true' && !window.vipModalShown) {
+                        window.vipModalShown = true; // Para que no se abra 2 veces seguidas
+                        setTimeout(() => abrirFormularioRegistroVIP(), 800);
+                    }
+
                 } else {
                     bannerVip.classList.add('hidden');
                     bannerVip.classList.remove('flex');
@@ -4445,36 +4487,107 @@ function renderAgendaList() {
             btn.classList.add('bg-indigo-600', 'text-white', 'border-indigo-500');
         }
 
-        // AQUÍ ESTÁ LA NUEVA FUNCIÓN BIEN PUESTA
-       function verificarClienteKiosko() {
-    const cel = cleanNum(document.getElementById('kio-celular').value);
-    const b = db.barberias[kiosko_bIdx];
-    const nameInput = document.getElementById('kio-nombre');
-    const vipCtn = document.getElementById('kio-vip-status-container');
-    const badgeVIP = document.getElementById('kio-badge-vip');
-    const bannerVip = document.getElementById('kio-banner-afiliacion-vip');
+        // 🚀 VERIFICADOR INTELIGENTE (Desaparece el banner si ya es VIP)
+        function verificarClienteKiosko() {
+            const cel = cleanNum(document.getElementById('kio-celular').value);
+            const b = db.barberias[kiosko_bIdx];
+            const nameInput = document.getElementById('kio-nombre');
+            const vipCtn = document.getElementById('kio-vip-status-container');
+            const badgeVIP = document.getElementById('kio-badge-vip');
+            const bannerVip = document.getElementById('kio-banner-afiliacion-vip');
 
-    if (cel.length >= 10 && b.clientes && b.clientes[cel]) {
-        const cli = b.clientes[cel];
-        if (!nameInput.value) nameInput.value = cli.nombre; 
-        
-        // Si el admin activó la tarjeta
-        if (b.vipCard && b.vipCard.activo) {
-            if(vipCtn) { vipCtn.classList.remove('hidden'); vipCtn.classList.add('flex'); }
-            if(badgeVIP) badgeVIP.innerHTML = `👑 CLIENTE DETECTADO (Visitas: ${cli.visitas || 0})`;
-            // Desaparecemos el cartel gigante porque ya es cliente
-            if(bannerVip) { bannerVip.classList.add('hidden'); bannerVip.classList.remove('flex'); }
+            if (cel.length >= 10 && b.clientes && b.clientes[cel]) {
+                const cli = b.clientes[cel];
+                if (!nameInput.value) nameInput.value = cli.nombre; 
+                
+                if (b.vipCard && b.vipCard.activo) {
+                    if(vipCtn) { vipCtn.classList.remove('hidden'); vipCtn.classList.add('flex'); }
+                    if(badgeVIP) badgeVIP.innerHTML = `👑 CLIENTE DETECTADO (Visitas: ${cli.visitas || 0})`;
+                    // ✨ MAGIA: Si ya es cliente, desaparecemos el letrero de "Únete"
+                    if(bannerVip) { bannerVip.classList.add('hidden'); bannerVip.classList.remove('flex'); }
+                }
+            } else {
+                if(vipCtn) { vipCtn.classList.add('hidden'); vipCtn.classList.remove('flex'); }
+                // ✨ MAGIA: Si no es cliente, o borró el número, vuelve a aparecer el letrero
+                if (b.vipCard && b.vipCard.activo && bannerVip) {
+                    bannerVip.classList.remove('hidden');
+                    bannerVip.classList.add('flex');
+                }
+            }
         }
-    } else {
-        // Ocultamos el botón de ver tarjeta
-        if(vipCtn) { vipCtn.classList.add('hidden'); vipCtn.classList.remove('flex'); }
-        // Mostramos el cartel gigante para invitarlo a unirse
-        if (b.vipCard && b.vipCard.activo && bannerVip) {
-            bannerVip.classList.remove('hidden');
-            bannerVip.classList.add('flex');
+
+        // 🔍 FUNCIÓN PARA AMPLIAR EL QR DEL KIOSKO AL TOCARLO
+        function ampliarQRVIP() {
+            const b = db.barberias[kiosko_bIdx];
+            const linkVIP = window.location.href.split('?')[0] + '?kiosk=' + (b.id_nube || b.id) + '&vip=true';
+            
+            Swal.fire({
+                title: '<span class="text-red-500 font-black uppercase italic tracking-tighter text-2xl">ESCANEA PARA UNIRTE</span>',
+                html: `
+                    <div class="flex justify-center w-full mt-4">
+                        <div id="swal-qr-vip-large" class="bg-white p-3 rounded-2xl shadow-[0_0_30px_rgba(239,68,68,0.4)] inline-block"></div>
+                    </div>
+                    <p class="text-[10px] text-zinc-400 mt-6 uppercase font-bold tracking-widest">Crea tu cuenta y empieza a ganar premios</p>
+                `,
+                showCloseButton: true, showConfirmButton: false, background: '#0a0a0a', color: '#fff',
+                customClass: { 
+                    popup: 'rounded-[2.5rem] border border-red-500/50 w-[90%] max-w-xs mx-auto', 
+                    closeButton: 'text-white bg-black hover:bg-red-500 transition-colors rounded-full w-8 h-8 right-3 top-3 border border-zinc-800' 
+                },
+                didOpen: () => { 
+                    new QRCode(document.getElementById('swal-qr-vip-large'), { text: linkVIP, width: 180, height: 180, colorDark: "#000", colorLight: "#fff", correctLevel: QRCode.CorrectLevel.L }); 
+                }
+            });
         }
-    }
-}
+
+       // 📝 FORMULARIO DE AUTOREGISTRO PARA CLIENTES NUEVOS
+        function abrirFormularioRegistroVIP(celularInicial = "") {
+            const b = db.barberias[kiosko_bIdx];
+            Swal.fire({
+                title: '<span class="text-3xl font-black italic uppercase text-red-500 tracking-tighter">👑 CLUB VIP</span>',
+                html: `
+                    <p class="text-[10px] text-zinc-400 font-bold uppercase mb-6 tracking-widest">Crea tu cuenta y empieza a ganar</p>
+                    <input type="text" id="reg-vip-nom" placeholder="NOMBRE COMPLETO" class="w-full bg-[#050505] border border-zinc-800 p-4 rounded-xl text-white font-black uppercase text-sm mb-3 outline-none focus:border-red-500 shadow-inner">
+                    <input type="text" inputmode="numeric" id="reg-vip-cel" value="${celularInicial}" placeholder="WHATSAPP (10 dígitos)" class="w-full bg-[#050505] border border-zinc-800 p-4 rounded-xl text-white font-black uppercase text-sm mb-3 outline-none focus:border-red-500 tracking-[0.2em] shadow-inner text-center">
+                    <div class="relative w-full mb-3 text-left">
+                        <span class="absolute left-4 top-4 text-[9px] text-red-500 font-black uppercase pointer-events-none">Cumpleaños:</span>
+                        <input type="date" id="reg-vip-cumple" class="w-full bg-[#050505] pt-8 pb-3 px-4 rounded-xl text-white font-black text-sm border border-zinc-800 focus:border-red-500 outline-none cursor-pointer shadow-inner">
+                    </div>
+                `,
+                background: '#111', color: '#fff',
+                showCancelButton: true, confirmButtonText: '¡INSCRIBIRME AHORA! 🚀', cancelButtonText: 'Saltar',
+                confirmButtonColor: '#dc2626', cancelButtonColor: '#27272a',
+                customClass: { popup: 'rounded-[3rem] border border-red-500/30 shadow-[0_0_40px_rgba(239,68,68,0.2)] w-[90%] max-w-sm', confirmButton: 'w-full py-5 mt-2 rounded-2xl font-black uppercase text-white btn-press shadow-lg shadow-red-600/30 text-xs tracking-widest', cancelButton: 'w-full py-4 mt-2 rounded-2xl font-bold uppercase text-zinc-500 hover:text-white btn-press text-[10px]' },
+                preConfirm: () => {
+                    const n = document.getElementById('reg-vip-nom').value.trim().toUpperCase();
+                    const c = cleanNum(document.getElementById('reg-vip-cel').value);
+                    const f = document.getElementById('reg-vip-cumple').value;
+                    if(!n || c.length < 10) { Swal.showValidationMessage('Nombre y WhatsApp (10 dígitos) obligatorios'); return false; }
+                    return { nom: n, cel: c, cumple: f };
+                }
+            }).then((r) => {
+                if (r.isConfirmed) {
+                    const data = r.value;
+                    if (!b.clientes) b.clientes = {};
+                    if (!b.clientes[data.cel]) {
+                        b.clientes[data.cel] = { nombre: data.nom, celular: data.cel, cumple: data.cumple, pts: 0, visitas: 0, fechaRegistro: getTodayYMD() };
+                        saveDB(true);
+                        Swal.fire({title: '¡Bienvenido al Club! 👑', text: 'Ya estás registrado. Sigue agendando tu cita.', icon: 'success', background: '#0a0a0a', color: '#fff', timer: 3000}).then(()=> {
+                            // Pre-llenamos el formulario del Kiosko y desaparecemos el banner mágicamente
+                            document.getElementById('kio-nombre').value = data.nom;
+                            document.getElementById('kio-celular').value = data.cel;
+                            verificarClienteKiosko();
+                        });
+                    } else {
+                        Swal.fire('Atención', 'Este número ya pertenece al Club VIP. Sigue agendando normal.', 'info').then(()=>{
+                             document.getElementById('kio-nombre').value = b.clientes[data.cel].nombre;
+                             document.getElementById('kio-celular').value = data.cel;
+                             verificarClienteKiosko();
+                        });
+                    }
+                }
+            });
+        }
 
         // Y LA FUNCIÓN ORIGINAL EMPIEZA JUSTO DEBAJO, UNA SOLA VEZ
         function kioskoAgendar() {
@@ -4600,6 +4713,17 @@ function renderAgendaList() {
                 window.print(); 
                 document.getElementById('print-area').innerHTML = ''; // Borra el QR del fondo al terminar
             }, 500);
+        }
+function copiarLinkVIP() { const link = document.getElementById('cfg-vip-link-directo'); link.select(); document.execCommand('copy'); Swal.fire({ title: '¡Copiado!', text:'Envíalo a tus clientes', icon: 'success', timer: 1500, showConfirmButton: false, background: '#0a0a0a', color: '#fff' }); }
+        
+        function imprimirQRVIP() {
+            const b = db.barberias[bIdx]; const qrCanvas = document.querySelector('#cfg-vip-qr-print canvas');
+            if (!qrCanvas) return Swal.fire('Aviso', 'Genera el QR recargando la página.', 'info');
+            const imgSrc = qrCanvas.toDataURL("image/png");
+            let html = `<div style="text-align:center; font-family:sans-serif; padding: 20px; color:#000; background:#fff;"><h1 style="font-size:36px; margin-bottom:10px; text-transform:uppercase; font-weight:900; color: #dc2626;">CLUB VIP</h1><p style="font-size:24px; color:#000; margin-bottom: 20px; font-weight:bold;">${b.nombre}</p><p style="font-size:18px; color:#333; margin-bottom: 20px;">Escanea este código, registra tus datos y empieza a ganar cortes gratis.</p><img src="${imgSrc}" style="width:350px; height:350px; margin:0 auto; border: 12px solid #dc2626; border-radius: 25px;"><p style="font-size:14px; margin-top:20px; color:#666; font-weight:bold;">Zeus Barber Pro Cloud</p></div>`;
+            
+            document.getElementById('print-area').innerHTML = html; 
+            setTimeout(() => { window.print(); document.getElementById('print-area').innerHTML = ''; }, 500);
         }
 
 
@@ -5217,6 +5341,15 @@ function renderAgendaList() {
                 qrBox.innerHTML = '';
                 new QRCode(qrBox, { text: kioLink, width: 160, height: 160, colorDark: "#000", colorLight: "#fff", correctLevel: QRCode.CorrectLevel.L });
             }
+            // Generar Link y QR para el Autoregistro VIP
+            const linkVIP = baseWebUrl + '?kiosk=' + (b.id_nube || b.id) + '&vip=true';
+            setVal('cfg-vip-link-directo', linkVIP);
+            const qrVipBox = document.getElementById('cfg-vip-qr-print');
+            if (qrVipBox) {
+                qrVipBox.innerHTML = '';
+                new QRCode(qrVipBox, { text: linkVIP, width: 140, height: 140, colorDark: "#000", colorLight: "#fff", correctLevel: QRCode.CorrectLevel.L });
+            }
+
 
             // 📍 Mostrar GPS Guardado
             setVal('cfg-lat', b.lat || "");
@@ -7545,7 +7678,7 @@ function escucharResumenFranquicia() {
 
         // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES (CORREGIDO)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.59"; // Subimos la versión a 1.50 para forzar el arreglo en todos
+            const VERSION_ACTUAL = "1.60"; // Subimos la versión a 1.50 para forzar el arreglo en todos
             const versionGuardada = localStorage.getItem('zeus_version');
             
             if (versionGuardada !== VERSION_ACTUAL) {
@@ -7776,7 +7909,20 @@ function abrirMiTarjetaVIP(inputId = null) {
             
             mostrarSplashPremio(clienteAct, b, mPremio, mFaltan, mMeta, mDias);
         } else {
-            Swal.fire('No encontrado', 'Aún no tienes visitas registradas con este número.', 'warning');
+            // 🚀 NUEVA LÓGICA: En lugar de "No encontrado", invitamos a registrarse
+            Swal.fire({
+                title: '¡Aún no eres VIP! 👑',
+                text: 'No encontramos visitas con este número. ¡Regístrate ahora mismo para empezar a ganar premios!',
+                icon: 'info',
+                background: '#111', color: '#fff',
+                showCancelButton: true, confirmButtonColor: '#dc2626', cancelButtonColor: '#27272a',
+                confirmButtonText: '¡INSCRIBIRME AHORA!', cancelButtonText: 'Cerrar',
+                customClass: { popup: 'rounded-[2rem] border border-zinc-800 shadow-2xl max-w-sm w-[90%]' }
+            }).then((r) => {
+                if (r.isConfirmed) {
+                    abrirFormularioRegistroVIP(celular); // Le pasamos el celular para que no lo vuelva a escribir
+                }
+            });
         }
     };
 
@@ -7789,13 +7935,13 @@ function abrirMiTarjetaVIP(inputId = null) {
             inputLabel: 'Ingresa tu número de WhatsApp',
             inputPlaceholder: 'Ej: 3001234567',
             background: '#111', color: '#fff',
-            showCancelButton: true, confirmButtonText: 'Buscar', confirmButtonColor: '#ef4444'
+            showCancelButton: true, confirmButtonText: 'Buscar', confirmButtonColor: '#ef4444',
+            customClass: { popup: 'rounded-[2rem] border border-zinc-800 shadow-2xl max-w-sm w-[90%]' }
         }).then((r) => {
             if (r.isConfirmed && r.value) procesarApertura(cleanNum(r.value));
         });
     }
 }
-
 // 🎁 4. EXPERIENCIA WOW: PANTALLA GIGANTE DEL PREMIO
 function mostrarSplashPremio(cliente, localDB, premio, cortesParaPremio, metaReal, diasValidez) {
     if (cortesParaPremio !== 0) return renderTarjetaVIP(cliente, localDB);
@@ -7945,6 +8091,7 @@ function subirFotoClienteVIP(input) {
         });
     }
 }
+
 
         comprobarVersionNube();
 
