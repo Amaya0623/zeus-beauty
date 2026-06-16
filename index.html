@@ -665,7 +665,7 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
 
-                       <input type="text" inputmode="numeric" id="pos-cli-celular" onkeyup="updateCart()" placeholder="Celular (Puntos / VIP)" class="w-full bg-zinc-950 p-3 rounded-xl text-xs font-bold text-white border border-zinc-900 tracking-widest focus:border-orange-500 transition-colors outline-none">
+                       <input type="text" inputmode="numeric" id="pos-cli-celular" onkeyup="updateCart(); verificarCumpleanosPOS();" placeholder="Celular (Puntos / VIP)" class="w-full bg-zinc-950 p-3 rounded-xl text-xs font-bold text-white border border-zinc-900 tracking-widest focus:border-orange-500 transition-colors outline-none">
 
 
 
@@ -1564,8 +1564,23 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
         <div id="modal-clientes" class="hidden fixed inset-0 z-[100] bg-black/98 flex items-center justify-center p-6">
             <div class="glass p-8 sm:p-10 rounded-[3rem] border border-blue-900/30 max-w-xl w-full max-h-[90vh] overflow-y-auto relative text-left scroll-safe shadow-2xl">
                 <button type="button" onclick="cerrarModales()" class="absolute top-7 right-7 w-8 h-8 bg-black border border-zinc-800 text-zinc-500 rounded-full flex items-center justify-center font-bold text-sm btn-press hover:text-white transition-colors">✕</button>
-                <h2 class="text-2xl sm:text-3xl font-black mb-2 italic uppercase text-blue-400 text-center tracking-tighter">Directorio de Clientes</h2>
-                <p class="text-[9px] text-zinc-400 text-center uppercase tracking-widest mb-6">Encuentra y envía ofertas a tus clientes</p>
+                
+                <div class="flex justify-between items-center mb-2 pr-10 sm:pr-12">
+                    <h2 class="text-2xl sm:text-3xl font-black mb-2 italic uppercase text-blue-400 tracking-tighter">Directorio</h2>
+                    <button type="button" onclick="exportarClientesCSV()" class="bg-green-600 hover:bg-green-500 text-white px-3 py-2 rounded-xl text-[10px] font-black uppercase btn-press flex items-center gap-1 shadow-lg shadow-green-600/30 transition-colors shrink-0 relative z-10">📥 Bajar Excel</button>
+                </div>
+                <p class="text-[9px] text-zinc-400 uppercase tracking-widest mb-4">Encuentra y envía ofertas a tus clientes</p>
+
+                <div class="grid grid-cols-2 gap-3 mb-6">
+                    <div class="bg-indigo-900/20 border border-indigo-500/30 p-3 rounded-2xl text-center shadow-inner">
+                        <p class="text-[8px] text-indigo-400 font-bold uppercase tracking-widest">💳 Puntos / Fidelizados</p>
+                        <p id="dir-stat-club" class="text-3xl font-black text-white tracking-tighter">0</p>
+                    </div>
+                    <div class="bg-yellow-900/20 border border-yellow-500/30 p-3 rounded-2xl text-center shadow-inner">
+                        <p class="text-[8px] text-yellow-500 font-bold uppercase tracking-widest">👑 Planes VIP (Suscritos)</p>
+                        <p id="dir-stat-pass" class="text-3xl font-black text-white tracking-tighter">0</p>
+                    </div>
+                </div>
 
                 <div class="bg-black/50 p-5 rounded-2xl border border-zinc-900 mb-6 shadow-inner">
                     <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-3">📢 Enviar Oferta Masiva</p>
@@ -1573,14 +1588,25 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                     <button type="button" onclick="enviarMensajeMasivo()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl font-black uppercase text-[10px] btn-press shadow-lg shadow-indigo-600/20 transition-colors flex justify-center items-center gap-2">💬 Enviar a Todos (WhatsApp)</button>
                 </div>
 
-                <div class="mb-4 relative">
-                    <span class="absolute left-4 top-3.5 text-zinc-500">🔍</span>
-                    <input type="text" id="search-cliente" onkeyup="renderClientes()" placeholder="Buscar por nombre o número..." class="w-full pl-11 pr-4 py-4 rounded-xl bg-zinc-950 border border-zinc-800 text-white font-bold text-xs outline-none focus:border-blue-500 transition-colors">
+                <div class="mb-4 flex flex-col gap-3">
+                    <div class="relative w-full">
+                        <span class="absolute left-4 top-3.5 text-zinc-500">🔍</span>
+                        <input type="text" id="search-cliente" onkeyup="buscarClientesDebounce()" placeholder="Buscar por nombre o número..." class="w-full pl-11 pr-4 py-4 rounded-xl bg-zinc-950 border border-zinc-800 text-white font-bold text-xs outline-none focus:border-blue-500 transition-colors">
+                    </div>
+                    <select id="filtro-vip-clientes" onchange="renderClientes()" class="w-full p-4 rounded-xl bg-black border border-zinc-800 text-blue-400 font-bold uppercase text-[10px] outline-none focus:border-blue-500 appearance-none text-center cursor-pointer transition-colors shadow-inner">
+                        <option value="ALL">👥 Mostrar Todos los Clientes</option>
+                        <option value="CLUB">💳 Clientes con Tarjeta de Puntos</option>
+                        <option value="PASS">👑 Clientes con Plan VIP (Mensualidad)</option>
+                        <option value="NADA">⚪ Clientes Regulares (Sin Fidelizar)</option>
+                    </select>
                 </div>
 
                 <div id="clientes-lista" class="space-y-3"></div>
             </div>
         </div>
+
+
+
 
 <!-- 💳 MODAL: TARJETA DE FIDELIZACIÓN VIP -->
 <div id="modal-tarjeta-vip" class="hidden fixed inset-0 z-[800] bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-4 text-center">
@@ -1894,11 +1920,11 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
 
         function saveDB(triggerCloudSync = true) {
             let idx = bIdx !== -1 ? bIdx : kiosko_bIdx;
-            
+
             // 🛡️ ESCUDO: Si guardamos sin internet, marcamos que tenemos datos pendientes de subir
             if (idx !== -1 && db.barberias[idx]) {
                 if (!isOnline) {
-                    db.barberias[idx].pendientesSync = true; 
+                    db.barberias[idx].pendientesSync = true;
                 }
             }
 
@@ -1915,7 +1941,7 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                     if (idx !== -1 && db.barberias[idx] && db.barberias[idx].id_nube) {
                         try {
                             const { data: vData } = await supabaseClient.from('stores').select('v:json_data->>data_version').eq('id', db.barberias[idx].id_nube).single();
-                            
+
                             let vNube = (vData && vData.v) ? parseInt(vData.v) : 0;
                             let necesitaFusion = false;
                             let nubeData = null;
@@ -1938,24 +1964,40 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                                 localData.plan = nubeData.plan || localData.plan;
                                 localData.pagosSaaS = nubeData.pagosSaaS || localData.pagosSaaS;
 
+                                // ✨ MAGIA NIVEL DIOS: Fusión de Finanzas y Clientes sin aplastar datos
+                                localData.clientes = { ...(nubeData.clientes || {}), ...(localData.clientes || {}) };
+
+                                let mVentas = [...(nubeData.ventas || []), ...(localData.ventas || [])];
+                                localData.ventas = Array.from(new Set(mVentas.map(a => JSON.stringify(a)))).map(a => JSON.parse(a));
+
+                                let mGastos = [...(nubeData.gastos || []), ...(localData.gastos || [])];
+                                localData.gastos = Array.from(new Set(mGastos.map(a => JSON.stringify(a)))).map(a => JSON.parse(a));
+
+                                let mTickets = [...(nubeData.tickets || []), ...(localData.tickets || [])];
+                                localData.tickets = Array.from(new Set(mTickets.map(a => a.ticketId))).map(id => mTickets.find(a => a.ticketId === id));
+
+                                localData.asistencia = { ...(nubeData.asistencia || {}), ...(localData.asistencia || {}) };
+                                localData.multas = [...(nubeData.multas || []), ...(localData.multas || [])];
+
+                                // CÓDIGO VIEJO: let coincidencia = fusionCitas.find(cNube => cNube.id === cLocal.id);
+                                // CÓDIGO NUEVO Y BLINDADO:
                                 let fusionCitas = [...(nubeData.citas || [])];
                                 (localData.citas || []).forEach(cLocal => {
-                                    let coincidencia = fusionCitas.find(cNube => cNube.id === cLocal.id);
-                                    if (!coincidencia) fusionCitas.push(cLocal); 
-                                    else coincidencia.estado = cLocal.estado; 
+                                    let coincidencia = fusionCitas.find(cNube => String(cNube.id) === String(cLocal.id));
+                                    if (!coincidencia) fusionCitas.push(cLocal);
+                                    else coincidencia.estado = cLocal.estado;
                                 });
                                 localData.citas = fusionCitas;
-                                
+
                                 let fusionEspera = [...(nubeData.listaEspera || [])];
                                 (localData.listaEspera || []).forEach(eLocal => {
-                                    let coincidencia = fusionEspera.find(eNube => eNube.id === eLocal.id);
+                                    let coincidencia = fusionEspera.find(eNube => String(eNube.id) === String(eLocal.id));
                                     if (!coincidencia) fusionEspera.push(eLocal);
                                     else coincidencia.estado = eLocal.estado;
                                 });
                                 localData.listaEspera = fusionEspera;
-
-                                db.barberias[idx] = localData; 
-                            }
+                                
+                            } // 🔴🔴 ¡AQUÍ ESTÁ LA LLAVE QUE DESTRABA EL SISTEMA! 🔴🔴
 
                             // 💉 PASO C: INYECTAMOS LA NUEVA VERSIÓN AL GUARDAR
                             db.barberias[idx].data_version = Date.now();
@@ -1972,7 +2014,7 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                                 });
                         } catch(e) { console.error("Error en Escudo de Sync:", e); }
                     }
-                }, 1500); 
+                }, 1500);
             }
         }
 
@@ -2026,18 +2068,45 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                     localB.productos = cloudB.productos || localB.productos;
                     localB.configMkt = cloudB.configMkt || localB.configMkt;
 
-                    let mergedCitas = [...localB.citas];
+                    // ✨ MAGIA NIVEL DIOS: Descargar las Finanzas y Clientes de la Nube al Celular
+                    localB.clientes = { ...(localB.clientes || {}), ...(cloudB.clientes || {}) };
+                    
+                    let mVentas = [...(localB.ventas || []), ...(cloudB.ventas || [])];
+                    localB.ventas = Array.from(new Set(mVentas.map(a => JSON.stringify(a)))).map(a => JSON.parse(a));
+                    
+                    let mGastos = [...(localB.gastos || []), ...(cloudB.gastos || [])];
+                    localB.gastos = Array.from(new Set(mGastos.map(a => JSON.stringify(a)))).map(a => JSON.parse(a));
+                    
+                    let mTickets = [...(localB.tickets || []), ...(cloudB.tickets || [])];
+                    localB.tickets = Array.from(new Set(mTickets.map(a => a.ticketId))).map(id => mTickets.find(a => a.ticketId === id));
+                    
+                    localB.asistencia = { ...(localB.asistencia || {}), ...(cloudB.asistencia || {}) };
+                    localB.multas = [...(localB.multas || []), ...(cloudB.multas || [])];
+
+                    // 🛡️ ESCUDO SUPREMO + ANTI-CLONES
+                    let mergedCitas = [...(localB.citas || [])];
                     (cloudB.citas || []).forEach(cC => {
-                        let lMatch = mergedCitas.find(lC => lC.id === cC.id);
+                        let lMatch = mergedCitas.find(lC => String(lC.id) === String(cC.id));
                         if (!lMatch) {
                             mergedCitas.push(cC);
                         } else { 
                             lMatch.estado = cC.estado; 
                         }
                     });
-                    
                     localB.citas = mergedCitas;
+
+
+                    // ✨ MAGIA: Descargar la Lista de Espera de la Nube al Celular
+                    let mergedEspera = [...(localB.listaEspera || [])];
+                    (cloudB.listaEspera || []).forEach(eC => {
+                        let eMatch = mergedEspera.find(lE => String(lE.id) === String(eC.id));
+                        if (!eMatch) mergedEspera.push(eC);
+                        else eMatch.estado = eC.estado;
+                    });
+                    localB.listaEspera = mergedEspera;
+
                     localB.lastSyncTime = Date.now();
+
                     
                     db.barberias[idx] = localB; 
                     saveDB(false); 
@@ -2049,6 +2118,8 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                     
                     if (!silent) Swal.fire({ title: '¡Sincronizado!', icon: 'success', timer: 1500, showConfirmButton: false, background: '#0a0a0a', color: '#fff' });
                 }
+
+
             } catch (e) { 
                 console.error("Error Sync:", e);
                 if (!silent) Swal.fire('Error', 'La red está un poco lenta. Intenta de nuevo en un lugar con mejor señal.', 'error'); 
@@ -2071,7 +2142,7 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
         // ⏱️ MOTOR DE RELOJ Y ESCUDO (BLINDADO)
         // ==========================================
         // 1. Reloj visual que arranca de inmediato
-        setInterval(() => {
+        window.relojGlobalInterval = setInterval(() => {
             const dEl = document.getElementById('live-date');
             const tEl = document.getElementById('live-time');
             if (dEl && tEl) {
@@ -2083,8 +2154,9 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
             }
         }, 1000);
 
+        
         // 2. Escudo de seguridad en segundo plano
-        setInterval(() => {
+        window.escudoSeguridadInterval = setInterval(() => {
             try {
                 const idx = (typeof bIdx !== 'undefined' && bIdx !== -1) ? bIdx : (typeof kiosko_bIdx !== 'undefined' ? kiosko_bIdx : -1);
                 if (idx !== -1 && db && db.barberias && db.barberias[idx]) {
@@ -2102,7 +2174,7 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
         }, 5000);
 
         // 3. Alertas de Citas
-        setInterval(function() {
+        window.alertasCitasInterval = setInterval(function() {
             try {
                 if (typeof session !== 'undefined' && session && bIdx !== -1 && db.barberias[bIdx]) {
                     const b = db.barberias[bIdx];
@@ -2187,6 +2259,7 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
+                    limpiarIntervalosZEUS(); // 🔥 DESTRUYE LOS PROCESOS AL RESETEAR
                     try { localStorage.removeItem(DB_KEY); sessionStorage.removeItem(SESSION_KEY); } catch (e) { }
                     bIdx = -1; session = null;
                     Swal.fire({ title: 'Sistema Limpio', icon: 'success', timer: 1500, background: '#0a0a0a', color: '#fff', showConfirmButton: false });
@@ -2499,8 +2572,21 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
         }
 
         function saveSession() { if (!isLocalStorageBlocked) try { sessionStorage.setItem(SESSION_KEY, JSON.stringify({ bIdx, session })); } catch (e) { } }
+
+          function limpiarIntervalosZEUS() {
+            console.log("🧹 Limpiando memoria y deteniendo intervalos en segundo plano...");
+            if (window.relojGlobalInterval) clearInterval(window.relojGlobalInterval);
+            if (window.escudoSeguridadInterval) clearInterval(window.escudoSeguridadInterval);
+            if (window.alertasCitasInterval) clearInterval(window.alertasCitasInterval);
+            if (window.verificadorAlertasInterval) clearInterval(window.verificadorAlertasInterval);
+            if (window.relojTVInterval) clearInterval(window.relojTVInterval);
+            if (window.syncTVInterval) clearInterval(window.syncTVInterval);
+            if (window.notifCitasInterval) clearInterval(window.notifCitasInterval);
+            if (window.kioskoSyncInterval) clearInterval(window.kioskoSyncInterval);
+        }
         
         function actionLogout() { 
+            limpiarIntervalosZEUS(); // 🔥 DESTRUYE LOS PROCESOS FANTASMA
             if (!isLocalStorageBlocked) {
                 try { sessionStorage.removeItem(typeof SESSION_KEY !== 'undefined' ? SESSION_KEY : 'ISI_SESSION_V70'); } catch (e) { } 
             }
@@ -3109,6 +3195,50 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
         function addServToCart(i) { cart.push({ ...db.barberias[bIdx].servicios[i], idT: Date.now() + Math.random(), isProd: false }); updateCart(); }
         function addProdToCart(i) { const p = db.barberias[bIdx].productos[i]; const c = cart.filter(x => x.isProd && x.id === p.id).length; if (p.stock <= c) return Swal.fire('Agotado', 'No hay suficiente stock en inventario', 'warning'); cart.push({ nom: p.nom, pre: p.pre, idT: Date.now() + Math.random(), isProd: true, id: p.id }); updateCart(); }
         function removeFromCart(idT) { cart = cart.filter(x => String(x.idT) !== String(idT)); updateCart(); }
+function verificarCumpleanosPOS() {
+            const celInput = document.getElementById('pos-cli-celular');
+            if (!celInput) return;
+            
+            const cel = cleanNum(celInput.value);
+            // Solo disparamos la alerta si el número tiene 10 dígitos
+            if (cel.length !== 10) return; 
+
+            const b = db.barberias[bIdx];
+            if (b.clientes && b.clientes[cel] && b.clientes[cel].cumple) {
+                const cumpleCliente = b.clientes[cel].cumple;
+                const partes = cumpleCliente.split('-');
+                
+                if (partes.length === 3) {
+                    const mesCliente = partes[1];
+                    const diaCliente = partes[2];
+                    
+                    const hoy = new Date();
+                    const mesHoy = (hoy.getMonth() + 1).toString().padStart(2, '0');
+                    const diaHoy = hoy.getDate().toString().padStart(2, '0');
+                    
+                    if (mesCliente === mesHoy && diaCliente === diaHoy) {
+                        const cacheKey = `cumple_alertado_${cel}`;
+                        if (!sessionStorage.getItem(cacheKey)) {
+                            sessionStorage.setItem(cacheKey, 'true');
+                            
+                            Swal.fire({
+                                title: '¡BINGO! 🎂',
+                                html: `<p class="text-xs text-zinc-300">¡Hoy es el cumpleaños de <b class="text-white uppercase">${b.clientes[cel].nombre}</b>!</p>
+                                       <p class="text-[10px] text-yellow-500 font-bold uppercase mt-2 tracking-widest">Ofrécele un descuento o felicítalo.</p>`,
+                                icon: 'info',
+                                toast: true,
+                                position: 'top-end',
+                                timer: 6000,
+                                showConfirmButton: false,
+                                background: '#111',
+                                color: '#fff',
+                                iconColor: '#f59e0b'
+                            });
+                        }
+                    }
+                }
+            }
+        }
 
         function updateCart() {
             const b = db.barberias[bIdx];
@@ -4080,8 +4210,10 @@ function renderAgendaList() {
                 galeria = ['SIN_FOTOS']; 
             }
 
-            const fotoPerfil = foto || 'https://via.placeholder.com/150/111/fff?text=💈';
             const especialidadesArray = especialidades ? especialidades.split(',').map(e => e.trim()) : ['General'];
+
+            // Definimos la foto de perfil para que el modal sepa qué mostrar
+            const fotoPerfil = foto || 'https://via.placeholder.com/150/111/fff?text=💈';
 
             let modalCtn = document.getElementById('modal-perfil-premium');
             if (modalCtn) modalCtn.remove(); 
@@ -4096,7 +4228,7 @@ function renderAgendaList() {
                 <button onclick="document.getElementById('modal-perfil-premium').remove()" class="absolute top-4 right-4 z-50 w-8 h-8 bg-black/50 backdrop-blur-md border border-white/10 rounded-full flex items-center justify-center text-white font-bold hover:bg-red-500 transition-colors">X</button>
 
                 <div class="relative w-full h-[40%] sm:h-[280px] shrink-0 bg-zinc-900">
-                    <img src="${fotoPerfil}" class="w-full h-full object-cover">
+                    <img src="${fotoPerfil}" onerror="this.onerror=null; this.src='https://via.placeholder.com/150/111/fff?text=💈';" class="w-full h-full object-cover">
                     <div class="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/60 to-transparent"></div>
                     
                     <div class="absolute bottom-5 right-5 bg-black/60 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-2xl flex items-center gap-2 shadow-xl">
@@ -4490,7 +4622,7 @@ function renderAgendaList() {
             btn.classList.add('bg-indigo-600', 'text-white', 'border-indigo-500');
         }
 
-        // 🚀 VERIFICADOR INTELIGENTE (Desaparece el banner si ya es VIP)
+        // 🚀 VERIFICADOR INTELIGENTE CON AUTO-RENOVACIÓN
         function verificarClienteKiosko() {
             const cel = cleanNum(document.getElementById('kio-celular').value);
             const b = db.barberias[kiosko_bIdx];
@@ -4506,18 +4638,171 @@ function renderAgendaList() {
                 if (b.vipCard && b.vipCard.activo) {
                     if(vipCtn) { vipCtn.classList.remove('hidden'); vipCtn.classList.add('flex'); }
                     if(badgeVIP) badgeVIP.innerHTML = `👑 CLIENTE DETECTADO (Visitas: ${cli.visitas || 0})`;
-                    // ✨ MAGIA: Si ya es cliente, desaparecemos el letrero de "Únete"
                     if(bannerVip) { bannerVip.classList.add('hidden'); bannerVip.classList.remove('flex'); }
+                }
+
+                // 🚨 ALERTA DE RENOVACIÓN DE ZEUS PASS PARA EL CLIENTE
+                if (b.vipClub && b.vipClub.passActivo && cli.planSuscripcion) {
+                    const cacheKeyRenovacion = `alerta_renovacion_${cel}_${getTodayYMD()}`;
+                    
+                    if (!sessionStorage.getItem(cacheKeyRenovacion)) {
+                        const hoy = getTodayYMD();
+                        let necesitaRenovar = false;
+                        let mensajeRenovar = "";
+
+                        if (cli.cortesRestantes !== undefined && cli.cortesRestantes === 0) {
+                            necesitaRenovar = true; mensajeRenovar = "Se te agotaron los cortes de tu Zeus Pass.";
+                        } else if (cli.planVence) {
+                            const vDate = new Date(cli.planVence); const hDate = new Date(hoy);
+                            const diffDias = Math.ceil((vDate - hDate) / (1000 * 60 * 60 * 24));
+
+                            if (diffDias < 0) { necesitaRenovar = true; mensajeRenovar = "Tu Zeus Pass ya está vencido."; } 
+                            else if (diffDias <= 3) { necesitaRenovar = true; mensajeRenovar = `A tu Zeus Pass solo le quedan ${diffDias} días de validez.`; }
+                        }
+
+                        if (necesitaRenovar) {
+                            sessionStorage.setItem(cacheKeyRenovacion, 'true'); 
+                            
+                            // Buscar datos del plan para Auto-Renovación
+                            let planInfo = (b.vipClub.planes || []).find(p => p.nom === cli.planSuscripcion);
+                            
+                            Swal.fire({
+                                title: 'Suscripción ⚠️',
+                                html: `<p class="text-xs text-zinc-300 font-bold">${mensajeRenovar}</p>
+                                       <p class="text-[10px] text-zinc-500 mt-4 uppercase">¿Deseas renovar ahora para seguir disfrutando sin costo adicional en caja?</p>`,
+                                icon: 'warning', showCancelButton: true, cancelButtonText: 'Ignorar', confirmButtonColor: '#eab308', cancelButtonColor: '#27272a', background: '#111', color: '#fff',
+                                confirmButtonText: planInfo ? '💳 RENOVAR EN LÍNEA' : '💬 Renovar por WhatsApp',
+                                customClass: { popup: 'rounded-[2rem] border border-yellow-500/50 shadow-2xl', confirmButton: 'w-full py-4 mt-2 rounded-2xl font-black uppercase text-black btn-press text-[10px] tracking-widest' }
+                            }).then((r) => {
+                                if (r.isConfirmed) {
+                                    if (planInfo) {
+                                        iniciarAutoRenovacionVIP(cel);
+                                    } else {
+                                        let txtRenovar = `¡Hola! Quiero renovar mi suscripción a ${cli.planSuscripcion}. Mi número es ${cel}.`;
+                                        window.open(`https://wa.me/57${b.telefono || b.whatsapp || ''}?text=${encodeURIComponent(txtRenovar)}`, '_blank');
+                                    }
+                                }
+                            });
+                        }
+                    }
                 }
             } else {
                 if(vipCtn) { vipCtn.classList.add('hidden'); vipCtn.classList.remove('flex'); }
-                // ✨ MAGIA: Si no es cliente, o borró el número, vuelve a aparecer el letrero
-                if (b.vipCard && b.vipCard.activo && bannerVip) {
-                    bannerVip.classList.remove('hidden');
-                    bannerVip.classList.add('flex');
-                }
+                if (b.vipCard && b.vipCard.activo && bannerVip) { bannerVip.classList.remove('hidden'); bannerVip.classList.add('flex'); }
             }
         }
+
+
+// 💳 MOTOR KIOSKO: AUTO-RENOVACIÓN DEL CLIENTE (FACTURACIÓN DIRECTA)
+        window.iniciarAutoRenovacionVIP = async function(celular) {
+            const b = db.barberias[kiosko_bIdx];
+            const cli = b.clientes[celular];
+            const plan = b.vipClub.planes.find(p => p.nom === cli.planSuscripcion);
+            if(!plan) return;
+
+            // PASO 1: Cantidad de Meses/Ciclos
+            const { value: ciclos, isConfirmed: confCiclos } = await Swal.fire({
+                title: '<span class="text-yellow-500 font-black uppercase italic tracking-tighter text-2xl">RENOVAR VIP 👑</span>',
+                html: `
+                    <p class="text-xs text-zinc-400 mb-6">¿Por cuánto tiempo deseas renovar tu plan <b class="text-white">${plan.nom}</b>?</p>
+                    <select id="swal-ciclos" class="w-full p-4 rounded-xl bg-black border border-yellow-500/50 text-white font-bold uppercase outline-none focus:border-yellow-500 text-center mb-2 appearance-none cursor-pointer">
+                        <option value="1">1 Periodo (${plan.dias} Días) - ${fMoney(plan.pre)}</option>
+                        <option value="2">2 Periodos (${plan.dias * 2} Días) - ${fMoney(plan.pre * 2)}</option>
+                        <option value="3">3 Periodos (${plan.dias * 3} Días) - ${fMoney(plan.pre * 3)}</option>
+                    </select>
+                `,
+                background: '#111', color: '#fff', showCancelButton: true, confirmButtonText: 'SIGUIENTE ➔', cancelButtonText: 'Volver', confirmButtonColor: '#eab308', cancelButtonColor: '#27272a',
+                customClass: { popup: 'rounded-[2rem] border border-yellow-500/50 shadow-2xl max-w-sm w-[90%]', confirmButton: 'w-full py-4 mt-2 rounded-xl font-black uppercase text-black btn-press text-[10px] tracking-widest', cancelButton: 'w-full py-3 mt-2 rounded-xl font-bold uppercase text-zinc-500 hover:text-white btn-press text-[10px]' }, buttonsStyling: false,
+                preConfirm: () => document.getElementById('swal-ciclos').value
+            });
+
+            if(!confCiclos || !ciclos) return;
+
+            const qty = parseInt(ciclos);
+            const totalPagar = plan.pre * qty;
+            const diasSumar = plan.dias * qty;
+            const cortesSumar = plan.cortes * qty;
+
+            // PASO 2: Mostrar QR y Subir Comprobante
+            let qrHtml = "";
+            if (b.qrImage) qrHtml = `<img src="${b.qrImage}" class="w-32 h-32 object-contain mx-auto rounded-xl">`;
+            else if (b.numeroCuenta) qrHtml = `<div id="swal-qr-renov" class="w-32 h-32 mx-auto bg-white p-2 rounded-xl flex items-center justify-center"></div>`;
+            
+            let datosBanco = `<p class="text-xs text-indigo-400 font-bold mt-2 uppercase">${b.bancoTipo || 'BANCO'}: <span class="text-white tracking-widest">${b.numeroCuenta || 'No registrado'}</span></p><p class="text-[10px] text-zinc-500 uppercase mt-1">${b.titularCuenta || ''}</p>`;
+
+            const { value: fileComprobante, isConfirmed: confPago } = await Swal.fire({
+                title: '<span class="text-green-400 font-black uppercase italic tracking-tighter text-2xl">REALIZA TU PAGO</span>',
+                html: `
+                    <p class="text-sm text-zinc-300 mb-4">Total a pagar: <b class="text-white text-2xl block mt-1">${fMoney(totalPagar)}</b></p>
+                    ${qrHtml}
+                    ${datosBanco}
+                    <div class="mt-6 bg-black p-4 rounded-xl border border-zinc-800">
+                        <p class="text-[10px] text-yellow-500 uppercase font-black mb-2 tracking-widest">📸 Sube tu comprobante (Obligatorio)</p>
+                        <input type="file" id="swal-file-pago" accept="image/*" class="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:bg-yellow-900/20 file:text-yellow-500 hover:file:bg-yellow-900/40">
+                    </div>
+                `,
+                background: '#111', color: '#fff', showCancelButton: true, confirmButtonText: 'CONFIRMAR PAGO ✅', cancelButtonText: 'Cancelar', confirmButtonColor: '#16a34a', cancelButtonColor: '#27272a',
+                customClass: { popup: 'rounded-[2rem] border border-green-500/30 shadow-2xl max-w-sm w-[90%]', confirmButton: 'w-full py-4 mt-4 rounded-xl font-black uppercase text-white btn-press text-[10px] tracking-widest', cancelButton: 'w-full py-3 mt-2 rounded-xl font-bold uppercase text-zinc-500 hover:text-white btn-press text-[10px]' }, buttonsStyling: false,
+                didOpen: () => {
+                    if (b.numeroCuenta && !b.qrImage) {
+                        new QRCode(document.getElementById('swal-qr-renov'), { text: b.numeroCuenta, width: 110, height: 110, colorDark: "#000", colorLight: "#fff", correctLevel: QRCode.CorrectLevel.L });
+                    }
+                },
+                preConfirm: () => {
+                    const file = document.getElementById('swal-file-pago').files[0];
+                    if (!file) { Swal.showValidationMessage('Debes subir la foto del pago'); return false; }
+                    return file;
+                }
+            });
+
+            if(!confPago || !fileComprobante) return;
+
+            // PASO 3: Procesar, Subir Foto, Guardar Dinero en Caja y Extender Plan
+            Swal.fire({ title: 'Validando Pago...', text: 'Actualizando cuenta VIP...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#111', color: '#fff' });
+
+            compressImage(fileComprobante, 600, async (compressed) => {
+                const linkComprobante = await uploadImageToSupabase(compressed, 'comprobantes_kiosko');
+                if(!linkComprobante) return Swal.fire('Error', 'No se pudo subir la imagen del pago. Intenta de nuevo.', 'error');
+
+                const fA = getTodayYMD();
+                let fechaBase = new Date();
+                
+                // Si renueva antes de vencerse, se le suma a lo que ya tenía
+                if (cli.planVence && cli.planVence >= fA) {
+                    fechaBase = new Date(cli.planVence);
+                    fechaBase.setMinutes(fechaBase.getMinutes() + fechaBase.getTimezoneOffset());
+                }
+                
+                fechaBase.setDate(fechaBase.getDate() + diasSumar);
+                cli.planVence = fechaBase.toISOString().split('T')[0];
+                
+                if (plan.cortes > 0) {
+                    cli.cortesRestantes = (cli.cortesRestantes && cli.cortesRestantes > 0) ? (cli.cortesRestantes + cortesSumar) : cortesSumar;
+                } else {
+                    cli.cortesRestantes = 0; // Código interno de Zeus para Ilimitado
+                }
+
+                // Meter la Plata a la Caja y Facturar
+                const hA = new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+                const tId = (b.prefijoFactura || "TK-") + (b.consecutivoFactura || 1);
+                
+                if (!b.ventas) b.ventas = []; if (!b.tickets) b.tickets = [];
+                b.ventas.push({ ticketId: tId, barbero: "ADMIN", servicio: `Renovación VIP: ${plan.nom} (x${qty})`, valor: totalPagar, ivaAplicado: 0, metodo: "Transferencia", tipo: "Digital", fecha: fA, hora: hA, esProducto: true });
+                b.tickets.push({ nombreNegocio: b.nombre, fecha: fA, hora: hA, cliente: cli.nombre, celular: cli.celular, metodo: "Transferencia", total: totalPagar, ticketId: tId, items: [{ nom: `Renov. VIP ${plan.nom} (x${qty})`, pre: totalPagar }], comprobante: linkComprobante });
+                b.consecutivoFactura = (b.consecutivoFactura || 1) + 1;
+                
+                saveDB(true);
+
+                Swal.fire({
+                    title: '¡Suscripción Renovada! 🎉',
+                    html: `<p class="text-zinc-300 text-sm">El pago fue enviado al administrador.</p><p class="text-white text-xs mt-3">Tu plan fue extendido hasta el <b class="text-yellow-500">${cli.planVence}</b>.</p><p class="text-[9px] text-zinc-500 mt-4 uppercase">Ya puedes agendar tu cita.</p>`,
+                    icon: 'success', background: '#111', color: '#fff', confirmButtonColor: '#eab308'
+                });
+
+                // Refresca la pantalla para que pueda agendar
+                verificarClienteKiosko();
+            });
+        };
 
         // 🔍 FUNCIÓN PARA AMPLIAR EL QR DEL KIOSKO AL TOCARLO
         function ampliarQRVIP() {
@@ -4910,40 +5195,137 @@ function copiarLinkVIP() { const link = document.getElementById('cfg-vip-link-di
 
         // -- MÓDULO CLIENTES Y MARKETING --
         function abrirClientes() { document.getElementById('modal-clientes').classList.remove('hidden'); renderClientes(); }
+let timerDebounceClientes = null;
+        function buscarClientesDebounce() {
+            // Cancelamos la búsqueda anterior si el usuario sigue escribiendo
+            if (timerDebounceClientes) clearTimeout(timerDebounceClientes);
+            
+            // Programamos una nueva búsqueda que solo se ejecutará si hace una pausa de 300ms
+            timerDebounceClientes = setTimeout(() => {
+                renderClientes();
+            }, 300); 
+        }
+
 
         function renderClientes() {
-            const term = (document.getElementById('search-cliente').value || "").toLowerCase(); const cData = db.barberias[bIdx].clientes || {};
+            const term = (document.getElementById('search-cliente').value || "").toLowerCase(); 
+            const cData = db.barberias[bIdx].clientes || {};
             const b = db.barberias[bIdx];
             const clubActivo = b.vipClub && b.vipClub.passActivo;
+            const hoy = getTodayYMD();
+            const filtroEstatus = document.getElementById('filtro-vip-clientes') ? document.getElementById('filtro-vip-clientes').value : 'ALL';
 
-            const lista = Object.keys(cData).filter(k => cData[k].nombre.toLowerCase().includes(term) || (cData[k].celular && cData[k].celular.includes(term)));
+            let listaKeys = Object.keys(cData);
+            
+            // 📊 ACTUALIZAR ESTADÍSTICAS DEL ADMIN
+            let totalClub = listaKeys.filter(k => cData[k].fechaRegistro).length;
+            let totalPass = listaKeys.filter(k => cData[k].planSuscripcion).length;
+            if(document.getElementById('dir-stat-club')) document.getElementById('dir-stat-club').innerText = totalClub;
+            if(document.getElementById('dir-stat-pass')) document.getElementById('dir-stat-pass').innerText = totalPass;
+
+            let lista = listaKeys.filter(k => cData[k].nombre.toLowerCase().includes(term) || (cData[k].celular && cData[k].celular.includes(term)));
+            
+            // 🔍 MAGIA DEL FILTRO: Ocultar los que no cumplen
+            if (filtroEstatus === 'CLUB') {
+                lista = lista.filter(k => cData[k].fechaRegistro); // Tienen Tarjeta VIP
+            } else if (filtroEstatus === 'PASS') {
+                lista = lista.filter(k => cData[k].planSuscripcion); // Pagan Membresía
+            } else if (filtroEstatus === 'NADA') {
+                lista = lista.filter(k => !cData[k].fechaRegistro && !cData[k].planSuscripcion); // No están en nada
+            }
             
             document.getElementById('clientes-lista').innerHTML = lista.map(k => {
                 let c = cData[k];
                 let esVip = c.planSuscripcion ? true : false;
+                let esClub = c.fechaRegistro ? true : false; // ¿Está registrado en fidelización?
+                
+                let alertaPlan = "";
+                let colorBorde = 'border-zinc-800'; // Color por defecto (Normales)
+                
+                if (esVip) {
+                    colorBorde = 'border-yellow-500/50';
+                    if (c.cortesRestantes !== undefined && c.cortesRestantes === 0) {
+                        alertaPlan = `<span class="text-[9px] text-red-500 font-bold bg-red-900/20 px-2 py-0.5 rounded ml-2 shadow-inner">⚠️ SIN CORTES</span>`;
+                        colorBorde = 'border-red-500/50';
+                    } else if (c.planVence) {
+                        const vDate = new Date(c.planVence); const hDate = new Date(hoy);
+                        const diffDias = Math.ceil((vDate - hDate) / (1000 * 60 * 60 * 24));
+                        
+                        if (diffDias < 0) {
+                            alertaPlan = `<span class="text-[9px] text-red-500 font-bold bg-red-900/20 px-2 py-0.5 rounded ml-2">⚠️ VENCIDO</span>`;
+                            colorBorde = 'border-red-500/50';
+                        } else if (diffDias <= 3) {
+                            alertaPlan = `<span class="text-[9px] text-orange-400 font-bold bg-orange-900/20 px-2 py-0.5 rounded ml-2">⚠️ VENCE EN ${diffDias} DÍAS</span>`;
+                            colorBorde = 'border-orange-500/50';
+                        } else {
+                            alertaPlan = `<span class="text-[9px] text-zinc-500 font-bold ml-2">Vence: ${c.planVence}</span>`;
+                        }
+                    }
+                } else if (esClub) {
+                    colorBorde = 'border-indigo-500/30'; // Color para los del Club de Puntos
+                }
                 
                 let btnSuscripcion = clubActivo ? `
-                    <button type="button" onclick="gestionarSuscripcionCliente('${k}')" class="px-3 py-1.5 rounded-lg font-black text-[8px] uppercase btn-press border transition-colors ${esVip ? 'bg-yellow-900/30 text-yellow-500 border-yellow-500/50 shadow-[0_0_10px_rgba(234,179,8,0.2)]' : 'bg-zinc-900 text-zinc-500 border-zinc-700 hover:text-white'}">
-                        ${esVip ? '👑 ' + c.planSuscripcion : '💳 Vender Plan'}
+                    <button type="button" onclick="gestionarSuscripcionCliente('${k}')" class="px-3 py-1.5 rounded-lg font-black text-[8px] uppercase btn-press border transition-colors ${esVip ? 'bg-yellow-900/30 text-yellow-500 border-yellow-500/50 shadow-[0_0_10px_rgba(234,179,8,0.2)]' : 'bg-black text-zinc-500 border-zinc-800 hover:text-white'}">
+                        ${esVip ? '👑 GESTIONAR PASS' : '💳 Vender Pass'}
                     </button>
                 ` : '';
 
-                return `<div class="bg-blue-900/10 p-4 rounded-xl border ${esVip ? 'border-yellow-500/50' : 'border-blue-900/30'} mb-2 flex flex-col gap-2">
+                // Etiqueta visual para identificar a los del Club de Fidelización
+                let badgeClub = esClub ? `<span class="text-[7px] bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 px-2 py-0.5 rounded font-black tracking-widest ml-2 shadow-[0_0_10px_rgba(99,102,241,0.2)]">💳 CLUB VIP</span>` : '';
+
+                return `<div class="bg-black/40 p-4 rounded-2xl border ${colorBorde} mb-2 flex flex-col gap-2 transition-colors shadow-inner">
                     <div class="flex justify-between items-center">
-                        <div>
-                            <p class="font-black ${esVip ? 'text-yellow-400' : 'text-white'} text-xs uppercase flex items-center gap-1">${esVip ? '👑 ' : ''}${c.nombre}</p>
-                            <p class="text-blue-400 font-black text-[10px] mt-1">${c.pts} Puntos | 📞 ${c.celular || 'N/A'}</p>
+                        <div class="flex-1 min-w-0 pr-2">
+                            <p class="font-black ${esVip ? 'text-yellow-400' : (esClub ? 'text-indigo-400' : 'text-white')} text-xs uppercase flex items-center truncate">
+                                ${esVip ? '👑 ' : ''}${c.nombre} ${badgeClub}
+                            </p>
+                            <p class="text-blue-400 font-black text-[10px] mt-1">${c.visitas || 0} Visitas | ${c.pts || 0} Puntos</p>
+                            <p class="text-zinc-500 font-bold text-[9px] mt-0.5 tracking-widest">📞 ${c.celular || 'N/A'}</p>
+                            ${esVip ? `<p class="mt-1 text-[9px] font-bold text-yellow-600 uppercase">PASS: ${c.planSuscripcion} ${alertaPlan}</p>` : ''}
                         </div>
-                        <div class="flex flex-col gap-1 items-end">
+                        <div class="flex flex-col gap-2 items-end shrink-0">
                             ${btnSuscripcion}
-                            ${c.celular ? `<button type="button" onclick="window.open('https://wa.me/57${c.celular}', '_blank')" class="bg-[#25D366]/20 text-[#25D366] px-3 py-1.5 rounded-lg font-black text-[8px] uppercase btn-press border border-[#25D366]/50">💬 Chat WP</button>` : ''}
+                            ${c.celular ? `<button type="button" onclick="window.open('https://wa.me/57${c.celular}', '_blank')" class="bg-[#25D366]/10 text-[#25D366] px-3 py-1.5 rounded-lg font-black text-[8px] uppercase btn-press border border-[#25D366]/30 hover:bg-[#25D366]/20 transition-all w-full text-center shadow-sm">💬 Chat WP</button>` : ''}
                         </div>
                     </div>
                 </div>`;
-            }).join('') || '<p class="text-zinc-500 text-xs italic text-center py-4">No hay clientes</p>';
+            }).join('') || '<p class="text-zinc-500 text-xs italic text-center py-6">No hay clientes con este filtro</p>';
         }
 
-        // 👑 GESTIÓN DE VENTA DE PLANES VIP (Cerebro Dinámico)
+        function exportarClientesCSV() {
+            const b = db.barberias[bIdx];
+            const cData = b.clientes || {};
+            const keys = Object.keys(cData);
+            if(keys.length === 0) return Swal.fire('Directorio Vacío', 'No hay clientes para exportar', 'info');
+            
+            // Encabezados del Excel con Fidelización
+            let csvContent = "NOMBRE,CELULAR,PUNTOS,VISITAS,CLUB_FIDELIZACION,ZEUS_PASS,PLAN,VENCE\n";
+            
+            keys.forEach(k => {
+                let c = cData[k];
+                let esClub = c.fechaRegistro ? 'SI' : 'NO';
+                let esPass = c.planSuscripcion ? 'SI' : 'NO';
+                let plan = c.planSuscripcion || 'Ninguno';
+                let vence = c.planVence || 'N/A';
+                
+                // Formato limpio para Excel (con comillas para evitar errores de comas en los nombres)
+                let row = `"${c.nombre}","${c.celular || ''}","${c.pts || 0}","${c.visitas || 0}","${esClub}","${esPass}","${plan}","${vence}"`;
+                csvContent += row + "\n";
+            });
+            
+            const bom = "\uFEFF"; // Para que Excel lea los acentos (UTF-8)
+            const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `Clientes_Zeus_${b.nombre.replace(/\s+/g, '_')}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // 👑 GESTIÓN DE VENTA DE PLANES VIP (Cerebro Dinámico V2)
         async function gestionarSuscripcionCliente(idCli) {
             const b = db.barberias[bIdx];
             const c = b.clientes[idCli];
@@ -4951,8 +5333,11 @@ function copiarLinkVIP() { const link = document.getElementById('cfg-vip-link-di
 
             if (planes.length === 0) return Swal.fire('Sin Planes', 'Debes crear planes VIP en Configuración primero.', 'warning');
 
+            let accionSeleccionada = null;
+            let planSeleccionado = null;
+
             let botonesHTML = planes.map(p => `
-                <button id="btn-sell-p${p.id}" class="bg-black border border-yellow-600 p-4 rounded-xl text-yellow-500 font-black uppercase hover:bg-yellow-900/30 transition-all flex justify-between items-center shadow-lg btn-press text-left">
+                <button id="btn-sell-p${p.id}" class="w-full bg-black border border-yellow-600 p-4 rounded-xl text-yellow-500 font-black uppercase hover:bg-yellow-900/30 transition-all flex justify-between items-center shadow-lg btn-press text-left mb-3">
                     <div class="flex flex-col">
                         <span>${p.nom}</span>
                         <span class="text-[8px] text-zinc-400 mt-1">${p.cortes === 0 ? 'Cortes: Ilimitados' : 'Cortes: ' + p.cortes} | Válido: ${p.dias} Días</span>
@@ -4961,55 +5346,113 @@ function copiarLinkVIP() { const link = document.getElementById('cfg-vip-link-di
                 </button>
             `).join('');
 
-            const { isConfirmed, value: planElegido } = await Swal.fire({
-                title: `<span class="text-yellow-500 font-black uppercase text-xl">Vender Zeus Pass</span>`,
+            let textoHeader = c.planSuscripcion
+                ? `<p class="text-[10px] text-yellow-500 font-bold uppercase mb-4 tracking-widest">👑 Plan Actual: ${c.planSuscripcion}</p><p class="text-xs text-zinc-400 mb-4">Elige un plan abajo para <b class="text-white">RENOVAR</b> (Generará un nuevo cobro) o elimina el plan actual.</p>`
+                : `<p class="text-xs text-zinc-400 mb-4">Elige el plan a vender para <b class="text-white">${c.nombre}</b></p>`;
+
+            await Swal.fire({
+                title: `<span class="text-yellow-500 font-black uppercase text-xl">${c.planSuscripcion ? 'RENOVAR / GESTIONAR PASS' : 'VENDER ZEUS PASS'}</span>`,
                 html: `
-                    <p class="text-xs text-zinc-400 mb-4">Elige el plan a vender para <b class="text-white">${c.nombre}</b></p>
-                    <div class="flex flex-col gap-3">
+                    ${textoHeader}
+                    <div class="flex flex-col">
                         ${botonesHTML}
-                        ${c.planSuscripcion ? `<button id="btn-sell-cancel" class="bg-red-900/20 border border-red-900/50 p-4 rounded-xl text-red-500 font-black uppercase hover:bg-red-900/40 mt-2 btn-press">🚫 Cancelar Suscripción Actual</button>` : ''}
+                        ${c.planSuscripcion ? `<button id="btn-sell-cancel" class="w-full bg-red-900/20 border border-red-900/50 p-4 rounded-xl text-red-500 font-black uppercase hover:bg-red-900/40 mt-2 btn-press shadow-inner">🚫 ELIMINAR PLAN ACTUAL</button>` : ''}
                     </div>
                 `,
                 background: '#111', color: '#fff', showConfirmButton: false, showCloseButton: true,
                 customClass: { popup: 'rounded-[2rem] border border-yellow-500/50 shadow-2xl max-w-sm w-[95%]' },
                 didOpen: () => {
-                    planes.forEach(p => { document.getElementById(`btn-sell-p${p.id}`).onclick = () => Swal.clickConfirm({ tipo: 'vender', plan: p }); });
-                    const bc = document.getElementById('btn-sell-cancel'); if(bc) bc.onclick = () => Swal.clickConfirm({ tipo: 'cancelar' });
+                    // MAGIA: El botón cierra el modal correctamente y guarda qué plan tocaste
+                    planes.forEach(p => {
+                        const btn = document.getElementById(`btn-sell-p${p.id}`);
+                        if (btn) {
+                            btn.onclick = () => { accionSeleccionada = 'vender'; planSeleccionado = p; Swal.close(); };
+                        }
+                    });
+                    const btnCancel = document.getElementById('btn-sell-cancel');
+                    if (btnCancel) {
+                        btnCancel.onclick = () => { accionSeleccionada = 'cancelar'; Swal.close(); };
+                    }
                 }
             });
 
-            if (isConfirmed && planElegido) {
-                if (planElegido.tipo === 'cancelar') {
-                    delete c.planSuscripcion; delete c.planVence; delete c.cortesRestantes;
-                    saveDB(true); renderClientes(); return Swal.fire({title: 'Cancelado', text: 'Suscripción removida.', icon: 'info', background: '#111', color: '#fff', timer: 1500, showConfirmButton: false});
+            // LOGICA 1: SI EL ADMIN ELIGE BORRAR EL PLAN
+            if (accionSeleccionada === 'cancelar') {
+                const { isConfirmed } = await Swal.fire({
+                    title: '¿Seguro?', text: 'El cliente perderá los cortes y días restantes de su plan actual. No hay devolución de dinero.', icon: 'warning',
+                    showCancelButton: true, confirmButtonText: 'Sí, Eliminar Plan', cancelButtonText: 'Volver', confirmButtonColor: '#dc2626', background: '#111', color: '#fff'
+                });
+                if (isConfirmed) {
+                    delete c.planSuscripcion; delete c.planVence; delete c.cortesRestantes; delete c.planInicia;
+                    saveDB(true); renderClientes(); return Swal.fire({title: 'Eliminado', text: 'Suscripción removida correctamente.', icon: 'success', background: '#111', color: '#fff', timer: 1500, showConfirmButton: false});
                 }
+            }
 
+            // LOGICA 2: SI EL ADMIN VENDE O RENUEVA
+            if (accionSeleccionada === 'vender' && planSeleccionado) {
                 const { value: metodoPago } = await Swal.fire({
-                    title: 'Método de Pago', text: `Cobrando ${fMoney(planElegido.plan.pre)} por el ${planElegido.plan.nom}`,
-                    input: 'select', inputOptions: { 'Efectivo': 'Efectivo 💵', 'Nequi': 'Nequi 📱', 'Daviplata': 'Daviplata 📱', 'Transferencia': 'Banco 🏦', 'Tarjeta': 'Tarjeta 💳' },
-                    showCancelButton: true, confirmButtonText: 'CONFIRMAR PAGO ✅', confirmButtonColor: '#16a34a', background: '#111', color: '#fff'
+                    title: '<span class="text-green-400 font-black uppercase text-2xl tracking-tighter">MÉTODO DE PAGO</span>',
+                    html: `
+                        <p class="text-zinc-300 text-sm mb-4">Total a cobrar: <b class="text-white text-xl">${fMoney(planSeleccionado.pre)}</b></p>
+                        <select id="swal-pago-met" class="w-full p-4 rounded-xl bg-black border border-zinc-800 text-white font-bold uppercase outline-none focus:border-green-500 text-center mb-2 shadow-inner appearance-none cursor-pointer">
+                            <option value="Efectivo">Efectivo 💵</option>
+                            <option value="Nequi">Nequi 📱</option>
+                            <option value="Daviplata">Daviplata 📱</option>
+                            <option value="Transferencia">Banco 🏦</option>
+                            <option value="Tarjeta">Tarjeta 💳</option>
+                        </select>
+                    `,
+                    showCancelButton: true, confirmButtonText: 'CONFIRMAR PAGO ✅', cancelButtonText: 'Cancelar', confirmButtonColor: '#16a34a', cancelButtonColor: '#27272a', background: '#111', color: '#fff',
+                    customClass: { popup: 'rounded-[2rem] border border-green-900/50 shadow-2xl max-w-sm w-[90%]', confirmButton: 'w-full py-4 mt-2 rounded-xl font-black uppercase text-white btn-press text-[10px] tracking-widest', cancelButton: 'w-full py-3 mt-2 rounded-xl font-bold uppercase text-zinc-500 hover:text-white btn-press text-[10px]' }, buttonsStyling: false,
+                    preConfirm: () => document.getElementById('swal-pago-met').value
                 });
 
                 if (metodoPago) {
                     const fA = getTodayYMD(); const hA = new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
                     const tId = (b.prefijoFactura || "TK-") + (b.consecutivoFactura || 1);
-                    
+
                     if (!b.ventas) b.ventas = []; if (!b.tickets) b.tickets = [];
-                    b.ventas.push({ ticketId: tId, barbero: "ADMIN", servicio: `VIP: ${planElegido.plan.nom}`, valor: planElegido.plan.pre, ivaAplicado: 0, metodo: metodoPago, tipo: metodoPago === "Efectivo" ? "Efectivo" : "Digital", fecha: fA, hora: hA, esProducto: true });
-                    b.tickets.push({ nombreNegocio: b.nombre, fecha: fA, hora: hA, cliente: c.nombre, celular: c.celular, metodo: metodoPago, total: planElegido.plan.pre, ticketId: tId, items: [{ nom: `Suscripción VIP (${planElegido.plan.nom})`, pre: planElegido.plan.pre }] });
+                    b.ventas.push({ ticketId: tId, barbero: "ADMIN", servicio: `VIP: ${planSeleccionado.nom}`, valor: planSeleccionado.pre, ivaAplicado: 0, metodo: metodoPago, tipo: metodoPago === "Efectivo" ? "Efectivo" : "Digital", fecha: fA, hora: hA, esProducto: true });
+                    b.tickets.push({ nombreNegocio: b.nombre, fecha: fA, hora: hA, cliente: c.nombre, celular: c.celular, metodo: metodoPago, total: planSeleccionado.pre, ticketId: tId, items: [{ nom: `Suscripción VIP (${planSeleccionado.nom})`, pre: planSeleccionado.pre }] });
                     b.consecutivoFactura = (b.consecutivoFactura || 1) + 1;
 
-                    // ⚡ ACTIVACIÓN DE LÍMITES INTELIGENTES
-                    let fechaVencimiento = new Date();
-                    fechaVencimiento.setDate(fechaVencimiento.getDate() + planElegido.plan.dias);
+                    // ⚡ LÓGICA DE RENOVACIÓN INTELIGENTE
+                    let fechaBaseRenovacion = new Date();
                     
-                    c.planSuscripcion = planElegido.plan.nom;
+                    // Si el cliente ya tiene plan activo, le sumamos a los días que ya tenía
+                    if (c.planVence && c.planVence >= fA) {
+                        fechaBaseRenovacion = new Date(c.planVence);
+                        fechaBaseRenovacion.setMinutes(fechaBaseRenovacion.getMinutes() + fechaBaseRenovacion.getTimezoneOffset());
+                    }
+
+                    fechaBaseRenovacion.setDate(fechaBaseRenovacion.getDate() + planSeleccionado.dias);
+
+                    c.planSuscripcion = planSeleccionado.nom;
                     c.planInicia = fA;
-                    c.planVence = fechaVencimiento.toISOString().split('T')[0]; // Fecha en formato YYYY-MM-DD
-                    c.cortesRestantes = planElegido.plan.cortes; // 0 = Ilimitado
+                    c.planVence = fechaBaseRenovacion.toISOString().split('T')[0];
+
+                    let cortesNuevos = planSeleccionado.cortes;
+                    if (cortesNuevos > 0) {
+                        c.cortesRestantes = (c.cortesRestantes && c.cortesRestantes > 0) ? (c.cortesRestantes + cortesNuevos) : cortesNuevos;
+                    } else {
+                        c.cortesRestantes = 0; // 0 Significa Ilimitado en el código
+                    }
 
                     saveDB(true); renderClientes(); if(session.rol === 'admin') renderAdmin();
-                    Swal.fire({title: '¡Venta Exitosa! 💸', html: `<p class="text-xs text-zinc-300">El dinero ingresó a la caja.<br>El plan vence el <b class="text-white">${c.planVence}</b>.</p>`, icon: 'success', background: '#111', color: '#fff'});
+                    
+                    // Notificación automatizada para WhatsApp
+                    let wpMsg = `¡Hola ${c.nombre}! 👑 Tu Suscripción VIP (${c.planSuscripcion}) ha sido activada/renovada. Tienes acceso hasta el ${c.planVence}. ¡Disfruta tus beneficios!`;
+                    
+                    Swal.fire({
+                        title: '¡Venta Exitosa! 💸', 
+                        html: `<p class="text-xs text-zinc-300">El dinero ingresó a la caja.<br>El plan ahora vence el <b class="text-white">${c.planVence}</b>.</p>`, 
+                        icon: 'success', background: '#111', color: '#fff',
+                        showCancelButton: true, confirmButtonText: '💬 Enviar Recibo por WP', cancelButtonText: 'Cerrar', confirmButtonColor: '#25D366'
+                    }).then((r) => {
+                        if (r.isConfirmed && c.celular) {
+                            window.open(`https://wa.me/57${c.celular}?text=${encodeURIComponent(wpMsg)}`, '_blank');
+                        }
+                    });
                 }
             }
         }
@@ -5133,21 +5576,33 @@ function copiarLinkVIP() { const link = document.getElementById('cfg-vip-link-di
         }
 
         function procesarCierreMes() {
-            exportarPDF(); 
+            const b = db.barberias[bIdx];
             
-            // Le damos 2 segundos de respiro a la APK para que termine de crear y guardar el PDF
+            // 1. Si es Elite, generamos el PDF de inmediato (no traba la función)
+            if (b.plan === 'ELITE') {
+                exportarPDF(); 
+            } else {
+                Swal.fire({ title: 'Archivando Mes...', text: 'Reiniciando caja a $0', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
+            }
+            
+            // 2. Le damos 2 segundos de respiro a la APK para que termine de crear y guardar el PDF (si es Elite), y a los PRO los dejamos avanzar
             setTimeout(() => {
-                const b = db.barberias[bIdx];
                 if (!b.historialMensual) b.historialMensual = [];
                 const mesActual = new Date().toLocaleDateString('es-CO', { month: 'long', year: 'numeric' });
                 
+                // Archivamos la plata
                 b.historialMensual.push({ mes: mesActual.toUpperCase(), fechaCierre: new Date().toISOString(), ventas: b.ventas || [], gastos: b.gastos || [], tickets: b.tickets || [] });
+                
+                // Reseteamos las contabilidades a cero
                 b.ventas = []; b.gastos = []; b.tickets = []; b.multas = [];
                 
                 saveDB(true); 
                 cerrarModales(); 
                 renderAdmin(); 
-                Swal.fire('Mes Archivado', 'Caja en 0. El reporte se guardó en la carpeta "Descargas" de tu celular.', 'success');
+                
+                // Le avisamos al PRO que su mes fue guardado exitosamente aunque no tenga PDF
+                let extraMsg = b.plan === 'ELITE' ? 'El PDF se guardó en tu dispositivo.' : 'Aviso: Para descargar reportes en PDF debes mejorar a Plan ÉLITE.';
+                Swal.fire('Mes Archivado', `Caja reseteada a 0. ${extraMsg}`, 'success');
             }, 2000);
         }
 
@@ -5835,8 +6290,13 @@ function copiarLinkVIP() { const link = document.getElementById('cfg-vip-link-di
 
         function renderSuperAdmin() {
             let tSaaS = 0; let tP = 0; let tPre = 0;
-            if (db.masterConfig) { document.getElementById('sa-brand-activo').checked = db.masterConfig.brandingActive; document.getElementById('sa-brand-text').value = db.masterConfig.brandingText || ""; }
-
+           if (db.masterConfig) { 
+                document.getElementById('sa-brand-activo').checked = db.masterConfig.brandingActive; 
+                document.getElementById('sa-brand-text').value = db.masterConfig.brandingText || ""; 
+                // 🛠️ Cargamos la alerta actual para que puedas editarla en paz:
+                const msgEl = document.getElementById('sa-alerta-msg'); if(msgEl) msgEl.value = db.masterConfig.alertaMsg || "";
+                const blkEl = document.getElementById('sa-alerta-block'); if(blkEl) blkEl.checked = db.masterConfig.alertaBlock || false;
+            }
             const buz = document.getElementById('sa-sugerencias-lista');
             if (db.sugerencias && db.sugerencias.length > 0) { buz.innerHTML = db.sugerencias.slice().reverse().map((s, idx) => `<div class="bg-black p-3 rounded-xl border border-zinc-800 flex justify-between items-start"><div><p class="text-[9px] font-bold text-zinc-500 uppercase">${s.fecha} - ${s.tienda} (${s.usuario})</p><p class="text-xs text-white mt-1 italic">"${s.texto}"</p></div><button type="button" onclick="db.sugerencias.splice(${db.sugerencias.length - 1 - idx}, 1); saveDB(true); renderSuperAdmin();" class="text-red-500 font-black ml-2 px-2 hover:scale-110 transition-transform">X</button></div>`).join(''); } else { buz.innerHTML = '<p class="text-xs text-zinc-600 italic">No hay sugerencias en el buzón.</p>'; }
 
@@ -7397,7 +7857,7 @@ function escucharResumenFranquicia() {
                     console.log("Bloqueo de salida en Kiosko");
                 } else if (panelAgenda && panelAgenda.classList.contains('active')) {
                     // Si estaba en la agenda y le dio atrás, lo mandamos al inicio del admin
-                    if (typeof showView === 'function') showView('view-admin');
+                    if (typeof showScreen === 'function') showScreen('view-admin');
                 } else if (panelAdmin && panelAdmin.classList.contains('active')) {
                     console.log("Bloqueo de salida en Admin");
                 }
@@ -7483,8 +7943,7 @@ function escucharResumenFranquicia() {
 
             if (session && session.rol === 'superadmin' && db.masterConfig) {
                 msg = db.masterConfig.alertaMsg || ""; block = db.masterConfig.alertaBlock || false;
-                const saMsg = document.getElementById('sa-alerta-msg'); const saBlock = document.getElementById('sa-alerta-block');
-                if (saMsg && document.getElementById('view-superadmin').classList.contains('active')) { saMsg.value = msg; saBlock.checked = block; }
+                // 🛑 MAGIA: Eliminamos las líneas que sobreescribían tus cuadros de texto mientras escribías
             } else {
                 let idx = bIdx !== -1 ? bIdx : kiosko_bIdx;
                 if (idx !== -1 && db.barberias[idx]) { msg = db.barberias[idx].alertaMsg || ""; block = db.barberias[idx].alertaBlock || false; }
@@ -7514,7 +7973,8 @@ function escucharResumenFranquicia() {
                 }
             }
         }
-        setInterval(verificarAlertasGlobales, 3000);
+
+        window.verificadorAlertasInterval = setInterval(verificarAlertasGlobales, 3000);
 
         // =======================================================
         // 📄 POLÍTICAS DE PRIVACIDAD REDISEÑO DE ÉLITE 🔥
@@ -7681,36 +8141,8 @@ function escucharResumenFranquicia() {
             });
         }
 
-        // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES (CORREGIDO)
-        function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.62"; // Subimos la versión a 1.50 para forzar el arreglo en todos
-            const versionGuardada = localStorage.getItem('zeus_version');
-            
-            if (versionGuardada !== VERSION_ACTUAL) {
-                console.log("¡Actualización detectada! Destruyendo caché...");
-                localStorage.setItem('zeus_version', VERSION_ACTUAL);
-                
-                if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                        for(let registration of registrations) { registration.unregister(); }
-                    });
-                }
-                if ('caches' in window) {
-                    caches.keys().then((names) => {
-                        names.forEach(name => caches.delete(name));
-                    });
-                }
-                
-                setTimeout(() => { 
-                    // 🚀 LA MAGIA: Rescatamos el link original (con el Kiosko) y solo le inyectamos la versión
-                    let urlActual = new URL(window.location.href);
-                    urlActual.searchParams.set('v', new Date().getTime()); 
-                    window.location.href = urlActual.href; 
-                }, 1000);
-            }
-        }
-
-         function capturarUbicacionGPS() {
+       
+               function capturarUbicacionGPS() {
             if (!navigator.geolocation) return Swal.fire('Error', 'Tu celular no soporta GPS.', 'error');
             Swal.fire({ title: 'Buscando satélites... 🛰️', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
 
@@ -8097,13 +8529,62 @@ function subirFotoClienteVIP(input) {
     }
 }
 
+// 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES (GitHub)
+        function comprobarVersionNube() {
+            const VERSION_ACTUAL = "1.63"; // 👈 Subimos a 1.63 para que todos los celulares se actualicen
+            const versionGuardada = localStorage.getItem('zeus_version');
+            
+            if (versionGuardada !== VERSION_ACTUAL) {
+                console.log("¡Actualización de Código detectada! Destruyendo caché...");
+                localStorage.setItem('zeus_version', VERSION_ACTUAL);
+                
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                        for(let registration of registrations) { registration.unregister(); }
+                    });
+                }
+                if ('caches' in window) {
+                    // 🛠️ AQUÍ ESTABA EL ERROR: Faltaba el => {
+                    caches.keys().then((names) => {
+                        names.forEach(name => caches.delete(name));
+                    });
+                }
+                
+                setTimeout(() => { 
+                    // Rescatamos el link original y le inyectamos la versión limpia
+                    let urlActual = new URL(window.location.href);
+                    urlActual.searchParams.set('v', new Date().getTime()); 
+                    window.location.href = urlActual.href; 
+                }, 1000);
+            }
+        }
 
+        // ✨ MAGIA NIVEL DIOS: Sincronización Fantasma OPTIMIZADA (Cuida Supabase Gratis)
+        let ultimaSyncFantasma = Date.now();
+
+        document.addEventListener('visibilitychange', function() {
+            // Solo sincroniza si la app vuelve a primer plano Y han pasado más de 3 minutos (180,000 milisegundos)
+            if (document.visibilityState === 'visible' && typeof bIdx !== 'undefined' && bIdx !== -1 && typeof session !== 'undefined' && session) {
+                let ahora = Date.now();
+                if (ahora - ultimaSyncFantasma > 180000) { 
+                    console.log("📱 App en primer plano. Sincronizando finanzas en silencio...");
+                    if (typeof forzarSincronizacionNube === 'function') forzarSincronizacionNube(true); 
+                    ultimaSyncFantasma = ahora;
+                }
+            }
+        });
+
+        // ==========================================
+        // 🚀 SECUENCIA DE ARRANQUE MAESTRO
+        // ==========================================
         comprobarVersionNube();
-
-        // Ejecutar inmediatamente
-        arrancarZeus();
-        document.addEventListener('DOMContentLoaded', arrancarZeus);
-        window.addEventListener('load', arrancarZeus);
+        
+        // Verifica que la función exista antes de llamarla, por seguridad
+        if (typeof arrancarZeus === 'function') {
+            arrancarZeus();
+            document.addEventListener('DOMContentLoaded', arrancarZeus);
+            window.addEventListener('load', arrancarZeus);
+        }
 
     </script>
 </body>
