@@ -448,6 +448,37 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                     </div>
                 </div>
 
+
+
+<div class="mt-2 mb-8">
+                    <h3 class="text-[11px] font-black text-zinc-500 uppercase tracking-widest ml-2 mb-3 italic">🧠 ISI Inteligencia de Negocio</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="bg-gradient-to-br from-indigo-900/40 to-black border border-indigo-500/30 p-5 rounded-2xl shadow-inner relative overflow-hidden">
+                            <div class="absolute -right-4 -bottom-4 text-6xl opacity-10">🔥</div>
+                            <p class="text-[9px] text-indigo-400 font-bold uppercase tracking-widest mb-1">Día más Fuerte</p>
+                            <p id="metric-dia-fuerte" class="text-2xl font-black text-white uppercase tracking-tighter">CALCULANDO...</p>
+                            <p class="text-[8px] text-zinc-500 uppercase mt-1 font-bold">Mayor volumen de ventas</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-orange-900/40 to-black border border-orange-500/30 p-5 rounded-2xl shadow-inner relative overflow-hidden">
+                            <div class="absolute -right-4 -bottom-4 text-6xl opacity-10">⏰</div>
+                            <p class="text-[9px] text-orange-400 font-bold uppercase tracking-widest mb-1">Hora Pico</p>
+                            <p id="metric-hora-pico" class="text-2xl font-black text-white uppercase tracking-tighter">CALCULANDO...</p>
+                            <p class="text-[8px] text-zinc-500 uppercase mt-1 font-bold">Mayor flujo de citas</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-green-900/40 to-black border border-green-500/30 p-5 rounded-2xl shadow-inner relative overflow-hidden">
+                            <div class="absolute -right-4 -bottom-4 text-6xl opacity-10">👥</div>
+                            <p class="text-[9px] text-green-400 font-bold uppercase tracking-widest mb-1">Retención de Clientes</p>
+                            <p id="metric-retencion" class="text-2xl font-black text-white uppercase tracking-tighter">0%</p>
+                            <p class="text-[8px] text-zinc-500 uppercase mt-1 font-bold">Clientes que regresan</p>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+
+
                 <div class="bg-[#050505] rounded-[2rem] border border-zinc-800 shadow-inner overflow-hidden mt-2">
                     <button type="button" onclick="toggleAcc('acc-admin-menu', 'icon-admin-menu')" class="w-full flex justify-between items-center p-6 text-left hover:bg-white/5 transition-colors btn-press">
                         <span class="text-sm font-black text-white uppercase tracking-widest flex items-center gap-3"><span class="text-2xl">💈</span> Menú de Gestión</span>
@@ -1561,17 +1592,18 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
             </div>
         </div>
 
+
+
         <div id="modal-clientes" class="hidden fixed inset-0 z-[100] bg-black/98 flex items-center justify-center p-6">
             <div class="glass p-8 sm:p-10 rounded-[3rem] border border-blue-900/30 max-w-xl w-full max-h-[90vh] overflow-y-auto relative text-left scroll-safe shadow-2xl">
-                <button type="button" onclick="cerrarModales()" class="absolute top-7 right-7 w-8 h-8 bg-black border border-zinc-800 text-zinc-500 rounded-full flex items-center justify-center font-bold text-sm btn-press hover:text-white transition-colors">✕</button>
+                <button type="button" onclick="cerrarModales()" class="absolute top-7 right-7 w-8 h-8 bg-black border border-zinc-800 text-zinc-500 rounded-full flex items-center justify-center font-bold text-sm btn-press hover:text-white transition-colors z-50">✕</button>
                 
-                <div class="flex justify-between items-center mb-2 pr-10 sm:pr-12">
-                    <h2 class="text-2xl sm:text-3xl font-black mb-2 italic uppercase text-blue-400 tracking-tighter">Directorio</h2>
-                    <button type="button" onclick="exportarClientesCSV()" class="bg-green-600 hover:bg-green-500 text-white px-3 py-2 rounded-xl text-[10px] font-black uppercase btn-press flex items-center gap-1 shadow-lg shadow-green-600/30 transition-colors shrink-0 relative z-10">📥 Bajar Excel</button>
+                <div class="mb-2 pr-10">
+                    <h2 class="text-2xl sm:text-3xl font-black mb-1 italic uppercase text-blue-400 tracking-tighter">Directorio</h2>
+                    <p class="text-[9px] text-zinc-400 uppercase tracking-widest mb-4">Encuentra y envía ofertas a tus clientes</p>
                 </div>
-                <p class="text-[9px] text-zinc-400 uppercase tracking-widest mb-4">Encuentra y envía ofertas a tus clientes</p>
 
-                <div class="grid grid-cols-2 gap-3 mb-6">
+                <div class="grid grid-cols-2 gap-3 mb-4">
                     <div class="bg-indigo-900/20 border border-indigo-500/30 p-3 rounded-2xl text-center shadow-inner">
                         <p class="text-[8px] text-indigo-400 font-bold uppercase tracking-widest">💳 Puntos / Fidelizados</p>
                         <p id="dir-stat-club" class="text-3xl font-black text-white tracking-tighter">0</p>
@@ -1581,6 +1613,12 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                         <p id="dir-stat-pass" class="text-3xl font-black text-white tracking-tighter">0</p>
                     </div>
                 </div>
+
+                <button type="button" onclick="exportarClientesCSV()" class="w-full mb-6 bg-green-600 hover:bg-green-500 text-white py-3 rounded-xl text-[10px] font-black uppercase btn-press flex items-center justify-center gap-2 shadow-lg shadow-green-600/30 transition-colors">
+                    📥 Descargar Base de Datos (Excel)
+                </button>
+
+
 
                 <div class="bg-black/50 p-5 rounded-2xl border border-zinc-900 mb-6 shadow-inner">
                     <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-3">📢 Enviar Oferta Masiva</p>
@@ -3080,6 +3118,58 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                 </div>
             </div>`;
         }).join('') || `<p class="text-zinc-600 text-xs italic ml-5">No hay barberos.</p>`;
+
+
+// 🧠 CEREBRO INTELIGENCIA DE NEGOCIO Y AUTO-PARCHE
+        try {
+            // 1. DÍA MÁS FUERTE 
+            let diasCount = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0};
+            let hasVentas = false;
+            (b.ventas || []).forEach(v => {
+                if (v.fecha) {
+                    let dStr = v.fecha;
+                    if(dStr.includes('/')) { let p = dStr.split('/'); dStr = `${p[2]}-${p[1]}-${p[0]}`; } 
+                    let dObj = new Date(dStr + 'T12:00:00');
+                    if(!isNaN(dObj.getTime())) { diasCount[dObj.getDay()]++; hasVentas = true; }
+                }
+            });
+            let maxDia = 0, nombreDia = "SIN DATOS";
+            const nombresDias = ['DOMINGO', 'LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO'];
+            if (hasVentas) { for(let d=0; d<7; d++) { if(diasCount[d] > maxDia) { maxDia = diasCount[d]; nombreDia = nombresDias[d]; } } }
+            const elDia = document.getElementById('metric-dia-fuerte'); if(elDia) elDia.innerText = nombreDia;
+
+            // 2. HORA PICO 
+            let horasCount = {};
+            let hasCitas = false;
+            (b.citas || []).forEach(c => {
+                if (c.hora) {
+                    let hStr = c.hora.toString().replace(/[^0-9:]/g, ''); 
+                    let hNum = parseInt(hStr.split(':')[0]);
+                    if(c.hora.toLowerCase().includes('pm') && hNum < 12) hNum += 12;
+                    if(c.hora.toLowerCase().includes('am') && hNum === 12) hNum = 0;
+                    if(!isNaN(hNum)) { horasCount[hNum] = (horasCount[hNum] || 0) + 1; hasCitas = true; }
+                }
+            });
+            let maxHora = 0, horaPicoStr = "SIN DATOS";
+            if (hasCitas) {
+                let bestH = 0;
+                for (let h in horasCount) { if (horasCount[h] > maxHora) { maxHora = horasCount[h]; bestH = parseInt(h); } }
+                let ampm = bestH >= 12 ? 'PM' : 'AM'; let h12 = bestH % 12 || 12; horaPicoStr = `${h12}:00 ${ampm}`;
+            }
+            const elHora = document.getElementById('metric-hora-pico'); if(elHora) elHora.innerText = horaPicoStr;
+
+            // 3. RETENCIÓN Y AUTO-PARCHE
+            let totalCli = 0; let recurrentes = 0; let parchado = false;
+            Object.values(b.clientes || {}).forEach(c => {
+                if(c.visitas > 0 && (!c.pts || c.pts === 0)) { c.pts = c.visitas; parchado = true; }
+                if(!c.fechaRegistro && (c.visitas > 0 || c.pts > 0)) { c.fechaRegistro = getTodayYMD(); parchado = true; }
+                totalCli++; if(c.visitas > 1) recurrentes++;
+            });
+            if (parchado) saveDB(false); 
+
+            let pct = totalCli > 0 ? Math.round((recurrentes / totalCli) * 100) : 0;
+            const elRet = document.getElementById('metric-retencion'); if(elRet) elRet.innerText = pct + "%";
+        } catch(e) { console.error("Error calculando IA Negocios", e); }
 
 
             setTimeout(() => {
@@ -5216,6 +5306,15 @@ let timerDebounceClientes = null;
             const filtroEstatus = document.getElementById('filtro-vip-clientes') ? document.getElementById('filtro-vip-clientes').value : 'ALL';
 
             let listaKeys = Object.keys(cData);
+// 🛠️ AUTO-PARCHE SUPREMO: Fidelizar clientes antiguos automáticamente
+            let actualizados = false;
+            listaKeys.forEach(k => {
+                if (!cData[k].fechaRegistro && (cData[k].visitas > 0 || cData[k].pts > 0)) {
+                    cData[k].fechaRegistro = hoy; // Los mete al club automáticamente
+                    actualizados = true;
+                }
+            });
+            if (actualizados) saveDB(true);
             
             // 📊 ACTUALIZAR ESTADÍSTICAS DEL ADMIN
             let totalClub = listaKeys.filter(k => cData[k].fechaRegistro).length;
@@ -8531,7 +8630,7 @@ function subirFotoClienteVIP(input) {
 
 // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES (GitHub)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.63"; // 👈 Subimos a 1.63 para que todos los celulares se actualicen
+            const VERSION_ACTUAL = "1.64"; // 👈 Subimos a 1.63 para que todos los celulares se actualicen
             const versionGuardada = localStorage.getItem('zeus_version');
             
             if (versionGuardada !== VERSION_ACTUAL) {
