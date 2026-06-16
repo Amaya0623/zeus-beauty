@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zeus-cache-v1.62'; // Subimos de versión para limpiar caché antigua
+const CACHE_NAME = 'zeus-cache-v1.63'; // Subimos de versión para limpiar caché antigua
 
 // Archivos críticos para modo Offline y para que el navegador active la instalación
 const urlsToCache = [
