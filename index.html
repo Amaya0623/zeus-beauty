@@ -1915,7 +1915,26 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
         }
 
         function timeToMins(t) { if (!t) return 0; const p = t.toString().replace(/p\.?\s*m\.?/gi, '').replace(/a\.?\s*m\.?/gi, '').trim().split(':'); return (parseInt(p[0]) || 0) * 60 + (parseInt(p[1]) || 0); }
-        function esPinInseguro(p) { if (!p || p.length < 4) return true; if (/^(\d)\1+$/.test(p)) return true; if ("0123456789".includes(p) || "9876543210".includes(p)) return true; return false; }
+        function esPinInseguro(p) { if (!p || p.length < 4) return true; if (/^(\d)\1+$/.test(p)) return true; if ("0123456789".includes(p) || 
+"9876543210".includes(p)) return true; return false; }
+
+
+
+// -- ESCÁNER GLOBAL DE PIN ÚNICO --
+        function verificarPinUnico(nuevoPin) {
+            if (!nuevoPin || nuevoPin.trim() === '') return false;
+            for (let i = 0; i < db.barberias.length; i++) {
+                const local = db.barberias[i];
+                if (local.pinAdmin === nuevoPin) return false; // Verifica PIN de dueños
+                if (local.barberos) {
+                    for (let j = 0; j < local.barberos.length; j++) {
+                        if (local.barberos[j].pin === nuevoPin) return false; // Verifica PIN de barberos/estilistas
+                    }
+                }
+            }
+            return true; 
+        }
+
 
         function detenerAudio() { 
             if (currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; } 
@@ -2358,6 +2377,7 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                     if (!nombre) { Swal.showValidationMessage('Ingresa el nombre del local'); return false; }
                     if (pin.length !== 4) { Swal.showValidationMessage('El PIN debe ser exactamente de 4 NÚMEROS'); return false; }
                     if (esPinInseguro(pin)) { Swal.showValidationMessage('El PIN es muy fácil (No uses 1234, 1111, etc)'); return false; }
+                    if (!verificarPinUnico(pin)) { Swal.showValidationMessage('Ese PIN ya está en uso. Por seguridad, inventa uno diferente.'); return false; }
                     
                     return { nombre, pin, tipo }; // Retornamos el tipo también
                 }
@@ -5373,20 +5393,29 @@ let timerDebounceClientes = null;
                 // Etiqueta visual para identificar a los del Club de Fidelización
                 let badgeClub = esClub ? `<span class="text-[7px] bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 px-2 py-0.5 rounded font-black tracking-widest ml-2 shadow-[0_0_10px_rgba(99,102,241,0.2)]">💳 CLUB VIP</span>` : '';
 
-                return `<div class="bg-black/40 p-4 rounded-2xl border ${colorBorde} mb-2 flex flex-col gap-2 transition-colors shadow-inner">
-                    <div class="flex justify-between items-center">
+
+                return `<div class="bg-black/40 p-4 rounded-2xl border ${colorBorde} mb-2 flex flex-col transition-colors shadow-inner">
+                    <div class="flex justify-between items-start mb-2">
                         <div class="flex-1 min-w-0 pr-2">
-                            <p class="font-black ${esVip ? 'text-yellow-400' : (esClub ? 'text-indigo-400' : 'text-white')} text-xs uppercase flex items-center truncate">
-                                ${esVip ? '👑 ' : ''}${c.nombre} ${badgeClub}
+                            <p class="font-black ${esVip ? 'text-yellow-400' : (esClub ? 'text-indigo-400' : 'text-white')} text-xs uppercase truncate w-full">
+                                ${esVip ? '👑 ' : ''}${c.nombre}
                             </p>
-                            <p class="text-blue-400 font-black text-[10px] mt-1">${c.visitas || 0} Visitas | ${c.pts || 0} Puntos</p>
-                            <p class="text-zinc-500 font-bold text-[9px] mt-0.5 tracking-widest">📞 ${c.celular || 'N/A'}</p>
-                            ${esVip ? `<p class="mt-1 text-[9px] font-bold text-yellow-600 uppercase">PASS: ${c.planSuscripcion} ${alertaPlan}</p>` : ''}
+                            <div class="flex items-center flex-wrap gap-2 mt-1">
+                                <span class="text-zinc-500 font-bold text-[10px] tracking-widest">📞 ${c.celular || 'N/A'}</span>
+                                ${badgeClub}
+                                ${esVip && !alertaPlan ? `<span class="text-[7px] font-bold text-yellow-500 border border-yellow-500/50 bg-yellow-900/20 px-2 py-0.5 rounded shadow-[0_0_8px_rgba(234,179,8,0.2)]">PASS: ${c.planSuscripcion}</span>` : ''}
+                                ${alertaPlan}
+                            </div>
                         </div>
-                        <div class="flex flex-col gap-2 items-end shrink-0">
-                            ${btnSuscripcion}
-                            ${c.celular ? `<button type="button" onclick="window.open('https://wa.me/57${c.celular}', '_blank')" class="bg-[#25D366]/10 text-[#25D366] px-3 py-1.5 rounded-lg font-black text-[8px] uppercase btn-press border border-[#25D366]/30 hover:bg-[#25D366]/20 transition-all w-full text-center shadow-sm">💬 Chat WP</button>` : ''}
+                        <div class="text-right shrink-0">
+                            <p class="text-blue-400 font-black text-sm">${c.pts || 0} <span class="text-[8px] text-zinc-500 font-bold">PTS</span></p>
+                            <p class="text-blue-400 font-black text-[9px] mt-0.5">${c.visitas || 0} Visitas</p>
                         </div>
+                    </div>
+                    
+                    <div class="flex gap-2 items-center justify-end border-t border-zinc-800/50 pt-3 mt-1">
+                        ${c.celular ? `<button type="button" onclick="window.open('https://wa.me/57${c.celular}', '_blank')" class="bg-[#25D366]/10 text-[#25D366] px-3 py-2 rounded-lg font-black text-[8px] uppercase btn-press border border-[#25D366]/30 hover:bg-[#25D366]/20 transition-all shadow-sm">💬 Chat WP</button>` : ''}
+                        ${btnSuscripcion}
                     </div>
                 </div>`;
             }).join('') || '<p class="text-zinc-500 text-xs italic text-center py-6">No hay clientes con este filtro</p>';
@@ -6211,6 +6240,16 @@ let timerDebounceClientes = null;
             if (!n || !p) return Swal.fire('Faltan Datos', 'El nombre y el PIN son obligatorios.', 'error');
             if (esPinInseguro(p)) return Swal.fire('PIN Inseguro', 'No uses 1234, 1111 ni secuencias fáciles.', 'warning');
 
+            
+            if (!verificarPinUnico(p)) {
+                return Swal.fire({
+                    icon: 'warning', title: '¡PIN Ocupado! 🔒',
+                    text: 'Este PIN ya está siendo utilizado por otra Barbería o Estilista. Debes inventar uno diferente.',
+                    confirmButtonColor: '#ef4444', background: '#0a0a0a', color: '#fff'
+                });
+            }
+            
+
            if (idX !== "") { 
                 db.barberias[bIdx].barberos[idX] = { ...db.barberias[bIdx].barberos[idX], nom: n, pin: p, comision: c, comisionProd: cP, foto: fotoBarberoTemp, fotoQR: fotoQRBarberoTemp, horaInicio: hInicio, horaFin: hFin, especialidades: esp }; 
             } else { 
@@ -6649,6 +6688,7 @@ let timerDebounceClientes = null;
         async function saCrearBarberia() {
             const n = document.getElementById('sa-nombre').value.trim().toUpperCase(); const p = cleanNum(document.getElementById('sa-pin').value);
             if (!n || esPinInseguro(p)) return Swal.fire('Error', 'Nombre vacío o PIN inseguro (muy fácil)', 'error');
+            if (!verificarPinUnico(p)) return Swal.fire('¡PIN Ocupado! 🔒', 'Este PIN ya está en uso. Inventa uno diferente.', 'warning');
             if (!isOnline) return Swal.fire('Sin Internet', '', 'warning');
             Swal.fire({ title: 'Creando...', didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
             try {
@@ -8630,7 +8670,7 @@ function subirFotoClienteVIP(input) {
 
 // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES (GitHub)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.64"; // 👈 Subimos a 1.63 para que todos los celulares se actualicen
+            const VERSION_ACTUAL = "1.65"; // 👈 Subimos a 1.63 para que todos los celulares se actualicen
             const versionGuardada = localStorage.getItem('zeus_version');
             
             if (versionGuardada !== VERSION_ACTUAL) {
@@ -8672,6 +8712,7 @@ function subirFotoClienteVIP(input) {
                 }
             }
         });
+
 
         // ==========================================
         // 🚀 SECUENCIA DE ARRANQUE MAESTRO
