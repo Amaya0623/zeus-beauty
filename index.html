@@ -1060,6 +1060,8 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                         <button type="button" onclick="toggleAcc('acc-notificaciones', 'icon-notificaciones')" class="w-full flex justify-between items-center p-6 text-left hover:bg-white/5 transition-colors btn-press">
                             <span class="text-[11px] font-black text-zinc-300 uppercase tracking-widest flex items-center gap-2"><span class="text-lg">💬</span> Notificaciones y WhatsApp</span><span id="icon-notificaciones" class="text-zinc-500 font-black transition-transform duration-300">▼</span>
                         </button>
+
+
                         <div id="acc-notificaciones" class="hidden px-6 pb-6 space-y-4 border-t border-zinc-800/50 pt-5">
                             <div class="bg-[#25D366]/10 p-6 rounded-[1.5rem] border border-[#25D366]/20">
                                 <p class="text-[10px] font-black text-[#25D366] mb-3 uppercase tracking-widest">WhatsApp Principal</p>
@@ -1071,8 +1073,12 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                                 </div>
                                 <textarea id="cfg-wp-template" rows="3" class="w-full p-4 rounded-xl text-xs font-bold text-zinc-300 bg-[#050505] border border-zinc-800 resize-none focus:border-blue-500 transition-colors outline-none"></textarea>
                             </div>
+                            <div class="bg-yellow-900/10 p-6 rounded-[1.5rem] border border-yellow-900/30">
+                                <p class="text-[10px] font-black text-yellow-500 uppercase tracking-widest mb-3 flex items-center gap-2"><span class="text-lg">⭐</span> Reseñas Google Maps</p>
+                                <input type="text" id="cfg-link-google" placeholder="Pega aquí tu link de Google Maps..." class="w-full p-4 rounded-xl text-xs font-bold bg-[#050505] border border-zinc-800 text-white focus:border-yellow-500 transition-colors outline-none">
+                                <p class="text-[8px] text-zinc-500 uppercase mt-2 font-bold leading-tight">Este link se enviará automáticamente con los recibos por WhatsApp pidiendo 5 estrellas.</p>
+                            </div>
                         </div>
-                    </div>
 
 
 
@@ -1158,7 +1164,7 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
     <button type="button" onclick="imprimirQRVIP()" class="w-full bg-white text-black py-4 rounded-xl font-black text-[10px] uppercase tracking-widest btn-press hover:bg-gray-200 transition-colors shadow-md">🖨️ Imprimir Cartel VIP</button>
 </div>
 
-<div class="bg-yellow-900/10 p-6 rounded-[1.5rem] border border-yellow-500/30 shadow-[0_0_15px_rgba(234,179,8,0.1)]">                            
+                                                        
                             <div class="bg-yellow-900/10 p-6 rounded-[1.5rem] border border-yellow-500/30 shadow-[0_0_15px_rgba(234,179,8,0.1)]">
                                 <div class="flex justify-between items-center mb-4">
                                     <div class="flex flex-col">
@@ -2803,7 +2809,7 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
             }, 100);
         }
 
-        window.addEventListener('DOMContentLoaded', aplicarSkinGlobal);
+        
 
         // Disparador de seguridad al arrancar la app
         window.addEventListener('DOMContentLoaded', aplicarSkinGlobal);
@@ -3519,6 +3525,12 @@ function verificarCumpleanosPOS() {
                 if (cCel && cCel.length >= 10 && isOnline) {
                     btnWp.classList.remove('hidden'); let mSaludo = b.msgBienvenida || 'Gracias por visitarnos'; let mDesp = b.msgDespedida || '¡Te esperamos pronto!';
                     let msj = `✂️ *RECIBO ELECTRÓNICO*\n\n${mSaludo}\n\n*Recibo N°:* ${tId}\n*Total:* ${fMoney(tV)}\n*Método:* ${m}\n\n👑 *Tus Puntos:* ${ptsActuales}\n\n${mDesp}`;
+                    
+                    // 🚀 INYECCIÓN MAGISTRAL DE GOOGLE MAPS
+                    if (b.linkGoogle && b.linkGoogle.length > 5) {
+                        msj += `\n\n⭐ ¿Te gustó tu experiencia?\n¡Ayúdanos con 5 estrellas en Google! Toca aquí:\n${b.linkGoogle}`;
+                    }
+
                     btnWp.onclick = () => window.open(`https://wa.me/57${cCel}?text=${encodeURIComponent(msj)}`, '_blank');
                 } else { btnWp.classList.add('hidden'); }
 
@@ -3674,16 +3686,25 @@ function renderAgendaList() {
             const b = db.barberias[bIdx]; const nTime = timeToMins(h); const apertMins = timeToMins(b.horaApertura || "09:00"); const cierrMins = timeToMins(b.horaCierre || "21:00");
             if (nTime < apertMins || nTime > cierrMins) return Swal.fire('Cerrado', `El local atiende de ${b.horaApertura} a ${b.horaCierre}`, 'error');
 
-            const intv = parseInt(b.intervaloCitas) || 60;
-            const coll = (b.citas || []).find(c => { if (c.barbero !== barb || c.fecha !== f || c.estado === 'CANCELADA') return false; return Math.abs(nTime - timeToMins(c.hora)) < intv; });
-            if (coll) return Swal.fire('¡Horario Ocupado! ⏰', `${barb} ya tiene una cita reservada cerca de las ${formatTime12h(coll.hora)}. No se permiten duplicados.`, 'error');
+            // 🛡️ RADAR ANTI-CHOQUES INTELIGENTE (Calcula duraciones exactas)
+            let totalMinsCarrito = 0; tempServicios.forEach(s => { totalMinsCarrito += parseDuracionToMins(s.dur); });
+            if (totalMinsCarrito === 0) totalMinsCarrito = (b.intervaloCitas || 60);
+
+            const miInicio = timeToMins(h); 
+            const miFin = miInicio + totalMinsCarrito;
+
+            const coll = (b.citas || []).find(c => { 
+                if (c.barbero !== barb || c.fecha !== f || c.estado === 'CANCELADA') return false; 
+                let cInicio = timeToMins(c.hora); 
+                let cFin = cInicio + (c.duracion || b.intervaloCitas || 60);
+                return (miInicio < cFin && miFin > cInicio); 
+            });
+
+            if (coll) return Swal.fire('¡Horario Ocupado! ⏰', `${barb} ya tiene una cita reservada a las ${formatTime12h(coll.hora)} que choca con este servicio.`, 'error');
 
             if (!b.citas) b.citas = [];
-            
-            // Calculamos cuánto dura la cita para guardarla bien
-            let totalMinsCarrito = 0; tempServicios.forEach(s => { totalMinsCarrito += parseDuracionToMins(s.dur); });
-            if (totalMinsCarrito === 0) totalMinsCarrito = intv;
 
+            // Ya tenemos 'totalMinsCarrito' calculado arriba por el Radar Inteligente
             b.citas.push({ id: Date.now().toString(), nombre: cli, celular: cel, barbero: barb, servicio: tempServicios.map(s=>s.nom || s).join(' + '), fecha: f, hora: h, estado: 'PENDIENTE', duracion: totalMinsCarrito });
 
             const idCli = cel || cli;
@@ -5228,13 +5249,22 @@ function copiarLinkVIP() { const link = document.getElementById('cfg-vip-link-di
             const d = document.getElementById('gasto-desc').value.trim().toUpperCase();
             const v = parseInt(cleanNum(document.getElementById('gasto-val').value));
             if (d && v) {
-                if (!db.barberias[bIdx].gastos) db.barberias[bIdx].gastos = [];
-                db.barberias[bIdx].gastos.push({ desc: d, valor: v, fecha: getTodayYMD(), registradoPor: session.nom || 'ADMIN' });
+                if (!db.barberias[bIdx].gastos) db.barberias[bIdx].gastos = []; // 🛡️ ESCUDO SALVAVIDAS
+                
+                // Si la sesión se perdió o es un Kiosko, evitamos que diga "undefined"
+                let responsable = 'SISTEMA';
+                if (typeof session !== 'undefined' && session && session.nom) {
+                    responsable = session.nom;
+                }
+                
+                db.barberias[bIdx].gastos.push({ desc: d, valor: v, fecha: getTodayYMD(), registradoPor: responsable });
                 saveDB(true);
                 renderGastos();
-                if (session.rol === 'admin') renderAdmin();
+                if (typeof session !== 'undefined' && session && session.rol === 'admin') renderAdmin();
                 document.getElementById('gasto-desc').value = "";
                 document.getElementById('gasto-val').value = "";
+                
+                Swal.fire({ title: 'Gasto Registrado', icon: 'success', timer: 1500, showConfirmButton: false, background: '#0a0a0a', color: '#fff' });
             }
         }
 
@@ -5882,6 +5912,7 @@ let timerDebounceClientes = null;
             setVal('cfg-wp-template', b.wpTemplate || "");
             setVal('cfg-msg-bienvenida', b.msgBienvenida || "");
             setVal('cfg-msg-despedida', b.msgDespedida || "");
+            setVal('cfg-link-google', b.linkGoogle || "");
 
             if(b.cumple) {
                 setChk('cfg-cumple-activo', b.cumple.activo || false);
@@ -6012,6 +6043,7 @@ let timerDebounceClientes = null;
             b.wpTemplate = getVal('cfg-wp-template');
             b.msgBienvenida = getVal('cfg-msg-bienvenida');
             b.msgDespedida = getVal('cfg-msg-despedida');
+            b.linkGoogle = getVal('cfg-link-google');
 
             if(!b.cumple) b.cumple = {};
             b.cumple.activo = getChk('cfg-cumple-activo');
@@ -7226,6 +7258,11 @@ function escucharResumenFranquicia() {
             try {
                 if (typeof Swal !== 'undefined') Swal.fire({ title: 'Conectando TV...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() }, background: '#0a0a0a', color: '#fff' });
                 
+                // 🛡️ ESCUDO: Verificamos si Supabase logró cargar antes de usarlo
+                if (typeof supabaseClient === 'undefined') {
+                    throw new Error("Supabase no cargó por falta de internet.");
+                }
+
                 const { data: store, error } = await supabaseClient.from('stores').select('*').eq('id', localId).single();
                 if(error || !store) throw new Error("Local no encontrado en la nube.");
                 
@@ -7241,6 +7278,7 @@ function escucharResumenFranquicia() {
                 if (typeof Swal !== 'undefined') Swal.close();
                 iniciarSmartTVDescentralizado();
             } catch (e) { 
+                console.warn("Entrando a Modo Offline en TV:", e.message);
                 if (typeof Swal !== 'undefined') Swal.close();
                 if(typeof db === 'undefined') window.db = { barberias: [] };
                 if(!db.barberias) db.barberias = [];
@@ -7356,33 +7394,33 @@ function escucharResumenFranquicia() {
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-12 gap-4 lg:gap-6 relative z-10 flex-1 overflow-hidden pb-16">
+                <div class="flex flex-col md:flex-row gap-3 lg:gap-5 relative z-10 flex-1 overflow-hidden pb-14">
                     
-                    <div class="md:col-span-4 lg:col-span-3 flex flex-col gap-4 overflow-hidden">
-                        <div class="flex-1 bg-black/40 border border-indigo-500/20 rounded-[1.5rem] p-4 flex flex-col shadow-[0_0_20px_rgba(99,102,241,0.05)] overflow-hidden">
+                    <div class="w-full md:w-[28%] lg:w-[25%] flex flex-col gap-3 lg:gap-4 overflow-hidden shrink-0 h-full">
+                        <div class="flex-1 bg-black/40 border border-indigo-500/20 rounded-[1.5rem] p-4 flex flex-col shadow-[0_0_20px_rgba(99,102,241,0.05)] overflow-hidden min-h-0">
                             <h2 class="text-[10px] sm:text-xs font-black text-white uppercase tracking-widest mb-3 flex items-center gap-2 shrink-0"><span class="text-pink-500">////</span> EN SALA DE ESPERA</h2>
                             <div id="tv-en-espera" class="flex-1 overflow-y-auto pr-2 scroll-safe space-y-2"></div>
                         </div>
                         
-                        <div class="bg-black/60 border border-zinc-800 rounded-[1.5rem] p-4 flex flex-col relative overflow-hidden shrink-0 min-h-[120px]">
+                        <div class="bg-black/60 border border-zinc-800 rounded-[1.5rem] p-4 flex flex-col relative overflow-hidden shrink-0 min-h-[110px] sm:min-h-[120px]">
                             <div class="absolute inset-0 bg-gradient-to-r from-cyan-900/10 to-transparent z-0"></div>
                             <p class="text-[9px] sm:text-[10px] text-cyan-400 font-black uppercase tracking-widest mb-2 relative z-10 flex items-center gap-2"><span class="text-white"><</span> PRÓXIMO CORTE <span class="text-white">></span></p>
                             <div id="tv-proximo-corte" class="relative z-10 w-full mt-auto"></div>
                         </div>
 
-                        <div class="bg-black border border-cyan-500/30 rounded-[1.5rem] p-4 flex items-center gap-4 shadow-[0_0_20px_rgba(6,182,212,0.1)] shrink-0">
+                        <div class="bg-black border border-cyan-500/30 rounded-[1.5rem] p-3 lg:p-4 flex items-center gap-3 lg:gap-4 shadow-[0_0_20px_rgba(6,182,212,0.1)] shrink-0">
                             <div class="bg-white p-1.5 rounded-xl shrink-0">
-                                <div id="tv-qr-code" class="w-16 h-16 bg-gray-200 flex items-center justify-center text-[10px] text-black font-bold">QR</div>
+                                <div id="tv-qr-code" class="w-14 h-14 lg:w-16 lg:h-16 bg-gray-200 flex items-center justify-center text-[10px] text-black font-bold">QR</div>
                             </div>
                             <div class="flex flex-col justify-center">
-                                <p class="text-[8px] sm:text-[9px] text-cyan-400 font-black uppercase tracking-widest">ESCANEA Y RESERVA</p>
-                                <p class="text-sm sm:text-base font-black uppercase mt-0.5 leading-tight text-white">TOMA TU<br>TURNO AQUÍ</p>
+                                <p class="text-[7px] lg:text-[8px] text-cyan-400 font-black uppercase tracking-widest">ESCANEA Y RESERVA</p>
+                                <p class="text-xs lg:text-sm font-black uppercase mt-0.5 leading-tight text-white">TOMA TU<br>TURNO AQUÍ</p>
                             </div>
                         </div>
                     </div>
 
-                    <div class="md:col-span-8 lg:col-span-6 flex flex-col gap-4 overflow-hidden h-full">
-                        <div class="flex-1 bg-black border border-zinc-800 rounded-[2rem] overflow-hidden flex flex-col relative shadow-2xl">
+                    <div class="w-full md:flex-1 flex flex-col gap-3 lg:gap-4 overflow-hidden h-full min-h-0">
+                        <div class="flex-1 bg-black border border-zinc-800 rounded-[2rem] overflow-hidden flex flex-col relative shadow-2xl min-h-0">
                             <div class="w-full h-full relative bg-[#0f0f0f] flex items-center justify-center" id="tv-media-player">
                                 <span class="text-zinc-600 text-xs font-bold uppercase tracking-widest">Esperando Multimedia...</span>
                             </div>
@@ -7391,55 +7429,55 @@ function escucharResumenFranquicia() {
                             </div>
                         </div>
                         
-                        <div class="bg-gradient-to-r from-black via-cyan-900/20 to-black border border-cyan-500/20 rounded-[1.5rem] p-4 sm:p-6 flex flex-col justify-center relative overflow-hidden shrink-0 min-h-[100px] sm:min-h-[140px]">
-                            <div class="flex justify-between items-center relative z-10 mb-3">
+                        <div class="bg-gradient-to-r from-black via-cyan-900/20 to-black border border-cyan-500/20 rounded-[1.5rem] p-4 lg:p-6 flex flex-col justify-center relative overflow-hidden shrink-0 min-h-[90px] sm:min-h-[110px] lg:min-h-[130px]">
+                            <div class="flex justify-between items-center relative z-10 mb-2 lg:mb-3">
                                 <div class="flex flex-col">
-                                    <h2 class="text-xl sm:text-3xl lg:text-4xl font-black italic uppercase tracking-tighter text-white leading-none">LUCE TU MEJOR<br><span class="text-cyan-400">VERSIÓN</span></h2>
+                                    <h2 class="text-xl sm:text-2xl lg:text-4xl font-black italic uppercase tracking-tighter text-white leading-none">LUCE TU MEJOR<br><span class="text-cyan-400">VERSIÓN</span></h2>
                                 </div>
-                                <div class="text-right flex items-center gap-3">
-                                    <span class="text-3xl sm:text-4xl drop-shadow-md">📞</span>
+                                <div class="text-right flex items-center gap-2 lg:gap-3">
+                                    <span class="text-2xl lg:text-4xl drop-shadow-md">📞</span>
                                     <div class="flex flex-col text-left">
-                                        <p class="text-[8px] sm:text-[10px] text-cyan-400 font-black uppercase tracking-widest">CONTÁCTANOS</p>
-                                        <p id="tv-contacto-tel" class="text-lg sm:text-2xl font-black text-white leading-none mt-0.5">N/A</p>
+                                        <p class="text-[7px] lg:text-[9px] text-cyan-400 font-black uppercase tracking-widest">CONTÁCTANOS</p>
+                                        <p id="tv-contacto-tel" class="text-lg lg:text-2xl font-black text-white leading-none mt-0.5">N/A</p>
                                     </div>
                                 </div>
                             </div>
-                            <div class="border-t border-zinc-800/80 pt-3 overflow-hidden whitespace-nowrap mt-auto">
+                            <div class="border-t border-zinc-800/80 pt-2 lg:pt-3 overflow-hidden whitespace-nowrap mt-auto">
                                 <style>@keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }</style>
-                                <p id="tv-marquee-text" class="text-[10px] sm:text-xs text-pink-400 font-bold uppercase tracking-widest inline-block animate-[marquee_15s_linear_infinite] drop-shadow-sm">
+                                <p id="tv-marquee-text" class="text-[9px] lg:text-[11px] text-pink-400 font-bold uppercase tracking-widest inline-block animate-[marquee_15s_linear_infinite] drop-shadow-sm">
                                     📢 CARGANDO MENSAJES... 📢
                                 </p>
                             </div>
                         </div>
                     </div>
 
-                    <div class="md:col-span-12 lg:col-span-3 flex flex-col md:flex-row lg:flex-col gap-4 overflow-y-auto lg:overflow-hidden scroll-safe pr-1 pb-2">
+                    <div class="w-full md:w-[28%] lg:w-[25%] flex flex-col gap-3 lg:gap-4 overflow-y-auto md:overflow-hidden scroll-safe shrink-0 h-full">
                         
-                        <div class="flex-1 md:flex-none lg:flex-1 bg-black/40 border border-zinc-800 rounded-[1.5rem] p-4 flex flex-col relative overflow-hidden min-h-[150px]">
-                            <p class="text-[9px] sm:text-[10px] text-zinc-500 font-black uppercase tracking-widest mb-3 flex items-center gap-2 shrink-0"><span class="text-pink-500">////</span> DESTACADO</p>
-                            <div class="flex-1 rounded-xl overflow-hidden relative bg-zinc-900 flex items-center justify-center">
+                        <div class="flex-1 bg-black/40 border border-zinc-800 rounded-[1.5rem] p-3 lg:p-4 flex flex-col relative overflow-hidden min-h-[120px]">
+                            <p class="text-[9px] sm:text-[10px] text-zinc-500 font-black uppercase tracking-widest mb-2 flex items-center gap-2 shrink-0"><span class="text-pink-500">////</span> DESTACADO</p>
+                            <div class="flex-1 rounded-xl overflow-hidden relative bg-zinc-900 flex items-center justify-center min-h-0">
                                 <img id="tv-banner-img" src="" class="w-full h-full object-cover absolute inset-0 hidden">
                                 <span id="tv-banner-fallback" class="text-[10px] font-bold text-zinc-600">SIN IMAGEN</span>
                             </div>
                         </div>
 
-                        <div class="flex-1 md:flex-none lg:flex-none bg-black/40 border border-zinc-800 rounded-[1.5rem] p-4 flex flex-col shrink-0 min-w-[200px]">
-                            <p class="text-[9px] sm:text-[10px] text-zinc-500 font-black uppercase tracking-widest mb-3 flex items-center gap-2 shrink-0"><span class="text-indigo-500">////</span> SÍGUENOS</p>
-                            <div id="tv-social-qrs" class="flex justify-center items-center gap-3 w-full">
+                        <div class="bg-black/40 border border-zinc-800 rounded-[1.5rem] p-3 lg:p-4 flex flex-col shrink-0">
+                            <p class="text-[9px] sm:text-[10px] text-zinc-500 font-black uppercase tracking-widest mb-2 flex items-center gap-2 shrink-0"><span class="text-indigo-500">////</span> SÍGUENOS</p>
+                            <div id="tv-social-qrs" class="flex justify-center items-center gap-2 lg:gap-3 w-full">
                                 <span class="text-[10px] text-zinc-600 py-2">No configurado</span>
                             </div>
                         </div>
                         
-                        <div class="flex-1 md:flex-none lg:flex-none bg-indigo-900/10 border border-indigo-500/30 rounded-[1.5rem] p-4 flex flex-col shadow-[0_0_15px_rgba(99,102,241,0.15)] shrink-0 min-w-[250px]">
-                            <div class="flex justify-between items-center mb-3 border-b border-indigo-900/50 pb-2 shrink-0">
+                        <div class="bg-indigo-900/10 border border-indigo-500/30 rounded-[1.5rem] p-3 lg:p-4 flex flex-col shadow-[0_0_15px_rgba(99,102,241,0.15)] shrink-0 min-h-[140px]">
+                            <div class="flex justify-between items-center mb-2 border-b border-indigo-900/50 pb-2 shrink-0">
                                 <div class="flex flex-col">
-                                    <p class="text-[8px] sm:text-[9px] text-indigo-400 font-black uppercase tracking-widest">PAGA RÁPIDO</p>
-                                    <p class="text-[10px] sm:text-xs font-black uppercase mt-0.5 leading-tight text-white">ESCANEA Y LISTO</p>
+                                    <p class="text-[7px] lg:text-[8px] text-indigo-400 font-black uppercase tracking-widest">PAGA RÁPIDO</p>
+                                    <p class="text-[9px] lg:text-[11px] font-black uppercase mt-0.5 leading-tight text-white">ESCANEA Y LISTO</p>
                                 </div>
-                                <span class="text-xl drop-shadow-md">💳</span>
+                                <span class="text-lg drop-shadow-md">💳</span>
                             </div>
                             <div id="tv-contenedor-pagos-dinamico" class="flex-1 flex items-center justify-center">
-                                </div>
+                            </div>
                         </div>
 
                     </div>
@@ -7460,7 +7498,10 @@ function escucharResumenFranquicia() {
             
             document.body.appendChild(tv);
 
-            if (typeof actualizarSmartTVUI === 'function') actualizarSmartTVUI();
+            // Le damos un milisegundo al navegador para que dibuje el HTML antes de inyectarle los datos
+            setTimeout(() => {
+                if (typeof actualizarSmartTVUI === 'function') actualizarSmartTVUI();
+            }, 100);
 
             // Motor del reloj (cada 1 segundo)
             if (!window.relojTVInterval) {
@@ -7508,7 +7549,6 @@ function escucharResumenFranquicia() {
         function actualizarSmartTVUI() {
             const b = db.barberias[bIdx]; if(!b) return;
             
-            // 🚀 LIMPIEZA INICIAL: Si no hay internet o está cargando, no mostramos fantasmas
             if (b.citas && b.citas.length > 0 && !navigator.onLine) {
                 console.log("Cargando caché local...");
             }
@@ -7529,13 +7569,13 @@ function escucharResumenFranquicia() {
             const marq = document.getElementById('tv-marquee-text');
             if (marq) marq.innerText = (b.tvData && b.tvData.marquee) ? `📢 ${b.tvData.marquee} 📢` : '📢 PREGUNTA POR NUESTRAS PROMOCIONES Y PAQUETES ESPECIALES 📢 ¡SIÉNTETE COMO EN CASA! 📢';
 
-            // YOUTUBE & SPOTIFY
             const mediaCtn = document.getElementById('tv-media-player');
             let ytId = b.tvData ? b.tvData.youtubeId : null;
 
             if (ytId && mediaCtn) {
                 document.getElementById('tv-media-player').style.display = 'flex';
-                document.getElementById('tv-local-player-container').style.display = 'none';
+                const localContainer = document.getElementById('tv-local-player-container');
+                if (localContainer) localContainer.style.display = 'none';
 
                 if (ytId.includes('spotify.com')) {
                     let spotUrl = ytId;
@@ -7544,18 +7584,26 @@ function escucharResumenFranquicia() {
                         else if(spotUrl.includes('/track/')) spotUrl = spotUrl.replace('/track/', '/embed/track/');
                         else if(spotUrl.includes('/album/')) spotUrl = spotUrl.replace('/album/', '/embed/album/');
                     }
-                    mediaCtn.innerHTML = `<iframe class="w-full h-full absolute inset-0 rounded-[1.5rem]" src="${spotUrl}" frameborder="0" allow="encrypted-media" allowfullscreen></iframe>`;
-                } else {
-                    let cleanId = ytId;
-                    if (cleanId.includes('v=')) cleanId = cleanId.split('v=')[1].split('&')[0];
-                    else if (cleanId.includes('youtu.be/')) cleanId = cleanId.split('youtu.be/')[1].split('?')[0];
-                    else if (cleanId.includes('embed/')) cleanId = cleanId.split('embed/')[1].split('?')[0];
+                    mediaCtn.innerHTML = `<iframe class="w-full h-full absolute inset-0 rounded-[2rem]" src="${spotUrl}" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
+                } 
+                else {
+                    let finalYtID = ytId;
+                    if (ytId.includes('youtu.be/')) {
+                        finalYtID = ytId.split('youtu.be/')[1].split('?')[0];
+                    } else if (ytId.includes('watch?v=')) {
+                        finalYtID = ytId.split('watch?v=')[1].split('&')[0];
+                    } else if (ytId.includes('/embed/')) {
+                        finalYtID = ytId.split('/embed/')[1].split('?')[0];
+                    }
+
+                    let ytEmbedUrl = `https://www.youtube-nocookie.com/embed/${finalYtID}?autoplay=1&mute=0&controls=1&rel=0&modestbranding=1&enablejsapi=1`;
                     
-                    mediaCtn.innerHTML = `<iframe class="w-full h-full absolute inset-0 rounded-[1.5rem]" src="https://www.youtube.com/embed/${cleanId}?autoplay=1&mute=0&controls=1&rel=0&modestbranding=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+                    mediaCtn.innerHTML = `<iframe class="w-full h-full absolute inset-0 rounded-[2rem]" src="${ytEmbedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
                 }
+            } else if (mediaCtn) {
+                mediaCtn.innerHTML = `<span class="text-zinc-600 text-xs font-bold uppercase tracking-widest">Esperando Multimedia...</span>`;
             }
 
-            // PUBLICIDAD DE IMAGEN CON AUTOAJUSTE
             const imgAd = document.getElementById('tv-banner-img');
             const defaultAd = document.getElementById('tv-banner-fallback');
             if (b.tvBanner && imgAd) {
@@ -7563,16 +7611,14 @@ function escucharResumenFranquicia() {
                 imgAd.classList.remove('hidden'); 
                 if(defaultAd) defaultAd.classList.add('hidden');
             } else {
-                imgAd.classList.add('hidden'); 
+                if (imgAd) imgAd.classList.add('hidden'); 
                 if(defaultAd) defaultAd.classList.remove('hidden');
             }
 
-            // PROMOCIONES
             if(document.getElementById('tv-promo-title')) document.getElementById('tv-promo-title').innerText = (b.tvData && b.tvData.promoTitle) ? b.tvData.promoTitle : 'CORTES Y BARBA';
             if(document.getElementById('tv-promo-price')) document.getElementById('tv-promo-price').innerText = (b.tvData && b.tvData.promoPrice) ? b.tvData.promoPrice : '$0';
             if(document.getElementById('tv-promo-desc')) document.getElementById('tv-promo-desc').innerText = (b.tvData && b.tvData.promoDesc) ? b.tvData.promoDesc : 'Pregunta en recepción';
 
-            // 🚀 REDES SOCIALES QR AUTOMÁTICOS
             const socialQRsCtn = document.getElementById('tv-social-qrs');
             if (socialQRsCtn && b.socials) {
                 let sHtml = '';
@@ -7607,14 +7653,12 @@ function escucharResumenFranquicia() {
                 }
             }
 
-            // LISTA DE ESPERA
             let htmlEspera = '';
             citasHoy.slice(0, 5).forEach((c, idx) => {
                 const enSilla = idx === 0;
                 if(enSilla && window.lastTurnoSillaId !== c.id) { 
                     window.lastTurnoSillaId = c.id; 
                     
-                    // 1. SIEMPRE TOCAR LA CAMPANA PRIMERO (Garantiza sonido en TVs viejos)
                     try {
                         const snd = document.getElementById('snd-alerta');
                         if (snd) { 
@@ -7624,37 +7668,35 @@ function escucharResumenFranquicia() {
                         }
                     } catch(e) {}
 
-                    // 2. LUEGO INTENTAR HABLAR (HACK DE GOOGLE PARA SMART TVS MUDOS)
                     setTimeout(() => {
                         try {
-                            // Convertimos el texto a formato web
-                            let textoHablar = encodeURIComponent(`Atención, ${c.nombre}, tu turno está listo.`);
-                            // Le pedimos a Google Translate que genere un MP3 al vuelo
+                            // 🎙️ NUEVO CEREBRO DE VOZ: Anuncia el cliente Y su barbero
+                            let textoHablar = encodeURIComponent(`Atención, ${c.nombre}, tu turno con el barbero ${c.barbero}, está listo.`);
                             let urlGoogleVoz = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=es-US&q=${textoHablar}`;
-                            
-                            // Reproducimos el MP3 de Google en el TV
                             let audioVoz = new Audio(urlGoogleVoz);
                             audioVoz.play().catch(err => {
-                                // PLAN B: Si Google falla, usamos el motor normal del celular/PC
                                 if ('speechSynthesis' in window) {
                                     window.speechSynthesis.cancel();
-                                    let msg = new SpeechSynthesisUtterance(`Atención, ${c.nombre}, tu turno está listo.`);
+                                    let msg = new SpeechSynthesisUtterance(`Atención, ${c.nombre}, tu turno con el barbero ${c.barbero}, está listo.`);
                                     msg.lang = 'es-CO';
                                     window.speechSynthesis.speak(msg);
                                 }
                             });
                         } catch(e) { console.log("Error en motor de voz"); }
-                    }, 1500); // Espera 1.5s a que termine de sonar la campana
-                   }
+                    }, 1500); 
+                }
 
-
+                // 🎨 NUEVO DISEÑO VISUAL: Muestra "Con: Barbero" debajo del nombre
                 htmlEspera += `
                 <div class="flex items-center justify-between py-2 border-b border-zinc-800/50">
                     <div class="flex items-center gap-3 w-full">
                         <div class="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center font-black text-[10px] sm:text-xs shrink-0 ${enSilla ? 'bg-pink-600 text-white shadow-[0_0_10px_rgba(236,72,153,0.5)]' : 'text-zinc-500 bg-zinc-900'}">${idx + 1}</div>
-                        <div class="flex-1 min-w-0 flex justify-between items-center">
-                            <p class="text-[10px] sm:text-sm font-black uppercase tracking-tighter truncate text-white">${c.nombre}</p>
-                            ${enSilla ? '<span class="text-[7px] sm:text-[8px] font-black uppercase tracking-widest text-pink-500 flex items-center gap-1">EN PROCESO <span class="text-xs">▶</span></span>' : '<span class="text-[7px] sm:text-[8px] font-black uppercase tracking-widest text-cyan-600">ESPERANDO</span>'}
+                        <div class="flex-1 min-w-0 flex justify-between items-center pr-2">
+                            <div class="flex flex-col">
+                                <p class="text-[10px] sm:text-sm font-black uppercase tracking-tighter truncate text-white">${c.nombre}</p>
+                                <p class="text-[7px] text-zinc-500 font-bold uppercase tracking-widest mt-0.5">Con: <span class="text-cyan-400 font-black">${c.barbero}</span></p>
+                            </div>
+                            ${enSilla ? '<span class="text-[7px] sm:text-[8px] font-black uppercase tracking-widest text-pink-500 flex items-center gap-1 shrink-0">EN PROCESO <span class="text-xs">▶</span></span>' : '<span class="text-[7px] sm:text-[8px] font-black uppercase tracking-widest text-cyan-600 shrink-0">ESPERANDO</span>'}
                         </div>
                     </div>
                 </div>`;
@@ -7678,7 +7720,6 @@ function escucharResumenFranquicia() {
                 new QRCode(qrCtn, { text: kioLink, width: 80, height: 80, colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.L });
             }
 
-            // 🚀 NUEVO MOTOR NEÓN DE PAGOS PARA LA TV
             const ctnPagos = document.getElementById('tv-contenedor-pagos-dinamico');
             if (b && ctnPagos) {
                 let tipo = b.bancoTipo || 'GENERICO';
@@ -7690,12 +7731,12 @@ function escucharResumenFranquicia() {
 
                 if (b.qrImage || b.numeroCuenta) {
                     ctnPagos.innerHTML = `
-                        <div class="flex flex-col items-center justify-center p-2 bg-black/60 rounded-[1rem] border ${border} w-full shadow-[0_0_15px_currentColor] ${color}">
-                            <p class="text-[10px] font-black uppercase tracking-widest mb-2">${nombre}</p>
-                            <div class="bg-white p-1 rounded-xl w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center overflow-hidden relative shadow-lg">
+                        <div class="flex flex-col items-center justify-center p-1 bg-black/60 rounded-[1rem] border ${border} w-full h-full shadow-[0_0_15px_currentColor] ${color} box-border">
+                            <p class="text-[8px] font-black uppercase tracking-widest mb-0.5 leading-none">${nombre}</p>
+                            <div class="bg-white p-1 rounded-lg w-12 h-12 flex items-center justify-center overflow-hidden relative shadow-lg shrink-0 mt-0.5">
                                 <div id="tv-qr-dinamico" class="w-full h-full flex items-center justify-center"></div>
                             </div>
-                            <p class="text-[7px] text-zinc-300 mt-2 uppercase font-bold tracking-widest bg-white/10 px-2 py-0.5 rounded-full">${b.titularCuenta || 'Escanea para pagar'}</p>
+                            <p class="text-[5px] text-zinc-300 mt-1 uppercase font-bold tracking-widest bg-white/10 px-2 py-0.5 rounded-full truncate w-[95%] text-center leading-none">${b.titularCuenta || 'Escanea para pagar'}</p>
                         </div>
                     `;
 
@@ -7705,16 +7746,23 @@ function escucharResumenFranquicia() {
                             if (b.qrImage) {
                                 qrBox.innerHTML = `<img src="${b.qrImage}" class="w-full h-full object-contain">`;
                             } else if (b.numeroCuenta) {
-                                new QRCode(qrBox, { text: b.numeroCuenta, width: 80, height: 80, colorDark: "#000", colorLight: "#fff", correctLevel: QRCode.CorrectLevel.L });
+                                new QRCode(qrBox, { text: b.numeroCuenta, width: 40, height: 40, colorDark: "#000", colorLight: "#fff", correctLevel: QRCode.CorrectLevel.L });
                             }
                         }
                     }, 200);
                 } else {
-                    ctnPagos.innerHTML = '<p class="text-[9px] text-zinc-600 col-span-3 text-center py-2 italic">Configura tu pago en Ajustes</p>';
+                    ctnPagos.innerHTML = '<p class="text-[8px] text-zinc-600 col-span-3 text-center py-2 italic">Configura tu pago en Ajustes</p>';
                 }
-            }
-        }
+            } 
+        } 
 
+
+
+         
+
+
+
+        
 
 
         function toggleFullScreenTV() {
@@ -8670,7 +8718,7 @@ function subirFotoClienteVIP(input) {
 
 // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES (GitHub)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.65"; // 👈 Subimos a 1.63 para que todos los celulares se actualicen
+            const VERSION_ACTUAL = "1.66"; // 👈 Subimos a 1.63 para que todos los celulares se actualicen
             const versionGuardada = localStorage.getItem('zeus_version');
             
             if (versionGuardada !== VERSION_ACTUAL) {
