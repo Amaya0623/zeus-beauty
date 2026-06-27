@@ -1355,24 +1355,24 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                     
                     <div class="flex justify-center gap-3 mb-5">
                         <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(0,0,0,0.5)] border-2 border-zinc-800 overflow-hidden p-1.5">
-                            <img src="https://cdn.worldvectorlogo.com/logos/nequi.svg" class="w-full h-full object-contain" alt="Nequi">
+                            <img src="https://blfkwfmthsdifdjybssw.supabase.co/storage/v1/object/public/perfiles/nequi-logo.png" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Logo_Nequi.svg/512px-Logo_Nequi.svg.png'" class="w-full h-full object-contain" alt="Nequi">
                         </div>
                         <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(0,0,0,0.5)] border-2 border-zinc-800 overflow-hidden p-2">
-                            <img src="https://cdn.worldvectorlogo.com/logos/bancolombia-1.svg" class="w-full h-full object-contain" alt="Bancolombia">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Logo_Bancolombia.svg/512px-Logo_Bancolombia.svg.png" class="w-full h-full object-contain" alt="Bancolombia">
                         </div>
                         <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(0,0,0,0.5)] border-2 border-zinc-800 overflow-hidden p-1.5">
-                            <img src="https://seeklogo.com/images/D/daviplata-logo-959D7198EB-seeklogo.com.png" class="w-full h-full object-contain" alt="Daviplata">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/DaviPlata_logo.svg/512px-DaviPlata_logo.svg.png" class="w-full h-full object-contain" alt="Daviplata">
                         </div>
                         <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(0,0,0,0.5)] border-2 border-zinc-800 overflow-hidden p-2">
-                            <img src="https://cdn.worldvectorlogo.com/logos/pse.svg" class="w-full h-full object-contain" alt="PSE">
+                            <img src="https://blfkwfmthsdifdjybssw.supabase.co/storage/v1/object/public/perfiles/pse-logo.png" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Logo_PSE.svg/512px-Logo_PSE.svg.png'" class="w-full h-full object-contain" alt="PSE">
                         </div>
                     </div>
 
                     <div class="border border-zinc-800/50 bg-[#0a0a0a] rounded-2xl p-3 mb-6">
                         <p class="text-[7px] text-zinc-500 font-black uppercase tracking-widest mb-2">Tarjetas Aceptadas</p>
                         <div class="flex justify-center gap-4 items-center h-6">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png" class="h-4 object-contain">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a4/Mastercard_2019_logo.svg" class="h-5 object-contain">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/512px-Visa_Inc._logo.svg.png" class="h-4 object-contain">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/512px-Mastercard-logo.svg.png" class="h-5 object-contain">
                         </div>
                     </div>
 
@@ -5239,7 +5239,7 @@ function renderAgendaList() {
         }
 
 
-// ==========================================
+        // ==========================================
         // 💳 MOTOR FINANCIERO CON EDGE FUNCTIONS (SUPABASE + WOMPI)
         // ==========================================
         async function iniciarPagoWompiKiosko() {
@@ -5274,6 +5274,7 @@ function renderAgendaList() {
             let totalCobrarKio = 0;
             tempServicios.forEach(s => { totalCobrarKio += s.pre; });
 
+            // ID único para la transacción
             const idReserva = `Z-${b.id_nube || b.id}-${Date.now().toString().slice(-6)}`;
 
             if (!b.citas) b.citas = [];
@@ -5288,19 +5289,37 @@ function renderAgendaList() {
             Swal.fire({ title: 'Conectando con el Banco...', text: 'Generando pasarela cifrada 🔒', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
 
             try {
-                const { data, error } = await supabaseClient.functions.invoke('generar-firma-wompi', {
+                // 1. Llamar a Supabase para obtener la firma secreta
+                const response = await supabaseClient.functions.invoke('generar-firma-wompi', {
                     body: { monto: totalCobrarKio, reference: idReserva }
                 });
 
-                if (error || !data) throw new Error(error ? error.message : "Error de respuesta");
+                const data = response.data;
+                const error = response.error;
 
-                const urlWompi = `https://checkout.wompi.co/p/?public-key=${b.wompiPub}&currency=COP&amount-in-cents=${data.amountInCents}&reference=${idReserva}&signature:integrity=${data.signature}&redirect-url=${window.location.href}`;
+                if (error) throw new Error(error.message);
+                
+                // 2. Verificación Estricta: Nos aseguramos de que Supabase devolvió la firma y los centavos
+                if (!data || !data.signature || !data.amountInCents) {
+                    throw new Error("Datos incompletos desde el servidor seguro.");
+                }
 
+                // 3. 🌐 PREPARAMOS EL LINK DEL CHECKOUT OFICIAL
+                // Usamos encodeURIComponent para proteger la URL de caracteres extraños y usamos la sintaxis oficial de Wompi "signature:integrity"
+                const redirectSeguro = encodeURIComponent(window.location.href);
+                const urlWompi = `https://checkout.wompi.co/p/?public-key=${b.wompiPub}&currency=COP&amount-in-cents=${data.amountInCents}&reference=${idReserva}&signature:integrity=${data.signature}&redirect-url=${redirectSeguro}`;
+
+                // 4. Redirigimos SÓLO si la URL se construyó correctamente
                 setTimeout(() => { window.location.href = urlWompi; }, 500);
 
             } catch (err) {
                 console.error("Falla en pasarela cifrada:", err);
-                Swal.fire('Error Seguro', 'No pudimos blindar la firma de tu transacción. Intenta usar Pago en Establecimiento.', 'error');
+                Swal.fire({
+                    title: 'Falla Bancaria', 
+                    text: 'El banco tardó en responder. Por favor, intenta usar la opción "PAGAR EN EL ESTABLECIMIENTO".', 
+                    icon: 'warning', 
+                    background: '#0a0a0a', color: '#fff'
+                });
             }
         }
 
@@ -8969,7 +8988,7 @@ function subirFotoClienteVIP(input) {
 
 // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES (GitHub)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.67"; // 👈 Subimos a 1.63 para que todos los celulares se actualicen
+            const VERSION_ACTUAL = "1.68"; // 👈 Subimos a 1.63 para que todos los celulares se actualicen
             const versionGuardada = localStorage.getItem('zeus_version');
             
             if (versionGuardada !== VERSION_ACTUAL) {
