@@ -1355,24 +1355,24 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                     
                     <div class="flex justify-center gap-3 mb-5">
                         <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(0,0,0,0.5)] border-2 border-zinc-800 overflow-hidden p-1.5">
-                            <img src="https://blfkwfmthsdifdjybssw.supabase.co/storage/v1/object/public/perfiles/nequi-logo.png" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Logo_Nequi.svg/512px-Logo_Nequi.svg.png'" class="w-full h-full object-contain" alt="Nequi">
+                            <img src="https://cdn.worldvectorlogo.com/logos/nequi.svg" class="w-full h-full object-contain" alt="Nequi">
                         </div>
                         <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(0,0,0,0.5)] border-2 border-zinc-800 overflow-hidden p-2">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Logo_Bancolombia.svg/512px-Logo_Bancolombia.svg.png" class="w-full h-full object-contain" alt="Bancolombia">
+                            <img src="https://seeklogo.com/images/B/bancolombia-logo-26CA99BB03-seeklogo.com.png" class="w-full h-full object-contain" alt="Bancolombia">
                         </div>
                         <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(0,0,0,0.5)] border-2 border-zinc-800 overflow-hidden p-1.5">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/DaviPlata_logo.svg/512px-DaviPlata_logo.svg.png" class="w-full h-full object-contain" alt="Daviplata">
+                            <img src="https://seeklogo.com/images/D/daviplata-logo-959D7198EB-seeklogo.com.png" class="w-full h-full object-contain" alt="Daviplata">
                         </div>
                         <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(0,0,0,0.5)] border-2 border-zinc-800 overflow-hidden p-2">
-                            <img src="https://blfkwfmthsdifdjybssw.supabase.co/storage/v1/object/public/perfiles/pse-logo.png" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Logo_PSE.svg/512px-Logo_PSE.svg.png'" class="w-full h-full object-contain" alt="PSE">
+                            <img src="https://cdn.worldvectorlogo.com/logos/pse.svg" class="w-full h-full object-contain" alt="PSE">
                         </div>
                     </div>
 
                     <div class="border border-zinc-800/50 bg-[#0a0a0a] rounded-2xl p-3 mb-6">
                         <p class="text-[7px] text-zinc-500 font-black uppercase tracking-widest mb-2">Tarjetas Aceptadas</p>
                         <div class="flex justify-center gap-4 items-center h-6">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/512px-Visa_Inc._logo.svg.png" class="h-4 object-contain">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/512px-Mastercard-logo.svg.png" class="h-5 object-contain">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png" class="h-4 object-contain">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a4/Mastercard_2019_logo.svg" class="h-5 object-contain">
                         </div>
                     </div>
 
@@ -2085,10 +2085,14 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
 
                             if (necesitaFusion && nubeData) {
                                 let localData = db.barberias[idx];
-                                localData.diasSuscripcion = nubeData.diasSuscripcion !== undefined ? nubeData.diasSuscripcion : localData.diasSuscripcion;
-                                localData.bloqueado = nubeData.bloqueado !== undefined ? nubeData.bloqueado : localData.bloqueado;
-                                localData.plan = nubeData.plan || localData.plan;
-                                localData.pagosSaaS = nubeData.pagosSaaS || localData.pagosSaaS;
+                                
+                                // 🚀 AUTO-PARCHE SUPREMO: Rescatar configuraciones de la nube para que el celular no las borre al guardar
+                                const clavesTransaccionales = ['clientes', 'ventas', 'gastos', 'tickets', 'asistencia', 'multas', 'citas', 'listaEspera', 'pendientesSync', 'data_version'];
+                                Object.keys(nubeData).forEach(key => {
+                                    if (!clavesTransaccionales.includes(key)) {
+                                        localData[key] = nubeData[key];
+                                    }
+                                });
 
                                 // ✨ MAGIA NIVEL DIOS: Fusión de Finanzas y Clientes sin aplastar datos
                                 localData.clientes = { ...(nubeData.clientes || {}), ...(localData.clientes || {}) };
@@ -2185,14 +2189,13 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                     let cloudB = data.json_data;
                     let localB = db.barberias[idx];
 
-                    localB.bloqueado = cloudB.bloqueado; 
-                    localB.diasSuscripcion = cloudB.diasSuscripcion;
-                    localB.plan = cloudB.plan || localB.plan;
-                    localB.maxBarberos = cloudB.maxBarberos || localB.maxBarberos; 
-                    localB.barberos = cloudB.barberos || localB.barberos;
-                    localB.servicios = cloudB.servicios || localB.servicios; 
-                    localB.productos = cloudB.productos || localB.productos;
-                    localB.configMkt = cloudB.configMkt || localB.configMkt;
+                    // 🚀 AUTO-PARCHE SUPREMO: Descargar TODA la configuración nueva (Wompi, VIP, Redes, Mapas, etc.)
+                    const clavesTransaccionales = ['clientes', 'ventas', 'gastos', 'tickets', 'asistencia', 'multas', 'citas', 'listaEspera', 'pendientesSync', 'data_version'];
+                    Object.keys(cloudB).forEach(key => {
+                        if (!clavesTransaccionales.includes(key)) {
+                            localB[key] = cloudB[key];
+                        }
+                    });
 
                     // ✨ MAGIA NIVEL DIOS: Descargar las Finanzas y Clientes de la Nube al Celular
                     localB.clientes = { ...(localB.clientes || {}), ...(cloudB.clientes || {}) };
@@ -2488,12 +2491,40 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
 
 
        // ==========================================
-        // 5. SESIÓN Y LOGIN (BLINDADO CON RETORNO WOMPI)
+        // 5. SESIÓN Y LOGIN (BLINDADO CON RETORNO WOMPI Y URL LIMPIA)
         // ==========================================
         function checkSession() {
-            const urlParams = new URLSearchParams(window.location.search);
+            // Guardamos los parámetros originales en memoria global para que el Kiosko los pueda leer después
+            if (!window.MisParamsOriginales) {
+                window.MisParamsOriginales = new URLSearchParams(window.location.search);
+            }
+            const urlParams = window.MisParamsOriginales;
+            
             const screenMode = urlParams.get('screen');
             const localIdCloud = urlParams.get('local');
+            const kioskId = urlParams.get('kiosk');
+            const wompiTxId = urlParams.get('id'); 
+            const wompiEnv = urlParams.get('env'); 
+
+            // 🔒 ESCUDO ESTÉTICO SUPREMO: Limpiamos la URL de basura (v, ref, vip, index.html)
+            // SOLO si no estamos regresando de Wompi (Wompi necesita su ID primero)
+            if (!wompiTxId) {
+                let rutaLimpia = window.location.pathname;
+                if (rutaLimpia.toLowerCase().endsWith('index.html')) {
+                    rutaLimpia = rutaLimpia.substring(0, rutaLimpia.length - 10); // Quita index.html
+                }
+                
+                // Mantenemos solo la llave del local para que si el cliente recarga la página, no se salga.
+                let paramsVitales = new URLSearchParams();
+                if (kioskId) paramsVitales.set('kiosk', kioskId);
+                if (screenMode) paramsVitales.set('screen', screenMode);
+                if (localIdCloud) paramsVitales.set('local', localIdCloud);
+                
+                let queryLimpio = paramsVitales.toString();
+                if (queryLimpio) rutaLimpia += '?' + queryLimpio;
+                
+                window.history.replaceState({}, document.title, rutaLimpia);
+            }
 
             if (screenMode === 'tv' && localIdCloud) {
                 bIdx = db.barberias.findIndex(b => b.id_nube === localIdCloud);
@@ -2507,17 +2538,11 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                 }
             }
             
-            const kioskId = urlParams.get('kiosk');
-            // 💳 RETORNO WOMPI (ID y Env)
-            const wompiTxId = urlParams.get('id'); 
-            const wompiEnv = urlParams.get('env'); 
-
             if (kioskId) { 
                 // 🚀 LÓGICA WOMPI: Si el cliente viene regresando del banco, detenemos TODO y validamos
                 if (wompiTxId) {
                     kiosko_bIdx = db.barberias.findIndex(b => b.id_nube === kioskId || b.id === kioskId);
                     
-                    // Si el Kiosko no existe en la memoria, lo bajamos de la nube primero y luego validamos
                     if (kiosko_bIdx === -1 && navigator.onLine) {
                         Swal.fire({ title: 'Recuperando sesión...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() }, background: '#0a0a0a', color: '#fff' });
                         supabaseClient.from('stores').select('id, name, json_data').eq('id', kioskId).single().then(({data, error}) => {
@@ -2536,9 +2561,6 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                         return;
                     }
                 }
-
-                // 🔒 MAGIA HACKER: Si NO estamos validando pago, limpiamos la URL para evitar ataques
-                window.history.replaceState({}, document.title, window.location.pathname);
 
                 // 🚀 SOLUCIÓN KIOSKO NORMAL: Descargar siempre el estado REAL de la nube
                 if (navigator.onLine && typeof supabaseClient !== 'undefined') {
@@ -2574,7 +2596,7 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                     if (localIdx > -1) { iniciarKiosko(localIdx); return; } 
                 }
             }
-
+            
             let s = null;
             if (!isLocalStorageBlocked) { try { s = sessionStorage.getItem(SESSION_KEY); } catch (e) { } }
             if (s) {
@@ -4247,7 +4269,7 @@ function renderAgendaList() {
                     }
 
                     // 🚀 DETECTOR AUTOMÁTICO DE LINK VIP
-                    const urlParams = new URLSearchParams(window.location.search);
+                    const urlParams = window.MisParamsOriginales || new URLSearchParams(window.location.search);
                     if (urlParams.get('vip') === 'true' && !window.vipModalShown) {
                         window.vipModalShown = true; 
                         setTimeout(() => abrirFormularioRegistroVIP(), 500); // ⚡ Más rápido ahora que no hay choques
@@ -4266,7 +4288,7 @@ function renderAgendaList() {
 
 
 // 🎁 MAGIA CAZA-RECOMPENSAS: Pantalla de Bienvenida para el Invitado
-            const urlP = new URLSearchParams(window.location.search);
+            const urlP = window.MisParamsOriginales || new URLSearchParams(window.location.search);
             const refID = urlP.get('ref');
             
             if (refID && b.vipClub && b.vipClub.refActivo && b.clientes && b.clientes[refID]) {
@@ -8988,7 +9010,7 @@ function subirFotoClienteVIP(input) {
 
 // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES (GitHub)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.68"; // 👈 Subimos a 1.63 para que todos los celulares se actualicen
+            const VERSION_ACTUAL = "1.69"; // 👈 Subimos a 1.63 para que todos los celulares se actualicen
             const versionGuardada = localStorage.getItem('zeus_version');
             
             if (versionGuardada !== VERSION_ACTUAL) {
