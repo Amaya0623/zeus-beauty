@@ -2117,7 +2117,8 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                                 localData.tickets = Array.from(new Set(mTickets.map(a => a.ticketId))).map(id => mTickets.find(a => a.ticketId === id));
 
                                 localData.asistencia = { ...(nubeData.asistencia || {}), ...(localData.asistencia || {}) };
-                                localData.multas = [...(nubeData.multas || []), ...(localData.multas || [])];
+                                let mMultas = [...(nubeData.multas || []), ...(localData.multas || [])];
+                                localData.multas = Array.from(new Set(mMultas.map(a => a.id))).map(id => mMultas.find(a => a.id === id));
 
                                 // CÓDIGO VIEJO: let coincidencia = fusionCitas.find(cNube => cNube.id === cLocal.id);
                                 // CÓDIGO NUEVO Y BLINDADO:
@@ -2220,7 +2221,8 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                     localB.tickets = Array.from(new Set(mTickets.map(a => a.ticketId))).map(id => mTickets.find(a => a.ticketId === id));
                     
                     localB.asistencia = { ...(localB.asistencia || {}), ...(cloudB.asistencia || {}) };
-                    localB.multas = [...(localB.multas || []), ...(cloudB.multas || [])];
+                    let mMultas2 = [...(localB.multas || []), ...(cloudB.multas || [])];
+                    localB.multas = Array.from(new Set(mMultas2.map(a => a.id))).map(id => mMultas2.find(a => a.id === id));
 
                     // 🛡️ ESCUDO SUPREMO + ANTI-CLONES
                     let mergedCitas = [...(localB.citas || [])];
@@ -2678,6 +2680,10 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                             db.barberias[localIdx].bloqueado = bData.bloqueado;
                             db.barberias[localIdx].diasSuscripcion = bData.diasSuscripcion;
                             db.barberias[localIdx].plan = bData.plan;
+                            
+                            // 🚀 PARCHE: Descargar el estado de Mantenimiento antes de dejarlo entrar
+                            db.barberias[localIdx].alertaMsg = bData.alertaMsg;
+                            db.barberias[localIdx].alertaBlock = bData.alertaBlock;
                         }
                         if(typeof saveDB === 'function') saveDB(false); // Guardamos la actualización en la memoria
                     }
@@ -2691,10 +2697,23 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                 const bVerif = db.barberias[localIdx]; 
                 const diffDays = Math.floor((Date.now() - (bVerif.creadoEn || Date.now())) / (1000 * 60 * 60 * 24));
                 
-                if ((bVerif.lastActiveClock && Date.now() < bVerif.lastActiveClock) || (bVerif.diasSuscripcion || 15) - diffDays < 0 || bVerif.bloqueado) { 
+                if ((bVerif.lastActiveClock && Date.now() < bVerif.lastActiveClock) || (bVerif.diasSuscripcion || 15) - diffDays < 0 || bVerif.bloqueado || bVerif.alertaBlock) { 
                     Swal.close(); 
                     document.getElementById('pantalla-bloqueo').classList.remove('hidden'); 
                     document.getElementById('app-content').classList.add('hidden'); 
+                    
+                    // 🚀 AUTO-PARCHE: Mostrar pantalla de mantenimiento si está en bloqueo total
+                    if (bVerif.alertaBlock) {
+                        document.getElementById('pantalla-bloqueo').innerHTML = `
+                        <div class="glass p-10 rounded-[3rem] border border-orange-900/50 shadow-2xl max-w-md w-full">
+                            <span class="text-7xl mb-4 block animate-bounce drop-shadow-[0_0_15px_rgba(249,115,22,0.8)]">🛠️</span>
+                            <h1 class="text-3xl font-black text-orange-500 mb-2 uppercase italic">MANTENIMIENTO</h1>
+                            <p class="text-zinc-300 text-sm mb-6 font-bold leading-relaxed">${bVerif.alertaMsg || 'Actualización en curso'}</p>
+                            <p class="text-[9px] text-zinc-500 uppercase tracking-widest mb-6 border-t border-zinc-800 pt-4">El Kiosko público sigue funcionando normal para tus clientes.</p>
+                            <button type="button" onclick="window.location.reload();" class="w-full bg-orange-900/20 hover:bg-orange-900/40 text-orange-500 border border-orange-900/50 py-4 rounded-2xl font-black uppercase btn-press transition-colors">INTENTAR DE NUEVO</button>
+                        </div>`;
+                    }
+                    
                     pinInput.value = ""; 
                     return; 
                 }
@@ -8411,6 +8430,7 @@ function escucharResumenFranquicia() {
             db.barberias.forEach(b => {
                 b.alertaMsg = msg;
                 b.alertaBlock = block;
+                b.data_version = Date.now(); // 🚀 AUTO-PARCHE: Obliga a todos los dispositivos a descargar la alerta inmediatamente
                 if (navigator.onLine && b.id_nube) {
                     supabaseClient.from('stores').update({ json_data: b }).eq('id', b.id_nube);
                 }
@@ -8432,10 +8452,14 @@ function escucharResumenFranquicia() {
 
             if (session && session.rol === 'superadmin' && db.masterConfig) {
                 msg = db.masterConfig.alertaMsg || ""; block = db.masterConfig.alertaBlock || false;
-                // 🛑 MAGIA: Eliminamos las líneas que sobreescribían tus cuadros de texto mientras escribías
             } else {
                 let idx = bIdx !== -1 ? bIdx : kiosko_bIdx;
-                if (idx !== -1 && db.barberias[idx]) { msg = db.barberias[idx].alertaMsg || ""; block = db.barberias[idx].alertaBlock || false; }
+                if (idx !== -1 && db.barberias[idx]) { 
+                    msg = db.barberias[idx].alertaMsg || ""; block = db.barberias[idx].alertaBlock || false; 
+                } else if (db.barberias && db.barberias.length > 0) {
+                    // 🚀 PARCHE: Si estamos en la pantalla de Login (afuera de la app), buscar si hay una alerta global guardada
+                    msg = db.barberias[0].alertaMsg || ""; block = db.barberias[0].alertaBlock || false;
+                }
             }
 
             if (msg !== "") { alertaBox.innerHTML = msg; alertaBox.classList.remove('hidden'); } 
@@ -9020,7 +9044,7 @@ function subirFotoClienteVIP(input) {
 
 // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES (GitHub)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.74"; // 👈 Subimos a 1.63 para que todos los celulares se actualicen
+            const VERSION_ACTUAL = "1.75"; // 👈 Subimos a 1.63 para que todos los celulares se actualicen
             const versionGuardada = localStorage.getItem('zeus_version');
             
             if (versionGuardada !== VERSION_ACTUAL) {
