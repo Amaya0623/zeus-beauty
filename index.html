@@ -1132,8 +1132,7 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                                     <input type="checkbox" id="cfg-wompi-activo" class="w-6 h-6 accent-blue-500 cursor-pointer">
                                 </div>
                                 <p class="text-[8px] text-zinc-500 uppercase font-bold mb-1">Llave Pública (Public Key)</p>
-                                <input type="text" id="cfg-wompi-pub" placeholder="Ej: pub_prod_XXXXXXXXXXXXXXXXX..." class="w-full p-4 rounded-xl text-xs font-bold bg-[#050505] border border-zinc-800 text-white focus:border-blue-500 outline-none transition-colors">
-                            </div>
+                                <input type="text" id="cfg-wompi-pub" autocomplete="new-password" spellcheck="false" data-lpignore="true" placeholder="Ej: pub_prod_XXXXXXXXXXXXXXXXX..." class="w-full p-4 rounded-xl text-xs font-bold bg-[#050505] border border-zinc-800 text-white focus:border-blue-500 outline-none transition-colors">
 
                             <div class="bg-zinc-950 p-6 rounded-[1.5rem] border border-zinc-800">
                                 <div class="flex justify-between items-center mb-4">
@@ -1166,11 +1165,17 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                             <div class="bg-red-900/10 p-6 rounded-[1.5rem] border border-red-900/30 flex flex-col items-center">
                                 <p class="text-[10px] font-black text-red-500 mb-3 uppercase tracking-widest w-full text-left">🔒 Seguridad de Panel</p>
                                 <div class="bg-indigo-950 p-5 rounded-2xl border border-indigo-900/50 mb-4 w-full">
-                                    <div class="flex flex-col sm:flex-row gap-2 mt-1.5">
-                                        <input type="password" inputmode="numeric" id="cfg-admin-pin" placeholder="PIN ACTUAL" class="w-full p-4 rounded-xl text-center text-sm font-black bg-black/30 border border-zinc-800 text-white tracking-widest focus:border-indigo-500 outline-none transition-colors">
-                                        <input type="password" inputmode="numeric" id="cfg-new-admin-pin" placeholder="NUEVO PIN" class="w-full p-4 rounded-xl text-center text-sm font-black bg-black/30 border border-zinc-800 text-white tracking-widest focus:border-indigo-500 outline-none transition-colors">
-                                    </div>
-                                </div>
+
+
+                                    
+<div class="flex flex-col sm:flex-row gap-2 mt-1.5">
+                                        <input type="password" inputmode="numeric" id="cfg-admin-pin" autocomplete="new-password" data-lpignore="true" placeholder="PIN ACTUAL" class="w-full p-4 rounded-xl text-center text-sm font-black bg-black/30 border border-zinc-800 text-white tracking-widest focus:border-indigo-500 outline-none transition-colors">
+                                        <input type="password" inputmode="numeric" id="cfg-new-admin-pin" autocomplete="new-password" data-lpignore="true" placeholder="NUEVO PIN" class="w-full p-4 rounded-xl text-center text-sm font-black bg-black/30 border border-zinc-800 text-white tracking-widest focus:border-indigo-500 outline-none transition-colors">
+                                    </div>    
+ </div>
+
+
+
                                 <button type="button" onclick="saCambiarMasterPin()" class="w-full bg-green-600 text-white py-4 rounded-2xl font-black text-xs uppercase italic btn-press transition-colors shadow-lg">GUARDAR NUEVO PIN</button>
                             </div>
                         </div>
@@ -9332,7 +9337,7 @@ function abrirOnboardingManual() {
 
 // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES (GitHub)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.77"; // 👈 Subimos a 1.63 para que todos los celulares se actualicen
+            const VERSION_ACTUAL = "1.78"; // 👈 Subimos a 1.63 para que todos los celulares se actualicen
             const versionGuardada = localStorage.getItem('zeus_version');
             
             if (versionGuardada !== VERSION_ACTUAL) {
