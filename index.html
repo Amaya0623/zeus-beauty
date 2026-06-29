@@ -181,6 +181,107 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
 
 
         <section id="view-login" class="view-section active max-w-md mx-auto mt-4 sm:mt-12 p-8 sm:p-10 glass rounded-[3rem] text-center border border-zinc-900 shadow-2xl min-h-[85vh] flex flex-col justify-center relative">
+
+
+<div id="zeus-onboarding-overlay" class="fixed inset-0 z-[9999] bg-[#050505] flex flex-col transition-all duration-500 overflow-y-auto scroll-safe">
+        
+        <div id="onb-paso-1" class="flex flex-col items-center justify-center min-h-screen p-6 sm:p-10 text-center">
+            <span class="text-7xl md:text-8xl mb-6 tracking-tighter drop-shadow-md animate-pulse">⚡</span>
+            <h1 class="text-4xl md:text-5xl font-black italic uppercase tracking-tighter text-white mb-3">BIENVENIDO A ZEUS</h1>
+            <p class="text-xs md:text-sm font-black text-zinc-500 uppercase tracking-[0.2em] mb-10 px-4">El ERP definitivo. ¿Qué negocio quieres evolucionar hoy?</p>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 w-full max-w-2xl px-2">
+                <button onclick="seleccionarCaminoOnboarding('barberia')" class="bg-gradient-to-br from-[#0a0a0a] to-[#050505] border-2 border-indigo-500/50 hover:border-indigo-400 p-10 md:p-12 rounded-[2rem] flex flex-col items-center shadow-[0_0_30px_rgba(99,102,241,0.15)] hover:shadow-[0_0_40px_rgba(99,102,241,0.3)] transition-all btn-press group">
+                    <span class="text-6xl md:text-7xl mb-4 group-hover:scale-110 transition-transform">💈</span>
+                    <span class="text-xl md:text-2xl font-black text-white uppercase tracking-wider mb-2">BARBERÍAS</span>
+                    <span class="text-[10px] md:text-xs text-indigo-400 font-bold uppercase tracking-widest">Zeus Barber Pro</span>
+                </button>
+                <button onclick="seleccionarCaminoOnboarding('estetica')" class="bg-gradient-to-br from-[#0a0a0a] to-[#050505] border-2 border-pink-500/50 hover:border-pink-400 p-10 md:p-12 rounded-[2rem] flex flex-col items-center shadow-[0_0_30px_rgba(236,72,153,0.15)] hover:shadow-[0_0_40px_rgba(236,72,153,0.3)] transition-all btn-press group">
+                    <span class="text-6xl md:text-7xl mb-4 group-hover:scale-110 transition-transform">✨</span>
+                    <span class="text-xl md:text-2xl font-black text-white uppercase tracking-wider mb-2">SPA & SALÓN</span>
+                    <span class="text-[10px] md:text-xs text-pink-400 font-bold uppercase tracking-widest">Zeus Beauty</span>
+                </button>
+            </div>
+            
+            <button onclick="saltarOnboarding()" class="mt-14 text-xs md:text-sm text-zinc-500 font-bold uppercase tracking-widest hover:text-white transition-colors border-b border-zinc-700 pb-1 btn-press">
+                Ya tengo cuenta ➔ Ingresar con PIN
+            </button>
+        </div>
+
+        <div id="onb-paso-2" class="hidden flex-col min-h-screen w-full relative pb-20">
+            
+            <div class="sticky top-0 z-50 bg-[#050505]/90 backdrop-blur-xl border-b border-zinc-800 p-4 sm:p-6 flex items-center justify-between shadow-lg">
+                <button onclick="document.getElementById('onb-paso-2').classList.add('hidden'); document.getElementById('onb-paso-1').classList.remove('hidden');" class="text-zinc-400 hover:text-white font-black text-sm sm:text-base uppercase tracking-widest btn-press px-2 transition-colors">← Volver</button>
+                <h2 id="onb-titulo-pitch" class="text-xl sm:text-2xl font-black italic uppercase tracking-tighter text-white drop-shadow-md">ZEUS</h2>
+                <div class="w-20"></div>
+            </div>
+
+            <div class="p-4 sm:p-8 md:p-10 max-w-3xl mx-auto w-full">
+                
+                <div class="text-center mb-8 mt-4 sm:mt-6 px-2">
+                    <p class="text-zinc-500 font-black uppercase tracking-widest text-[10px] sm:text-xs mb-3 border border-zinc-800 bg-zinc-900/50 inline-block px-4 py-1.5 rounded-full shadow-inner">Tu negocio al siguiente nivel</p>
+                    <h2 class="text-3xl sm:text-4xl font-black uppercase tracking-tighter text-white mb-2 leading-tight drop-shadow-md">DESCUBRE TU<br>NUEVO PODER</h2>
+                    <p class="text-[10px] sm:text-xs text-zinc-400 font-bold max-w-xl mx-auto leading-relaxed uppercase tracking-widest">Toca cada módulo para ver la magia ⚡</p>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3 sm:gap-5 mb-8 px-1 sm:px-0">
+                    <button type="button" onclick="abrirDetalleFeature(0)" class="bg-black/50 border border-zinc-800 p-4 sm:p-6 rounded-[1.5rem] shadow-inner hover:border-indigo-500 hover:bg-indigo-900/20 transition-all group flex flex-col items-center justify-center text-center btn-press aspect-square">
+                        <span class="text-4xl sm:text-5xl block mb-2 group-hover:scale-110 transition-transform">📅</span>
+                        <h3 class="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-widest leading-tight mt-1">Agenda<br>24/7</h3>
+                    </button>
+                    <button type="button" onclick="abrirDetalleFeature(1)" class="bg-black/50 border border-zinc-800 p-4 sm:p-6 rounded-[1.5rem] shadow-inner hover:border-green-500 hover:bg-green-900/20 transition-all group flex flex-col items-center justify-center text-center btn-press aspect-square">
+                        <span class="text-4xl sm:text-5xl block mb-2 group-hover:scale-110 transition-transform">💳</span>
+                        <h3 class="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-widest leading-tight mt-1">Pagos<br>POS</h3>
+                    </button>
+                    <button type="button" onclick="abrirDetalleFeature(2)" class="bg-black/50 border border-zinc-800 p-4 sm:p-6 rounded-[1.5rem] shadow-inner hover:border-blue-500 hover:bg-blue-900/20 transition-all group flex flex-col items-center justify-center text-center btn-press aspect-square">
+                        <span class="text-4xl sm:text-5xl block mb-2 group-hover:scale-110 transition-transform">📊</span>
+                        <h3 class="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-widest leading-tight mt-1">Finanzas<br>Auditoría</h3>
+                    </button>
+                    <button type="button" onclick="abrirDetalleFeature(3)" class="bg-black/50 border border-zinc-800 p-4 sm:p-6 rounded-[1.5rem] shadow-inner hover:border-cyan-500 hover:bg-cyan-900/20 transition-all group flex flex-col items-center justify-center text-center btn-press aspect-square">
+                        <span class="text-4xl sm:text-5xl block mb-2 group-hover:scale-110 transition-transform">💈</span>
+                        <h3 class="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-widest leading-tight mt-1">Personal<br>Nómina</h3>
+                    </button>
+                    <button type="button" onclick="abrirDetalleFeature(4)" class="bg-black/50 border border-zinc-800 p-4 sm:p-6 rounded-[1.5rem] shadow-inner hover:border-purple-500 hover:bg-purple-900/20 transition-all group flex flex-col items-center justify-center text-center btn-press aspect-square">
+                        <span class="text-4xl sm:text-5xl block mb-2 group-hover:scale-110 transition-transform">📦</span>
+                        <h3 class="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-widest leading-tight mt-1">Stock<br>Inventario</h3>
+                    </button>
+                    <button type="button" onclick="abrirDetalleFeature(5)" class="bg-black/50 border border-zinc-800 p-4 sm:p-6 rounded-[1.5rem] shadow-inner hover:border-yellow-500 hover:bg-yellow-900/20 transition-all group flex flex-col items-center justify-center text-center btn-press aspect-square">
+                        <span class="text-4xl sm:text-5xl block mb-2 group-hover:scale-110 transition-transform">👑</span>
+                        <h3 class="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-widest leading-tight mt-1">Club VIP<br>& Pass</h3>
+                    </button>
+                    <button type="button" onclick="abrirDetalleFeature(6)" class="bg-black/50 border border-zinc-800 p-4 sm:p-6 rounded-[1.5rem] shadow-inner hover:border-[#25D366] hover:bg-green-900/20 transition-all group flex flex-col items-center justify-center text-center btn-press aspect-square">
+                        <span class="text-4xl sm:text-5xl block mb-2 group-hover:scale-110 transition-transform">💬</span>
+                        <h3 class="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-widest leading-tight mt-1">Mkt<br>WhatsApp</h3>
+                    </button>
+                    <button type="button" onclick="abrirDetalleFeature(7)" class="bg-black/50 border border-zinc-800 p-4 sm:p-6 rounded-[1.5rem] shadow-inner hover:border-pink-500 hover:bg-pink-900/20 transition-all group flex flex-col items-center justify-center text-center btn-press aspect-square">
+                        <span class="text-4xl sm:text-5xl block mb-2 group-hover:scale-110 transition-transform">📺</span>
+                        <h3 class="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-widest leading-tight mt-1">Smart<br>TV</h3>
+                    </button>
+                    <button type="button" onclick="abrirDetalleFeature(8)" class="bg-black/50 border border-zinc-800 p-4 sm:p-6 rounded-[1.5rem] shadow-inner hover:border-cyan-400 hover:bg-cyan-900/20 transition-all group flex flex-col items-center justify-center text-center btn-press aspect-square">
+                        <span class="text-4xl sm:text-5xl block mb-2 group-hover:scale-110 transition-transform">🤖</span>
+                        <h3 class="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-widest leading-tight mt-1">ISI<br>IA</h3>
+                    </button>
+                </div>
+            </div>
+
+            <button onclick="irAWhatsAppVentas()" class="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-tr from-[#1DA851] to-[#25D366] rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(37,211,102,0.5)] btn-press hover:scale-110 transition-transform z-50 animate-bounce group" title="Cotizar Ahora">
+                <span class="text-3xl drop-shadow-md group-hover:animate-ping">💬</span>
+            </button>
+        </div>
+        
+        <div id="modal-feature-detalle" class="hidden fixed inset-0 z-[10000] bg-black/80 backdrop-blur-md flex items-center justify-center p-6 opacity-0 transition-opacity duration-300">
+            <div class="glass p-8 sm:p-10 rounded-[2.5rem] border border-zinc-800 shadow-2xl max-w-sm w-full text-center relative transform scale-95 transition-transform duration-300 bg-[#0a0a0a]" id="modal-feature-content">
+                <button type="button" onclick="cerrarDetalleFeature()" class="absolute top-4 right-4 w-8 h-8 bg-black border border-zinc-800 text-zinc-500 rounded-full flex items-center justify-center font-bold btn-press hover:text-white hover:bg-red-500 transition-colors">✕</button>
+                <span id="feat-icon" class="text-6xl mb-4 block drop-shadow-lg">📅</span>
+                <h3 id="feat-title" class="text-xl sm:text-2xl font-black text-white uppercase tracking-tighter mb-4">Título</h3>
+                <p id="feat-desc" class="text-xs sm:text-sm text-zinc-300 font-bold leading-relaxed mb-6">Descripción...</p>
+                <button type="button" onclick="cerrarDetalleFeature()" class="w-full bg-zinc-900 hover:bg-zinc-800 text-white py-4 rounded-xl font-black uppercase text-[10px] tracking-widest btn-press transition-colors border border-zinc-700">Entendido 👍</button>
+            </div>
+        </div>
+
+    </div>
+    
+
     <div id="contenedor-instalar-pwa" class="hidden w-full flex justify-center mb-6">
         <button id="btn-instalar-pwa" class="bg-indigo-600 text-white px-6 py-3 rounded-full font-black text-xs uppercase shadow-[0_0_15px_rgba(79,70,229,0.5)] border border-indigo-400/50 flex items-center gap-2 hover:bg-indigo-500 transition-all btn-press">
             <span id="pwa-icon">📲</span> <span id="pwa-text">INSTALAR ZEUS APP</span>
@@ -227,10 +328,14 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
         <div class="flex flex-col items-center"><span class="text-2xl mb-1">📈</span><span class="text-[7px] font-black text-fuchsia-400 uppercase tracking-widest">Gestión</span><span class="text-[6px] text-zinc-500 uppercase mt-1">Control Total<br>Negocio</span></div>
     </div>
 
-    <div class="mt-4 flex flex-col items-center gap-4 border-t border-zinc-800 pt-6">
-        <p class="text-[10px] text-indigo-400 cursor-pointer hover:text-indigo-300 uppercase font-black tracking-widest transition-colors flex items-center gap-2 bg-indigo-900/20 px-4 py-2 rounded-full border border-indigo-500/30" onclick="guiaInstalacion()">📲 ¿CÓMO INSTALAR LA APP?</p>
-        <p class="text-[9px] text-zinc-500 cursor-pointer hover:text-white uppercase font-bold tracking-widest transition-colors" onclick="verPoliticas()">📄 Privacidad</p>
-        <p class="text-[9px] text-zinc-700 cursor-pointer hover:text-red-500 uppercase font-bold tracking-widest transition-colors mt-2" onclick="hardReset()">🔄 Limpiar Sistema</p>
+    <div class="mt-4 flex flex-col items-center gap-3 border-t border-zinc-800 pt-6">
+        <p class="text-[10px] text-yellow-500 cursor-pointer hover:text-yellow-400 uppercase font-black tracking-widest transition-colors flex items-center gap-2 bg-yellow-900/20 px-4 py-2 rounded-full border border-yellow-500/30 shadow-[0_0_15px_rgba(234,179,8,0.2)] btn-press" onclick="abrirOnboardingManual()">⚡ DESCUBRE ZEUS</p>
+        <p class="text-[10px] text-indigo-400 cursor-pointer hover:text-indigo-300 uppercase font-black tracking-widest transition-colors flex items-center gap-2 bg-indigo-900/20 px-4 py-2 rounded-full border border-indigo-500/30 btn-press" onclick="guiaInstalacion()">📲 ¿CÓMO INSTALAR LA APP?</p>
+        
+        <div class="flex items-center gap-6 mt-2">
+            <p class="text-[9px] text-zinc-500 cursor-pointer hover:text-white uppercase font-bold tracking-widest transition-colors" onclick="verPoliticas()">📄 Privacidad</p>
+            <p class="text-[9px] text-zinc-700 cursor-pointer hover:text-red-500 uppercase font-bold tracking-widest transition-colors" onclick="hardReset()">🔄 Limpiar Sistema</p>
+        </div>
     </div>
 </section>
         
@@ -2705,12 +2810,18 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                     // 🚀 AUTO-PARCHE: Mostrar pantalla de mantenimiento si está en bloqueo total
                     if (bVerif.alertaBlock) {
                         document.getElementById('pantalla-bloqueo').innerHTML = `
-                        <div class="glass p-10 rounded-[3rem] border border-orange-900/50 shadow-2xl max-w-md w-full">
-                            <span class="text-7xl mb-4 block animate-bounce drop-shadow-[0_0_15px_rgba(249,115,22,0.8)]">🛠️</span>
-                            <h1 class="text-3xl font-black text-orange-500 mb-2 uppercase italic">MANTENIMIENTO</h1>
-                            <p class="text-zinc-300 text-sm mb-6 font-bold leading-relaxed">${bVerif.alertaMsg || 'Actualización en curso'}</p>
+                        <div class="glass p-8 sm:p-10 rounded-[3rem] border border-orange-500/30 shadow-[0_0_40px_rgba(249,115,22,0.2)] max-w-md w-full relative overflow-hidden">
+                            
+                            <span class="text-7xl mb-4 block animate-bounce drop-shadow-[0_0_15px_rgba(249,115,22,0.8)]">🚀</span>
+                            <h1 class="text-3xl font-black text-orange-500 mb-1 uppercase italic tracking-tighter">ACTUALIZANDO</h1>
+                            <p class="text-[10px] font-black text-yellow-500 uppercase tracking-[0.3em] mb-6">Mejorando tu experiencia</p>
+                            
+                            <div class="bg-orange-900/20 border border-orange-500/30 p-5 rounded-2xl mb-6 shadow-inner">
+                                <p class="text-white text-sm sm:text-base font-bold leading-relaxed">"${bVerif.alertaMsg || 'Instalando nuevas mejoras en el sistema...'}"</p>
+                            </div>
+                            
                             <p class="text-[9px] text-zinc-500 uppercase tracking-widest mb-6 border-t border-zinc-800 pt-4">El Kiosko público sigue funcionando normal para tus clientes.</p>
-                            <button type="button" onclick="window.location.reload();" class="w-full bg-orange-900/20 hover:bg-orange-900/40 text-orange-500 border border-orange-900/50 py-4 rounded-2xl font-black uppercase btn-press transition-colors">INTENTAR DE NUEVO</button>
+                            <button type="button" onclick="verificarDesbloqueoMantenimiento(this)" class="w-full bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-black py-4 rounded-2xl font-black uppercase tracking-widest btn-press transition-all shadow-[0_0_20px_rgba(249,115,22,0.4)]">INTENTAR DE NUEVO</button>
                         </div>`;
                     }
                     
@@ -6782,9 +6893,11 @@ let timerDebounceClientes = null;
            if (db.masterConfig) { 
                 document.getElementById('sa-brand-activo').checked = db.masterConfig.brandingActive; 
                 document.getElementById('sa-brand-text').value = db.masterConfig.brandingText || ""; 
-                // 🛠️ Cargamos la alerta actual para que puedas editarla en paz:
-                const msgEl = document.getElementById('sa-alerta-msg'); if(msgEl) msgEl.value = db.masterConfig.alertaMsg || "";
-                const blkEl = document.getElementById('sa-alerta-block'); if(blkEl) blkEl.checked = db.masterConfig.alertaBlock || false;
+            }
+            // 🧠 MAGIA: Leer el estado REAL desde la base de datos para que Celular y Portátil vean siempre lo mismo
+            if (db.barberias && db.barberias.length > 0) {
+                const msgEl = document.getElementById('sa-alerta-msg'); if(msgEl) msgEl.value = db.barberias[0].alertaMsg || "";
+                const blkEl = document.getElementById('sa-alerta-block'); if(blkEl) blkEl.checked = db.barberias[0].alertaBlock || false;
             }
             const buz = document.getElementById('sa-sugerencias-lista');
             if (db.sugerencias && db.sugerencias.length > 0) { buz.innerHTML = db.sugerencias.slice().reverse().map((s, idx) => `<div class="bg-black p-3 rounded-xl border border-zinc-800 flex justify-between items-start"><div><p class="text-[9px] font-bold text-zinc-500 uppercase">${s.fecha} - ${s.tienda} (${s.usuario})</p><p class="text-xs text-white mt-1 italic">"${s.texto}"</p></div><button type="button" onclick="db.sugerencias.splice(${db.sugerencias.length - 1 - idx}, 1); saveDB(true); renderSuperAdmin();" class="text-red-500 font-black ml-2 px-2 hover:scale-110 transition-transform">X</button></div>`).join(''); } else { buz.innerHTML = '<p class="text-xs text-zinc-600 italic">No hay sugerencias en el buzón.</p>'; }
@@ -7015,25 +7128,7 @@ let timerDebounceClientes = null;
         // ==========================================
         // 🎙️ RESUMEN DE VOZ CORPORATIVO (FRANQUICIA)
         // ==========================================
-        function escucharResumenFranquicia() {
-            const utilidadStr = document.getElementById('fran-utilidad-total').innerText.replace(/[^0-9]/g, '');
-            const efectivoStr = document.getElementById('fran-efectivo-total').innerText.replace(/[^0-9]/g, '');
-            const bancosStr = document.getElementById('fran-bancos-total').innerText.replace(/[^0-9]/g, '');
-            
-            let mensajeVoz = `Atención corporativa. La utilidad neta consolidada de todas las sedes es de ${utilidadStr} pesos. `;
-            mensajeVoz += `Se han recaudado ${efectivoStr} pesos en efectivo, y ${bancosStr} pesos en bancos. El imperio de barberías sigue creciendo, Jefe.`;
-
-            const synth = window.speechSynthesis;
-            if (synth) {
-                synth.cancel();
-                let utterance = new SpeechSynthesisUtterance(mensajeVoz);
-                utterance.lang = 'es-CO';
-                utterance.pitch = 1.0;
-                synth.speak(utterance);
-                Swal.fire({ title: '🎙️ ISI Gerente...', text: 'Sube el volumen', icon: 'info', timer: 3000, showConfirmButton: false, background: '#0a0a0a', color: '#fff' });
-            }
-        }
-
+        
 
 
         async function saCrearBarberia() {
@@ -8420,28 +8515,32 @@ function escucharResumenFranquicia() {
         function saGuardarAlerta() {
             const msg = document.getElementById('sa-alerta-msg').value.trim();
             const block = document.getElementById('sa-alerta-block').checked;
-            
+
             if (!db.masterConfig) db.masterConfig = {};
             db.masterConfig.alertaMsg = msg;
             db.masterConfig.alertaBlock = block;
 
             Swal.fire({ title: 'Enviando a la Nube...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
 
+            let promesas = [];
             db.barberias.forEach(b => {
                 b.alertaMsg = msg;
                 b.alertaBlock = block;
-                b.data_version = Date.now(); // 🚀 AUTO-PARCHE: Obliga a todos los dispositivos a descargar la alerta inmediatamente
+                b.data_version = Date.now(); 
                 if (navigator.onLine && b.id_nube) {
-                    supabaseClient.from('stores').update({ json_data: b }).eq('id', b.id_nube);
+                    promesas.push(supabaseClient.from('stores').update({ json_data: b }).eq('id', b.id_nube));
                 }
             });
 
             saveDB(false);
             verificarAlertasGlobales(); 
             
-            setTimeout(() => {
-                Swal.fire({ title: '¡Alerta Publicada!', text: 'Todos los dispositivos están recibiendo la orden.', icon: 'success', background: '#0a0a0a', color: '#fff', timer: 2500 });
-            }, 1500);
+            // Espera a que termine de guardar en la nube para confirmar
+            Promise.all(promesas).then(() => {
+                Swal.fire({ title: block ? '¡Bloqueo Activado!' : '¡Sistema Desbloqueado!', text: 'Todos los dispositivos han recibido la orden.', icon: 'success', background: '#0a0a0a', color: '#fff', timer: 2500 });
+            }).catch(() => {
+                Swal.fire({ title: 'Aviso', text: 'Se guardó en este equipo, pero la red está lenta.', icon: 'warning', background: '#0a0a0a', color: '#fff', timer: 2500 });
+            });
         }
 
         function verificarAlertasGlobales() {
@@ -8457,13 +8556,17 @@ function escucharResumenFranquicia() {
                 if (idx !== -1 && db.barberias[idx]) { 
                     msg = db.barberias[idx].alertaMsg || ""; block = db.barberias[idx].alertaBlock || false; 
                 } else if (db.barberias && db.barberias.length > 0) {
-                    // 🚀 PARCHE: Si estamos en la pantalla de Login (afuera de la app), buscar si hay una alerta global guardada
                     msg = db.barberias[0].alertaMsg || ""; block = db.barberias[0].alertaBlock || false;
                 }
             }
 
-            if (msg !== "") { alertaBox.innerHTML = msg; alertaBox.classList.remove('hidden'); } 
-            else { alertaBox.classList.add('hidden'); }
+            // 🚀 PARCHE: El banner pegajoso solo sale si el Master lo ordenó activamente.
+            if (msg !== "" && block) { 
+                alertaBox.innerHTML = msg; 
+                alertaBox.classList.remove('hidden'); 
+            } else { 
+                alertaBox.classList.add('hidden'); 
+            }
 
             if (block) {
                 const esKiosko = kiosko_bIdx !== -1;
@@ -8476,18 +8579,55 @@ function escucharResumenFranquicia() {
                     document.getElementById('app-content').classList.add('hidden');
                     
                     document.getElementById('pantalla-bloqueo').innerHTML = `
-                    <div class="glass p-10 rounded-[3rem] border border-orange-900/50 shadow-2xl max-w-md w-full">
-                        <span class="text-7xl mb-4 block animate-bounce drop-shadow-[0_0_15px_rgba(249,115,22,0.8)]">🛠️</span>
-                        <h1 class="text-3xl font-black text-orange-500 mb-2 uppercase italic">MANTENIMIENTO</h1>
-                        <p class="text-zinc-300 text-sm mb-6 font-bold leading-relaxed">${msg}</p>
+                    <div class="glass p-8 sm:p-10 rounded-[3rem] border border-orange-500/30 shadow-[0_0_40px_rgba(249,115,22,0.2)] max-w-md w-full relative overflow-hidden">
+                        <span class="text-7xl mb-4 block animate-bounce drop-shadow-[0_0_15px_rgba(249,115,22,0.8)]">🚀</span>
+                        <h1 class="text-3xl font-black text-orange-500 mb-1 uppercase italic tracking-tighter">ACTUALIZANDO</h1>
+                        <p class="text-[10px] font-black text-yellow-500 uppercase tracking-[0.3em] mb-6">Mejorando tu experiencia</p>
+                        
+                        <div class="bg-orange-900/20 border border-orange-500/30 p-5 rounded-2xl mb-6 shadow-inner">
+                            <p class="text-white text-sm sm:text-base font-bold leading-relaxed">"${msg}"</p>
+                        </div>
+                        
                         <p class="text-[9px] text-zinc-500 uppercase tracking-widest mb-6 border-t border-zinc-800 pt-4">El Kiosko público sigue funcionando normal para tus clientes.</p>
-                        <button type="button" onclick="window.location.reload();" class="w-full bg-orange-900/20 hover:bg-orange-900/40 text-orange-500 border border-orange-900/50 py-4 rounded-2xl font-black uppercase btn-press transition-colors">INTENTAR DE NUEVO</button>
+                        <button type="button" onclick="verificarDesbloqueoMantenimiento(this)" class="w-full bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-black py-4 rounded-2xl font-black uppercase tracking-widest btn-press transition-all shadow-[0_0_20px_rgba(249,115,22,0.4)]">INTENTAR DE NUEVO</button>
                     </div>`;
+                }
+            } else {
+                const pb = document.getElementById('pantalla-bloqueo');
+                if (pb && !pb.classList.contains('hidden') && pb.innerHTML.includes('ACTUALIZANDO')) {
+                    pb.classList.add('hidden');
+                    const ac = document.getElementById('app-content');
+                    if (ac) ac.classList.remove('hidden');
                 }
             }
         }
 
-        window.verificadorAlertasInterval = setInterval(verificarAlertasGlobales, 3000);
+        // 🚀 NUEVO MOTOR DE DESBLOQUEO (Pregunta directo a Supabase)
+        async function verificarDesbloqueoMantenimiento(btn) {
+            if (!navigator.onLine) { return Swal.fire('Sin Internet', 'Conéctate para verificar si el sistema ya está disponible.', 'warning'); }
+            const oldText = btn.innerText;
+            btn.innerText = "VERIFICANDO...";
+            try {
+                let idx = (bIdx !== -1) ? bIdx : (kiosko_bIdx !== -1 ? kiosko_bIdx : 0);
+                if (db.barberias.length === 0) { window.location.reload(); return; }
+                const localId = db.barberias[idx].id_nube || db.barberias[idx].id;
+
+                let { data, error } = await supabaseClient.from('stores').select('json_data').eq('id', localId).single();
+                if (!error && data && data.json_data) {
+                    if (!data.json_data.alertaBlock) {
+                        // ¡El Master quitó el bloqueo! Desbloqueamos el equipo localmente.
+                        db.barberias.forEach(b => { b.alertaBlock = false; b.alertaMsg = ""; });
+                        saveDB(false);
+                        window.location.reload();
+                    } else {
+                        btn.innerText = "AÚN EN MANTENIMIENTO";
+                        setTimeout(() => btn.innerText = oldText, 2000);
+                    }
+                } else { window.location.reload(); }
+            } catch (e) { window.location.reload(); }
+        }
+
+        
 
         // =======================================================
         // 📄 POLÍTICAS DE PRIVACIDAD REDISEÑO DE ÉLITE 🔥
@@ -8680,7 +8820,7 @@ function escucharResumenFranquicia() {
          // ==========================================
         // 👑 SPRINT 5: TARJETA BLACK VIP (SIN QR)
         // ==========================================
-        async function abrirMiTarjetaVIP() {
+        async function abrirMiTarjetaBlackVIP() {
             const b = db.barberias[kiosko_bIdx];
             if (!b.vipClub || !b.vipClub.refActivo) return;
 
@@ -9042,9 +9182,152 @@ function subirFotoClienteVIP(input) {
     }
 }
 
+
+
+
+         // ==========================================
+        // 🚀 MARKETING: ONBOARDING BIFURCADO (PUERTA MAGICA)
+        // ==========================================
+        let tipoNegocioSeleccionado = '';
+
+        function verificarOnboarding() {
+            const urlParams = window.MisParamsOriginales || new URLSearchParams(window.location.search);
+            const screenMode = urlParams.get('screen');
+            const kioskId = urlParams.get('kiosk');
+            
+            // Si entra al kiosko público o a la TV, NUNCA mostramos el onboarding
+            if (screenMode === 'tv' || kioskId) return saltarOnboarding(true);
+
+            // Verificamos si la memoria del celular ya sabe que somos usuarios
+            const yaVisto = localStorage.getItem('zeus_onboarding_visto');
+            const overlay = document.getElementById('zeus-onboarding-overlay');
+            
+            if (yaVisto === 'true') {
+                saltarOnboarding(true); // Lo oculta rápido y en silencio
+            } else {
+                if(overlay) overlay.classList.remove('hidden');
+            }
+        }
+
+        function seleccionarCaminoOnboarding(tipo) {
+            tipoNegocioSeleccionado = tipo;
+            
+            // El Motor Camaleón hace su trabajo visual
+            const tituloPitch = document.getElementById('onb-titulo-pitch');
+            const overlay = document.getElementById('zeus-onboarding-overlay');
+            
+            if (tipo === 'estetica') {
+                document.body.classList.add('theme-estetica');
+                tituloPitch.innerText = "ZEUS BEAUTY";
+                tituloPitch.className = "text-xl font-black italic uppercase tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-[#f472b6] to-[#d946ef] drop-shadow-md";
+                overlay.classList.add('bg-[#10050f]'); // Fondo oscuro magenta
+                overlay.classList.remove('bg-[#050505]');
+            } else {
+                document.body.classList.remove('theme-estetica');
+                tituloPitch.innerText = "ZEUS BARBER PRO";
+                tituloPitch.className = "text-xl font-black italic uppercase tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-[#66ff66] to-[#0cd1b8] drop-shadow-md";
+                overlay.classList.add('bg-[#050505]');
+                overlay.classList.remove('bg-[#10050f]');
+            }
+
+            // Deslizamos al Paso 2 (Pitch de ventas)
+            document.getElementById('onb-paso-1').classList.add('hidden');
+            document.getElementById('onb-paso-2').classList.remove('hidden');
+            document.getElementById('onb-paso-2').classList.add('flex');
+        }
+
+        function irAWhatsAppVentas() {
+            const producto = tipoNegocioSeleccionado === 'estetica' ? 'Zeus Beauty para mi Spa/Peluquería' : 'Zeus Barber Pro para mi Barbería';
+            const msg = `¡Hola! Vengo de la página principal. Me interesa implementar ${producto}. ¿Me puedes dar más información?`;
+            
+            // Marcamos como "visto" para que cuando regrese después de hablar contigo, el sistema lo deje poner el PIN.
+            localStorage.setItem('zeus_onboarding_visto', 'true');
+            
+            // Enviamos el tráfico a tu número
+            window.open(`https://wa.me/573241678090?text=${encodeURIComponent(msg)}`, '_blank');
+            saltarOnboarding();
+        }
+
+        function saltarOnboarding(silencio = false) {
+            localStorage.setItem('zeus_onboarding_visto', 'true');
+            const overlay = document.getElementById('zeus-onboarding-overlay');
+            if (overlay) {
+                if (!silencio) {
+                    overlay.style.opacity = '0';
+                    setTimeout(() => { overlay.classList.add('hidden'); }, 500);
+                } else {
+                    overlay.classList.add('hidden');
+                }
+            }
+        }
+
+function abrirOnboardingManual() {
+            const overlay = document.getElementById('zeus-onboarding-overlay');
+            if (overlay) {
+                overlay.style.opacity = '1';
+                overlay.classList.remove('hidden');
+                document.getElementById('onb-paso-1').classList.remove('hidden');
+                document.getElementById('onb-paso-2').classList.add('hidden');
+            }
+        }
+
+        // Obligamos al sistema a verificar el onboarding apenas arranca
+        window.addEventListener('DOMContentLoaded', verificarOnboarding);
+
+         // ==========================================
+        // 🚀 LÓGICA DE DETALLES DEL ONBOARDING (MODAL APP)
+        // ==========================================
+        const zeusFeatures = [
+            { icon: '📅', title: 'Agenda & Kiosko 24/7', desc: 'Tus clientes agendan solos desde su celular. Cero cruces de turnos, sincronización en tiempo real y lista de espera.', color: 'border-indigo-500', shadow: 'shadow-[0_0_30px_rgba(99,102,241,0.3)]' },
+            { icon: '💳', title: 'Pagos Electrónicos', desc: 'Punto de venta (POS) robusto. Cobra con efectivo, Nequi, Daviplata o Tarjetas. Envío de recibos digitales al instante.', color: 'border-green-500', shadow: 'shadow-[0_0_30px_rgba(34,197,94,0.3)]' },
+            { icon: '📊', title: 'Finanzas y Auditoría', desc: 'Control estricto de caja, registro de gastos, utilidades netas, cálculos de impuestos y exportación de reportes en PDF.', color: 'border-blue-500', shadow: 'shadow-[0_0_30px_rgba(59,130,246,0.3)]' },
+            { icon: '💈', title: 'Control de Personal', desc: 'Liquidación de nómina automática, comisiones separadas (servicios/productos) y control estricto de horas de llegada.', color: 'border-cyan-500', shadow: 'shadow-[0_0_30px_rgba(6,182,212,0.3)]' },
+            { icon: '📦', title: 'Inventario Inteligente', desc: 'Gestiona tu stock de productos, descuenta automáticamente al vender y evita pérdidas de mercancía.', color: 'border-purple-500', shadow: 'shadow-[0_0_30px_rgba(168,85,247,0.3)]' },
+            { icon: '👑', title: 'Club VIP & Membresías', desc: 'Tarjetas de puntos digitales para clientes, venta de suscripciones (Zeus Pass) y sistema Caza-Recompensas.', color: 'border-yellow-500', shadow: 'shadow-[0_0_30px_rgba(234,179,8,0.3)]' },
+            { icon: '💬', title: 'Marketing WhatsApp', desc: 'Recordatorios de citas automáticos, felicitaciones de cumpleaños y campañas masivas para recuperar clientes perdidos.', color: 'border-[#25D366]', shadow: 'shadow-[0_0_30px_rgba(37,211,102,0.3)]' },
+            { icon: '📺', title: 'Smart TV Experience', desc: 'Convierte la TV de tu sala de espera en un monitor dinámico de turnos, anuncios, videos y códigos QR de pago.', color: 'border-pink-500', shadow: 'shadow-[0_0_30px_rgba(236,72,153,0.3)]' },
+            { icon: '🤖', title: 'Inteligencia Artificial', desc: 'Asistente de voz (ISI IA), cierre de caja narrado por voz, análisis de horas pico y Upselling automático.', color: 'border-cyan-400', shadow: 'shadow-[0_0_30px_rgba(34,211,238,0.3)]' }
+        ];
+
+        function abrirDetalleFeature(id) {
+            const feat = zeusFeatures[id];
+            document.getElementById('feat-icon').innerText = feat.icon;
+            document.getElementById('feat-title').innerText = feat.title;
+            document.getElementById('feat-desc').innerText = feat.desc;
+            
+            const modal = document.getElementById('modal-feature-detalle');
+            const content = document.getElementById('modal-feature-content');
+            
+            // Pintamos el borde y la sombra del color de la feature
+            content.className = `glass p-8 sm:p-10 rounded-[2.5rem] border-2 ${feat.color} ${feat.shadow} max-w-sm w-full text-center relative transform scale-95 transition-transform duration-300 bg-[#0a0a0a]`;
+            
+            modal.classList.remove('hidden');
+            // Micro-retraso para que la transición de opacidad y escala funcione fluida
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            }, 10);
+        }
+
+        function cerrarDetalleFeature() {
+            const modal = document.getElementById('modal-feature-detalle');
+            const content = document.getElementById('modal-feature-content');
+            
+            modal.classList.add('opacity-0');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+
+
 // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES (GitHub)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.75"; // 👈 Subimos a 1.63 para que todos los celulares se actualicen
+            const VERSION_ACTUAL = "1.76"; // 👈 Subimos a 1.63 para que todos los celulares se actualicen
             const versionGuardada = localStorage.getItem('zeus_version');
             
             if (versionGuardada !== VERSION_ACTUAL) {
