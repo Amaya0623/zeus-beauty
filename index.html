@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" href="icono.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ZEUS BARBER PRO | Software para Barberías, Peluquerías y Spa</title>
-    <meta name="description" content="El sistema definitivo para Barberías, Salones de Belleza y Spa. Agenda online 24/7, pagos electrónicos, inventario, comisiones y      facturación.">
+    <meta name="description" content="El sistema definitivo para Barberías, Salones de Belleza y Spa. Agenda online 24/7, pagos electrónicos, inventario, comisiones y facturación.">
     <meta name="keywords" content="software para barberias, app para barberia, software para spa, software para peluqueria, agenda peluqueria, sistema pos barberia, zeus barber pro, zeus beauty">
     <meta name="author" content="Isi Control">
     <meta property="og:title" content="Zeus ERP | Barberías y Spa">
@@ -22,9 +22,6 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-
-
-
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -33,18 +30,28 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-
-
-
-
     <style>
+        /* ✨ BADGES PREMIUM ZEUS (PASOS Y ICONOS) */
+        .badge-step { position: relative; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: #050505; }
+        .badge-step::before { content: ''; position: absolute; inset: -1px; border-radius: 50%; background: conic-gradient(from 0deg, transparent 0%, transparent 60%, #6366f1 100%); animation: spin 2s linear infinite; }
+        .badge-step-inner { position: absolute; inset: 2px; background: #0a0a0a; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 1; box-shadow: inset 0 0 10px rgba(99,102,241,0.3); }
+        .badge-step span { font-size: 13px; font-weight: 900; color: #818cf8; z-index: 2; animation: flipY 4s infinite cubic-bezier(0.4, 0, 0.2, 1); line-height: 1; display: block; margin-top: 1px; }
+
+        @keyframes flipY { 0%, 15% { transform: perspective(400px) rotateY(0deg); } 45%, 55% { transform: perspective(400px) rotateY(180deg); } 85%, 100% { transform: perspective(400px) rotateY(360deg); } }
+
+        /* ✨ Badge para iconos estáticos pero brillantes */
+        .badge-icon { position: relative; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .badge-icon-indigo { background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.5); box-shadow: 0 0 15px rgba(99,102,241,0.4); }
+        .badge-icon-green { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.5); box-shadow: 0 0 15px rgba(34,197,94,0.4); }
+        .badge-icon span { font-size: 13px; z-index: 2; line-height: 1; display: block; margin-top: 1px; }
+
         body { background: #050505; color: #ffffff; font-family: 'Inter', sans-serif; overflow-x: hidden; margin: 0; -webkit-tap-highlight-color: transparent; user-select: none; }
         input, textarea, select { user-select: auto; background: #000 !important; color: #fff !important; border: 1px solid #333 !important; outline: none; width: 100%; box-sizing: border-box; }
         input:focus, select:focus, textarea:focus { border-color: #4f46e5 !important; }
         input[type="date"]::-webkit-calendar-picker-indicator, input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
         .text-wrap-tight { word-break: break-word; overflow-wrap: break-word; white-space: normal; }
         #radar-map { background: #000 !important; background-image: linear-gradient(rgba(30, 58, 138, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(30, 58, 138, 0.3) 1px, transparent 1px) !important; background-size: 20px 20px !important; }
-.glass { background: rgba(18, 18, 18, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); transform: translateZ(0); will-change: transform; }
+        .glass { background: rgba(18, 18, 18, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); transform: translateZ(0); will-change: transform; }
         .view-section:not(.active) { display: none !important; }
         .view-section.active { animation: fadeIn 0.3s ease-in-out; }
         .btn-press { transition: transform 0.1s; }
@@ -54,9 +61,11 @@
         @keyframes pulse-green { 0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); } 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } }
         .status-pulse-red { animation: pulse-red 2s infinite; }
         @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
-        .isi-ia-btn { position: fixed; bottom: 6px; right: 6px; z-index: 50; width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #1e61ea 0%, #0cd1b8 100%); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.3s; box-shadow: 0 4px 15px rgba(0, 209, 184, 0.4); }
+
+        .isi-ia-btn { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #1e61ea 0%, #0cd1b8 100%); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.3s; box-shadow: 0 10px 25px rgba(12, 209, 184, 0.5); font-size: 1.5rem; pointer-events: auto; }
         .isi-ia-btn:hover { transform: scale(1.1) rotate(10deg); }
-        .isi-ia-chat { position: fixed; bottom: 8px; right: 8px; z-index: 50; width: 280px; height: 380px; border-radius: 1.5rem; overflow: hidden; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.9); display: none; flex-direction: column; transform: translateY(20px); opacity: 0; transition: all 0.3s ease; }
+        .isi-ia-chat { width: 320px; height: 420px; border-radius: 1.5rem; overflow: hidden; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9); display: none; flex-direction: column; transform: translateY(20px); opacity: 0; transition: all 0.3s ease; border: 1px solid #27272a; pointer-events: auto; margin-bottom: 1rem; }
+
         .isi-ia-chat.show { display: flex; transform: translateY(0); opacity: 1; }
         .isi-ia-header { padding: 1rem; border-bottom: 1px solid #27272a; display: flex; justify-content: space-between; align-items: center; background: #050505; }
         .isi-chat-history { flex: 1; overflow-y: auto; padding: 1rem; scrollbar-width: none; }
@@ -77,10 +86,10 @@
         /* ========================================= */
         /* 🦎 MOTOR CAMALEÓN: TEMA ESTÉTICA/SPA      */
         /* ========================================= */
-        body.theme-estetica .text-indigo-500 { color: #f43f5e !important; } /* Rose-500 */
-        body.theme-estetica .text-indigo-400 { color: #fb7185 !important; } /* Rose-400 */
-        body.theme-estetica .bg-indigo-600 { background-color: #e11d48 !important; } /* Rose-600 */
-        body.theme-estetica .bg-indigo-500 { background-color: #f43f5e !important; } /* Rose-500 */
+        body.theme-estetica .text-indigo-500 { color: #f43f5e !important; }
+        body.theme-estetica .text-indigo-400 { color: #fb7185 !important; }
+        body.theme-estetica .bg-indigo-600 { background-color: #e11d48 !important; }
+        body.theme-estetica .bg-indigo-500 { background-color: #f43f5e !important; }
         body.theme-estetica .border-indigo-500 { border-color: #f43f5e !important; }
         body.theme-estetica .border-indigo-500\/30 { border-color: rgba(244, 63, 94, 0.3) !important; }
         body.theme-estetica .border-indigo-500\/50 { border-color: rgba(244, 63, 94, 0.5) !important; }
@@ -88,72 +97,59 @@
         body.theme-estetica .focus\:border-indigo-500:focus { border-color: #f43f5e !important; }
         body.theme-estetica .peer-checked\:border-indigo-500:checked ~ div { border-color: #f43f5e !important; }
 
-/* ========================================= */
-/* ✨ SKIN PREMIUM ZEUS BEAUTY (NEON DARK)   */
-/* ========================================= */
-body.theme-estetica { background: #050505 !important; }
-body.theme-estetica .text-indigo-500 { color: #d946ef !important; } 
-body.theme-estetica .text-indigo-400 { color: #f472b6 !important; } 
-body.theme-estetica .bg-indigo-600 { background-color: #d946ef !important; }
-body.theme-estetica .bg-indigo-500 { background-color: #ec4899 !important; }
-body.theme-estetica .border-indigo-500 { border-color: #d946ef !important; }
+        /* ========================================= */
+        /* ✨ SKIN PREMIUM ZEUS BEAUTY (NEON DARK)   */
+        /* ========================================= */
+        body.theme-estetica { background: #050505 !important; }
+        body.theme-estetica .text-indigo-500 { color: #d946ef !important; } 
+        body.theme-estetica .text-indigo-400 { color: #f472b6 !important; } 
+        body.theme-estetica .bg-indigo-600 { background-color: #d946ef !important; }
+        body.theme-estetica .bg-indigo-500 { background-color: #ec4899 !important; }
+        body.theme-estetica .border-indigo-500 { border-color: #d946ef !important; }
 
-/* 💄 DESTRUIR LOS BORDES AZULES DEL INTERIOR Y VOLVERLOS ROSA */
-body.theme-estetica .border-blue-500 { border-color: #ec4899 !important; }
-body.theme-estetica .border-blue-900\/30 { border-color: rgba(236, 72, 153, 0.3) !important; }
-body.theme-estetica .border-blue-900\/50 { border-color: rgba(236, 72, 153, 0.5) !important; }
-body.theme-estetica .border-indigo-900\/30 { border-color: rgba(217, 70, 239, 0.3) !important; }
-body.theme-estetica .text-blue-400 { color: #f472b6 !important; }
-body.theme-estetica .bg-blue-600 { background-color: #d946ef !important; }
-body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow: 0 0 15px rgba(236, 72, 153, 0.2) !important; }
+        body.theme-estetica .border-blue-500 { border-color: #ec4899 !important; }
+        body.theme-estetica .border-blue-900\/30 { border-color: rgba(236, 72, 153, 0.3) !important; }
+        body.theme-estetica .border-blue-900\/50 { border-color: rgba(236, 72, 153, 0.5) !important; }
+        body.theme-estetica .border-indigo-900\/30 { border-color: rgba(217, 70, 239, 0.3) !important; }
+        body.theme-estetica .text-blue-400 { color: #f472b6 !important; }
+        body.theme-estetica .bg-blue-600 { background-color: #d946ef !important; }
+        body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow: 0 0 15px rgba(236, 72, 153, 0.2) !important; }
 
-/* El Login de Belleza Oscuro */
-.theme-estetica #view-login { background: rgba(10, 5, 15, 0.95) !important; border: 1px solid rgba(217, 70, 239, 0.2) !important; box-shadow: 0 0 40px rgba(217, 70, 239, 0.1) !important; }
-.theme-estetica #view-login button[onclick="actionLogin()"] { background: linear-gradient(to right, #ec4899, #8b5cf6) !important; box-shadow: 0 10px 25px rgba(236, 72, 153, 0.4) !important; color: white !important; border: none !important; }
-.theme-estetica #view-login #sub-title-text { color: #f472b6 !important; letter-spacing: 0.4em; }
-.theme-estetica #view-login input { background: #000 !important; border: 1px solid rgba(236, 72, 153, 0.3) !important; color: white !important; }
-.theme-estetica #view-login input:focus { border-color: #ec4899 !important; }
+        .theme-estetica #view-login { background: rgba(10, 5, 15, 0.95) !important; border: 1px solid rgba(217, 70, 239, 0.2) !important; box-shadow: 0 0 40px rgba(217, 70, 239, 0.1) !important; }
+        .theme-estetica #view-login button[onclick="actionLogin()"] { background: linear-gradient(to right, #ec4899, #8b5cf6) !important; box-shadow: 0 10px 25px rgba(236, 72, 153, 0.4) !important; color: white !important; border: none !important; }
+        .theme-estetica #view-login #sub-title-text { color: #f472b6 !important; letter-spacing: 0.4em; }
+        .theme-estetica #view-login input { background: #000 !important; border: 1px solid rgba(236, 72, 153, 0.3) !important; color: white !important; }
+        .theme-estetica #view-login input:focus { border-color: #ec4899 !important; }
 
-
-/* ✨ ANIMACIONES Y SCROLL PARA EL MODAL DEL PERFIL */
         .slide-up-modal { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        @keyframes slideUp { 
-            0% { transform: translateY(100%); opacity: 0; } 
-            100% { transform: translateY(0); opacity: 1; } 
-        }
+        @keyframes slideUp { 0% { transform: translateY(100%); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* ✨ TARJETA DE FIDELIZACIÓN VIP (HUD PREMIUM & GIRO PERFECTO PARA IPHONE) */
-.card-container { width: 340px; height: 215px; perspective: 1000px; -webkit-perspective: 1000px; margin: 0 auto; position: relative; z-index: 50; }
-.card-3d { width: 100%; height: 100%; position: absolute; transform-style: preserve-3d; -webkit-transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); -webkit-transition: -webkit-transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); }
-.card-3d.flipped { transform: rotateY(180deg); -webkit-transform: rotateY(180deg); }
-.card-front, .card-back { position: absolute; top: 0; left: 0; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 1.25rem; background-color: #050505; border: 1px solid #ef4444; box-shadow: 0 15px 30px rgba(0,0,0,0.8), inset 0 0 15px rgba(239, 68, 68, 0.2); overflow: hidden; display: flex; flex-direction: column; transform: translateZ(1px); -webkit-transform: translateZ(1px); }
-.card-back { transform: rotateY(180deg) translateZ(1px); -webkit-transform: rotateY(180deg) translateZ(1px); }
-.card-bg-neon { position: absolute; top: -50px; left: -50px; width: 150px; height: 150px; background: #ef4444; border-radius: 50%; filter: blur(70px); -webkit-filter: blur(70px); opacity: 0.25; pointer-events: none; z-index: 0; }
-.card-texture { position: absolute; inset: 0; background-image: radial-gradient(rgba(239,68,68,0.15) 1px, transparent 1px); background-size: 14px 14px; opacity: 0.5; pointer-events: none; z-index: 0; }
-
+        /* ✨ TARJETA DE FIDELIZACIÓN VIP */
+        .card-container { width: 340px; height: 215px; perspective: 1000px; -webkit-perspective: 1000px; margin: 0 auto; position: relative; z-index: 50; }
+        .card-3d { width: 100%; height: 100%; position: absolute; transform-style: preserve-3d; -webkit-transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); -webkit-transition: -webkit-transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); }
+        .card-3d.flipped { transform: rotateY(180deg); -webkit-transform: rotateY(180deg); }
+        .card-front, .card-back { position: absolute; top: 0; left: 0; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 1.25rem; background-color: #050505; border: 1px solid #ef4444; box-shadow: 0 15px 30px rgba(0,0,0,0.8), inset 0 0 15px rgba(239, 68, 68, 0.2); overflow: hidden; display: flex; flex-direction: column; transform: translateZ(1px); -webkit-transform: translateZ(1px); }
+        .card-back { transform: rotateY(180deg) translateZ(1px); -webkit-transform: rotateY(180deg) translateZ(1px); }
+        .card-bg-neon { position: absolute; top: -50px; left: -50px; width: 150px; height: 150px; background: #ef4444; border-radius: 50%; filter: blur(70px); -webkit-filter: blur(70px); opacity: 0.25; pointer-events: none; z-index: 0; }
+        .card-texture { position: absolute; inset: 0; background-image: radial-gradient(rgba(239,68,68,0.15) 1px, transparent 1px); background-size: 14px 14px; opacity: 0.5; pointer-events: none; z-index: 0; }
     </style>
 </head>
 
 <body>
 
-  <div id="splash-screen" class="flex flex-col items-center justify-center h-screen w-screen fixed inset-0 z-[9999] bg-[#050505]">
+    <div id="splash-screen" class="flex flex-col items-center justify-center h-screen w-screen fixed inset-0 z-[9999] bg-[#050505]">
         <div class="relative w-64 mx-auto rounded-[2.5rem] overflow-hidden shadow-[0_0_30px_rgba(12,209,184,0.15)] border border-zinc-800 bg-black">
-            
             <img src="video.gif" alt="Iniciando Zeus Barber..." class="w-full h-auto block pointer-events-none">
-            
             <div class="absolute bottom-0 right-0 w-14 h-8 bg-[#181820] z-10 rounded-br-[2.5rem]"></div>
         </div>
-
-        <p class="text-white text-[12px] font-bold uppercase tracking-widest mt-6 text-center w-64">
-           
-        </p>
+        <p class="text-white text-[12px] font-bold uppercase tracking-widest mt-6 text-center w-64"></p>
     </div>
 
     <div id="print-area"></div>
 
-  <div id="pantalla-bloqueo" class="hidden fixed inset-0 z-[9999] bg-[#050505] flex flex-col items-center justify-center p-6 text-center">
+    <div id="pantalla-bloqueo" class="hidden fixed inset-0 z-[9999] bg-[#050505] flex flex-col items-center justify-center p-6 text-center">
         <div class="glass p-10 rounded-[3rem] border border-red-900/50 shadow-2xl max-w-md w-full">
             <span class="text-7xl mb-4 block">🔒</span>
             <h1 class="text-3xl font-black text-red-500 mb-2 uppercase italic">SISTEMA BLOQUEADO</h1>
@@ -162,187 +158,200 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
         </div>
     </div>
 
-
     <div id="app-content">
         <audio id="snd-cash" preload="auto"><source src="https://assets.mixkit.co/active_storage/sfx/2017/2017-preview.mp3" type="audio/mpeg"></audio>
         <audio id="snd-alerta" preload="auto"><source src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" type="audio/mpeg"></audio>
-<div id="alerta-global" class="hidden w-full bg-gradient-to-r from-red-600 to-orange-600 text-white text-[10px] sm:text-xs font-black uppercase tracking-widest text-center py-3 px-4 z-50 sticky top-0 shadow-lg shadow-red-900/50"></div>
+        <div id="alerta-global" class="hidden w-full bg-gradient-to-r from-red-600 to-orange-600 text-white text-[10px] sm:text-xs font-black uppercase tracking-widest text-center py-3 px-4 z-50 sticky top-0 shadow-lg shadow-red-900/50"></div>
 
-        <nav id="app-nav" class="hidden glass p-4 flex justify-between items-center sticky top-0 z-40 border-b border-zinc-900">
-            <div class="flex items-center gap-3">
-                <div id="nav-logo-box" class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center font-black text-xs relative overflow-hidden">
-                    <span id="nav-logo-txt">IC</span><img id="nav-logo-img" class="hidden w-full h-full object-cover absolute inset-0" src="">
-                </div>
-                <div>
-                    <div class="flex items-center gap-2">
-                        <h1 id="nav-title" class="font-black text-sm uppercase italic leading-none">ISI CONTROL</h1>
-                        <span id="nav-status" class="text-[8px] text-green-500 font-bold uppercase tracking-widest bg-black px-1.5 py-0.5 rounded border border-green-900/50">🟢 ONLINE</span>
+
+
+
+        <nav id="app-nav" class="hidden relative z-40 w-full max-w-[1400px] mx-auto px-4 sm:px-6 pt-4 sm:pt-6 mb-4">
+            <div class="glass rounded-[1.5rem] border border-zinc-800/80 w-full p-3 sm:p-4 flex justify-between items-center shadow-2xl relative">
+                
+                <div class="flex items-center gap-3 relative z-10 w-1/3">
+                    <div id="nav-logo-box" class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center font-black text-xs relative overflow-hidden shadow-inner shrink-0">
+                        <span id="nav-logo-txt">IC</span><img id="nav-logo-img" class="hidden w-full h-full object-cover absolute inset-0" src="">
                     </div>
-                    <p id="nav-id" class="text-[8px] text-zinc-500 font-bold uppercase tracking-widest mt-1">ID: ---</p>
+                    <div class="hidden sm:flex flex-col truncate">
+                        <h1 id="nav-title" class="font-black text-sm uppercase italic leading-none truncate text-white">ISI CONTROL</h1>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span id="nav-status" class="text-[7px] text-green-500 font-black uppercase tracking-widest bg-black px-1.5 py-0.5 rounded border border-green-900/50 leading-none">🟢 ONLINE</span>
+                            <p id="nav-id" class="text-[7px] text-zinc-500 font-bold uppercase tracking-widest leading-none">ID: ---</p>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+                <div id="nav-center-module" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center w-1/3 text-center pointer-events-none z-0 hidden md:flex">
+                </div>
+
+                <div class="flex items-center justify-end gap-2 relative z-10 w-1/3">
+                    <button type="button" onclick="detenerAudio(); actionLogout()" class="bg-red-900/20 text-red-500 hover:bg-red-600 hover:text-white border border-red-900/50 px-4 py-2.5 rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest btn-press transition-colors shadow-inner flex items-center gap-1.5 ml-1">
+                        <span class="text-sm">🔒</span> <span class="hidden sm:inline">CERRAR</span>
+                    </button>
                 </div>
             </div>
-            <button type="button" onclick="detenerAudio(); actionLogout()" class="bg-red-900/10 text-red-500 px-4 py-2 rounded-xl text-[10px] font-bold border border-red-900/30 btn-press">SALIR</button>
         </nav>
 
-
         <section id="view-login" class="view-section active max-w-md mx-auto mt-4 sm:mt-12 p-8 sm:p-10 glass rounded-[3rem] text-center border border-zinc-900 shadow-2xl min-h-[85vh] flex flex-col justify-center relative">
-
-
-<div id="zeus-onboarding-overlay" class="fixed inset-0 z-[9999] bg-[#050505] flex flex-col transition-all duration-500 overflow-y-auto scroll-safe">
-        
-        <div id="onb-paso-1" class="flex flex-col items-center justify-center min-h-screen p-6 sm:p-10 text-center">
-            <span class="text-7xl md:text-8xl mb-6 tracking-tighter drop-shadow-md animate-pulse">⚡</span>
-            <h1 class="text-4xl md:text-5xl font-black italic uppercase tracking-tighter text-white mb-3">BIENVENIDO A ZEUS</h1>
-            <p class="text-xs md:text-sm font-black text-zinc-500 uppercase tracking-[0.2em] mb-10 px-4">El ERP definitivo. ¿Qué negocio quieres evolucionar hoy?</p>
             
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 w-full max-w-2xl px-2">
-                <button onclick="seleccionarCaminoOnboarding('barberia')" class="bg-gradient-to-br from-[#0a0a0a] to-[#050505] border-2 border-indigo-500/50 hover:border-indigo-400 p-10 md:p-12 rounded-[2rem] flex flex-col items-center shadow-[0_0_30px_rgba(99,102,241,0.15)] hover:shadow-[0_0_40px_rgba(99,102,241,0.3)] transition-all btn-press group">
-                    <span class="text-6xl md:text-7xl mb-4 group-hover:scale-110 transition-transform">💈</span>
-                    <span class="text-xl md:text-2xl font-black text-white uppercase tracking-wider mb-2">BARBERÍAS</span>
-                    <span class="text-[10px] md:text-xs text-indigo-400 font-bold uppercase tracking-widest">Zeus Barber Pro</span>
-                </button>
-                <button onclick="seleccionarCaminoOnboarding('estetica')" class="bg-gradient-to-br from-[#0a0a0a] to-[#050505] border-2 border-pink-500/50 hover:border-pink-400 p-10 md:p-12 rounded-[2rem] flex flex-col items-center shadow-[0_0_30px_rgba(236,72,153,0.15)] hover:shadow-[0_0_40px_rgba(236,72,153,0.3)] transition-all btn-press group">
-                    <span class="text-6xl md:text-7xl mb-4 group-hover:scale-110 transition-transform">✨</span>
-                    <span class="text-xl md:text-2xl font-black text-white uppercase tracking-wider mb-2">SPA & SALÓN</span>
-                    <span class="text-[10px] md:text-xs text-pink-400 font-bold uppercase tracking-widest">Zeus Beauty</span>
+            <div id="contenedor-instalar-pwa" class="hidden w-full flex justify-center mb-6">
+                <button id="btn-instalar-pwa" class="bg-indigo-600 text-white px-6 py-3 rounded-full font-black text-xs uppercase shadow-[0_0_15px_rgba(79,70,229,0.5)] border border-indigo-400/50 flex items-center gap-2 hover:bg-indigo-500 transition-all btn-press">
+                    <span id="pwa-icon">📲</span> <span id="pwa-text">INSTALAR ZEUS APP</span>
                 </button>
             </div>
-            
-            <button onclick="saltarOnboarding()" class="mt-14 text-xs md:text-sm text-zinc-500 font-bold uppercase tracking-widest hover:text-white transition-colors border-b border-zinc-700 pb-1 btn-press">
-                Ya tengo cuenta ➔ Ingresar con PIN
-            </button>
-        </div>
 
-        <div id="onb-paso-2" class="hidden flex-col min-h-screen w-full relative pb-20">
-            
-            <div class="sticky top-0 z-50 bg-[#050505]/90 backdrop-blur-xl border-b border-zinc-800 p-4 sm:p-6 flex items-center justify-between shadow-lg">
-                <button onclick="document.getElementById('onb-paso-2').classList.add('hidden'); document.getElementById('onb-paso-1').classList.remove('hidden');" class="text-zinc-400 hover:text-white font-black text-sm sm:text-base uppercase tracking-widest btn-press px-2 transition-colors">← Volver</button>
-                <h2 id="onb-titulo-pitch" class="text-xl sm:text-2xl font-black italic uppercase tracking-tighter text-white drop-shadow-md">ZEUS</h2>
-                <div class="w-20"></div>
-            </div>
-
-            <div class="p-4 sm:p-8 md:p-10 max-w-3xl mx-auto w-full">
+            <div id="login-logo-container" class="flex flex-col justify-center mb-8 items-center">
+                <img id="login-custom-logo" class="hidden w-40 h-40 object-cover rounded-[1.5rem] shadow-lg mb-4" src="" alt="Logo">
                 
-                <div class="text-center mb-8 mt-4 sm:mt-6 px-2">
-                    <p class="text-zinc-500 font-black uppercase tracking-widest text-[10px] sm:text-xs mb-3 border border-zinc-800 bg-zinc-900/50 inline-block px-4 py-1.5 rounded-full shadow-inner">Tu negocio al siguiente nivel</p>
-                    <h2 class="text-3xl sm:text-4xl font-black uppercase tracking-tighter text-white mb-2 leading-tight drop-shadow-md">DESCUBRE TU<br>NUEVO PODER</h2>
-                    <p class="text-[10px] sm:text-xs text-zinc-400 font-bold max-w-xl mx-auto leading-relaxed uppercase tracking-widest">Toca cada módulo para ver la magia ⚡</p>
+                <div id="beauty-logo-header" class="hidden mb-4">
+                    <img src="https://github.com/Amaya0623/zeus-beauty/blob/main/logo-estetica.png?raw=true" alt="Zeus Beauty" class="h-40 w-auto animate-pulse">
+                </div>
+                
+                <div id="login-default-text" class="w-full">
+                    <h2 id="main-title-text" class="text-4xl sm:text-5xl font-black italic mb-2 uppercase tracking-tighter bg-gradient-to-r from-[#66ff66] via-[#0cd1b8] to-[#1e61ea] text-transparent bg-clip-text">ZEUS BARBER</h2>
+                    <p id="sub-title-text" class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mt-2">Software de Nube</p>
                 </div>
 
-                <div class="grid grid-cols-3 gap-3 sm:gap-5 mb-8 px-1 sm:px-0">
-                    <button type="button" onclick="abrirDetalleFeature(0)" class="bg-black/50 border border-zinc-800 p-4 sm:p-6 rounded-[1.5rem] shadow-inner hover:border-indigo-500 hover:bg-indigo-900/20 transition-all group flex flex-col items-center justify-center text-center btn-press aspect-square">
-                        <span class="text-4xl sm:text-5xl block mb-2 group-hover:scale-110 transition-transform">📅</span>
-                        <h3 class="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-widest leading-tight mt-1">Agenda<br>24/7</h3>
-                    </button>
-                    <button type="button" onclick="abrirDetalleFeature(1)" class="bg-black/50 border border-zinc-800 p-4 sm:p-6 rounded-[1.5rem] shadow-inner hover:border-green-500 hover:bg-green-900/20 transition-all group flex flex-col items-center justify-center text-center btn-press aspect-square">
-                        <span class="text-4xl sm:text-5xl block mb-2 group-hover:scale-110 transition-transform">💳</span>
-                        <h3 class="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-widest leading-tight mt-1">Pagos<br>POS</h3>
-                    </button>
-                    <button type="button" onclick="abrirDetalleFeature(2)" class="bg-black/50 border border-zinc-800 p-4 sm:p-6 rounded-[1.5rem] shadow-inner hover:border-blue-500 hover:bg-blue-900/20 transition-all group flex flex-col items-center justify-center text-center btn-press aspect-square">
-                        <span class="text-4xl sm:text-5xl block mb-2 group-hover:scale-110 transition-transform">📊</span>
-                        <h3 class="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-widest leading-tight mt-1">Finanzas<br>Auditoría</h3>
-                    </button>
-                    <button type="button" onclick="abrirDetalleFeature(3)" class="bg-black/50 border border-zinc-800 p-4 sm:p-6 rounded-[1.5rem] shadow-inner hover:border-cyan-500 hover:bg-cyan-900/20 transition-all group flex flex-col items-center justify-center text-center btn-press aspect-square">
-                        <span class="text-4xl sm:text-5xl block mb-2 group-hover:scale-110 transition-transform">💈</span>
-                        <h3 class="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-widest leading-tight mt-1">Personal<br>Nómina</h3>
-                    </button>
-                    <button type="button" onclick="abrirDetalleFeature(4)" class="bg-black/50 border border-zinc-800 p-4 sm:p-6 rounded-[1.5rem] shadow-inner hover:border-purple-500 hover:bg-purple-900/20 transition-all group flex flex-col items-center justify-center text-center btn-press aspect-square">
-                        <span class="text-4xl sm:text-5xl block mb-2 group-hover:scale-110 transition-transform">📦</span>
-                        <h3 class="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-widest leading-tight mt-1">Stock<br>Inventario</h3>
-                    </button>
-                    <button type="button" onclick="abrirDetalleFeature(5)" class="bg-black/50 border border-zinc-800 p-4 sm:p-6 rounded-[1.5rem] shadow-inner hover:border-yellow-500 hover:bg-yellow-900/20 transition-all group flex flex-col items-center justify-center text-center btn-press aspect-square">
-                        <span class="text-4xl sm:text-5xl block mb-2 group-hover:scale-110 transition-transform">👑</span>
-                        <h3 class="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-widest leading-tight mt-1">Club VIP<br>& Pass</h3>
-                    </button>
-                    <button type="button" onclick="abrirDetalleFeature(6)" class="bg-black/50 border border-zinc-800 p-4 sm:p-6 rounded-[1.5rem] shadow-inner hover:border-[#25D366] hover:bg-green-900/20 transition-all group flex flex-col items-center justify-center text-center btn-press aspect-square">
-                        <span class="text-4xl sm:text-5xl block mb-2 group-hover:scale-110 transition-transform">💬</span>
-                        <h3 class="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-widest leading-tight mt-1">Mkt<br>WhatsApp</h3>
-                    </button>
-                    <button type="button" onclick="abrirDetalleFeature(7)" class="bg-black/50 border border-zinc-800 p-4 sm:p-6 rounded-[1.5rem] shadow-inner hover:border-pink-500 hover:bg-pink-900/20 transition-all group flex flex-col items-center justify-center text-center btn-press aspect-square">
-                        <span class="text-4xl sm:text-5xl block mb-2 group-hover:scale-110 transition-transform">📺</span>
-                        <h3 class="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-widest leading-tight mt-1">Smart<br>TV</h3>
-                    </button>
-                    <button type="button" onclick="abrirDetalleFeature(8)" class="bg-black/50 border border-zinc-800 p-4 sm:p-6 rounded-[1.5rem] shadow-inner hover:border-cyan-400 hover:bg-cyan-900/20 transition-all group flex flex-col items-center justify-center text-center btn-press aspect-square">
-                        <span class="text-4xl sm:text-5xl block mb-2 group-hover:scale-110 transition-transform">🤖</span>
-                        <h3 class="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-widest leading-tight mt-1">ISI<br>IA</h3>
-                    </button>
+                <p id="beauty-phrase" class="hidden text-[10px] italic text-rose-400 mt-4 mb-4 font-bold tracking-widest">"Belleza que inspira, tecnología que transforma"</p>
+            </div>
+
+            <div class="mt-auto mb-auto">
+                <input type="password" inputmode="numeric" id="login-pin" placeholder="INGRESE PIN" class="w-full p-6 rounded-3xl text-center text-4xl font-black mb-6 border border-zinc-800 shadow-inner tracking-widest bg-[#050505] focus:border-indigo-500 outline-none transition-colors text-white">
+                <button type="button" onclick="actionLogin()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-6 rounded-3xl text-xl font-black uppercase italic shadow-lg shadow-indigo-600/20 btn-press transition-colors text-white mb-6">
+                    <span id="btn-login-text">Entrar a Zeus ⚡</span>
+                </button>
+                <hr class="border-zinc-800 mb-6">
+                <button type="button" onclick="crearCuentaNueva()" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 py-5 rounded-3xl text-sm font-black uppercase text-white shadow-[0_0_20px_rgba(16,185,129,0.2)] btn-press transition-all mb-4">
+                    🚀 <span id="btn-create-text">Crear Mi Barbería</span>
+                </button>
+                <div class="grid grid-cols-2 gap-3 mt-4">
+                    <button type="button" onclick="abrirKioskoPublico()" class="w-full glass bg-white/5 hover:bg-white/10 py-4 rounded-2xl text-[10px] font-black uppercase text-indigo-400 border border-indigo-500/30 btn-press transition-all shadow-[0_0_15px_rgba(99,102,241,0.1)]">📅 Kiosko</button>
+                    <button type="button" onclick="abrirMapaLocales()" class="w-full glass bg-white/5 hover:bg-white/10 py-4 rounded-2xl text-[10px] font-black uppercase text-blue-400 border border-blue-500/30 btn-press transition-all shadow-[0_0_15px_rgba(59,130,246,0.1)]">📍 Locales</button>
+               </div>
+            </div>
+
+            <div id="beauty-features" class="hidden grid grid-cols-4 gap-2 mt-6 mb-4 text-center">
+                <div class="flex flex-col items-center"><span class="text-2xl mb-1">👩‍🦰</span><span class="text-[7px] font-black text-fuchsia-400 uppercase tracking-widest">Peluquería</span><span class="text-[6px] text-zinc-500 uppercase mt-1">Corte, Color<br>y más</span></div>
+                <div class="flex flex-col items-center"><span class="text-2xl mb-1">💅</span><span class="text-[7px] font-black text-fuchsia-400 uppercase tracking-widest">Estética</span><span class="text-[6px] text-zinc-500 uppercase mt-1">Uñas, Facial<br>y más</span></div>
+                <div class="flex flex-col items-center"><span class="text-2xl mb-1">📅</span><span class="text-[7px] font-black text-fuchsia-400 uppercase tracking-widest">Agenda</span><span class="text-[6px] text-zinc-500 uppercase mt-1">Rápido y<br>Sencillo</span></div>
+                <div class="flex flex-col items-center"><span class="text-2xl mb-1">📈</span><span class="text-[7px] font-black text-fuchsia-400 uppercase tracking-widest">Gestión</span><span class="text-[6px] text-zinc-500 uppercase mt-1">Control Total<br>Negocio</span></div>
+            </div>
+
+            <div class="mt-4 flex flex-col items-center gap-3 border-t border-zinc-800 pt-6">
+                <p class="text-[10px] text-yellow-500 cursor-pointer hover:text-yellow-400 uppercase font-black tracking-widest transition-colors flex items-center gap-2 bg-yellow-900/20 px-4 py-2 rounded-full border border-yellow-500/30 shadow-[0_0_15px_rgba(234,179,8,0.2)] btn-press" onclick="abrirOnboardingManual()">⚡ DESCUBRE ZEUS</p>
+                <p class="text-[10px] text-indigo-400 cursor-pointer hover:text-indigo-300 uppercase font-black tracking-widest transition-colors flex items-center gap-2 bg-indigo-900/20 px-4 py-2 rounded-full border border-indigo-500/30 btn-press" onclick="guiaInstalacion()">📲 ¿CÓMO INSTALAR LA APP?</p>
+                <div class="flex items-center gap-6 mt-2">
+                    <p class="text-[9px] text-zinc-500 cursor-pointer hover:text-white uppercase font-bold tracking-widest transition-colors" onclick="verPoliticas()">📄 Privacidad</p>
+                    <p class="text-[9px] text-zinc-700 cursor-pointer hover:text-red-500 uppercase font-bold tracking-widest transition-colors" onclick="hardReset()">🔄 Limpiar Sistema</p>
                 </div>
             </div>
+        </section>
 
-            <button onclick="irAWhatsAppVentas()" class="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-tr from-[#1DA851] to-[#25D366] rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(37,211,102,0.5)] btn-press hover:scale-110 transition-transform z-50 animate-bounce group" title="Cotizar Ahora">
-                <span class="text-3xl drop-shadow-md group-hover:animate-ping">💬</span>
-            </button>
-        </div>
-        
-        <div id="modal-feature-detalle" class="hidden fixed inset-0 z-[10000] bg-black/80 backdrop-blur-md flex items-center justify-center p-6 opacity-0 transition-opacity duration-300">
-            <div class="glass p-8 sm:p-10 rounded-[2.5rem] border border-zinc-800 shadow-2xl max-w-sm w-full text-center relative transform scale-95 transition-transform duration-300 bg-[#0a0a0a]" id="modal-feature-content">
-                <button type="button" onclick="cerrarDetalleFeature()" class="absolute top-4 right-4 w-8 h-8 bg-black border border-zinc-800 text-zinc-500 rounded-full flex items-center justify-center font-bold btn-press hover:text-white hover:bg-red-500 transition-colors">✕</button>
-                <span id="feat-icon" class="text-6xl mb-4 block drop-shadow-lg">📅</span>
-                <h3 id="feat-title" class="text-xl sm:text-2xl font-black text-white uppercase tracking-tighter mb-4">Título</h3>
-                <p id="feat-desc" class="text-xs sm:text-sm text-zinc-300 font-bold leading-relaxed mb-6">Descripción...</p>
-                <button type="button" onclick="cerrarDetalleFeature()" class="w-full bg-zinc-900 hover:bg-zinc-800 text-white py-4 rounded-xl font-black uppercase text-[10px] tracking-widest btn-press transition-colors border border-zinc-700">Entendido 👍</button>
+        <div id="zeus-onboarding-overlay" class="fixed inset-0 z-[9999] bg-[#050505] flex flex-col transition-all duration-500 overflow-y-auto scroll-safe">
+            <div id="onb-paso-1" class="flex flex-col items-center justify-center min-h-screen p-6 sm:p-10 text-center">
+                <span class="text-7xl md:text-8xl mb-6 tracking-tighter drop-shadow-md animate-pulse">⚡</span>
+                <h1 class="text-4xl md:text-5xl font-black italic uppercase tracking-tighter text-white mb-3">BIENVENIDO A ZEUS</h1>
+                <p class="text-xs md:text-sm font-black text-zinc-500 uppercase tracking-[0.2em] mb-10 px-4">El ERP definitivo. ¿Qué negocio quieres evolucionar hoy?</p>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 w-full max-w-2xl px-2">
+                    <button onclick="seleccionarCaminoOnboarding('barberia')" class="bg-gradient-to-br from-[#0a0a0a] to-[#050505] border-2 border-indigo-500/50 hover:border-indigo-400 p-10 md:p-12 rounded-[2rem] flex flex-col items-center shadow-[0_0_30px_rgba(99,102,241,0.15)] hover:shadow-[0_0_40px_rgba(99,102,241,0.3)] transition-all btn-press group">
+                        <span class="text-6xl md:text-7xl mb-4 group-hover:scale-110 transition-transform drop-shadow-[0_0_15px_rgba(99,102,241,0.4)]">💈</span>
+                        <span class="text-xl md:text-2xl font-black text-white uppercase tracking-wider mb-2">BARBERÍAS</span>
+                        <span class="text-[10px] md:text-xs text-indigo-400 font-bold uppercase tracking-widest">Zeus Barber Pro</span>
+                    </button>
+                    
+                    <button onclick="seleccionarCaminoOnboarding('estetica')" class="bg-gradient-to-br from-[#0a0a0a] to-[#050505] border-2 border-pink-500/50 hover:border-pink-400 p-10 md:p-12 rounded-[2rem] flex flex-col items-center shadow-[0_0_30px_rgba(236,72,153,0.15)] hover:shadow-[0_0_40px_rgba(236,72,153,0.3)] transition-all btn-press group relative overflow-hidden">
+                        <div class="absolute -top-10 -right-10 w-24 h-24 bg-pink-600 rounded-full blur-[40px] opacity-20 pointer-events-none"></div>
+                        <span class="text-6xl md:text-7xl mb-4 group-hover:scale-110 transition-transform drop-shadow-[0_0_15px_rgba(236,72,153,0.4)]">💅</span>
+                        <span class="text-xl md:text-2xl font-black text-white uppercase tracking-wider mb-2">SPA & SALÓN</span>
+                        <span class="text-[10px] md:text-xs text-pink-400 font-bold uppercase tracking-widest">Zeus Beauty</span>
+                    </button>
+                </div>
+
+                <button onclick="saltarOnboarding()" class="mt-14 text-xs md:text-sm text-zinc-500 font-bold uppercase tracking-widest hover:text-white transition-colors border-b border-zinc-700 pb-1 btn-press">
+                    Ya tengo cuenta ➔ Ingresar con PIN
+                </button>
+            </div>
+
+            <div id="onb-paso-2" class="hidden flex-col min-h-screen w-full relative pb-20">
+                <div class="sticky top-0 z-50 bg-[#050505]/90 backdrop-blur-xl border-b border-zinc-800 p-4 sm:p-6 flex items-center justify-between shadow-lg">
+                    <button onclick="document.getElementById('onb-paso-2').classList.add('hidden'); document.getElementById('onb-paso-1').classList.remove('hidden');" class="text-zinc-400 hover:text-white font-black text-sm sm:text-base uppercase tracking-widest btn-press px-2 transition-colors">← Volver</button>
+                    <h2 id="onb-titulo-pitch" class="text-xl sm:text-2xl font-black italic uppercase tracking-tighter text-white drop-shadow-md">ZEUS</h2>
+                    <div class="w-20"></div>
+                </div>
+
+                <div class="p-4 sm:p-8 md:p-10 max-w-3xl mx-auto w-full">
+                    <div class="text-center mb-8 mt-4 sm:mt-6 px-2">
+                        <p class="text-zinc-500 font-black uppercase tracking-widest text-[10px] sm:text-xs mb-3 border border-zinc-800 bg-zinc-900/50 inline-block px-4 py-1.5 rounded-full shadow-inner">Tu negocio al siguiente nivel</p>
+                        <h2 class="text-3xl sm:text-4xl font-black uppercase tracking-tighter text-white mb-2 leading-tight drop-shadow-md">DESCUBRE TU<br>NUEVO PODER</h2>
+                        <p class="text-[10px] sm:text-xs text-zinc-400 font-bold max-w-xl mx-auto leading-relaxed uppercase tracking-widest">Toca cada módulo para ver la magia ⚡</p>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-3 sm:gap-5 mb-8 px-1 sm:px-0">
+                        <button type="button" onclick="abrirDetalleFeature(0)" class="bg-black/50 border border-zinc-800 p-4 sm:p-6 rounded-[1.5rem] shadow-inner hover:border-indigo-500 hover:bg-indigo-900/20 transition-all group flex flex-col items-center justify-center text-center btn-press aspect-square">
+                            <span class="text-4xl sm:text-5xl block mb-2 group-hover:scale-110 transition-transform">📅</span>
+                            <h3 class="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-widest leading-tight mt-1">Agenda<br>24/7</h3>
+                        </button>
+                        <button type="button" onclick="abrirDetalleFeature(1)" class="bg-black/50 border border-zinc-800 p-4 sm:p-6 rounded-[1.5rem] shadow-inner hover:border-green-500 hover:bg-green-900/20 transition-all group flex flex-col items-center justify-center text-center btn-press aspect-square">
+                            <span class="text-4xl sm:text-5xl block mb-2 group-hover:scale-110 transition-transform">💳</span>
+                            <h3 class="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-widest leading-tight mt-1">Pagos<br>POS</h3>
+                        </button>
+                        <button type="button" onclick="abrirDetalleFeature(2)" class="bg-black/50 border border-zinc-800 p-4 sm:p-6 rounded-[1.5rem] shadow-inner hover:border-blue-500 hover:bg-blue-900/20 transition-all group flex flex-col items-center justify-center text-center btn-press aspect-square">
+                            <span class="text-4xl sm:text-5xl block mb-2 group-hover:scale-110 transition-transform">📊</span>
+                            <h3 class="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-widest leading-tight mt-1">Finanzas<br>Auditoría</h3>
+                        </button>
+                        <button type="button" onclick="abrirDetalleFeature(3)" class="bg-black/50 border border-zinc-800 p-4 sm:p-6 rounded-[1.5rem] shadow-inner hover:border-cyan-500 hover:bg-cyan-900/20 transition-all group flex flex-col items-center justify-center text-center btn-press aspect-square">
+                            <span class="text-4xl sm:text-5xl block mb-2 group-hover:scale-110 transition-transform">💈</span>
+                            <h3 class="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-widest leading-tight mt-1">Personal<br>Nómina</h3>
+                        </button>
+                        <button type="button" onclick="abrirDetalleFeature(4)" class="bg-black/50 border border-zinc-800 p-4 sm:p-6 rounded-[1.5rem] shadow-inner hover:border-purple-500 hover:bg-purple-900/20 transition-all group flex flex-col items-center justify-center text-center btn-press aspect-square">
+                            <span class="text-4xl sm:text-5xl block mb-2 group-hover:scale-110 transition-transform">📦</span>
+                            <h3 class="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-widest leading-tight mt-1">Stock<br>Inventario</h3>
+                        </button>
+                        <button type="button" onclick="abrirDetalleFeature(5)" class="bg-black/50 border border-zinc-800 p-4 sm:p-6 rounded-[1.5rem] shadow-inner hover:border-yellow-500 hover:bg-yellow-900/20 transition-all group flex flex-col items-center justify-center text-center btn-press aspect-square">
+                            <span class="text-4xl sm:text-5xl block mb-2 group-hover:scale-110 transition-transform">👑</span>
+                            <h3 class="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-widest leading-tight mt-1">Club VIP<br>& Pass</h3>
+                        </button>
+                        <button type="button" onclick="abrirDetalleFeature(6)" class="bg-black/50 border border-zinc-800 p-4 sm:p-6 rounded-[1.5rem] shadow-inner hover:border-[#25D366] hover:bg-green-900/20 transition-all group flex flex-col items-center justify-center text-center btn-press aspect-square">
+                            <span class="text-4xl sm:text-5xl block mb-2 group-hover:scale-110 transition-transform">💬</span>
+                            <h3 class="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-widest leading-tight mt-1">Mkt<br>WhatsApp</h3>
+                        </button>
+                        <button type="button" onclick="abrirDetalleFeature(7)" class="bg-black/50 border border-zinc-800 p-4 sm:p-6 rounded-[1.5rem] shadow-inner hover:border-pink-500 hover:bg-pink-900/20 transition-all group flex flex-col items-center justify-center text-center btn-press aspect-square">
+                            <span class="text-4xl sm:text-5xl block mb-2 group-hover:scale-110 transition-transform">📺</span>
+                            <h3 class="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-widest leading-tight mt-1">Smart<br>TV</h3>
+                        </button>
+                        <button type="button" onclick="abrirDetalleFeature(8)" class="bg-black/50 border border-zinc-800 p-4 sm:p-6 rounded-[1.5rem] shadow-inner hover:border-cyan-400 hover:bg-cyan-900/20 transition-all group flex flex-col items-center justify-center text-center btn-press aspect-square">
+                            <span class="text-4xl sm:text-5xl block mb-2 group-hover:scale-110 transition-transform">🤖</span>
+                            <h3 class="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-widest leading-tight mt-1">ISI<br>IA</h3>
+                        </button>
+                    </div>
+                </div>
+
+                <button onclick="irAWhatsAppVentas()" class="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-tr from-[#1DA851] to-[#25D366] rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(37,211,102,0.5)] btn-press hover:scale-110 transition-transform z-50 animate-bounce group" title="Cotizar Ahora">
+                    <span class="text-3xl drop-shadow-md group-hover:animate-ping">💬</span>
+                </button>
+            </div>
+            
+            <div id="modal-feature-detalle" class="hidden fixed inset-0 z-[10000] bg-black/80 backdrop-blur-md flex items-center justify-center p-6 opacity-0 transition-opacity duration-300">
+                <div class="glass p-8 sm:p-10 rounded-[2.5rem] border border-zinc-800 shadow-2xl max-w-sm w-full text-center relative transform scale-95 transition-transform duration-300 bg-[#0a0a0a]" id="modal-feature-content">
+                    <button type="button" onclick="cerrarDetalleFeature()" class="absolute top-4 right-4 w-8 h-8 bg-black border border-zinc-800 text-zinc-500 rounded-full flex items-center justify-center font-bold btn-press hover:text-white hover:bg-red-500 transition-colors">✕</button>
+                    <span id="feat-icon" class="text-6xl mb-4 block drop-shadow-lg">📅</span>
+                    <h3 id="feat-title" class="text-xl sm:text-2xl font-black text-white uppercase tracking-tighter mb-4">Título</h3>
+                    <p id="feat-desc" class="text-xs sm:text-sm text-zinc-300 font-bold leading-relaxed mb-6">Descripción...</p>
+                    <button type="button" onclick="cerrarDetalleFeature()" class="w-full bg-zinc-900 hover:bg-zinc-800 text-white py-4 rounded-xl font-black uppercase text-[10px] tracking-widest btn-press transition-colors border border-zinc-700">Entendido 👍</button>
+                </div>
             </div>
         </div>
 
-    </div>
+
+
+
+
     
-
-    <div id="contenedor-instalar-pwa" class="hidden w-full flex justify-center mb-6">
-        <button id="btn-instalar-pwa" class="bg-indigo-600 text-white px-6 py-3 rounded-full font-black text-xs uppercase shadow-[0_0_15px_rgba(79,70,229,0.5)] border border-indigo-400/50 flex items-center gap-2 hover:bg-indigo-500 transition-all btn-press">
-            <span id="pwa-icon">📲</span> <span id="pwa-text">INSTALAR ZEUS APP</span>
-        </button>
-    </div>
-
-
-
-    <div id="login-logo-container" class="flex flex-col justify-center mb-8 items-center">
-        <img id="login-custom-logo" class="hidden w-40 h-40 object-cover rounded-[1.5rem] shadow-lg mb-4" src="" alt="Logo">
-        
-        <div id="beauty-logo-header" class="hidden mb-4">
-            <img src="https://github.com/Amaya0623/zeus-beauty/blob/main/logo-estetica.png?raw=true" alt="Zeus Beauty" class="h-40 w-auto animate-pulse">
-        </div>
-        
-        <div id="login-default-text" class="w-full">
-            <h2 id="main-title-text" class="text-4xl sm:text-5xl font-black italic mb-2 uppercase tracking-tighter bg-gradient-to-r from-[#66ff66] via-[#0cd1b8] to-[#1e61ea] text-transparent bg-clip-text">ZEUS BARBER</h2>
-            <p id="sub-title-text" class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mt-2">Software de Nube</p>
-        </div>
-
-        <p id="beauty-phrase" class="hidden text-[10px] italic text-rose-400 mt-4 mb-4 font-bold tracking-widest">"Belleza que inspira, tecnología que transforma"</p>
-    </div>
-
-
-    <div class="mt-auto mb-auto">
-        <input type="password" inputmode="numeric" id="login-pin" placeholder="INGRESE PIN" class="w-full p-6 rounded-3xl text-center text-4xl font-black mb-6 border border-zinc-800 shadow-inner tracking-widest bg-[#050505] focus:border-indigo-500 outline-none transition-colors text-white">
-        <button type="button" onclick="actionLogin()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-6 rounded-3xl text-xl font-black uppercase italic shadow-lg shadow-indigo-600/20 btn-press transition-colors text-white mb-6">
-            <span id="btn-login-text">Entrar a Zeus ⚡</span>
-        </button>
-        <hr class="border-zinc-800 mb-6">
-        <button type="button" onclick="crearCuentaNueva()" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 py-5 rounded-3xl text-sm font-black uppercase text-white shadow-[0_0_20px_rgba(16,185,129,0.2)] btn-press transition-all mb-4">
-            🚀 <span id="btn-create-text">Crear Mi Barbería</span>
-        </button>
-        <div class="grid grid-cols-2 gap-3 mt-4">
-            <button type="button" onclick="abrirKioskoPublico()" class="w-full glass bg-white/5 hover:bg-white/10 py-4 rounded-2xl text-[10px] font-black uppercase text-indigo-400 border border-indigo-500/30 btn-press transition-all shadow-[0_0_15px_rgba(99,102,241,0.1)]">📅 Kiosko</button>
-            <button type="button" onclick="abrirMapaLocales()" class="w-full glass bg-white/5 hover:bg-white/10 py-4 rounded-2xl text-[10px] font-black uppercase text-blue-400 border border-blue-500/30 btn-press transition-all shadow-[0_0_15px_rgba(59,130,246,0.1)]">📍 Locales</button>
-       </div>
-    </div>
-
-    <div id="beauty-features" class="hidden grid grid-cols-4 gap-2 mt-6 mb-4 text-center">
-        <div class="flex flex-col items-center"><span class="text-2xl mb-1">👩‍🦰</span><span class="text-[7px] font-black text-fuchsia-400 uppercase tracking-widest">Peluquería</span><span class="text-[6px] text-zinc-500 uppercase mt-1">Corte, Color<br>y más</span></div>
-        <div class="flex flex-col items-center"><span class="text-2xl mb-1">💅</span><span class="text-[7px] font-black text-fuchsia-400 uppercase tracking-widest">Estética</span><span class="text-[6px] text-zinc-500 uppercase mt-1">Uñas, Facial<br>y más</span></div>
-        <div class="flex flex-col items-center"><span class="text-2xl mb-1">📅</span><span class="text-[7px] font-black text-fuchsia-400 uppercase tracking-widest">Agenda</span><span class="text-[6px] text-zinc-500 uppercase mt-1">Rápido y<br>Sencillo</span></div>
-        <div class="flex flex-col items-center"><span class="text-2xl mb-1">📈</span><span class="text-[7px] font-black text-fuchsia-400 uppercase tracking-widest">Gestión</span><span class="text-[6px] text-zinc-500 uppercase mt-1">Control Total<br>Negocio</span></div>
-    </div>
-
-    <div class="mt-4 flex flex-col items-center gap-3 border-t border-zinc-800 pt-6">
-        <p class="text-[10px] text-yellow-500 cursor-pointer hover:text-yellow-400 uppercase font-black tracking-widest transition-colors flex items-center gap-2 bg-yellow-900/20 px-4 py-2 rounded-full border border-yellow-500/30 shadow-[0_0_15px_rgba(234,179,8,0.2)] btn-press" onclick="abrirOnboardingManual()">⚡ DESCUBRE ZEUS</p>
-        <p class="text-[10px] text-indigo-400 cursor-pointer hover:text-indigo-300 uppercase font-black tracking-widest transition-colors flex items-center gap-2 bg-indigo-900/20 px-4 py-2 rounded-full border border-indigo-500/30 btn-press" onclick="guiaInstalacion()">📲 ¿CÓMO INSTALAR LA APP?</p>
-        
-        <div class="flex items-center gap-6 mt-2">
-            <p class="text-[9px] text-zinc-500 cursor-pointer hover:text-white uppercase font-bold tracking-widest transition-colors" onclick="verPoliticas()">📄 Privacidad</p>
-            <p class="text-[9px] text-zinc-700 cursor-pointer hover:text-red-500 uppercase font-bold tracking-widest transition-colors" onclick="hardReset()">🔄 Limpiar Sistema</p>
-        </div>
-    </div>
-</section>
         
 
 
@@ -837,9 +846,235 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                     <span class="text-2xl animate-pulse">🎙️</span> ASISTENTE DE VOZ (TOCAR Y HABLAR)
                 </button>
 
+
+
+
+
+
                 <button type="button" id="pos-btn-cobrar" onclick="procesarVenta()" disabled class="w-full py-6 rounded-3xl text-2xl font-black uppercase opacity-20 cursor-not-allowed transition-all shadow-xl btn-press bg-green-600 text-white hover:bg-green-500">FINALIZAR COBRO</button>
             </div>
         </section>
+
+
+        
+
+
+
+<section id="view-caja" class="view-section p-4 sm:p-6 max-w-[1400px] mx-auto text-left min-h-screen flex flex-col">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start flex-1">
+
+                <div class="lg:col-span-3 space-y-4">
+                    <div class="bg-[#0a0a0a] rounded-[2rem] border border-zinc-800 p-5 shadow-inner">
+
+
+                        <div class="flex items-center gap-2.5 mb-4">
+                            <div class="badge-step"><div class="badge-step-inner"></div><span>1</span></div>
+                            <p class="text-[10px] font-black text-zinc-400 uppercase tracking-widest mt-0.5">BUSCAR CLIENTE</p>
+                        </div>
+                        
+                        <div class="relative mb-4">
+                            <span class="absolute left-4 top-3.5 text-zinc-500">🔍</span>
+                            <input type="text" id="caja-search-cli" inputmode="numeric" placeholder="Número de celular..." class="w-full pl-11 pr-4 py-3 rounded-xl bg-black border border-zinc-800 text-xs font-bold text-white focus:border-indigo-500 outline-none transition-colors shadow-inner tracking-widest text-center">
+                        </div>
+
+
+                        
+                        <div class="flex flex-col gap-2">
+                            <div class="flex gap-2">
+                                <button type="button" onclick="registroRapidoClienteCaja()" class="flex-1 bg-zinc-900 border border-zinc-700 text-white py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-zinc-800 transition-colors btn-press shadow-inner">👤 CL. Nuevo</button>
+                                <button type="button" onclick="mostrarQRRegistroCaja()" class="flex-1 bg-indigo-900/30 border border-indigo-500/50 text-indigo-400 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-colors btn-press shadow-inner">📱 Escanear QR</button>
+                            </div>
+                            <div class="flex gap-2">
+                                <button type="button" onclick="abrirFacturas()" class="flex-1 bg-yellow-900/20 text-yellow-500 hover:bg-yellow-500 hover:text-black border border-yellow-900/50 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest btn-press transition-colors shadow-inner flex items-center justify-center gap-1.5">🧾 FACTS</button>
+                                <button type="button" onclick="forzarSincronizacionNube(false)" class="flex-1 bg-blue-900/20 text-blue-400 hover:bg-blue-600 hover:text-white border border-blue-900/50 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest btn-press transition-colors shadow-inner flex items-center justify-center gap-1.5">🔄 SYNC</button>
+                            </div>
+                        </div>
+
+
+
+
+
+
+
+                        <div id="caja-cliente-card" class="mt-6 bg-[#111] border border-zinc-800 p-4 rounded-2xl flex flex-col items-center text-center relative overflow-hidden hidden shadow-lg">
+                            <div class="absolute -top-10 -right-10 w-24 h-24 bg-indigo-500 rounded-full blur-[40px] opacity-20 pointer-events-none"></div>
+                            <img src="https://via.placeholder.com/150/111/fff?text=👤" class="w-16 h-16 rounded-full border-2 border-indigo-500 object-cover mb-2 shadow-lg z-10 bg-black">
+                            <h3 class="text-sm font-black text-white uppercase tracking-tighter z-10 w-full truncate">NOMBRE DEL CLIENTE</h3>
+                            <p class="text-[9px] text-zinc-400 font-bold uppercase tracking-widest z-10 mb-3">300 000 0000</p>
+                            <div class="w-full grid grid-cols-2 gap-2 z-10">
+                                <div class="bg-black p-2 rounded-lg border border-zinc-800"><p class="text-[8px] text-zinc-500 uppercase">Puntos</p><p class="text-indigo-400 font-black text-sm">0</p></div>
+                                <div class="bg-black p-2 rounded-lg border border-zinc-800"><p class="text-[8px] text-zinc-500 uppercase">Visitas</p><p class="text-white font-black text-sm">0</p></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+
+
+                <div class="lg:col-span-5 space-y-4 flex flex-col h-full">
+                    <div class="bg-[#0a0a0a] rounded-[2rem] border border-zinc-800 p-5 shadow-inner flex flex-col h-fit">
+                        
+                        <div class="bg-indigo-900/10 border border-indigo-500/30 p-3 rounded-2xl mb-5 shadow-inner">
+
+                            <div class="flex items-center gap-2.5 mb-3">
+                                <div class="badge-step"><div class="badge-step-inner"></div><span>2</span></div>
+                                <p class="text-[9px] font-black text-indigo-400 uppercase tracking-widest mt-0.5">ESTILISTA / BARBERO (OBLIGATORIO)</p>
+                            </div>
+
+
+
+                            <select id="caja-barbero-select" class="w-full p-3.5 rounded-xl bg-black border border-indigo-500/50 text-white font-black uppercase text-xs outline-none focus:border-indigo-400 cursor-pointer appearance-none text-center shadow-[0_0_15px_rgba(99,102,241,0.1)] transition-colors">
+                                <option value="">-- ELIGE QUIÉN ATENDIÓ --</option>
+                            </select>
+                        </div>
+
+                        <div class="flex items-center gap-2.5 mb-3 mt-1">
+                            <div class="badge-step"><div class="badge-step-inner"></div><span>3</span></div>
+                            <p class="text-[10px] font-black text-zinc-400 uppercase tracking-widest mt-0.5">SERVICIOS Y PRODUCTOS</p>
+                        </div>
+                        
+                        <div class="flex gap-2 mb-4 bg-black p-1.5 rounded-xl border border-zinc-900">
+                            <button type="button" id="caja-btn-servicios" onclick="switchCajaTab('S')" class="flex-1 bg-indigo-600 text-white py-2.5 rounded-lg text-[10px] font-black uppercase transition-all shadow-md">✂️ Servicios</button>
+                            <button type="button" id="caja-btn-productos" onclick="switchCajaTab('P')" class="flex-1 bg-transparent text-zinc-500 hover:text-white py-2.5 rounded-lg text-[10px] font-black uppercase transition-all">🧴 Productos</button>
+
+                        </div>
+
+                        <div id="caja-catalogo-servicios" class="grid grid-cols-2 gap-2 mb-4 max-h-32 overflow-y-auto pr-1 scroll-safe"></div>
+                        <div id="caja-catalogo-productos" class="hidden grid-cols-2 gap-2 mb-4 max-h-32 overflow-y-auto pr-1 scroll-safe"></div>
+
+                        <div class="border-t border-zinc-800 pt-4 flex flex-col min-h-[120px]">
+                            <div class="flex justify-between items-end mb-2">
+                                <p class="text-[9px] text-zinc-500 uppercase font-black tracking-widest">Resumen de Venta</p>
+                                <span class="text-xs font-black text-white bg-black px-2 py-1 rounded border border-zinc-800">Subtotal: <span class="text-indigo-400">$0</span></span>
+                            </div>
+                            <div id="caja-carrito-ui" class="flex-1 overflow-y-auto pr-1 space-y-2 scroll-safe bg-black/40 rounded-xl border border-zinc-900 p-2">
+
+                                <p class="text-zinc-700 text-center text-[10px] uppercase font-bold mt-6 tracking-widest">El carrito está vacío</p>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="bg-[#0a0a0a] rounded-[2rem] border border-zinc-800 p-5 shadow-inner flex flex-col h-64 mt-auto">
+
+                        <div class="flex justify-between items-center mb-4 border-b border-zinc-800 pb-3">
+                            <div class="flex items-center gap-2.5">
+                                <div class="badge-icon badge-icon-indigo"><span class="mt-0.5">📅</span></div>
+                                <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mt-0.5">TURNOS DE HOY</p>
+                            </div>
+                            <span class="text-[8px] font-bold text-zinc-500 uppercase tracking-widest bg-zinc-900 px-2 py-1 rounded">En Vivo 🟢</span>
+                        </div>
+
+
+                        <div id="caja-mini-agenda" class="flex-1 overflow-y-auto pr-1 scroll-safe space-y-2">
+                            <p class="text-zinc-600 text-[10px] uppercase font-bold text-center mt-6 tracking-widest">Cargando agenda...</p>
+                        </div>
+
+
+                        <button type="button" onclick="abrirKioskoDesdeCaja('', '')" class="w-full mt-3 bg-indigo-900/20 text-indigo-400 border border-indigo-900/50 py-3 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-colors btn-press">
+                            ➕ AGENDAR WALK-IN (SIN CITA)
+                        </button>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-4 space-y-4">
+                    <div class="bg-[#0a0a0a] rounded-[2rem] border border-zinc-800 p-5 shadow-inner relative overflow-hidden flex flex-col">
+                        <div class="absolute -bottom-20 -right-20 w-48 h-48 bg-green-600 rounded-full blur-[70px] opacity-10 pointer-events-none"></div>
+
+
+
+
+                        <div id="caja-panel-efectivo" class="mb-5 border-b border-zinc-800/80 pb-5">
+                            <div class="flex items-center gap-2.5 mb-4">
+                                <div class="badge-icon badge-icon-green animate-pulse"><span class="mt-0.5">💵</span></div>
+                                <p class="text-[10px] font-black text-green-400 uppercase tracking-widest mt-0.5">COBRO RÁPIDO EFECTIVO</p>
+                            </div>
+                            
+                            <div class="bg-black border border-zinc-800 rounded-xl p-4 mb-3">
+                                <p class="text-[8px] text-zinc-500 uppercase font-bold text-center mb-2">Recibido del cliente</p>
+                                <input type="text" inputmode="numeric" id="caja-recibido" placeholder="$ 0" class="w-full bg-transparent text-4xl font-black text-white outline-none text-center tracking-tighter">
+                            </div>
+
+                            <p class="text-[8px] text-zinc-500 uppercase font-bold mb-2 relative z-10">Billetes (Toca para sumar recibido)</p>
+                            
+                            <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-2 gap-3 mb-4 relative z-10">
+                                <button type="button" onclick="sumarBilleteCaja(100000)" class="relative h-14 rounded-xl overflow-hidden border border-green-500/50 bg-gradient-to-br from-green-900/40 to-black hover:bg-green-900/60 btn-press transition-all shadow-inner flex items-center justify-between px-3 group"><div class="flex flex-col items-start leading-none"><span class="text-[8px] font-black text-green-500/70 uppercase tracking-widest mb-1">Cien Mil</span><span class="text-xl font-black text-green-400 tracking-tighter drop-shadow-md group-hover:scale-105 transition-transform">$100k</span></div><span class="text-3xl opacity-20 group-hover:opacity-40 transition-opacity">💵</span></button>
+                                <button type="button" onclick="sumarBilleteCaja(50000)" class="relative h-14 rounded-xl overflow-hidden border border-purple-500/50 bg-gradient-to-br from-purple-900/40 to-black hover:bg-purple-900/60 btn-press transition-all shadow-inner flex items-center justify-between px-3 group"><div class="flex flex-col items-start leading-none"><span class="text-[8px] font-black text-purple-500/70 uppercase tracking-widest mb-1">Cincuenta Mil</span><span class="text-xl font-black text-purple-400 tracking-tighter drop-shadow-md group-hover:scale-105 transition-transform">$50k</span></div><span class="text-3xl opacity-20 group-hover:opacity-40 transition-opacity">💵</span></button>
+                                <button type="button" onclick="sumarBilleteCaja(20000)" class="relative h-14 rounded-xl overflow-hidden border border-orange-500/50 bg-gradient-to-br from-orange-900/40 to-black hover:bg-orange-900/60 btn-press transition-all shadow-inner flex items-center justify-between px-3 group"><div class="flex flex-col items-start leading-none"><span class="text-[8px] font-black text-orange-500/70 uppercase tracking-widest mb-1">Veinte Mil</span><span class="text-xl font-black text-orange-400 tracking-tighter drop-shadow-md group-hover:scale-105 transition-transform">$20k</span></div><span class="text-3xl opacity-20 group-hover:opacity-40 transition-opacity">💵</span></button>
+                                <button type="button" onclick="sumarBilleteCaja(10000)" class="relative h-14 rounded-xl overflow-hidden border border-red-500/50 bg-gradient-to-br from-red-900/40 to-black hover:bg-red-900/60 btn-press transition-all shadow-inner flex items-center justify-between px-3 group"><div class="flex flex-col items-start leading-none"><span class="text-[8px] font-black text-red-500/70 uppercase tracking-widest mb-1">Diez Mil</span><span class="text-xl font-black text-red-400 tracking-tighter drop-shadow-md group-hover:scale-105 transition-transform">$10k</span></div><span class="text-3xl opacity-20 group-hover:opacity-40 transition-opacity">💵</span></button>
+                                <button type="button" onclick="sumarBilleteCaja(5000)" class="relative h-14 rounded-xl overflow-hidden border border-yellow-700/50 bg-gradient-to-br from-yellow-900/40 to-black hover:bg-yellow-900/60 btn-press transition-all shadow-inner flex items-center justify-between px-3 group"><div class="flex flex-col items-start leading-none"><span class="text-[8px] font-black text-yellow-700/70 uppercase tracking-widest mb-1">Cinco Mil</span><span class="text-xl font-black text-yellow-600 tracking-tighter drop-shadow-md group-hover:scale-105 transition-transform">$5k</span></div><span class="text-3xl opacity-20 group-hover:opacity-40 transition-opacity">💵</span></button>
+                                <button type="button" onclick="sumarBilleteCaja(2000)" class="relative h-14 rounded-xl overflow-hidden border border-blue-500/50 bg-gradient-to-br from-blue-900/40 to-black hover:bg-blue-900/60 btn-press transition-all shadow-inner flex items-center justify-between px-3 group"><div class="flex flex-col items-start leading-none"><span class="text-[8px] font-black text-blue-500/70 uppercase tracking-widest mb-1">Dos Mil</span><span class="text-xl font-black text-blue-400 tracking-tighter drop-shadow-md group-hover:scale-105 transition-transform">$2k</span></div><span class="text-3xl opacity-20 group-hover:opacity-40 transition-opacity">💵</span></button>
+                                <button type="button" onclick="limpiarBilletesCaja()" class="col-span-2 bg-red-900/10 border border-red-900/50 text-red-500 rounded-xl py-3 text-[10px] font-black uppercase tracking-widest btn-press hover:bg-red-600 hover:text-white transition-colors shadow-inner flex justify-center items-center gap-2"><span>✖️</span> BORRAR RECIBIDO</button>
+                            </div>
+
+                            <div class="flex justify-between items-center bg-green-900/10 border border-green-500/30 p-4 rounded-xl shadow-inner mt-2">
+                                <span class="text-[10px] font-black uppercase text-zinc-400 tracking-widest">Cambio a devolver</span>
+                                <span id="caja-cambio" class="text-3xl font-black text-green-400 tracking-tighter">$0</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2.5 mb-4 relative z-10">
+                            <div class="badge-icon badge-icon-indigo animate-pulse"><span class="mt-0.5">💳</span></div>
+                            <p class="text-[10px] font-black text-zinc-400 uppercase tracking-widest mt-0.5">MÉTODO DE PAGO</p>
+                        </div>
+                        
+                        <div class="grid grid-cols-4 gap-2 mb-6 relative z-10" id="caja-botones-metodo">
+                            <button type="button" onclick="seleccionarMetodoPagoCaja('Efectivo', this)" class="bg-black border border-zinc-800 p-3 rounded-xl flex flex-col items-center justify-center gap-2 hover:border-green-500 hover:bg-green-900/10 transition-all btn-press group shadow-md">
+                                <span class="text-2xl group-hover:scale-110 transition-transform drop-shadow-md">💵</span>
+                                <span class="text-[8px] font-black text-zinc-400 uppercase tracking-widest group-hover:text-green-400 transition-colors">Efectivo</span>
+                            </button>
+                            <button type="button" onclick="seleccionarMetodoPagoCaja('Nequi', this)" class="bg-black border border-zinc-800 p-3 rounded-xl flex flex-col items-center justify-center gap-2 hover:border-[#da0081] hover:bg-[#da0081]/10 transition-all btn-press group shadow-md">
+                                <span class="text-2xl group-hover:scale-110 transition-transform drop-shadow-md">📱</span>
+                                <span class="text-[8px] font-black text-zinc-400 uppercase tracking-widest group-hover:text-[#da0081] transition-colors">Nequi</span>
+                            </button>
+                            <button type="button" onclick="seleccionarMetodoPagoCaja('Transferencia', this)" class="bg-black border border-zinc-800 p-3 rounded-xl flex flex-col items-center justify-center gap-2 hover:border-yellow-500 hover:bg-yellow-900/10 transition-all btn-press group shadow-md">
+                                <span class="text-2xl group-hover:scale-110 transition-transform drop-shadow-md">🏦</span>
+                                <span class="text-[8px] font-black text-zinc-400 uppercase tracking-widest group-hover:text-yellow-400 transition-colors">Transf.</span>
+                            </button>
+                            <button type="button" onclick="seleccionarMetodoPagoCaja('Tarjeta', this)" class="bg-black border border-zinc-800 p-3 rounded-xl flex flex-col items-center justify-center gap-2 hover:border-blue-500 hover:bg-blue-900/10 transition-all btn-press group shadow-md">
+                                <span class="text-2xl group-hover:scale-110 transition-transform drop-shadow-md">💳</span>
+                                <span class="text-[8px] font-black text-zinc-400 uppercase tracking-widest group-hover:text-blue-400 transition-colors">Tarjeta</span>
+                            </button>
+                        </div>
+
+
+
+                        <div class="bg-black rounded-2xl border border-zinc-800 p-6 text-center mb-6 shadow-inner relative z-10 mt-auto">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-[10px] font-black text-zinc-500 uppercase tracking-widest">TOTAL A COBRAR</span>
+                                <span class="text-3xl font-black text-green-400 tracking-tighter drop-shadow-[0_0_15px_rgba(34,197,94,0.2)] leading-none" id="caja-total-display">$0</span>
+                            </div>
+                            
+                            <div id="caja-iva-display" class="hidden text-right mb-4">
+                                <p class="text-[9px] text-zinc-500 font-bold uppercase tracking-widest">SUBTOTAL: <span id="caja-sub-val" class="text-white"></span> | IMPUESTO: <span id="caja-iva-val" class="text-yellow-500"></span></p>
+                            </div>
+                            
+                            <div class="border-t border-zinc-800/80 pt-4 flex justify-between items-center bg-zinc-950 p-2 rounded-xl">
+                                <span class="text-[9px] font-black text-pink-500 uppercase tracking-widest ml-2 flex items-center gap-1"><span>💖</span> Propina</span>
+                                <input type="text" inputmode="numeric" id="caja-propina" placeholder="$ 0" class="w-1/2 bg-black border border-zinc-800 rounded-lg p-2 text-white font-bold text-sm text-right outline-none focus:border-pink-500 transition-colors">
+                            </div>
+                        </div>
+
+                        <button type="button" id="btn-cobrar-caja" disabled class="w-full bg-indigo-600 text-white py-5 rounded-2xl font-black text-lg uppercase tracking-widest opacity-30 cursor-not-allowed transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:bg-indigo-500 btn-press relative z-10">
+                            🔒 FINALIZAR VENTA
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+
+
+
+
+
+
 
 
         <section id="view-config" class="view-section p-6 max-w-4xl mx-auto text-left">
@@ -848,8 +1083,6 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                     <h2 class="text-3xl font-black italic text-indigo-500 uppercase tracking-tighter">Configuración</h2>
                     <button type="button" onclick="showScreen('view-admin')" class="w-10 h-10 bg-red-900/20 text-red-500 rounded-xl flex items-center justify-center font-black text-lg border border-red-900/50 btn-press hover:bg-red-500 hover:text-white transition-colors">✕</button>
                 </div>
-
-
 
                 <div class="space-y-4">
                     <div class="bg-black/50 rounded-[2rem] border border-zinc-900 overflow-hidden">
@@ -1026,26 +1259,30 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                                     <div class="space-y-3 mb-4">
 
                                         <div class="flex flex-col gap-3 bg-[#050505] border border-zinc-800 p-3 rounded-xl transition-colors focus-within:border-indigo-500">
-    <div class="flex justify-center items-center gap-6">
-        <input type="hidden" id="edit-b-id" value="">
-        <div class="flex flex-col items-center gap-1">
-            <div class="w-14 h-14 bg-zinc-900 rounded-full flex flex-shrink-0 items-center justify-center cursor-pointer border border-zinc-700 overflow-hidden relative group shadow-lg" onclick="document.getElementById('add-b-foto').click()" title="Foto de Perfil">
-                <img id="preview-b-foto" src="" class="w-full h-full object-cover hidden absolute inset-0 z-10">
-                <span id="icon-b-foto" class="text-2xl group-hover:scale-110 transition-transform absolute z-0">👤</span>
-            </div>
-            <span class="text-[8px] text-zinc-500 font-bold uppercase">Foto</span>
-            <input type="file" id="add-b-foto" class="hidden" accept="image/*" onchange="previewFotoBarbero(this)">
+
+
+   <div class="flex justify-center items-center gap-6">
+    <input type="hidden" id="edit-b-id" value="">
+    <div class="flex flex-col items-center gap-1">
+        <div class="w-16 h-16 min-w-[64px] min-h-[64px] bg-zinc-900 rounded-full flex items-center justify-center cursor-pointer border border-zinc-700 overflow-hidden relative group shadow-lg shrink-0" onclick="document.getElementById('add-b-foto').click()" title="Foto de Perfil">
+            <img id="preview-b-foto" src="" class="w-full h-full object-cover hidden absolute inset-0 z-10">
+            <span id="icon-b-foto" class="text-2xl group-hover:scale-110 transition-transform absolute z-0">👤</span>
         </div>
-        
-        <div class="flex flex-col items-center gap-1">
-            <div class="w-14 h-14 bg-zinc-900 rounded-2xl flex flex-shrink-0 items-center justify-center cursor-pointer border border-zinc-700 overflow-hidden relative group shadow-lg" onclick="document.getElementById('add-b-qr').click()" title="QR Propinas">
-                <img id="preview-b-qr" src="" class="w-full h-full object-cover hidden absolute inset-0 z-10">
-                <span id="icon-b-qr" class="text-2xl group-hover:scale-110 transition-transform absolute z-0">📱</span>
-            </div>
-            <span class="text-[8px] text-zinc-500 font-bold uppercase">QR</span>
-            <input type="file" id="add-b-qr" class="hidden" accept="image/*" onchange="previewQRBarbero(this)">
-        </div>
+        <span class="text-[8px] text-zinc-500 font-bold uppercase">Foto</span>
+        <input type="file" id="add-b-foto" class="hidden" accept="image/*" onchange="previewFotoBarbero(this)">
     </div>
+    
+    <div class="flex flex-col items-center gap-1">
+        <div class="w-16 h-16 min-w-[64px] min-h-[64px] bg-zinc-900 rounded-[1rem] flex items-center justify-center cursor-pointer border border-zinc-700 overflow-hidden relative group shadow-lg shrink-0" onclick="document.getElementById('add-b-qr').click()" title="QR Propinas">
+            <img id="preview-b-qr" src="" class="w-full h-full object-cover hidden absolute inset-0 z-10">
+            <span id="icon-b-qr" class="text-2xl group-hover:scale-110 transition-transform absolute z-0">📱</span>
+        </div>
+        <span class="text-[8px] text-zinc-500 font-bold uppercase">QR</span>
+        <input type="file" id="add-b-qr" class="hidden" accept="image/*" onchange="previewQRBarbero(this)">
+    </div>
+</div>
+
+
     <input type="text" id="add-b-nom" placeholder="NOMBRE DEL BARBERO" class="w-full bg-black border border-zinc-700 p-4 rounded-xl text-xs font-black uppercase text-white outline-none focus:border-indigo-500 text-center tracking-widest shadow-inner">
 </div>
 
@@ -1109,6 +1346,8 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                         <button type="button" onclick="toggleAcc('acc-cobros', 'icon-cobros')" class="w-full flex justify-between items-center p-6 text-left hover:bg-white/5 transition-colors btn-press">
                             <span class="text-[11px] font-black text-zinc-300 uppercase tracking-widest flex items-center gap-2"><span class="text-lg">💳</span> Finanzas y Seguridad</span><span id="icon-cobros" class="text-zinc-500 font-black transition-transform duration-300">▼</span>
                         </button>
+
+
                         
                         <div id="acc-cobros" class="hidden px-6 pb-6 space-y-4 border-t border-zinc-800/50 pt-5">
                             
@@ -1123,7 +1362,9 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                                 <input type="text" inputmode="numeric" id="cfg-pago-anticipado-valor" placeholder="Valor del Abono (Ej: 5000)" class="w-full p-4 rounded-xl text-sm font-bold bg-[#050505] border border-yellow-900/50 text-yellow-400 text-center focus:border-yellow-500 outline-none transition-colors">
                             </div>
 
-<div class="bg-blue-900/10 p-5 rounded-[1.5rem] border border-blue-900/30 mt-4 mb-4 shadow-inner">
+
+                            
+<div class="bg-blue-900/10 p-5 rounded-[1.5rem] border border-blue-900/30 mt-4 shadow-inner">
                                 <div class="flex justify-between items-center mb-3 border-b border-blue-900/30 pb-3">
                                     <div class="flex flex-col">
                                         <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest flex items-center gap-2"><span class="text-xl">💳</span> Pasarela Wompi</p>
@@ -1133,14 +1374,15 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                                 </div>
                                 <p class="text-[8px] text-zinc-500 uppercase font-bold mb-1">Llave Pública (Public Key)</p>
                                 <input type="text" id="cfg-wompi-pub" autocomplete="new-password" spellcheck="false" data-lpignore="true" placeholder="Ej: pub_prod_XXXXXXXXXXXXXXXXX..." class="w-full p-4 rounded-xl text-xs font-bold bg-[#050505] border border-zinc-800 text-white focus:border-blue-500 outline-none transition-colors">
-
-                            <div class="bg-zinc-950 p-6 rounded-[1.5rem] border border-zinc-800">
+                            </div> <div class="bg-zinc-950 p-6 rounded-[1.5rem] border border-zinc-800 mt-4 mb-4">
                                 <div class="flex justify-between items-center mb-4">
                                     <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">🏛️ Impuestos (IVA/TAX)</p><input type="checkbox" id="cfg-iva-activo" class="w-6 h-6 accent-gray-500 cursor-pointer">
                                 </div>
                                 <input type="text" inputmode="numeric" id="cfg-iva-pct" placeholder="% de Impuesto (Ej: 19)" class="w-full p-4 rounded-xl text-sm font-bold bg-[#050505] border border-zinc-800 text-gray-300 text-center focus:border-gray-500 outline-none transition-colors">
                             </div>
-                            
+
+
+
                             <div class="bg-indigo-900/10 p-6 rounded-[1.5rem] border border-indigo-900/30">
                                 <p class="text-[10px] font-black text-indigo-400 mb-4 uppercase tracking-widest">💳 Datos para QR en POS y TV</p>
                                 <div class="mb-4">
@@ -1178,6 +1420,36 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
 
                                 <button type="button" onclick="saCambiarMasterPin()" class="w-full bg-green-600 text-white py-4 rounded-2xl font-black text-xs uppercase italic btn-press transition-colors shadow-lg">GUARDAR NUEVO PIN</button>
                             </div>
+                        </div>
+                    </div>
+
+<div class="bg-black/50 rounded-[2rem] border border-zinc-900 overflow-hidden mb-4">
+                        <button type="button" onclick="toggleAcc('acc-cajeros', 'icon-cajeros')" class="w-full flex justify-between items-center p-6 text-left hover:bg-white/5 transition-colors btn-press">
+                            <span class="text-[11px] font-black text-orange-400 uppercase tracking-widest flex items-center gap-2"><span class="text-lg">🖥️</span> Cajeros y Recepción</span><span id="icon-cajeros" class="text-zinc-500 font-black transition-transform duration-300">▼</span>
+                        </button>
+                        <div id="acc-cajeros" class="hidden px-6 pb-6 border-t border-zinc-800/50 pt-5">
+                            
+                            <div class="bg-zinc-950 p-6 rounded-[1.5rem] border border-zinc-800 shadow-inner">
+                                <p class="text-[10px] font-black text-orange-500 mb-4 uppercase tracking-widest">Registrar Cajero(a)</p>
+                                
+                                <div class="flex flex-col gap-3 mb-4">
+                                    <input type="hidden" id="edit-c-id" value="">
+                                    <input type="text" id="add-c-nom" placeholder="NOMBRE DEL CAJERO (Ej: María)" class="w-full bg-[#050505] border border-zinc-700 p-4 rounded-xl text-xs font-black uppercase text-white outline-none focus:border-orange-500 shadow-inner">
+                                    
+                                    <div class="flex gap-2">
+                                        <input type="password" inputmode="numeric" id="add-c-pin" autocomplete="new-password" placeholder="PIN (4 DÍGITOS)" class="w-1/2 p-4 text-xs rounded-xl font-bold text-center bg-[#050505] border border-zinc-800 text-white outline-none focus:border-orange-500">
+                                        <label class="w-1/2 flex items-center justify-center gap-2 bg-[#050505] border border-zinc-800 rounded-xl text-[9px] font-black text-zinc-400 uppercase cursor-pointer hover:border-orange-500 p-2 transition-colors">
+                                            <input type="checkbox" id="add-c-ciego" class="accent-orange-500 w-4 h-4" checked> Cierre Ciego
+                                        </label>
+                                    </div>
+                                    <p class="text-[8px] text-zinc-500 italic mt-1 leading-tight">El "Cierre Ciego" oculta el dinero esperado en caja para que la cajera solo declare lo que contó físicamente.</p>
+                                </div>
+
+                                <button type="button" onclick="configAddCajero()" class="w-full bg-orange-600 hover:bg-orange-500 text-white py-4 rounded-xl font-black uppercase text-[10px] tracking-widest btn-press transition-colors shadow-lg shadow-orange-600/20">GUARDAR CAJERO 👤</button>
+                            </div>
+                            
+                            <h4 class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-6 mb-2">Cajeros Activos</h4>
+                            <div id="cfg-lista-c" class="space-y-2 max-h-48 overflow-y-auto pr-1 scroll-safe"></div>
                         </div>
                     </div>
 
@@ -1599,9 +1871,14 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
 
 
 
+
+
+
+
         <div id="modal-ticket" class="hidden fixed inset-0 z-[300] bg-black/98 flex items-center justify-center p-6 text-center">
             <div class="glass p-8 rounded-[2rem] max-w-sm w-full border border-zinc-800 shadow-2xl relative max-h-[90vh] overflow-y-auto scroll-safe flex flex-col items-center">
-                <div class="bg-green-500 text-white w-16 h-16 rounded-full flex items-center justify-center text-4xl shadow-[0_0_20px_rgba(34,197,94,0.5)] border-4 border-[#050505] -mt-12 mb-4 z-10 relative">✓</div>
+                
+                <div class="bg-green-500 text-white w-16 h-16 rounded-full flex items-center justify-center text-4xl shadow-[0_0_20px_rgba(34,197,94,0.5)] border-4 border-[#050505] mb-4 z-10 shrink-0 mx-auto">✓</div>
                 
                 <h3 class="text-white font-black text-2xl uppercase mb-1 text-center tracking-tighter w-full">¡Exitoso!</h3>
                 <p id="ticket-fecha" class="text-zinc-500 text-[10px] font-bold uppercase mb-6 text-center w-full">TK N° --- | 20/03/2026</p>
@@ -1613,13 +1890,11 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                 </div>
 
                 <div class="flex gap-2 mb-3 w-full">
-                    <button type="button" onclick="cerrarModales()" class="flex-1 bg-zinc-900 py-4 rounded-xl font-black uppercase text-[10px] text-zinc-400 btn-press hover:bg-zinc-800 transition-colors">Cerrar</button>
+                    <button type="button" onclick="cerrarTicketInteligente()" class="flex-1 bg-zinc-900 py-4 rounded-xl font-black uppercase text-[10px] text-zinc-400 btn-press hover:bg-zinc-800 transition-colors border border-zinc-800">Cerrar</button>
                     <button type="button" id="btn-wp-ticket" class="hidden flex-[2] bg-[#25D366] text-[#050505] py-4 rounded-xl font-black uppercase text-[10px] btn-press hover:bg-[#20b858] transition-colors">💬 Enviar Ticket</button>
                 </div>
                 
-                <button type="button" id="btn-propina-barbero" onclick="mostrarQRPropina()" class="w-full mb-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-xl font-black uppercase text-[10px] btn-press shadow-[0_0_20px_rgba(217,70,239,0.3)] animate-pulse">
-                    💸 ¡DEJAR PROPINA AL BARBERO! 💸
-                </button>
+                
 
                 <button type="button" onclick="imprimirTicketTermico()" class="w-full bg-white text-black py-4 rounded-xl font-black uppercase text-[10px] btn-press hover:bg-gray-200 transition-colors">🖨️ IMPRIMIR TICKET</button>
             </div>
@@ -1957,28 +2232,37 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
 
         <div id="modal-mapa-detalle" class="hidden fixed inset-0 z-[700] bg-black/80 backdrop-blur-sm flex items-center justify-center p-6"></div>
 
-        <div id="btn-isi-ia" class="isi-ia-btn hidden" onclick="abrirIsiIa()">
-            <span class="text-xl">⚡</span>
-        </div>
+        
+        
 
-        <div id="box-isi-ia" class="isi-ia-chat glass">
-            <div class="isi-ia-header">
-                <div>
-                    <h4 class="font-black text-white italic tracking-widest">ISI IA ⚡</h4>
-                    <p class="text-[8px] text-[#0cd1b8] uppercase">Centro Inteligente</p>
+        <div class="fixed bottom-6 left-0 right-0 max-w-[1400px] mx-auto z-50 pointer-events-none px-4 sm:px-6 flex flex-col items-end justify-end">
+
+
+            
+            <div id="box-isi-ia" class="isi-ia-chat glass">
+                <div class="isi-ia-header">
+                    <div>
+                        <h4 class="font-black text-white italic tracking-widest">ISI IA ⚡</h4>
+                        <p class="text-[8px] text-[#0cd1b8] uppercase">Centro Inteligente</p>
+                    </div>
+                    <button type="button" onclick="cerrarIsiIa()" class="text-zinc-500 hover:text-white font-bold text-xl btn-press transition-colors">✕</button>
                 </div>
-                <button type="button" onclick="cerrarIsiIa()" class="text-zinc-500 hover:text-white font-bold text-xl btn-press transition-colors">✕</button>
+
+                <div class="isi-chat-history" id="isi-ia-content-scroll">
+                    <div id="isi-ia-dashboard"></div>
+                    <div id="isi-chat-history-list" class="mt-4 space-y-2 flex flex-col"></div>
+                </div>
+
+                <div class="p-3 border-t border-zinc-800 bg-[#050505] flex gap-2">
+                    <input type="text" id="isi-chat-input" placeholder="Pregúntale a ISI..." class="flex-1 bg-[#111] border border-zinc-800 rounded-xl p-3 text-xs text-white outline-none focus:border-[#0cd1b8] transition-colors" onkeypress="if(event.key === 'Enter') enviarMensajeIsi()">
+                    <button type="button" onclick="enviarMensajeIsi()" class="bg-gradient-to-r from-[#1e61ea] to-[#0cd1b8] hover:opacity-90 text-white px-5 py-2 rounded-xl text-xs font-black btn-press transition-opacity">▶</button>
+                </div>
             </div>
 
-            <div class="isi-chat-history" id="isi-ia-content-scroll">
-                <div id="isi-ia-dashboard"></div>
-                <div id="isi-chat-history-list" class="mt-4 space-y-2 flex flex-col"></div>
+            <div id="btn-isi-ia" class="isi-ia-btn hidden" onclick="abrirIsiIa()">
+                <span class="text-xl">⚡</span>
             </div>
-
-            <div class="p-3 border-t border-zinc-800 bg-[#050505] flex gap-2">
-                <input type="text" id="isi-chat-input" placeholder="Pregúntale a ISI..." class="flex-1 bg-[#111] border border-zinc-800 rounded-xl p-3 text-xs text-white outline-none focus:border-[#0cd1b8] transition-colors" onkeypress="if(event.key === 'Enter') enviarMensajeIsi()">
-                <button type="button" onclick="enviarMensajeIsi()" class="bg-gradient-to-r from-[#1e61ea] to-[#0cd1b8] hover:opacity-90 text-white px-5 py-2 rounded-xl text-xs font-black btn-press transition-opacity">▶</button>
-            </div>
+            
         </div>
 
     </div>
@@ -2370,6 +2654,7 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                     if (document.getElementById('view-agenda').classList.contains('active')) renderAgendaList();
                     if (document.getElementById('view-admin').classList.contains('active')) renderAdmin();
                     if (document.getElementById('view-barbero').classList.contains('active')) renderBarbero();
+                    if (document.getElementById('view-caja').classList.contains('active')) renderCaja(); 
                     if (document.getElementById('view-kiosko').classList.contains('active')) renderSemaforoKiosko();
                     
                     if (!silent) Swal.fire({ title: '¡Sincronizado!', icon: 'success', timer: 1500, showConfirmButton: false, background: '#0a0a0a', color: '#fff' });
@@ -2635,24 +2920,28 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
 
             // 🔒 ESCUDO ESTÉTICO SUPREMO: Limpiamos la URL de basura (v, ref, vip, index.html)
             // SOLO si no estamos regresando de Wompi (Wompi necesita su ID primero)
+            // 🔒 ESCUDO ESTÉTICO SUPREMO (Con Paracaídas Local)
             if (!wompiTxId) {
-                let rutaLimpia = window.location.pathname;
-                if (rutaLimpia.toLowerCase().endsWith('index.html')) {
-                    rutaLimpia = rutaLimpia.substring(0, rutaLimpia.length - 10); // Quita index.html
-                }
-                
-                // Mantenemos solo la llave del local para que si el cliente recarga la página, no se salga.
-                let paramsVitales = new URLSearchParams();
-                if (kioskId) paramsVitales.set('kiosk', kioskId);
-                if (screenMode) paramsVitales.set('screen', screenMode);
-                if (localIdCloud) paramsVitales.set('local', localIdCloud);
-                
-                let queryLimpio = paramsVitales.toString();
-                if (queryLimpio) rutaLimpia += '?' + queryLimpio;
-                
-                window.history.replaceState({}, document.title, rutaLimpia);
+                try {
+                    // Evitamos limpiar la URL si estamos abriendo el archivo localmente (doble clic)
+                    if (window.location.protocol !== 'file:') {
+                        let rutaLimpia = window.location.pathname;
+                        if (rutaLimpia.toLowerCase().endsWith('index.html')) {
+                            rutaLimpia = rutaLimpia.substring(0, rutaLimpia.length - 10); 
+                        }
+                        
+                        let paramsVitales = new URLSearchParams();
+                        if (kioskId) paramsVitales.set('kiosk', kioskId);
+                        if (screenMode) paramsVitales.set('screen', screenMode);
+                        if (localIdCloud) paramsVitales.set('local', localIdCloud);
+                        
+                        let queryLimpio = paramsVitales.toString();
+                        if (queryLimpio) rutaLimpia += '?' + queryLimpio;
+                        
+                        window.history.replaceState({}, document.title, rutaLimpia);
+                    }
+                } catch(e) { console.log("Omitiendo limpieza de URL en modo local."); }
             }
-
             if (screenMode === 'tv' && localIdCloud) {
                 bIdx = db.barberias.findIndex(b => b.id_nube === localIdCloud);
                 if(bIdx === -1) {
@@ -2761,15 +3050,20 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
 
             let localIdx = db.barberias.findIndex(x => x.pinAdmin === pin);
             let isBarbero = false; let barberoName = ""; 
+            let isCajero = false; let cajeroData = null; // 👑 NUEVO: Detector de Cajeros
             
             if (localIdx === -1) {
                 for (let i = 0; i < db.barberias.length; i++) {
                     let bs = db.barberias[i].barberos?.find(x => x.pin === pin);
                     if (bs) { localIdx = i; isBarbero = true; barberoName = bs.nom; break; }
+                    
+                    // 👑 Buscamos si es Cajera
+                    let cs = db.barberias[i].cajeros?.find(x => x.pin === pin);
+                    if (cs) { localIdx = i; isCajero = true; cajeroData = cs; break; }
                 }
             }
 
-            // 🚀 NUEVA LÓGICA: Si hay internet, SIEMPRE preguntamos a la nube PRIMERO para ver si el Master te desbloqueó
+            // 🚀 NUEVA LÓGICA: Si hay internet, SIEMPRE preguntamos a la nube PRIMERO
             if (isOnline) {
                 try {
                     const timeoutPromiseAuth = new Promise((_, r) => setTimeout(() => r(new Error("TimeoutAuth")), 15000));
@@ -2784,6 +3078,14 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                         }
                     }
 
+                    if (!store) {
+                        const { data: stCajero } = await Promise.race([supabaseClient.from('stores').select('*').contains('json_data', { cajeros: [{ pin: pin }] }).limit(1), timeoutPromiseAuth]);
+                        if (stCajero && stCajero.length > 0) { 
+                            store = stCajero[0]; isCajero = true; 
+                            let cs = store.json_data.cajeros.find(x => x.pin === pin); cajeroData = cs; 
+                        }
+                    }
+
                     if (store) {
                         let bData = store.json_data || {}; 
                         bData.id_nube = store.id; bData.nombre = store.name; bData.pinAdmin = store.owner_pin;
@@ -2791,23 +3093,19 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                         if (localIdx === -1) { 
                             db.barberias.push(bData); localIdx = db.barberias.length - 1; 
                         } else { 
-                            // 💡 MAGIA: Actualizamos los días y el bloqueo con lo que dice la Nube
                             db.barberias[localIdx].bloqueado = bData.bloqueado;
                             db.barberias[localIdx].diasSuscripcion = bData.diasSuscripcion;
                             db.barberias[localIdx].plan = bData.plan;
-                            
-                            // 🚀 PARCHE: Descargar el estado de Mantenimiento antes de dejarlo entrar
                             db.barberias[localIdx].alertaMsg = bData.alertaMsg;
                             db.barberias[localIdx].alertaBlock = bData.alertaBlock;
                         }
-                        if(typeof saveDB === 'function') saveDB(false); // Guardamos la actualización en la memoria
+                        if(typeof saveDB === 'function') saveDB(false); 
                     }
                 } catch(e) {
                     console.log("Internet lento. Usando datos guardados en el celular.");
                 }
             }
 
-            // AHORA SÍ revisamos si está bloqueado con los datos fresquitos
             if (localIdx > -1) {
                 const bVerif = db.barberias[localIdx]; 
                 const diffDays = Math.floor((Date.now() - (bVerif.creadoEn || Date.now())) / (1000 * 60 * 60 * 24));
@@ -2817,78 +3115,67 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                     document.getElementById('pantalla-bloqueo').classList.remove('hidden'); 
                     document.getElementById('app-content').classList.add('hidden'); 
                     
-                    // 🚀 AUTO-PARCHE: Mostrar pantalla de mantenimiento si está en bloqueo total
                     if (bVerif.alertaBlock) {
                         document.getElementById('pantalla-bloqueo').innerHTML = `
                         <div class="glass p-8 sm:p-10 rounded-[3rem] border border-orange-500/30 shadow-[0_0_40px_rgba(249,115,22,0.2)] max-w-md w-full relative overflow-hidden">
-                            
                             <span class="text-7xl mb-4 block animate-bounce drop-shadow-[0_0_15px_rgba(249,115,22,0.8)]">🚀</span>
                             <h1 class="text-3xl font-black text-orange-500 mb-1 uppercase italic tracking-tighter">ACTUALIZANDO</h1>
                             <p class="text-[10px] font-black text-yellow-500 uppercase tracking-[0.3em] mb-6">Mejorando tu experiencia</p>
-                            
                             <div class="bg-orange-900/20 border border-orange-500/30 p-5 rounded-2xl mb-6 shadow-inner">
-                                <p class="text-white text-sm sm:text-base font-bold leading-relaxed">"${bVerif.alertaMsg || 'Instalando nuevas mejoras en el sistema...'}"</p>
+                                <p class="text-white text-sm sm:text-base font-bold leading-relaxed">"${bVerif.alertaMsg || 'Instalando nuevas mejoras...'}"</p>
                             </div>
-                            
                             <p class="text-[9px] text-zinc-500 uppercase tracking-widest mb-6 border-t border-zinc-800 pt-4">El Kiosko público sigue funcionando normal para tus clientes.</p>
                             <button type="button" onclick="verificarDesbloqueoMantenimiento(this)" class="w-full bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-black py-4 rounded-2xl font-black uppercase tracking-widest btn-press transition-all shadow-[0_0_20px_rgba(249,115,22,0.4)]">INTENTAR DE NUEVO</button>
                         </div>`;
                     }
-                    
-                    pinInput.value = ""; 
-                    return; 
+                    pinInput.value = ""; return; 
                 }
                 
-                bIdx = localIdx; session = { rol: isBarbero ? 'barbero' : 'admin', nom: barberoName };
+                bIdx = localIdx; 
+                
+                // 👑 ASIGNAMOS EL ROL CORRECTO
+                if (isCajero) {
+                    session = { rol: 'cajero', nom: cajeroData.nom, ciego: cajeroData.cierreCiego };
+                } else {
+                    session = { rol: isBarbero ? 'barbero' : 'admin', nom: barberoName };
+                }
                 
                 if (isBarbero) { 
-    const b = db.barberias[bIdx]; if (!b.asistencia) b.asistencia = {}; const hoy = getTodayYMD(); 
-    if (!b.asistencia[hoy]) b.asistencia[hoy] = {}; 
-    
-    // Si es su primer login del día...
-    if (!b.asistencia[hoy][session.nom] || !b.asistencia[hoy][session.nom].ingreso) { 
-        const now = new Date();
-        b.asistencia[hoy][session.nom] = { ingreso: now.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }), salida: "--" }; 
-        
-        // 🚨 MOTOR DE MULTAS AUTOMÁTICAS
-        if (b.configMultas && b.configMultas.activo && b.configMultas.valor > 0) {
-            const myBarb = (b.barberos || []).find(x => x.nom === session.nom);
-            if (myBarb && myBarb.horaInicio) {
-                const minIngreso = now.getHours() * 60 + now.getMinutes();
-                const minEsperado = timeToMins(myBarb.horaInicio);
-                const tol = parseInt(b.configMultas.tolerancia) || 15;
-                
-                if (minIngreso > (minEsperado + tol)) {
-                    if (!b.multas) b.multas = [];
-                    b.multas.push({ id: Date.now().toString(), barbero: session.nom, fecha: hoy, valor: b.configMultas.valor });
-                    
-                    // Alerta al barbero de su retraso
-                    setTimeout(() => {
-                        Swal.fire({
-                            title: '¡Llegada Tarde! ⏰',
-                            html: `<p class="text-xs text-zinc-300">Tu turno iniciaba a las <b>${formatTime12h(myBarb.horaInicio)}</b>.<br>Se te ha aplicado una multa automática de <b class="text-red-500">${fMoney(b.configMultas.valor)}</b>.</p>`,
-                            icon: 'warning', background: '#111', color: '#fff', confirmButtonColor: '#dc2626'
-                        });
-                    }, 2000);
+                    const b = db.barberias[bIdx]; if (!b.asistencia) b.asistencia = {}; const hoy = getTodayYMD(); 
+                    if (!b.asistencia[hoy]) b.asistencia[hoy] = {}; 
+                    if (!b.asistencia[hoy][session.nom] || !b.asistencia[hoy][session.nom].ingreso) { 
+                        const now = new Date();
+                        b.asistencia[hoy][session.nom] = { ingreso: now.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }), salida: "--" }; 
+                        if (b.configMultas && b.configMultas.activo && b.configMultas.valor > 0) {
+                            const myBarb = (b.barberos || []).find(x => x.nom === session.nom);
+                            if (myBarb && myBarb.horaInicio) {
+                                const minIngreso = now.getHours() * 60 + now.getMinutes();
+                                const minEsperado = timeToMins(myBarb.horaInicio);
+                                const tol = parseInt(b.configMultas.tolerancia) || 15;
+                                if (minIngreso > (minEsperado + tol)) {
+                                    if (!b.multas) b.multas = [];
+                                    b.multas.push({ id: Date.now().toString(), barbero: session.nom, fecha: hoy, valor: b.configMultas.valor });
+                                    setTimeout(() => { Swal.fire({ title: '¡Llegada Tarde! ⏰', html: `<p class="text-xs text-zinc-300">Tu turno iniciaba a las <b>${formatTime12h(myBarb.horaInicio)}</b>.<br>Multa aplicada de <b class="text-red-500">${fMoney(b.configMultas.valor)}</b>.</p>`, icon: 'warning', background: '#111', color: '#fff', confirmButtonColor: '#dc2626' }); }, 2000);
+                                }
+                            }
+                        }
+                    } 
                 }
-            }
-        }
-    } 
-}
                 
                 if(typeof saveDB === 'function') saveDB(false); 
                 if(typeof saveSession === 'function') saveSession(); 
                 pinInput.value = ""; Swal.close(); 
+                
+                // 🚪 PUERTAS DE REDIRECCIÓN
                 if (session.rol === 'admin') {
-                    if (bVerif.franquiciaActiva) {
-                        showScreen('view-franquicia');
-                        renderFranquiciaMaster();
-                    } else {
-                        showScreen('view-admin');
-                    }
+                    if (bVerif.franquiciaActiva) { showScreen('view-franquicia'); renderFranquiciaMaster(); } 
+                    else { showScreen('view-admin'); }
+                } else if (session.rol === 'cajero') {
+                    showScreen('view-caja'); // 👑 LA NUEVA PUERTA DE SMART CASH
                 } else {
                     showScreen('view-barbero');
                 } 
+                
                 if(typeof forzarSincronizacionNube === 'function') forzarSincronizacionNube(true); 
                 return;
             } else {
@@ -2909,6 +3196,7 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
             if (window.syncTVInterval) clearInterval(window.syncTVInterval);
             if (window.notifCitasInterval) clearInterval(window.notifCitasInterval);
             if (window.kioskoSyncInterval) clearInterval(window.kioskoSyncInterval);
+            if (window.tvRelojGiganteInterval) clearInterval(window.tvRelojGiganteInterval);
         }
         
         function actionLogout() { 
@@ -2941,8 +3229,30 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
                 nav.classList.add('hidden'); if (isiBtn) isiBtn.classList.add('hidden');
             } else {
                 nav.classList.remove('hidden');
+                
+                // 🪄 MAGIA: Ajustar el ancho de la barra de navegación dinámicamente al tamaño del panel
+                nav.className = nav.className.replace(/max-w-\[1400px\]|max-w-5xl|max-w-4xl|max-w-2xl|max-w-7xl/g, '').trim();
+                if (id === 'view-caja' || id === 'view-agenda') nav.classList.add('max-w-[1400px]');
+                else if (id === 'view-admin' || id === 'view-franquicia') nav.classList.add('max-w-5xl');
+                else if (id === 'view-config') nav.classList.add('max-w-4xl');
+                else if (id === 'view-barbero') nav.classList.add('max-w-2xl');
+                else nav.classList.add('max-w-5xl');
+
                 if (bIdx > -1 && db.barberias[bIdx]) {
                     document.getElementById('nav-title').innerText = db.barberias[bIdx].nombre;
+// ⚡ NUEVO: INYECCIÓN DINÁMICA DEL TÍTULO CENTRAL EN LA BARRA MAESTRA
+                const centerModule = document.getElementById('nav-center-module');
+                if (centerModule) {
+                    if (id === 'view-caja') {
+                        centerModule.innerHTML = `<h2 class="text-lg font-black italic text-white uppercase tracking-tighter leading-none drop-shadow-md"><span class="text-2xl mr-1">⚡</span> ZEUS SMART <span class="text-orange-500">CASH</span></h2><p class="text-[8px] text-zinc-400 font-bold uppercase tracking-widest mt-1 flex items-center justify-center gap-1"><span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_5px_rgba(34,197,94,0.8)]"></span> CAJA ACTIVA: <span id="global-caja-nombre" class="text-white font-black">---</span></p>`;
+                    } else if (id === 'view-admin') {
+                        centerModule.innerHTML = `<h2 class="text-lg font-black italic text-white uppercase tracking-tighter leading-none drop-shadow-md">PANEL <span class="text-indigo-500">ADMINISTRADOR</span></h2>`;
+                    } else if (id === 'view-barbero') {
+                        centerModule.innerHTML = `<h2 class="text-lg font-black italic text-white uppercase tracking-tighter leading-none drop-shadow-md">MI PUNTO DE <span class="text-cyan-500">VENTA</span></h2>`;
+                    } else {
+                        centerModule.innerHTML = ``;
+                    }
+                }
                     document.getElementById('nav-id').innerText = `ID: ${db.barberias[bIdx].id_nube || db.barberias[bIdx].id}`;
                     if (db.barberias[bIdx].logo) { document.getElementById('nav-logo-img').src = db.barberias[bIdx].logo; document.getElementById('nav-logo-img').classList.remove('hidden'); document.getElementById('nav-logo-txt').classList.add('hidden'); }
                 }
@@ -2953,6 +3263,7 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
             if (id === 'view-admin') renderAdmin();
             if (id === 'view-config') renderConfig();
             if (id === 'view-barbero') renderBarbero();
+            if (id === 'view-caja') renderCaja();
             if (id === 'view-agenda') { tempServicios = []; document.getElementById('agenda-filtro-fecha').value = getTodayYMD(); renderAgendaList(); }
             if (id === 'view-superadmin') { renderSuperAdmin(); if (isiBtn) isiBtn.classList.remove('hidden'); }
             
@@ -3360,52 +3671,63 @@ body.theme-estetica .shadow-\[0_0_10px_rgba\(59\,130\,246\,0\.2\)\] { box-shadow
 
 
 
-            // 🚀 CÁLCULO DE NÓMINA INTELIGENTE (CON MULTAS AUTOMÁTICAS)
-        document.getElementById('admin-nomina').innerHTML = (b.barberos || []).map(bar => {
-            const cB = bar.comision !== undefined ? bar.comision : 50; 
-            const cP = bar.comisionProd !== undefined ? bar.comisionProd : 0; 
-            
-            const vServicios = (b.ventas || []).filter(v => v.barbero === bar.nom && !v.esProducto && v.barbero !== "ADMIN");
-            const vProductos = (b.ventas || []).filter(v => v.barbero === bar.nom && v.esProducto && v.barbero !== "ADMIN");
-            
-            const baseServicios = vServicios.reduce((a, v) => a + v.valor, 0); 
-            const baseProductos = vProductos.reduce((a, v) => a + v.valor, 0); 
-            
-            const aPagarServicios = baseServicios * (cB / 100);
-            const aPagarProductos = baseProductos * (cP / 100);
+            // 🚀 CÁLCULO DE NÓMINA INTELIGENTE (CON CAJEROS Y MULTAS)
+            let staffCompleto = [];
+            if(b.barberos) staffCompleto = staffCompleto.concat(b.barberos.map(x => ({...x, tipo: 'barbero'})));
+            if(b.cajeros) staffCompleto = staffCompleto.concat(b.cajeros.map(x => ({...x, tipo: 'cajero', comision: 0, comisionProd: 0})));
 
-            // ⚖️ CÁLCULO DE MULTAS
-            const multasBarbero = (b.multas || []).filter(m => m.barbero === bar.nom);
-            const totalMultas = multasBarbero.reduce((a, m) => a + m.valor, 0);
-            
-            // EL DESCUENTO FINAL
-            const aPagarTotal = aPagarServicios + aPagarProductos - totalMultas;
+            document.getElementById('admin-nomina').innerHTML = staffCompleto.map(bar => {
+                const esCajero = bar.tipo === 'cajero';
+                const cB = bar.comision !== undefined ? bar.comision : 0; 
+                const cP = bar.comisionProd !== undefined ? bar.comisionProd : 0; 
+                
+                const vServicios = (b.ventas || []).filter(v => v.barbero === bar.nom && !v.esProducto && v.barbero !== "ADMIN");
+                const vProductos = (b.ventas || []).filter(v => v.barbero === bar.nom && v.esProducto && v.barbero !== "ADMIN");
+                
+                const baseServicios = vServicios.reduce((a, v) => a + v.valor, 0); 
+                const baseProductos = vProductos.reduce((a, v) => a + v.valor, 0); 
+                
+                const aPagarServicios = baseServicios * (cB / 100);
+                const aPagarProductos = baseProductos * (cP / 100);
 
-            let htmlMultas = '';
-            if (totalMultas > 0) {
-                htmlMultas = `<div class="text-left md:text-right bg-red-900/20 px-2 py-1 rounded-lg border border-red-900/30"><p class="text-[7px] text-red-500 uppercase font-black tracking-widest">Multas (x${multasBarbero.length})</p><p class="text-[10px] text-red-400 font-bold">-${fMoney(totalMultas)}</p></div>`;
-            }
+                const multasBarbero = (b.multas || []).filter(m => m.barbero === bar.nom);
+                const totalMultas = multasBarbero.reduce((a, m) => a + m.valor, 0);
+                
+                const aPagarTotal = aPagarServicios + aPagarProductos - totalMultas;
 
-            return `
-            <div class="glass p-6 rounded-3xl border border-zinc-800 mb-3 flex flex-col md:flex-row justify-between md:items-center gap-4">
-                <div class="flex-1">
-                    <h4 class="font-black uppercase text-lg text-white">${bar.nom}</h4>
-                    <div class="flex gap-2 mt-2 flex-wrap">
-                        <span class="text-[9px] bg-indigo-600/20 text-indigo-400 px-3 py-1 rounded-lg font-bold">✂️ ${vServicios.length} Cortes (${cB}%)</span>
-                        <span class="text-[9px] bg-purple-600/20 text-purple-400 px-3 py-1 rounded-lg font-bold">🧴 ${vProductos.length} Prods (${cP}%)</span>
+                let htmlMultas = '';
+                if (totalMultas > 0) {
+                    htmlMultas = `<div class="text-left md:text-right bg-red-900/20 px-2 py-1 rounded-lg border border-red-900/30"><p class="text-[7px] text-red-500 uppercase font-black tracking-widest">Multas (x${multasBarbero.length})</p><p class="text-[10px] text-red-400 font-bold">-${fMoney(totalMultas)}</p></div>`;
+                }
+
+                const bgSrv = esCajero ? 'bg-orange-600/20 text-orange-400' : 'bg-indigo-600/20 text-indigo-400';
+                const bgPrd = esCajero ? 'bg-yellow-600/20 text-yellow-400' : 'bg-purple-600/20 text-purple-400';
+                const textSrv = esCajero ? 'text-orange-400' : 'text-indigo-400';
+                const textPrd = esCajero ? 'text-yellow-400' : 'text-purple-400';
+                const tituloRol = esCajero ? '<span class="text-[8px] bg-orange-600/20 text-orange-500 px-2 py-0.5 rounded border border-orange-500/30 ml-2 align-middle">CAJERO</span>' : '';
+                const bordeCard = esCajero ? 'border-orange-900/50' : 'border-zinc-800';
+                const colorNombre = esCajero ? 'text-orange-400' : 'text-white';
+
+                return `
+                <div class="glass p-6 rounded-3xl border ${bordeCard} mb-3 flex flex-col md:flex-row justify-between md:items-center gap-4 shadow-lg">
+                    <div class="flex-1">
+                        <h4 class="font-black uppercase text-lg ${colorNombre}">${bar.nom} ${tituloRol}</h4>
+                        <div class="flex gap-2 mt-2 flex-wrap">
+                            <span class="text-[9px] ${bgSrv} px-3 py-1 rounded-lg font-bold">${esCajero ? '🖥️' : '✂️'} ${vServicios.length} Cobros (${cB}%)</span>
+                            <span class="text-[9px] ${bgPrd} px-3 py-1 rounded-lg font-bold">🧴 ${vProductos.length} Prods (${cP}%)</span>
+                        </div>
                     </div>
-                </div>
-                <div class="text-left md:text-right bg-black/50 p-4 rounded-2xl w-full md:w-auto min-w-[200px] border border-zinc-800/50 shadow-inner">
-                    <div class="flex justify-between md:justify-end gap-3 mb-3 border-b border-zinc-800 pb-3 flex-wrap">
-                        <div class="text-left md:text-right"><p class="text-[7px] text-zinc-500 uppercase font-bold tracking-widest">Base Serv</p><p class="text-[10px] text-indigo-400 font-bold">${fMoney(baseServicios)}</p></div>
-                        <div class="text-left md:text-right"><p class="text-[7px] text-zinc-500 uppercase font-bold tracking-widest">Base Prod</p><p class="text-[10px] text-purple-400 font-bold">${fMoney(baseProductos)}</p></div>
-                        ${htmlMultas}
+                    <div class="text-left md:text-right bg-black/50 p-4 rounded-2xl w-full md:w-auto min-w-[200px] border border-zinc-800/50 shadow-inner">
+                        <div class="flex justify-between md:justify-end gap-3 mb-3 border-b border-zinc-800 pb-3 flex-wrap">
+                            <div class="text-left md:text-right"><p class="text-[7px] text-zinc-500 uppercase font-bold tracking-widest">Base Serv</p><p class="text-[10px] ${textSrv} font-bold">${fMoney(baseServicios)}</p></div>
+                            <div class="text-left md:text-right"><p class="text-[7px] text-zinc-500 uppercase font-bold tracking-widest">Base Prod</p><p class="text-[10px] ${textPrd} font-bold">${fMoney(baseProductos)}</p></div>
+                            ${htmlMultas}
+                        </div>
+                        <span class="font-black text-2xl ${aPagarTotal >= 0 ? 'text-green-400' : 'text-red-500'} block tracking-tighter">${fMoney(aPagarTotal)}</span>
+                        <p class="text-[8px] ${aPagarTotal >= 0 ? 'text-green-600' : 'text-red-600'} font-black tracking-widest mt-0.5 uppercase">Total a Pagar</p>
                     </div>
-                    <span class="font-black text-2xl ${aPagarTotal >= 0 ? 'text-green-400' : 'text-red-500'} block tracking-tighter">${fMoney(aPagarTotal)}</span>
-                    <p class="text-[8px] ${aPagarTotal >= 0 ? 'text-green-600' : 'text-red-600'} font-black tracking-widest mt-0.5 uppercase">Total a Pagar</p>
-                </div>
-            </div>`;
-        }).join('') || `<p class="text-zinc-600 text-xs italic ml-5">No hay barberos.</p>`;
+                </div>`;
+            }).join('') || `<p class="text-zinc-600 text-xs italic ml-5">No hay personal registrado.</p>`;
 
 
 // 🧠 CEREBRO INTELIGENCIA DE NEGOCIO Y AUTO-PARCHE
@@ -3802,6 +4124,11 @@ function verificarCumpleanosPOS() {
                 session.rol === 'admin' ? renderAdmin() : renderBarbero();
             } catch (err) { console.error(err); Swal.fire('Error', 'No se pudo procesar la venta.', 'error'); }
         }
+
+
+
+
+
 
         function imprimirTicketTermico() {
             if (!lastTicketData) return; const t = lastTicketData; const b = db.barberias[bIdx];
@@ -5278,9 +5605,17 @@ function renderAgendaList() {
             const cli = cleanStr(document.getElementById('kio-nombre').value).toUpperCase();
             const f = document.getElementById('kio-fecha').value;
             const cel = cleanNum(document.getElementById('kio-celular').value);
+            const barb = document.getElementById('kio-barbero').value;
 
-            // Validamos que el carrito no esté vacío
-            if (!cli || tempServicios.length === 0 || !f || !selectedKioTime) return Swal.fire({ title: '¡Faltan Datos!', text: 'Nombre, servicios, fecha y hora requeridos.', icon: 'warning', background: '#0a0a0a', color: '#fff' });
+            // 🔥 VALIDACIÓN ESTRICTA ANTI-ERRORES
+            if (!cli) return Swal.fire('Falta Nombre', 'Por favor ingresa tu nombre.', 'warning');
+            if (!cel || cel.length < 10) return Swal.fire('Falta Celular', 'Ingresa un celular válido de 10 dígitos.', 'warning');
+            if (tempServicios.length === 0) return Swal.fire('Faltan Servicios', 'Selecciona al menos un servicio del catálogo.', 'warning');
+            if (!f) return Swal.fire('Falta Fecha', 'Selecciona la fecha para tu cita.', 'warning');
+            if (!barb) return Swal.fire('Falta Barbero', 'Selecciona quién te va a atender.', 'warning');
+            if (!selectedKioTime) return Swal.fire('Falta Hora', 'Debes tocar uno de los horarios disponibles en la lista.', 'warning');
+
+            
 
             // 🛑 SISTEMA DE KARMA ANTI-FANTASMAS
             const idCli = cel || cli;
@@ -5544,15 +5879,88 @@ function renderAgendaList() {
 
         
 
+        let vinoDesdeCaja = false; // Bandera inteligente
+
+        function abrirKioskoDesdeCaja(celular = "", nombre = "") {
+            vinoDesdeCaja = true;
+            kiosko_bIdx = bIdx; // Le enseñamos al Kiosko qué local somos
+            
+            const b = db.barberias[kiosko_bIdx];
+            
+            // Limpiamos el Kiosko y lo precargamos si nos pasaron cliente
+            document.getElementById('kio-fecha').value = getTodayYMD();
+            document.getElementById('kio-nombre').value = nombre;
+            document.getElementById('kio-celular').value = celular;
+            document.getElementById('kio-barbero').value = "";
+            document.getElementById('kio-titulo-local').innerText = b.nombre;
+            
+            tempServicios = [];
+            renderServiciosTempKiosko();
+            renderSemaforoKiosko(); // 🔥 ESTO REPARA QUE SALGAN LOS BARBEROS
+            
+            if(celular) verificarClienteKiosko(); // Dispara la revisión VIP si existe
+            
+            showScreen('view-kiosko');
+        }
+
         function volverAInicioKiosko() { 
             document.getElementById('kio-nombre').value = ""; 
             document.getElementById('kio-celular').value = ""; 
             document.getElementById('kio-barbero').value = ""; 
-            tempServicios = []; // Limpiamos el carrito
-            renderServiciosTempKiosko(); // Renderizamos el carrito
+            tempServicios = []; 
+            renderServiciosTempKiosko(); 
             renderKioskoSlots(); 
             window.scrollTo(0, 0); 
-            showScreen('view-login'); 
+            
+            // 🔥 REPARACIÓN: Si vino desde la caja, vuelve a la caja
+            if (vinoDesdeCaja) {
+                vinoDesdeCaja = false;
+                showScreen('view-caja');
+            } else {
+                showScreen('view-login'); 
+            }
+        }
+
+        // ⚡ LÓGICA DE ACCIONES RÁPIDAS (CAJA)
+        function cajaAccionEnviarFactura(celular) {
+            const b = db.barberias[bIdx];
+            if (!b.tickets || b.tickets.length === 0) return Swal.fire('Sin datos', 'No hay facturas registradas.', 'info');
+            const lastTicket = [...b.tickets].reverse().find(t => t.celular === celular);
+            if (!lastTicket) return Swal.fire('Sin datos', 'Este cliente no tiene facturas previas.', 'info');
+            
+            let mSaludo = b.msgBienvenida || 'Gracias por visitarnos';
+            let msj = `✂️ *COPIA DE RECIBO*\n\n${mSaludo}\n\n*Recibo N°:* ${lastTicket.ticketId}\n*Total:* ${fMoney(lastTicket.total)}\n*Método:* ${lastTicket.metodo}`;
+            window.open(`https://wa.me/57${celular}?text=${encodeURIComponent(msj)}`, '_blank');
+        }
+
+        function cajaAccionPedirResena(celular) {
+            const b = db.barberias[bIdx];
+            if (!b.linkGoogle || b.linkGoogle.length < 5) return Swal.fire('Falta Link', 'Debes configurar tu link de Google Maps en los Ajustes del sistema.', 'warning');
+            let msj = `¡Hola! Esperamos que hayas disfrutado tu servicio en ${b.nombre}. ⭐\n\n¿Nos regalas 1 minuto para calificarnos en Google? Nos ayuda muchísimo a crecer:\n${b.linkGoogle}\n\n¡Gracias por tu apoyo!`;
+            window.open(`https://wa.me/57${celular}?text=${encodeURIComponent(msj)}`, '_blank');
+        }
+
+        function cajaAccionHistorial(celular) {
+            const b = db.barberias[bIdx];
+            const misTickets = (b.tickets || []).filter(t => t.celular === celular).reverse();
+            if (misTickets.length === 0) return Swal.fire('Historial', 'No hay servicios registrados aún.', 'info');
+            
+            let html = misTickets.slice(0, 10).map(t => `
+                <div class="bg-black border border-zinc-800 p-3 rounded-xl mb-2 flex justify-between items-center text-left shadow-inner">
+                    <div>
+                        <p class="text-[10px] font-black text-white uppercase">${t.fecha}</p>
+                        <p class="text-[8px] text-zinc-400 mt-0.5">${t.items ? t.items.map(i=>i.nom).join(', ') : 'Servicio'}</p>
+                    </div>
+                    <span class="text-green-400 font-black text-xs">${fMoney(t.total)}</span>
+                </div>
+            `).join('');
+            
+            Swal.fire({
+                title: '<span class="text-lg font-black uppercase text-indigo-400">Últimos Servicios</span>',
+                html: `<div class="max-h-60 overflow-y-auto pr-1 mt-2">${html}</div>`,
+                background: '#111', color: '#fff', confirmButtonText: 'CERRAR', confirmButtonColor: '#3f3f46',
+                customClass: { popup: 'rounded-[2rem] border border-zinc-800 shadow-2xl' }
+            });
         }
 
         function copiarLinkKiosko() { const link = document.getElementById('cfg-kiosko-link'); link.select(); document.execCommand('copy'); Swal.fire({ title: '¡Copiado!', icon: 'success', timer: 1500, showConfirmButton: false, toast: true, position: 'top-end', background: '#0a0a0a', color: '#fff' }); }
@@ -5571,7 +5979,14 @@ function renderAgendaList() {
                 document.getElementById('print-area').innerHTML = ''; // Borra el QR del fondo al terminar
             }, 500);
         }
-function copiarLinkVIP() { const link = document.getElementById('cfg-vip-link-directo'); link.select(); document.execCommand('copy'); Swal.fire({ title: '¡Copiado!', text:'Envíalo a tus clientes', icon: 'success', timer: 1500, showConfirmButton: false, background: '#0a0a0a', color: '#fff' }); }
+
+        function copiarLinkVIP() { const link = document.getElementById('cfg-vip-link-directo'); link.select(); document.execCommand('copy'); Swal.fire({ title: '¡Copiado!', text:'Envíalo a tus clientes', icon: 'success', timer: 1500, showConfirmButton: false, background: '#0a0a0a', color: '#fff' }); }
+
+
+
+
+
+
         
         function imprimirQRVIP() {
             const b = db.barberias[bIdx]; const qrCanvas = document.querySelector('#cfg-vip-qr-print canvas');
@@ -5724,6 +6139,8 @@ function copiarLinkVIP() { const link = document.getElementById('cfg-vip-link-di
             }).join('') || `<p class="text-center text-zinc-600 text-xs py-4">No hay facturas registradas.</p>`;
         }
 
+
+
         // Función para mostrar la foto en grande cuando toquen el botón
         function verEvidenciaPago(tid) {
             const t = (db.barberias[bIdx].tickets || []).find(x => x.ticketId === tid);
@@ -5743,17 +6160,54 @@ function copiarLinkVIP() { const link = document.getElementById('cfg-vip-link-di
         }
 
         function anularFactura(tid) {
-            Swal.fire({ title: '¿Anular esta factura?', text: 'El dinero se restará de la caja y el stock volverá al inventario.', icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc2626', background: '#0a0a0a', color: '#fff' }).then((r) => {
+            Swal.fire({ 
+                title: '¿Anular esta factura?', 
+                text: 'Escribe el MOTIVO de la anulación (Ej: Devolución de dinero, error de cobro):', 
+                input: 'textarea',
+                inputPlaceholder: 'Motivo obligatorio...',
+                icon: 'warning', 
+                showCancelButton: true, 
+                confirmButtonColor: '#dc2626', 
+                confirmButtonText: 'Anular Factura',
+                cancelButtonText: 'Cancelar',
+                background: '#0a0a0a', color: '#fff',
+                preConfirm: (motivo) => {
+                    if (!motivo || motivo.trim() === "") { Swal.showValidationMessage('Debes escribir un motivo'); return false; }
+                    return motivo;
+                }
+            }).then((r) => {
                 if (r.isConfirmed) {
                     const b = db.barberias[bIdx]; const t = (b.tickets || []).find(x => x.ticketId === tid); if (!t) return;
+                    
                     t.anulado = true;
+                    t.motivoAnulacion = r.value;
+                    t.anuladoPor = session.nom;
+                    
+                    // Devolvemos el stock al inventario
                     (t.items || []).forEach(item => { if (item.isProd) { let prod = b.productos.find(p => p.id === item.id); if (prod) prod.stock += 1; } });
-                    b.ventas = (b.ventas || []).filter(v => v.ticketId !== tid);
-                    saveDB(true); renderFacturas(); session.rol === 'admin' ? renderAdmin() : renderBarbero();
-                    Swal.fire({ title: 'Factura Anulada', icon: 'success', background: '#0a0a0a', color: '#fff', timer: 2000 });
+                    
+                    // 🛡️ TRUCO MAESTRO: En lugar de borrar la venta, la "neutralizamos" a $0. 
+                    // Así resta el dinero de la caja para que cuadre, pero deja el chisme entero en el PDF.
+                    (b.ventas || []).forEach(v => {
+                        if (v.ticketId === tid) {
+                            v.anulado = true;
+                            v.valor = 0; 
+                            v.ivaAplicado = 0;
+                            v.servicio = `[ANULADA] ${v.servicio} | MOTIVO: ${r.value}`;
+                        }
+                    });
+                    
+                    saveDB(true); renderFacturas(); 
+                    if(session.rol === 'admin') renderAdmin();
+                    else if(session.rol === 'barbero') renderBarbero();
+                    else if(session.rol === 'cajero') renderCaja();
+
+
+                    Swal.fire({ title: 'Factura Anulada', text: 'El dinero se restó de la caja y el motivo quedó guardado en el reporte PDF.', icon: 'success', background: '#0a0a0a', color: '#fff', timer: 4500 });
                 }
             });
         }
+
 
         function reimprimirFactura(tid) { const t = (db.barberias[bIdx].tickets || []).find(x => x.ticketId === tid); if (t) { lastTicketData = t; imprimirTicketTermico(); } }
 
@@ -6292,7 +6746,7 @@ let timerDebounceClientes = null;
             const b = db.barberias[bIdx]; if(!b) return;
 
             // 🧹 MAGIA: CERRAR TODOS LOS ACORDEONES AL ENTRAR
-            const acordeones = ['datos', 'kiosko', 'personal', 'cobros', 'notificaciones', 'promos', 'club'];
+            const acordeones = ['datos', 'kiosko', 'personal', 'cobros', 'cajeros', 'notificaciones', 'promos', 'club'];
             acordeones.forEach(acc => {
                 const contenido = document.getElementById(`acc-${acc}`);
                 const icono = document.getElementById(`icon-${acc}`);
@@ -6337,8 +6791,13 @@ let timerDebounceClientes = null;
 
             setChk('cfg-pago-anticipado-activo', b.pagoAnticipadoActivo || false);
             setVal('cfg-pago-anticipado-valor', b.valorAnticipo || "");
-            setChk('cfg-iva-activo', b.ivaActivo || false);
-            setVal('cfg-iva-pct', b.ivaPct || "");
+            if(b.configIVA) {
+                setChk('cfg-iva-activo', b.configIVA.activo || false);
+                setVal('cfg-iva-pct', b.configIVA.porcentaje || "");
+            } else {
+                setChk('cfg-iva-activo', false);
+                setVal('cfg-iva-pct', "");
+            }
             setChk('cfg-wompi-activo', b.wompiActivo || false);
             setVal('cfg-wompi-pub', b.wompiPub || "");
             setVal('cfg-titular', b.titularCuenta || "");
@@ -6470,8 +6929,9 @@ let timerDebounceClientes = null;
 
             b.pagoAnticipadoActivo = getChk('cfg-pago-anticipado-activo');
             b.valorAnticipo = parseInt(cleanNum(getVal('cfg-pago-anticipado-valor'))) || 0;
-            b.ivaActivo = getChk('cfg-iva-activo');
-            b.ivaPct = parseInt(cleanNum(getVal('cfg-iva-pct'))) || 0;
+            if(!b.configIVA) b.configIVA = {};
+            b.configIVA.activo = getChk('cfg-iva-activo');
+            b.configIVA.porcentaje = parseInt(cleanNum(getVal('cfg-iva-pct'))) || 0;
             b.wompiActivo = getChk('cfg-wompi-activo');
             b.wompiPub = getVal('cfg-wompi-pub');
             b.titularCuenta = getVal('cfg-titular');
@@ -6542,9 +7002,9 @@ let timerDebounceClientes = null;
         function renderConfigLists() {
             const b = db.barberias[bIdx]; if(!b) return;
             
-            // 🚀 CORRECCIÓN: Nombres exactos de las cajas de tu HTML
             const listB = document.getElementById('cfg-lista-b');
             const listS = document.getElementById('cfg-lista-s');
+            const listC = document.getElementById('cfg-lista-c');
             
             // Renderizar Barberos
             if (listB) {
@@ -6580,6 +7040,22 @@ let timerDebounceClientes = null;
                 });
                 listS.innerHTML = sListHtml || '<p class="text-zinc-500 text-[10px] uppercase tracking-widest text-center py-2">No hay servicios</p>';
             }
+
+            // Renderizar Cajeros
+            if (listC) {
+                listC.innerHTML = '';
+                (b.cajeros || []).forEach((caj, idx) => {
+                    listC.innerHTML += `
+                    <div class="flex justify-between items-center bg-[#050505] border border-zinc-800 p-3 rounded-xl mb-2">
+                        <span class="text-xs font-bold text-white uppercase">🖥️ ${caj.nom} <span class="text-orange-500 text-[8px] ml-1">${caj.cierreCiego ? '[CIEGO]' : ''}</span></span>
+                        <div class="flex gap-2">
+                            <button type="button" onclick="editarCajero(${idx})" class="text-blue-400 hover:text-blue-300 font-bold text-[10px] uppercase">Editar</button>
+                            <button type="button" onclick="db.barberias[bIdx].cajeros.splice(${idx},1); saveDB(true); renderConfigLists()" class="text-red-500 hover:text-red-400 font-bold text-[10px] uppercase">Eliminar</button>
+                        </div>
+                    </div>`;
+                });
+                if(!b.cajeros || b.cajeros.length === 0) listC.innerHTML = '<p class="text-zinc-500 text-[10px] uppercase tracking-widest text-center py-2">No hay cajeros</p>';
+            }
         }
 
 
@@ -6607,8 +7083,10 @@ let timerDebounceClientes = null;
             m = m < 10 ? '0'+m : m;
             el.innerText = `${h}:${m} ${ampm}`;
         }
-        // Hacemos que el reloj se actualice cada segundo
-        setInterval(encenderRelojTV, 1000);
+        // 🛡️ Hacemos que el reloj se actualice de forma segura sin fugas
+        if (!window.tvRelojGiganteInterval) {
+            window.tvRelojGiganteInterval = setInterval(encenderRelojTV, 1000);
+        }
 
 
          // ==========================================
@@ -6750,7 +7228,64 @@ let timerDebounceClientes = null;
             renderConfigLists();
             Swal.fire({title:'¡Barbero Guardado!', toast:true, position:'top-end', timer:2000, showConfirmButton:false, background: '#111', color: '#fff', icon:'success'});
         }
+
+
+
+        // ==========================================
+        // 🖥️ GESTIÓN DE CAJEROS (ZEUS SMART CASH)
+        // ==========================================
+        function configAddCajero() {
+            const getValSeguro = (id) => document.getElementById(id) ? document.getElementById(id).value : "";
+            
+            const idX = getValSeguro('edit-c-id');
+            const n = cleanStr(getValSeguro('add-c-nom')).toUpperCase();
+            const p = cleanNum(getValSeguro('add-c-pin'));
+            const ciego = document.getElementById('add-c-ciego') ? document.getElementById('add-c-ciego').checked : true;
+
+            if (!n || !p) return Swal.fire('Faltan Datos', 'El nombre y el PIN son obligatorios.', 'error');
+            if (esPinInseguro(p)) return Swal.fire('PIN Inseguro', 'No uses secuencias fáciles como 1234.', 'warning');
+            if (!verificarPinUnico(p)) return Swal.fire('PIN Ocupado 🔒', 'Este PIN ya lo usa un administrador o barbero.', 'warning');
+
+            if (!db.barberias[bIdx].cajeros) db.barberias[bIdx].cajeros = [];
+
+            if (idX !== "") { 
+                db.barberias[bIdx].cajeros[idX] = { nom: n, pin: p, cierreCiego: ciego, estado: 'ACTIVO' }; 
+            } else { 
+                db.barberias[bIdx].cajeros.push({ nom: n, pin: p, cierreCiego: ciego, estado: 'ACTIVO' }); 
+            }
+
+            saveDB(true);
+            
+            if(document.getElementById('edit-c-id')) document.getElementById('edit-c-id').value = ""; 
+            if(document.getElementById('add-c-nom')) document.getElementById('add-c-nom').value = ""; 
+            if(document.getElementById('add-c-pin')) document.getElementById('add-c-pin').value = ""; 
+            
+            renderConfigLists();
+            Swal.fire({title:'¡Cajero Guardado!', toast:true, position:'top-end', timer:2000, showConfirmButton:false, background: '#111', color: '#fff', icon:'success'});
+        }
+
+        function editarCajero(i) {
+            const c = db.barberias[bIdx].cajeros[i];
+            const elId = document.getElementById('edit-c-id'); if(elId) elId.value = i;
+            const elNom = document.getElementById('add-c-nom'); if(elNom) elNom.value = c.nom || "";
+            const elPin = document.getElementById('add-c-pin'); if(elPin) elPin.value = c.pin || "";
+            const elCiego = document.getElementById('add-c-ciego'); if(elCiego) elCiego.checked = c.cierreCiego !== false;
+        }
  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         // ==========================================
         // ⚙️ CREADOR DE SERVICIOS (SIN FANTASMAS)
         // ==========================================
@@ -9335,9 +9870,571 @@ function abrirOnboardingManual() {
 
 
 
+       // ==========================================
+        // 💰 CEREBRO MAESTRO: ZEUS SMART CASH (CAJA) V3.2
+        // ==========================================
+        let cajaCart = [];
+        let cajaClienteActual = null;
+        let cajaMetodoActual = "";
+        let cajaRecibidoTotal = 0;
+
+        function sumarBilleteCaja(valor) {
+            cajaRecibidoTotal += valor;
+            document.getElementById('caja-recibido').value = "$ " + fMoney(cajaRecibidoTotal).replace('$', '').trim();
+            calcularCambioCaja();
+        }
+
+        function limpiarBilletesCaja() {
+            cajaRecibidoTotal = 0;
+            document.getElementById('caja-recibido').value = "";
+            calcularCambioCaja();
+        }
+
+        function calcularCambioCaja() {
+            const b = db.barberias[bIdx]; if(!b) return 0;
+            
+            let subtotal = cajaCart.reduce((a, i) => a + i.pre, 0);
+            if (b.vipClub && b.vipClub.passActivo && cajaClienteActual && cajaClienteActual.planSuscripcion) {
+                const hoy = getTodayYMD();
+                if (!(cajaClienteActual.planVence && cajaClienteActual.planVence < hoy) && !(cajaClienteActual.cortesRestantes === 0)) { subtotal = 0; }
+            }
+            let iva = (b.configIVA && b.configIVA.activo) ? Math.round(subtotal * (b.configIVA.porcentaje / 100)) : 0;
+            
+            let propina = parseInt(cleanNum(document.getElementById('caja-propina') ? document.getElementById('caja-propina').value : '0')) || 0;
+            let totalCobrar = subtotal + iva + propina;
+
+            const displayCambio = document.getElementById('caja-cambio');
+            if (displayCambio) {
+                if (cajaMetodoActual === 'Efectivo' && cajaRecibidoTotal > 0) {
+                    let cambio = cajaRecibidoTotal - totalCobrar;
+                    if (cambio >= 0) {
+                        displayCambio.innerText = fMoney(cambio);
+                        displayCambio.className = "text-2xl font-black text-green-400 tracking-tighter";
+                    } else {
+                        displayCambio.innerText = "FALTAN " + fMoney(Math.abs(cambio));
+                        displayCambio.className = "text-xl font-black text-red-500 tracking-tighter";
+                    }
+                } else {
+                    displayCambio.innerText = "$0";
+                    displayCambio.className = "text-2xl font-black text-green-400 tracking-tighter";
+                }
+            }
+            return totalCobrar; 
+        }
+
+        function renderCaja() {
+            const b = db.barberias[bIdx]; if(!b) return;
+            
+            if(document.getElementById('global-caja-nombre')) document.getElementById('global-caja-nombre').innerText = session.nom;
+
+            const selectB = document.getElementById('caja-barbero-select');
+            if(selectB) {
+                const barberosList = (b.barberos || []).map(bar => `<option value="${bar.nom}">${bar.nom}</option>`).join('');
+                selectB.innerHTML = '<option value="">-- ELIGE QUIÉN ATENDIÓ --</option>' + barberosList;
+            }
+
+            const cS = document.getElementById('caja-catalogo-servicios');
+            const cP = document.getElementById('caja-catalogo-productos');
+            
+            if(cS) {
+                cS.innerHTML = (b.servicios || []).map((s, i) => `
+                    <button type="button" onclick="addCajaItem('S', ${i})" class="bg-black border border-zinc-800 p-3 rounded-xl hover:border-indigo-500 hover:bg-indigo-900/10 text-left transition-colors btn-press">
+                        <p class="text-[9px] font-black uppercase text-white truncate w-full">${s.premium ? '👑 ' : ''}${s.nom}</p>
+                        <p class="text-indigo-400 font-black text-xs mt-1">${fMoney(s.pre)}</p>
+                    </button>
+                `).join('');
+            }
+            
+            if(cP) {
+                cP.innerHTML = (b.productos || []).map((p, i) => `
+                    <button type="button" onclick="addCajaItem('P', ${i})" class="bg-black border border-zinc-800 p-3 rounded-xl hover:border-purple-500 hover:bg-purple-900/10 text-left transition-colors btn-press ${p.stock <= 0 ? 'opacity-30 cursor-not-allowed' : ''}">
+                        <div class="flex justify-between items-start mb-1">
+                            <p class="text-[9px] font-black uppercase text-white truncate w-2/3">${p.nom}</p>
+                            <span class="text-[7px] bg-zinc-900 border border-zinc-800 px-1 py-0.5 rounded text-purple-400 shrink-0">St: ${p.stock}</span>
+                        </div>
+                        <p class="text-purple-400 font-black text-xs">${fMoney(p.pre)}</p>
+                    </button>
+                `).join('');
+            }
+
+            cajaCart = []; cajaClienteActual = null; cajaMetodoActual = ""; 
+            cajaRecibidoTotal = 0; document.getElementById('caja-recibido').value = ""; 
+            if(document.getElementById('caja-propina')) document.getElementById('caja-propina').value = ""; 
+            
+            document.getElementById('caja-search-cli').value = "";
+            document.getElementById('caja-cliente-card').classList.add('hidden');
+            
+            document.querySelectorAll('#view-caja .grid-cols-3 button').forEach(btn => {
+                btn.classList.remove('bg-green-900/20', 'border-green-500', 'bg-pink-900/20', 'border-pink-500', 'bg-blue-900/20', 'border-blue-500');
+                btn.classList.add('bg-black', 'border-zinc-800');
+            });
+
+            updateCajaCartUI();
+            renderMiniAgendaCaja(); 
+        }
+
+        function switchCajaTab(tipo) {
+            const cS = document.getElementById('caja-catalogo-servicios');
+            const cP = document.getElementById('caja-catalogo-productos');
+            const bS = document.getElementById('caja-btn-servicios');
+            const bP = document.getElementById('caja-btn-productos');
+            
+            if (tipo === 'S') {
+                cS.classList.remove('hidden'); cS.classList.add('grid');
+                cP.classList.add('hidden'); cP.classList.remove('grid');
+                bS.className = "flex-1 bg-indigo-600 text-white py-2.5 rounded-lg text-[10px] font-black uppercase transition-all shadow-md";
+                bP.className = "flex-1 bg-transparent text-zinc-500 hover:text-white py-2.5 rounded-lg text-[10px] font-black uppercase transition-all";
+            } else {
+                cS.classList.add('hidden'); cS.classList.remove('grid');
+                cP.classList.remove('hidden'); cP.classList.add('grid');
+                bP.className = "flex-1 bg-purple-600 text-white py-2.5 rounded-lg text-[10px] font-black uppercase transition-all shadow-md";
+                bS.className = "flex-1 bg-transparent text-zinc-500 hover:text-white py-2.5 rounded-lg text-[10px] font-black uppercase transition-all";
+            }
+        }
+
+        document.getElementById('caja-search-cli').addEventListener('keyup', function(e) {
+            const val = cleanNum(e.target.value);
+            const b = db.barberias[bIdx];
+            const card = document.getElementById('caja-cliente-card');
+            
+            if (val.length >= 10 && b.clientes && b.clientes[val]) {
+                cajaClienteActual = b.clientes[val];
+verificarCumpleanosCaja(val, cajaClienteActual);
+                card.innerHTML = `
+                    <div class="absolute -top-10 -right-10 w-24 h-24 bg-indigo-500 rounded-full blur-[40px] opacity-20 pointer-events-none"></div>
+                    <img src="${cajaClienteActual.fotoVip || 'https://via.placeholder.com/150/111/fff?text=👤'}" class="w-16 h-16 rounded-full border-2 border-indigo-500 object-cover mb-2 shadow-lg z-10 bg-black">
+                    <h3 class="text-sm font-black text-white uppercase tracking-tighter z-10 w-full truncate">${cajaClienteActual.nombre}</h3>
+                    <p class="text-[9px] text-zinc-400 font-bold uppercase tracking-widest z-10 mb-3">${val}</p>
+                    <div class="w-full grid grid-cols-2 gap-2 z-10 mb-3">
+                        <div class="bg-black p-2 rounded-lg border border-zinc-800"><p class="text-[8px] text-zinc-500 uppercase">Puntos</p><p class="text-indigo-400 font-black text-sm">${cajaClienteActual.pts || 0}</p></div>
+                        <div class="bg-black p-2 rounded-lg border border-zinc-800"><p class="text-[8px] text-zinc-500 uppercase">Visitas</p><p class="text-white font-black text-sm">${cajaClienteActual.visitas || 0}</p></div>
+                    </div>
+                    
+                    <div class="w-full border-t border-zinc-800/80 pt-3 z-10 mt-1">
+                        <p class="text-[8px] text-zinc-500 uppercase font-black tracking-widest mb-2 text-left flex items-center gap-1"><span>⚡</span> ACCIONES RÁPIDAS</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" onclick="cajaAccionEnviarFactura('${val}')" class="bg-[#25D366]/10 border border-[#25D366]/30 text-[#25D366] p-2 rounded-lg flex items-center justify-center gap-1.5 hover:bg-[#25D366]/20 transition-colors btn-press">
+                                <span class="text-xs">💬</span> <span class="text-[7px] font-black uppercase">Re-Enviar Factura</span>
+                            </button>
+                            <button type="button" onclick="cajaAccionPedirResena('${val}')" class="bg-yellow-500/10 border border-yellow-500/30 text-yellow-500 p-2 rounded-lg flex items-center justify-center gap-1.5 hover:bg-yellow-500/20 transition-colors btn-press">
+                                <span class="text-xs">⭐</span> <span class="text-[7px] font-black uppercase">Pedir Reseña</span>
+                            </button>
+                            <button type="button" onclick="abrirKioskoDesdeCaja('${val}', '${cajaClienteActual.nombre}')" class="bg-blue-500/10 border border-blue-500/30 text-blue-400 p-2 rounded-lg flex items-center justify-center gap-1.5 hover:bg-blue-500/20 transition-colors btn-press">
+                                <span class="text-xs">📅</span> <span class="text-[7px] font-black uppercase">Agendar Próxima</span>
+                            </button>
+                            <button type="button" onclick="cajaAccionHistorial('${val}')" class="bg-zinc-800/50 border border-zinc-700 text-zinc-300 p-2 rounded-lg flex items-center justify-center gap-1.5 hover:bg-zinc-800 transition-colors btn-press">
+                                <span class="text-xs">🕒</span> <span class="text-[7px] font-black uppercase">Ver Historial</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                card.classList.remove('hidden');
+                updateCajaCartUI(); 
+            } else {
+                cajaClienteActual = null;
+                card.classList.add('hidden');
+                updateCajaCartUI();
+            }
+
+        });
+function verificarCumpleanosCaja(celular, datosCliente) {
+            if (!datosCliente.cumple) return;
+            const partes = datosCliente.cumple.split('-');
+            if (partes.length === 3) {
+                const hoy = new Date();
+                const mesHoy = (hoy.getMonth() + 1).toString().padStart(2, '0');
+                const diaHoy = hoy.getDate().toString().padStart(2, '0');
+                
+                if (partes[1] === mesHoy && partes[2] === diaHoy) {
+                    const cacheKey = `cumple_caja_${celular}`;
+                    if (!sessionStorage.getItem(cacheKey)) {
+                        sessionStorage.setItem(cacheKey, 'true');
+                        Swal.fire({
+                            title: '¡BINGO! 🎂',
+                            html: `<p class="text-xs text-zinc-300">¡Hoy es el cumpleaños de <b class="text-white uppercase">${datosCliente.nombre}</b>!</p>
+                                   <p class="text-[10px] text-yellow-500 font-bold uppercase mt-2 tracking-widest">Ofrécele su promoción o felicítalo.</p>`,
+                            icon: 'info', toast: true, position: 'top-end', timer: 6000, showConfirmButton: false, background: '#111', color: '#fff', iconColor: '#f59e0b'
+                        });
+                    }
+                }
+            }
+        }
+
+
+
+// 🧑‍💼 REGISTRO RÁPIDO DESDE CAJA (NUEVO CLIENTE)
+        function registroRapidoClienteCaja() {
+            const b = db.barberias[bIdx];
+            // Si la cajera ya había escrito un número en el buscador, lo precargamos
+            let telActual = document.getElementById('caja-search-cli').value.trim();
+            if (isNaN(parseInt(telActual))) telActual = ""; 
+            
+            Swal.fire({
+                title: '<span class="text-2xl font-black italic uppercase text-indigo-400 tracking-tighter">NUEVO CLIENTE</span>',
+                html: `
+                    <p class="text-[10px] text-zinc-400 font-bold uppercase mb-4 tracking-widest">Añade sus datos al sistema</p>
+                    <input type="text" id="reg-caja-nom" placeholder="NOMBRE COMPLETO" class="w-full bg-[#050505] border border-zinc-800 p-4 rounded-xl text-white font-black uppercase text-sm mb-3 outline-none focus:border-indigo-500 shadow-inner">
+                    <input type="text" inputmode="numeric" id="reg-caja-cel" value="${telActual}" placeholder="WHATSAPP (10 dígitos)" class="w-full bg-[#050505] border border-zinc-800 p-4 rounded-xl text-white font-black uppercase text-sm mb-3 outline-none focus:border-indigo-500 tracking-[0.2em] shadow-inner text-center">
+                    <div class="relative w-full mb-3 text-left">
+                        <span class="absolute left-4 top-4 text-[9px] text-indigo-500 font-black uppercase pointer-events-none">Cumpleaños:</span>
+                        <input type="date" id="reg-caja-cumple" class="w-full bg-[#050505] pt-8 pb-3 px-4 rounded-xl text-white font-black text-sm border border-zinc-800 focus:border-indigo-500 outline-none cursor-pointer shadow-inner">
+                    </div>
+                `,
+                background: '#111', color: '#fff',
+                showCancelButton: true, confirmButtonText: 'GUARDAR CLIENTE ✔', cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#4f46e5', cancelButtonColor: '#27272a',
+                customClass: { 
+                    popup: 'rounded-[2rem] border border-indigo-500/30 shadow-[0_0_40px_rgba(99,102,241,0.2)] w-[90%] max-w-sm', 
+                    confirmButton: 'w-full py-4 mt-2 rounded-xl font-black uppercase text-white btn-press shadow-lg shadow-indigo-600/30 text-xs tracking-widest', 
+                    cancelButton: 'w-full py-3 mt-2 rounded-xl font-bold uppercase text-zinc-500 hover:text-white btn-press text-[10px]' 
+                },
+                preConfirm: () => {
+                    const n = document.getElementById('reg-caja-nom').value.trim().toUpperCase();
+                    const c = cleanNum(document.getElementById('reg-caja-cel').value);
+                    const f = document.getElementById('reg-caja-cumple').value;
+                    if(!n || c.length < 10) { Swal.showValidationMessage('Nombre y WhatsApp (10 dígitos) obligatorios'); return false; }
+                    return { nom: n, cel: c, cumple: f };
+                }
+            }).then((r) => {
+                if (r.isConfirmed) {
+                    const data = r.value;
+                    if (!b.clientes) b.clientes = {};
+                    if (!b.clientes[data.cel]) {
+                        b.clientes[data.cel] = { nombre: data.nom, celular: data.cel, cumple: data.cumple, pts: 0, visitas: 0, fechaRegistro: getTodayYMD() };
+                        Swal.fire({title: '¡Cliente Guardado!', icon: 'success', background: '#0a0a0a', color: '#fff', timer: 1500, showConfirmButton: false});
+                    } else {
+                        // Si ya existe, actualizamos el nombre y cumple
+                        b.clientes[data.cel].nombre = data.nom;
+                        if(data.cumple) b.clientes[data.cel].cumple = data.cumple;
+                        Swal.fire({title: '¡Cliente Actualizado!', icon: 'success', background: '#0a0a0a', color: '#fff', timer: 1500, showConfirmButton: false});
+                    }
+                    saveDB(true);
+                    
+                    // MAGIA: Ponemos el número en el buscador automáticamente para que salga la tarjeta VIP de inmediato
+                    const searchInput = document.getElementById('caja-search-cli');
+                    searchInput.value = data.cel;
+                    searchInput.dispatchEvent(new Event('keyup'));
+                }
+            });
+        }
+
+       // 📱 MOSTRAR QR DE REGISTRO VIP EN PANTALLA DE CAJA
+        function mostrarQRRegistroCaja() {
+            const b = db.barberias[bIdx];
+            const linkVIP = window.location.href.split('?')[0] + '?kiosk=' + (b.id_nube || b.id) + '&vip=true';
+            
+            Swal.fire({
+                title: '<span class="text-red-500 font-black uppercase italic tracking-tighter text-2xl">ESCANEA PARA UNIRTE</span>',
+                html: `
+                    <div class="flex justify-center w-full mt-4">
+                        <div id="swal-qr-registro-caja" class="bg-white p-3 rounded-2xl shadow-[0_0_30px_rgba(239,68,68,0.4)] inline-block"></div>
+                    </div>
+                    <p class="text-[10px] text-zinc-400 mt-6 uppercase font-bold tracking-widest">CREA TU CUENTA Y EMPIEZA A GANAR PREMIOS</p>
+                `,
+                showCloseButton: true, showConfirmButton: false, background: '#0a0a0a', color: '#fff',
+                customClass: { 
+                    popup: 'rounded-[2.5rem] border border-red-500/50 w-[90%] max-w-sm mx-auto', 
+                    closeButton: 'text-white bg-black hover:bg-red-500 transition-colors rounded-full w-8 h-8 right-3 top-3 border border-zinc-800' 
+                },
+                didOpen: () => { 
+                    new QRCode(document.getElementById('swal-qr-registro-caja'), { text: linkVIP, width: 220, height: 220, colorDark: "#000", colorLight: "#fff", correctLevel: QRCode.CorrectLevel.L }); 
+                }
+            });
+        }
+
+        function addCajaItem(tipo, index) {
+            const b = db.barberias[bIdx];
+            if (tipo === 'S') {
+                const s = b.servicios[index];
+                cajaCart.push({ ...s, idT: Date.now() + Math.random(), isProd: false });
+            } else {
+                const p = b.productos[index];
+                const countEnCarrito = cajaCart.filter(x => x.isProd && x.id === p.id).length;
+                if (p.stock <= countEnCarrito) return Swal.fire('Stock Insuficiente', 'No hay más unidades en inventario.', 'warning');
+                cajaCart.push({ nom: p.nom, pre: p.pre, idT: Date.now() + Math.random(), isProd: true, id: p.id });
+            }
+            updateCajaCartUI();
+        }
+
+        function removeCajaItem(idT) {
+            cajaCart = cajaCart.filter(x => String(x.idT) !== String(idT));
+            updateCajaCartUI();
+        }
+
+
+
+
+       function seleccionarMetodoPagoCaja(metodo, btnElem) {
+            cajaMetodoActual = metodo;
+            
+            // Limpiamos todos los colores
+            document.querySelectorAll('#caja-botones-metodo button').forEach(btn => {
+                btn.classList.remove('bg-green-900/20', 'border-green-500', 'bg-[#da0081]/20', 'border-[#da0081]', 'bg-blue-900/20', 'border-blue-500', 'bg-yellow-900/20', 'border-yellow-500');
+                btn.classList.add('bg-black', 'border-zinc-800');
+            });
+            
+            // Encendemos el botón tocado con su color corporativo
+            btnElem.classList.remove('bg-black', 'border-zinc-800');
+            if(metodo === 'Efectivo') btnElem.classList.add('bg-green-900/20', 'border-green-500');
+            if(metodo === 'Nequi') btnElem.classList.add('bg-[#da0081]/20', 'border-[#da0081]'); // Magenta Nequi
+            if(metodo === 'Transferencia') btnElem.classList.add('bg-yellow-900/20', 'border-yellow-500'); // Amarillo Banco
+            if(metodo === 'Tarjeta') btnElem.classList.add('bg-blue-900/20', 'border-blue-500'); // Azul Visa
+
+            calcularCambioCaja(); 
+            updateCajaCartUI();
+        }
+
+        // AQUÍ RESTAURAMOS LA LÍNEA QUE SE HABÍA BORRADO
+        document.addEventListener('DOMContentLoaded', () => {
+            const inputRecibido = document.getElementById('caja-recibido');
+            if (inputRecibido) {
+                inputRecibido.addEventListener('keyup', function(e) {
+                    cajaRecibidoTotal = parseInt(cleanNum(e.target.value)) || 0;
+                    calcularCambioCaja();
+                });
+            }
+
+            const inputPropina = document.getElementById('caja-propina');
+            if (inputPropina) {
+                inputPropina.addEventListener('keyup', function(e) {
+                    this.value = cleanNum(this.value);
+                    updateCajaCartUI();
+                });
+            }
+        });
+        function updateCajaCartUI() {
+            const b = db.barberias[bIdx];
+            let esVIP = false;
+
+            if (b.vipClub && b.vipClub.passActivo && cajaClienteActual && cajaClienteActual.planSuscripcion) {
+                const hoy = getTodayYMD();
+                if (!(cajaClienteActual.planVence && cajaClienteActual.planVence < hoy) && !(cajaClienteActual.cortesRestantes === 0)) { esVIP = true; }
+            }
+
+            const ctn = document.getElementById('caja-carrito-ui');
+            if (cajaCart.length === 0) {
+                ctn.innerHTML = '<p class="text-zinc-700 text-center text-[10px] uppercase font-bold mt-6 tracking-widest">El carrito está vacío</p>';
+            } else {
+                let html = cajaCart.map(i => `
+                    <div class="flex justify-between items-center bg-black/60 p-2.5 rounded-lg border ${i.isProd ? 'border-purple-900/30' : 'border-zinc-800'}">
+                        <span class="text-[9px] font-black uppercase ${i.isProd ? 'text-purple-400' : 'text-white'} truncate pr-2 w-2/3">${i.nom}</span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-zinc-400 text-[10px] font-bold">${esVIP && !i.isProd ? '<span class="text-yellow-500 line-through mr-1">' + fMoney(Math.abs(i.pre)) + '</span>$0' : fMoney(Math.abs(i.pre))}</span>
+                            <button type="button" onclick="removeCajaItem('${i.idT}')" class="text-red-500 font-black px-2 py-0.5 hover:scale-125 transition-transform bg-red-900/20 rounded">X</button>
+                        </div>
+                    </div>
+                `).join('');
+                if (esVIP) html = `<div class="bg-yellow-900/20 border border-yellow-500/50 p-2 rounded-lg mb-2 flex items-center justify-center gap-2"><span class="text-sm">👑</span><span class="text-[9px] font-black text-yellow-500 uppercase tracking-widest">Cliente VIP: Costo $0</span></div>` + html;
+                ctn.innerHTML = html;
+            }
+
+            let totalCobrar = calcularCambioCaja(); 
+
+            const displayTotal = document.getElementById('caja-total-display');
+            if(displayTotal) displayTotal.innerText = fMoney(totalCobrar);
+       // ACTUALIZAR IVA EN LA UI
+            let subtotalIva = cajaCart.reduce((a, i) => a + i.pre, 0);
+            if (b.vipClub && b.vipClub.passActivo && cajaClienteActual && cajaClienteActual.planSuscripcion) {
+                const hoy = getTodayYMD();
+                if (!(cajaClienteActual.planVence && cajaClienteActual.planVence < hoy) && !(cajaClienteActual.cortesRestantes === 0)) { subtotalIva = 0; }
+            }
+            let valIva = (b.configIVA && b.configIVA.activo) ? Math.round(subtotalIva * (b.configIVA.porcentaje / 100)) : 0;
+            const ivaCtn = document.getElementById('caja-iva-display');
+            if(ivaCtn) {
+                if (valIva > 0) {
+                    ivaCtn.classList.remove('hidden');
+                    document.getElementById('caja-sub-val').innerText = fMoney(subtotalIva);
+                    document.getElementById('caja-iva-val').innerText = fMoney(valIva);
+                } else {
+                    ivaCtn.classList.add('hidden');
+                }
+            }
+
+            const btnFinalizar = document.getElementById('btn-cobrar-caja');
+            const barberoSelect = document.getElementById('caja-barbero-select');
+            
+            if (btnFinalizar && barberoSelect) {
+                if (barberoSelect.value !== "" && cajaCart.length > 0 && cajaMetodoActual !== "") {
+                    let faltaPlata = false;
+                    if (cajaMetodoActual === 'Efectivo') {
+                        let cambio = cajaRecibidoTotal - totalCobrar;
+                        if (cambio < 0) faltaPlata = true;
+                    }
+
+                    if (!faltaPlata) {
+                        btnFinalizar.disabled = false;
+                        btnFinalizar.classList.remove('opacity-30', 'cursor-not-allowed', 'bg-indigo-600');
+                        btnFinalizar.classList.add('bg-green-600', 'hover:bg-green-500', 'shadow-[0_0_20px_rgba(34,197,94,0.4)]');
+                        btnFinalizar.innerText = "✅ COBRAR " + fMoney(totalCobrar);
+                        btnFinalizar.setAttribute('onclick', 'procesarVentaCaja()'); 
+                    } else {
+                        btnFinalizar.disabled = true;
+                        btnFinalizar.classList.add('opacity-30', 'cursor-not-allowed', 'bg-indigo-600');
+                        btnFinalizar.classList.remove('bg-green-600', 'hover:bg-green-500', 'shadow-[0_0_20px_rgba(34,197,94,0.4)]');
+                        btnFinalizar.innerText = "🔒 FALTAN FONDOS";
+                        btnFinalizar.removeAttribute('onclick');
+                    }
+                } else {
+                    btnFinalizar.disabled = true;
+                    btnFinalizar.classList.add('opacity-30', 'cursor-not-allowed', 'bg-indigo-600');
+                    btnFinalizar.classList.remove('bg-green-600', 'hover:bg-green-500', 'shadow-[0_0_20px_rgba(34,197,94,0.4)]');
+                    btnFinalizar.innerText = "🔒 FINALIZAR VENTA";
+                    btnFinalizar.removeAttribute('onclick');
+                }
+            }
+        }
+
+        function procesarVentaCaja() {
+            try {
+                const b = db.barberias[bIdx]; 
+                const m = cajaMetodoActual;
+                const barbSelect = document.getElementById('caja-barbero-select').value;
+                let cNom = 'CLIENTE GENERAL'; let cCel = '';
+                
+                if (cajaClienteActual) { cNom = cajaClienteActual.nombre; cCel = cajaClienteActual.celular || ''; } 
+                else { const nomEscrito = cleanStr(document.getElementById('caja-search-cli').value).toUpperCase(); if (nomEscrito && isNaN(parseInt(nomEscrito))) cNom = nomEscrito; }
+
+                const idCli = cCel || cNom; let ptsActuales = 0;
+                if (idCli !== 'CLIENTE GENERAL') {
+                    if (!b.clientes) b.clientes = {};
+                    if (!b.clientes[idCli]) b.clientes[idCli] = { nombre: cNom, celular: cCel, pts: 0, visitas: 0 };
+                    b.clientes[idCli].pts += cajaCart.filter(x => !x.isProd).length; b.clientes[idCli].visitas += 1; ptsActuales = b.clientes[idCli].pts;
+                }
+
+                if (b.clientes && b.clientes[idCli] && b.clientes[idCli].planSuscripcion && b.clientes[idCli].cortesRestantes > 0) {
+                    let serviciosRealizados = cajaCart.filter(x => !x.isProd).length;
+                    b.clientes[idCli].cortesRestantes = Math.max(0, b.clientes[idCli].cortesRestantes - serviciosRealizados);
+                }
+
+                const fA = getTodayYMD(); const hA = new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+                const sV = cajaCart.reduce((a, i) => a + i.pre, 0); 
+                const iA = b.configIVA && b.configIVA.activo;
+                const vI = iA ? Math.round(sV * (b.configIVA.porcentaje / 100)) : 0; 
+                
+                let propina = parseInt(cleanNum(document.getElementById('caja-propina') ? document.getElementById('caja-propina').value : '0')) || 0;
+                const tV = sV + vI + propina;
+                const tId = (b.prefijoFactura || "TK-") + (b.consecutivoFactura || 1);
+
+                lastTicketData = { nombreNegocio: b.nombre, fecha: fA, hora: hA, cliente: cNom, celular: cCel, metodo: m, total: tV, ticketId: tId, items: JSON.parse(JSON.stringify(cajaCart)), pts: ptsActuales, ivaPct: (iA ? b.configIVA.porcentaje : 0), valorIva: vI, subtotal: sV, comprobante: null, cobradoPor: session.nom };
+                
+                if (propina > 0) { lastTicketData.items.push({ nom: '💖 Propina Barbero', pre: propina, isProd: false }); }
+
+                if (!b.tickets) b.tickets = []; b.tickets.push(lastTicketData);
+
+                cajaCart.forEach(i => {
+                    if (i.isProd) { let px = b.productos.findIndex(p => p.id === i.id); if (px > -1) b.productos[px].stock -= 1; }
+                    b.ventas.push({ ticketId: tId, barbero: barbSelect, servicio: i.nom, valor: i.pre, ivaAplicado: (iA ? Math.round(i.pre * (b.configIVA.porcentaje / 100)) : 0), metodo: m, tipo: m === "Efectivo" ? "Efectivo" : "Digital", fecha: fA, hora: hA, esProducto: i.isProd, turnoCerrado: false, cobradoPor: session.nom });
+                });
+
+                if (propina > 0) {
+                    b.ventas.push({ ticketId: tId, barbero: barbSelect, servicio: '💖 Propina Cliente', valor: propina, ivaAplicado: 0, metodo: m, tipo: m === "Efectivo" ? "Efectivo" : "Digital", fecha: fA, hora: hA, esProducto: false, turnoCerrado: false, cobradoPor: session.nom, esPropina: true });
+                }
+                
+                b.consecutivoFactura = (b.consecutivoFactura || 1) + 1;
+                saveDB(true);
+
+                let turnoActualizado = false;
+                if (b.citas) {
+                    const citaAbierta = b.citas.find(c => c.barbero === barbSelect && c.fecha === fA && c.estado !== 'COMPLETADA' && c.estado !== 'CANCELADA');
+                    if (citaAbierta) { citaAbierta.estado = 'COMPLETADA'; turnoActualizado = true; saveDB(true); }
+                }
+
+                document.getElementById('ticket-total').innerText = fMoney(tV); 
+                document.getElementById('ticket-fecha').innerText = `TK N° ${tId} | ${fA}`;
+                
+                const ticketCtn = document.getElementById('ticket-items');
+                if (ticketCtn) ticketCtn.innerHTML = lastTicketData.items.map(i => `<div class="flex justify-between"><span>${i.nom}</span><span>${fMoney(i.pre)}</span></div>`).join('');
+                
+                const btnWp = document.getElementById('btn-wp-ticket');
+                if (cCel && cCel.length >= 10 && isOnline) {
+                    btnWp.classList.remove('hidden'); let mSaludo = b.msgBienvenida || 'Gracias por visitarnos'; let mDesp = b.msgDespedida || '¡Te esperamos pronto!';
+                    let msj = `✂️ *RECIBO ELECTRÓNICO*\n\n${mSaludo}\n\n*Recibo N°:* ${tId}\n*Cajero(a):* ${session.nom}\n*Total:* ${fMoney(tV)}\n*Método:* ${m}\n\n👑 *Tus Puntos:* ${ptsActuales}\n\n${mDesp}`;
+                    if (b.linkGoogle && b.linkGoogle.length > 5) { msj += `\n\n⭐ ¿Te gustó tu experiencia?\n¡Ayúdanos con 5 estrellas en Google! Toca aquí:\n${b.linkGoogle}`; }
+                    btnWp.onclick = () => window.open(`https://wa.me/57${cCel}?text=${encodeURIComponent(msj)}`, '_blank');
+                } else { btnWp.classList.add('hidden'); }
+
+                document.getElementById('modal-ticket').classList.remove('hidden');
+                reproducirAudioExito();
+                
+            } catch (err) { console.error(err); Swal.fire('Error', 'No se pudo procesar la venta.', 'error'); }
+        }
+
+        function cerrarTicketInteligente() {
+            document.getElementById('modal-ticket').classList.add('hidden');
+            cerrarModales(); 
+            if (document.getElementById('view-caja').classList.contains('active')) {
+                if(document.getElementById('caja-propina')) document.getElementById('caja-propina').value = ""; 
+                renderCaja();
+            }
+        }
+
+        function renderMiniAgendaCaja() {
+            const b = db.barberias[bIdx]; if(!b) return;
+            const hoy = getTodayYMD();
+            const turnosHoy = (b.citas || []).filter(c => c.fecha === hoy && c.estado !== 'CANCELADA').sort((a, b) => a.hora.localeCompare(b.hora));
+            
+            const ctn = document.getElementById('caja-mini-agenda');
+            if(!ctn) return;
+
+            if (turnosHoy.length === 0) {
+                ctn.innerHTML = '<p class="text-zinc-600 text-[10px] uppercase font-bold text-center mt-6 tracking-widest">No hay turnos para hoy</p>';
+                return;
+            }
+
+            ctn.innerHTML = turnosHoy.map(c => {
+                const completado = c.estado === 'COMPLETADA';
+                const colorBorde = completado ? 'border-zinc-800 bg-zinc-900/30 opacity-50' : 'border-indigo-500/30 bg-indigo-900/10 hover:border-indigo-400';
+                
+                const btnAccion = !completado 
+                    ? `<button type="button" onclick="cargarTurnoACaja('${c.id}')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-lg text-[8px] font-black uppercase tracking-widest btn-press shadow-md">COBRAR ➔</button>` 
+                    : `<span class="text-[8px] text-green-500 font-black uppercase tracking-widest border border-green-500/50 px-2 py-1 rounded">PAGADO</span>`;
+
+                return `
+                <div class="flex justify-between items-center p-3 rounded-xl border ${colorBorde} mb-2 transition-colors">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-black border border-zinc-700 flex items-center justify-center text-xs font-black text-white shrink-0">${formatTime12h(c.hora).split(' ')[0]}</div>
+                        <div class="flex flex-col">
+                            <span class="text-[10px] font-black text-white uppercase">${c.nombre}</span>
+                            <span class="text-[8px] text-zinc-400 font-bold uppercase tracking-widest mt-0.5">💈 ${c.barbero} | ${c.servicio}</span>
+                        </div>
+                    </div>
+                    ${btnAccion}
+                </div>
+                `;
+            }).join('');
+        }
+
+        function cargarTurnoACaja(idCita) {
+            const b = db.barberias[bIdx];
+            const c = b.citas.find(x => x.id === idCita);
+            if(!c) return;
+
+            limpiarBilletesCaja();
+            cajaCart = [];
+
+            const barberoSelect = document.getElementById('caja-barbero-select');
+            if(barberoSelect) barberoSelect.value = c.barbero;
+
+            const idCli = c.celular || c.nombre;
+            if (b.clientes && b.clientes[idCli]) {
+                document.getElementById('caja-search-cli').value = c.celular || c.nombre;
+                const ev = new Event('keyup');
+                document.getElementById('caja-search-cli').dispatchEvent(ev);
+            } else {
+                document.getElementById('caja-search-cli').value = c.nombre;
+            }
+
+            Swal.fire({
+                title: 'Turno en Caja ⚡', 
+                html: `<p class="text-xs text-zinc-300">Cliente <b class="text-white">${c.nombre}</b> con <b class="text-indigo-400">${c.barbero}</b> listo.</p><p class="text-[10px] text-zinc-500 mt-2 uppercase">Por favor selecciona sus servicios en el catálogo para generar el cobro.</p>`, 
+                icon: 'info', background: '#111', color: '#fff', confirmButtonColor: '#4f46e5'
+            });
+        }
+
+
 // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES (GitHub)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.78"; // 👈 Subimos a 1.63 para que todos los celulares se actualicen
+            const VERSION_ACTUAL = "1.80"; // 👈 Subimos a 1.63 para que todos los celulares se actualicen
             const versionGuardada = localStorage.getItem('zeus_version');
             
             if (versionGuardada !== VERSION_ACTUAL) {
