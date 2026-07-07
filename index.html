@@ -949,7 +949,8 @@
                         <div class="border-t border-zinc-800 pt-4 flex flex-col min-h-[120px]">
                             <div class="flex justify-between items-end mb-2">
                                 <p class="text-[9px] text-zinc-500 uppercase font-black tracking-widest">Resumen de Venta</p>
-                                <span class="text-xs font-black text-white bg-black px-2 py-1 rounded border border-zinc-800">Subtotal: <span class="text-indigo-400">$0</span></span>
+
+                                <span class="text-xs font-black text-white bg-black px-2 py-1 rounded border border-zinc-800">Subtotal: <span id="caja-subtotal-badge" class="text-indigo-400">$0</span></span>
                             </div>
                             <div id="caja-carrito-ui" class="flex-1 overflow-y-auto pr-1 space-y-2 scroll-safe bg-black/40 rounded-xl border border-zinc-900 p-2">
 
@@ -1023,22 +1024,18 @@
                             <p class="text-[10px] font-black text-zinc-400 uppercase tracking-widest mt-0.5">MÉTODO DE PAGO</p>
                         </div>
                         
-                        <div class="grid grid-cols-4 gap-2 mb-6 relative z-10" id="caja-botones-metodo">
+                        <div class="grid grid-cols-3 gap-3 mb-6 relative z-10" id="caja-botones-metodo">
                             <button type="button" onclick="seleccionarMetodoPagoCaja('Efectivo', this)" class="bg-black border border-zinc-800 p-3 rounded-xl flex flex-col items-center justify-center gap-2 hover:border-green-500 hover:bg-green-900/10 transition-all btn-press group shadow-md">
                                 <span class="text-2xl group-hover:scale-110 transition-transform drop-shadow-md">💵</span>
-                                <span class="text-[8px] font-black text-zinc-400 uppercase tracking-widest group-hover:text-green-400 transition-colors">Efectivo</span>
+                                <span class="text-[9px] font-black text-zinc-400 uppercase tracking-widest group-hover:text-green-400 transition-colors">Efectivo</span>
                             </button>
                             <button type="button" onclick="seleccionarMetodoPagoCaja('Nequi', this)" class="bg-black border border-zinc-800 p-3 rounded-xl flex flex-col items-center justify-center gap-2 hover:border-[#da0081] hover:bg-[#da0081]/10 transition-all btn-press group shadow-md">
                                 <span class="text-2xl group-hover:scale-110 transition-transform drop-shadow-md">📱</span>
-                                <span class="text-[8px] font-black text-zinc-400 uppercase tracking-widest group-hover:text-[#da0081] transition-colors">Nequi</span>
+                                <span class="text-[9px] font-black text-zinc-400 uppercase tracking-widest group-hover:text-[#da0081] transition-colors">QR Banco</span>
                             </button>
-                            <button type="button" onclick="seleccionarMetodoPagoCaja('Transferencia', this)" class="bg-black border border-zinc-800 p-3 rounded-xl flex flex-col items-center justify-center gap-2 hover:border-yellow-500 hover:bg-yellow-900/10 transition-all btn-press group shadow-md">
-                                <span class="text-2xl group-hover:scale-110 transition-transform drop-shadow-md">🏦</span>
-                                <span class="text-[8px] font-black text-zinc-400 uppercase tracking-widest group-hover:text-yellow-400 transition-colors">Transf.</span>
-                            </button>
-                            <button type="button" onclick="seleccionarMetodoPagoCaja('Tarjeta', this)" class="bg-black border border-zinc-800 p-3 rounded-xl flex flex-col items-center justify-center gap-2 hover:border-blue-500 hover:bg-blue-900/10 transition-all btn-press group shadow-md">
-                                <span class="text-2xl group-hover:scale-110 transition-transform drop-shadow-md">💳</span>
-                                <span class="text-[8px] font-black text-zinc-400 uppercase tracking-widest group-hover:text-blue-400 transition-colors">Tarjeta</span>
+                            <button type="button" onclick="seleccionarMetodoPagoCaja('Wompi', this)" class="bg-black border border-zinc-800 p-3 rounded-xl flex flex-col items-center justify-center gap-2 hover:border-blue-500 hover:bg-blue-900/10 transition-all btn-press group shadow-md">
+                                <span class="text-2xl group-hover:scale-110 transition-transform drop-shadow-md">🌐</span>
+                                <span class="text-[9px] font-black text-zinc-400 uppercase tracking-widest group-hover:text-blue-400 transition-colors">Link Wompi</span>
                             </button>
                         </div>
 
@@ -1423,13 +1420,16 @@
                         </div>
                     </div>
 
+
+
+
 <div class="bg-black/50 rounded-[2rem] border border-zinc-900 overflow-hidden mb-4">
                         <button type="button" onclick="toggleAcc('acc-cajeros', 'icon-cajeros')" class="w-full flex justify-between items-center p-6 text-left hover:bg-white/5 transition-colors btn-press">
                             <span class="text-[11px] font-black text-orange-400 uppercase tracking-widest flex items-center gap-2"><span class="text-lg">🖥️</span> Cajeros y Recepción</span><span id="icon-cajeros" class="text-zinc-500 font-black transition-transform duration-300">▼</span>
                         </button>
                         <div id="acc-cajeros" class="hidden px-6 pb-6 border-t border-zinc-800/50 pt-5">
                             
-                            <div class="bg-zinc-950 p-6 rounded-[1.5rem] border border-zinc-800 shadow-inner">
+                            <div class="bg-zinc-950 p-6 rounded-[1.5rem] border border-zinc-800 shadow-inner mb-6">
                                 <p class="text-[10px] font-black text-orange-500 mb-4 uppercase tracking-widest">Registrar Cajero(a)</p>
                                 
                                 <div class="flex flex-col gap-3 mb-4">
@@ -1437,23 +1437,42 @@
                                     <input type="text" id="add-c-nom" placeholder="NOMBRE DEL CAJERO (Ej: María)" class="w-full bg-[#050505] border border-zinc-700 p-4 rounded-xl text-xs font-black uppercase text-white outline-none focus:border-orange-500 shadow-inner">
                                     
                                     <div class="flex gap-2">
-                                        <input type="password" inputmode="numeric" id="add-c-pin" autocomplete="new-password" placeholder="PIN (4 DÍGITOS)" class="w-1/2 p-4 text-xs rounded-xl font-bold text-center bg-[#050505] border border-zinc-800 text-white outline-none focus:border-orange-500">
-                                        <label class="w-1/2 flex items-center justify-center gap-2 bg-[#050505] border border-zinc-800 rounded-xl text-[9px] font-black text-zinc-400 uppercase cursor-pointer hover:border-orange-500 p-2 transition-colors">
-                                            <input type="checkbox" id="add-c-ciego" class="accent-orange-500 w-4 h-4" checked> Cierre Ciego
-                                        </label>
+                                        <input type="password" inputmode="numeric" id="add-c-pin" autocomplete="new-password" placeholder="PIN (4 DÍGITOS)" class="w-1/3 p-4 text-xs rounded-xl font-bold text-center bg-[#050505] border border-zinc-800 text-white outline-none focus:border-orange-500">
+                                        <input type="text" inputmode="numeric" id="add-c-comision" placeholder="% Serv." title="% Comisión Servicios" class="w-1/3 p-4 text-xs rounded-xl font-bold text-center text-orange-400 bg-[#050505] border border-zinc-800 outline-none focus:border-orange-500">
+                                        <input type="text" inputmode="numeric" id="add-c-comision-prod" placeholder="% Prod." title="% Comisión Productos" class="w-1/3 p-4 text-xs rounded-xl font-bold text-center text-yellow-400 bg-[#050505] border border-zinc-800 outline-none focus:border-orange-500">
                                     </div>
-                                    <p class="text-[8px] text-zinc-500 italic mt-1 leading-tight">El "Cierre Ciego" oculta el dinero esperado en caja para que la cajera solo declare lo que contó físicamente.</p>
+
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div class="bg-[#050505] border border-zinc-800 p-3 rounded-xl flex flex-col items-center justify-center transition-colors focus-within:border-orange-500">
+                                            <span class="text-[8px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Entrada</span>
+                                            <input type="time" id="add-c-inicio" class="w-full bg-transparent text-white text-sm font-black outline-none text-center cursor-pointer appearance-none">
+                                        </div>
+                                        <div class="bg-[#050505] border border-zinc-800 p-3 rounded-xl flex flex-col items-center justify-center transition-colors focus-within:border-orange-500">
+                                            <span class="text-[8px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Salida</span>
+                                            <input type="time" id="add-c-fin" class="w-full bg-transparent text-white text-sm font-black outline-none text-center cursor-pointer appearance-none">
+                                        </div>
+                                    </div>
+
+                                    <label class="w-full flex items-center justify-center gap-2 bg-[#050505] border border-zinc-800 rounded-xl text-[9px] font-black text-zinc-400 uppercase cursor-pointer hover:border-orange-500 p-3 transition-colors mt-1">
+                                        <input type="checkbox" id="add-c-ciego" class="accent-orange-500 w-5 h-5" checked> Activar Cierre Ciego en Caja
+                                    </label>
+                                    <p class="text-[8px] text-zinc-500 italic mt-1 leading-tight text-center">El "Cierre Ciego" oculta el dinero esperado en caja para que la cajera solo declare lo que contó físicamente.</p>
                                 </div>
 
                                 <button type="button" onclick="configAddCajero()" class="w-full bg-orange-600 hover:bg-orange-500 text-white py-4 rounded-xl font-black uppercase text-[10px] tracking-widest btn-press transition-colors shadow-lg shadow-orange-600/20">GUARDAR CAJERO 👤</button>
                             </div>
                             
-                            <h4 class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-6 mb-2">Cajeros Activos</h4>
+                            <h4 class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2">Cajeros Activos</h4>
                             <div id="cfg-lista-c" class="space-y-2 max-h-48 overflow-y-auto pr-1 scroll-safe"></div>
                         </div>
                     </div>
 
                    
+
+
+
+
+
 
                     <div class="bg-black/50 rounded-[2rem] border border-zinc-900 overflow-hidden">
                         <button type="button" onclick="toggleAcc('acc-notificaciones', 'icon-notificaciones')" class="w-full flex justify-between items-center p-6 text-left hover:bg-white/5 transition-colors btn-press">
@@ -2291,7 +2310,8 @@
         let bIdx = -1; let kiosko_bIdx = -1; let session = null; let cart = []; let tempServicios = [];
         let selectedKioTime = null; let fotoBarberoTemp = null; let currentAudio = null;
         let lastTicketData = null; let cloudSyncTimer = null; let comprobanteTemp = null; let saLogoTemp = null;
-        let chartMetodosInstance = null; let chartBarberosInstance = null; let chartFranquiciaInstance = null; let _cloudSyncDebounce = null;
+        let chartMetodosInstance = null; let chartBarberosInstance = null; let chartFranquiciaInstance = null; let _cloudSyncDebounce = null; let timerDebounceClientes = null;
+        let tempLat = null; let tempLon = null;
 
         // ==========================================
         // 2. COMPRESOR DE IMÁGENES (Soluciona borrado de datos)
@@ -3140,22 +3160,29 @@
                     session = { rol: isBarbero ? 'barbero' : 'admin', nom: barberoName };
                 }
                 
-                if (isBarbero) { 
-                    const b = db.barberias[bIdx]; if (!b.asistencia) b.asistencia = {}; const hoy = getTodayYMD(); 
+               // 👑 ASISTENCIA Y MULTAS: TANTO PARA BARBEROS COMO CAJEROS
+                if (isBarbero || isCajero) { 
+                    const b = db.barberias[bIdx]; 
+                    if (!b.asistencia) b.asistencia = {}; 
+                    const hoy = getTodayYMD(); 
                     if (!b.asistencia[hoy]) b.asistencia[hoy] = {}; 
-                    if (!b.asistencia[hoy][session.nom] || !b.asistencia[hoy][session.nom].ingreso) { 
+                    
+                    const empName = isBarbero ? barberoName : cajeroData.nom;
+                    const empData = isBarbero ? (b.barberos || []).find(x => x.nom === empName) : cajeroData;
+
+                    if (!b.asistencia[hoy][empName] || !b.asistencia[hoy][empName].ingreso) { 
                         const now = new Date();
-                        b.asistencia[hoy][session.nom] = { ingreso: now.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }), salida: "--" }; 
+                        b.asistencia[hoy][empName] = { ingreso: now.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }), salida: "--" }; 
+                        
                         if (b.configMultas && b.configMultas.activo && b.configMultas.valor > 0) {
-                            const myBarb = (b.barberos || []).find(x => x.nom === session.nom);
-                            if (myBarb && myBarb.horaInicio) {
+                            if (empData && empData.horaInicio) {
                                 const minIngreso = now.getHours() * 60 + now.getMinutes();
-                                const minEsperado = timeToMins(myBarb.horaInicio);
+                                const minEsperado = timeToMins(empData.horaInicio);
                                 const tol = parseInt(b.configMultas.tolerancia) || 15;
                                 if (minIngreso > (minEsperado + tol)) {
                                     if (!b.multas) b.multas = [];
-                                    b.multas.push({ id: Date.now().toString(), barbero: session.nom, fecha: hoy, valor: b.configMultas.valor });
-                                    setTimeout(() => { Swal.fire({ title: '¡Llegada Tarde! ⏰', html: `<p class="text-xs text-zinc-300">Tu turno iniciaba a las <b>${formatTime12h(myBarb.horaInicio)}</b>.<br>Multa aplicada de <b class="text-red-500">${fMoney(b.configMultas.valor)}</b>.</p>`, icon: 'warning', background: '#111', color: '#fff', confirmButtonColor: '#dc2626' }); }, 2000);
+                                    b.multas.push({ id: Date.now().toString(), barbero: empName, fecha: hoy, valor: b.configMultas.valor });
+                                    setTimeout(() => { Swal.fire({ title: '¡Llegada Tarde! ⏰', html: `<p class="text-xs text-zinc-300">Tu turno iniciaba a las <b>${formatTime12h(empData.horaInicio)}</b>.<br>Multa aplicada de <b class="text-red-500">${fMoney(b.configMultas.valor)}</b>.</p>`, icon: 'warning', background: '#111', color: '#fff', confirmButtonColor: '#dc2626' }); }, 2000);
                                 }
                             }
                         }
@@ -3674,15 +3701,15 @@
             // 🚀 CÁLCULO DE NÓMINA INTELIGENTE (CON CAJEROS Y MULTAS)
             let staffCompleto = [];
             if(b.barberos) staffCompleto = staffCompleto.concat(b.barberos.map(x => ({...x, tipo: 'barbero'})));
-            if(b.cajeros) staffCompleto = staffCompleto.concat(b.cajeros.map(x => ({...x, tipo: 'cajero', comision: 0, comisionProd: 0})));
+            if(b.cajeros) staffCompleto = staffCompleto.concat(b.cajeros.map(x => ({...x, tipo: 'cajero', comision: x.comision || 0, comisionProd: x.comisionProd || 0})));
 
             document.getElementById('admin-nomina').innerHTML = staffCompleto.map(bar => {
                 const esCajero = bar.tipo === 'cajero';
                 const cB = bar.comision !== undefined ? bar.comision : 0; 
                 const cP = bar.comisionProd !== undefined ? bar.comisionProd : 0; 
                 
-                const vServicios = (b.ventas || []).filter(v => v.barbero === bar.nom && !v.esProducto && v.barbero !== "ADMIN");
-                const vProductos = (b.ventas || []).filter(v => v.barbero === bar.nom && v.esProducto && v.barbero !== "ADMIN");
+                const vServicios = (b.ventas || []).filter(v => (esCajero ? v.cobradoPor === bar.nom : v.barbero === bar.nom) && !v.esProducto && v.barbero !== "ADMIN");
+                const vProductos = (b.ventas || []).filter(v => (esCajero ? v.cobradoPor === bar.nom : v.barbero === bar.nom) && v.esProducto && v.barbero !== "ADMIN");
                 
                 const baseServicios = vServicios.reduce((a, v) => a + v.valor, 0); 
                 const baseProductos = vProductos.reduce((a, v) => a + v.valor, 0); 
@@ -3704,7 +3731,7 @@
                 const bgPrd = esCajero ? 'bg-yellow-600/20 text-yellow-400' : 'bg-purple-600/20 text-purple-400';
                 const textSrv = esCajero ? 'text-orange-400' : 'text-indigo-400';
                 const textPrd = esCajero ? 'text-yellow-400' : 'text-purple-400';
-                const tituloRol = esCajero ? '<span class="text-[8px] bg-orange-600/20 text-orange-500 px-2 py-0.5 rounded border border-orange-500/30 ml-2 align-middle">CAJERO</span>' : '';
+                const tituloRol = esCajero ? '<span class="text-[8px] bg-orange-600/20 text-orange-500 px-2 py-0.5 rounded border border-orange-500/30 ml-2 align-middle">CAJERA</span>' : '';
                 const bordeCard = esCajero ? 'border-orange-900/50' : 'border-zinc-800';
                 const colorNombre = esCajero ? 'text-orange-400' : 'text-white';
 
@@ -3792,7 +3819,11 @@
                     if (chartBarberosInstance) chartBarberosInstance.destroy();
                     const ctxB = document.getElementById('chartBarberos');
                     if (ctxB) {
-                        const nB = (b.barberos || []).map(bar => bar.nom);
+                        
+                        let staffParaGrafica = [];
+                        if (b.barberos) staffParaGrafica = staffParaGrafica.concat(b.barberos);
+                        if (b.cajeros) staffParaGrafica = staffParaGrafica.concat(b.cajeros);
+                        const nB = staffParaGrafica.map(bar => bar.nom);
                         const vB = nB.map(nom => (b.ventas || []).filter(v => v.barbero === nom).reduce((a, v) => a + v.valor + (v.ivaAplicado || 0), 0));
                         chartBarberosInstance = new Chart(ctxB, { type: 'bar', data: { labels: nB.length > 0 ? nB : ['Sin datos'], datasets: [{ data: vB.length > 0 ? vB : [0], backgroundColor: '#4f46e5', borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
                     }
@@ -4322,33 +4353,46 @@ function renderAgendaList() {
         function completarCita(id) {
             const b = db.barberias[bIdx];
             const c = b.citas.find(x => x.id === id);
-            let htmlAdicional = c && c.comprobante ? `<p class="text-xs mt-2 text-yellow-500 font-bold">⚠️ Este cliente tiene un abono de ${fMoney(b.valorAnticipo || 5000)}.<br>Descuéntalo en la caja.</p>` : '';
+            let htmlAdicional = c && c.comprobante ? `<p class="text-xs mt-2 text-yellow-500 font-bold">⚠️ Este cliente tiene un abono registrado.<br>Se descontará en la caja.</p>` : '';
 
             Swal.fire({ 
-                title: '¿Qué pasó con esta cita?', 
-                html: htmlAdicional, 
+                title: '¿Terminó el servicio?', 
+                html: `<p class="text-sm text-zinc-300">Si el cliente ya terminó, debes enviarlo a la caja para generar el cobro y darle sus puntos VIP.</p>` + htmlAdicional, 
                 icon: 'question', 
                 showCancelButton: true, 
                 showDenyButton: true,
-                confirmButtonText: '✔ ASISTIÓ',
+                confirmButtonText: '✔ MANDAR A CAJA',
                 denyButtonText: '👻 FANTASMA (No vino)',
                 cancelButtonText: 'Cancelar',
                 confirmButtonColor: '#16a34a', 
                 denyButtonColor: '#dc2626',
                 background: '#0a0a0a', 
-                color: '#fff' 
+                color: '#fff',
+                customClass: { popup: 'rounded-[2rem] border border-zinc-800 shadow-2xl' }
             }).then((r) => {
                 if (r.isConfirmed) {
+                    // 1. Lo mandamos directo a la caja y cerramos la cita de la agenda
                     if (c) c.estado = 'COMPLETADA';
-                    saveDB(true); renderAgendaList(); renderAdmin(); if (session.rol === 'barbero') renderBarbero(); reproducirAudioExito();
+                    saveDB(true); 
+                    
+                    // 2. Cerramos la agenda y abrimos la caja con los datos cargados
+                    cerrarModales(); // Si estaba en el modal de turnos
+                    
+                    // Si es el Administrador o Cajero, lo mandamos a la Smart Cash
+                    if (session.rol === 'admin' || session.rol === 'cajero') {
+                        showScreen('view-caja');
+                        cargarTurnoACaja(id);
+                    } else {
+                        // Si es el Barbero y está usando su propio POS
+                        renderBarbero();
+                        reproducirAudioExito();
+                        Swal.fire('¡Corte Listo!', 'Avísale a la cajera para que procese el pago.', 'success');
+                    }
                 } else if (r.isDenied) {
                     if (c) {
                         c.estado = 'CANCELADA'; // Liberamos el horario
-                        
-                        // 🚨 SPRINT 3: GATILLO DE LISTA DE ESPERA (Se liberó un turno)
                         setTimeout(() => notificarListaEspera(c), 500);
                         
-                        // 💀 CASTIGAMOS AL CLIENTE FANTASMA
                         const idCliente = c.celular || c.nombre;
                         if (!b.clientes) b.clientes = {};
                         if (!b.clientes[idCliente]) b.clientes[idCliente] = { nombre: c.nombre, celular: c.celular, pts: 0, visitas: 0, fallas: 0 };
@@ -4357,8 +4401,8 @@ function renderAgendaList() {
                         let totalFallas = b.clientes[idCliente].fallas;
                         
                         Swal.fire({
-                            title: 'Puntos de Karma Restados',
-                            text: `El cliente ${c.nombre} ahora tiene ${totalFallas} inasistencia(s). A las 2 faltas, Zeus le bloqueará el Kiosko.`,
+                            title: 'Karma Restado',
+                            text: `El cliente ${c.nombre} ahora tiene ${totalFallas} inasistencia(s). A las 2 faltas se le bloquea el kiosko.`,
                             icon: 'warning',
                             background: '#0a0a0a', color: '#fff'
                         });
@@ -6216,16 +6260,24 @@ function renderAgendaList() {
 
         function renderAsistencia() {
             const b = db.barberias[bIdx]; const hoy = getTodayYMD();
-            document.getElementById('asistencia-lista').innerHTML = (b.barberos || []).map(bar => {
+            let staffCompleto = [];
+            if(b.barberos) staffCompleto = staffCompleto.concat(b.barberos);
+            if(b.cajeros) staffCompleto = staffCompleto.concat(b.cajeros.map(c => ({...c, esCajero: true})));
+
+            document.getElementById('asistencia-lista').innerHTML = staffCompleto.map(emp => {
                 let ing = "--:--"; let sal = "--:--";
-                if (b.asistencia && b.asistencia[hoy] && b.asistencia[hoy][bar.nom]) { ing = b.asistencia[hoy][bar.nom].ingreso || "--:--"; sal = b.asistencia[hoy][bar.nom].salida || "--:--"; }
-                return `<div class="glass p-5 rounded-3xl border border-zinc-800 flex justify-between items-center mb-3"><div><h4 class="font-black text-sm uppercase text-white">${bar.nom}</h4><div class="mt-2 flex gap-2"><span class="text-[9px] text-green-400 bg-green-900/20 px-2 py-1 rounded border border-green-900/50">IN: ${ing}</span><span class="text-[9px] text-red-400 bg-red-900/20 px-2 py-1 rounded border border-red-900/50">OUT: ${sal}</span></div></div></div>`;
+                if (b.asistencia && b.asistencia[hoy] && b.asistencia[hoy][emp.nom]) { 
+                    ing = b.asistencia[hoy][emp.nom].ingreso || "--:--"; 
+                    sal = b.asistencia[hoy][emp.nom].salida || "--:--"; 
+                }
+                const badge = emp.esCajero ? '<span class="text-orange-500 text-[8px] ml-1 bg-orange-900/20 px-1 rounded">CAJA</span>' : '';
+                return `<div class="glass p-5 rounded-3xl border border-zinc-800 flex justify-between items-center mb-3"><div><h4 class="font-black text-sm uppercase text-white">${emp.nom} ${badge}</h4><div class="mt-2 flex gap-2"><span class="text-[9px] text-green-400 bg-green-900/20 px-2 py-1 rounded border border-green-900/50">IN: ${ing}</span><span class="text-[9px] text-red-400 bg-red-900/20 px-2 py-1 rounded border border-red-900/50">OUT: ${sal}</span></div></div></div>`;
             }).join('');
         }
 
         // -- MÓDULO CLIENTES Y MARKETING --
         function abrirClientes() { document.getElementById('modal-clientes').classList.remove('hidden'); renderClientes(); }
-let timerDebounceClientes = null;
+
         function buscarClientesDebounce() {
             // Cancelamos la búsqueda anterior si el usuario sigue escribiendo
             if (timerDebounceClientes) clearTimeout(timerDebounceClientes);
@@ -6523,14 +6575,21 @@ let timerDebounceClientes = null;
         function abrirCierreCaja() {
             document.getElementById('modal-cierre-caja').classList.remove('hidden'); const b = db.barberias[bIdx]; const hoy = getTodayYMD();
             document.getElementById('cc-fecha-info').innerText = `REPORTE DEL DÍA • ${hoy}`;
-            if (session.rol === 'admin') {
+            
+            // 🧠 LÓGICA: Si es admin, o si es cajera con el "Cierre Ciego" desactivado, ven la plata real.
+            if (session.rol === 'admin' || (session.rol === 'cajero' && !session.ciego)) {
                 document.getElementById('cc-admin-view').classList.remove('hidden'); document.getElementById('cc-barbero-view').classList.add('hidden');
-                const ventas = (b.ventas || []).filter(v => v.fecha === hoy); const cortesTot = ventas.filter(v => !v.esProducto).length;
-                const vEfe = ventas.filter(v => v.tipo === "Efectivo").reduce((a, v) => a + v.valor, 0); const vDig = ventas.filter(v => v.tipo !== "Efectivo").reduce((a, v) => a + v.valor, 0);
+                const ventas = (b.ventas || []).filter(v => v.fecha === hoy && !v.anulado); 
+                const cortesTot = ventas.filter(v => !v.esProducto).length;
+                const vEfe = ventas.filter(v => v.tipo === "Efectivo").reduce((a, v) => a + v.valor + (v.ivaAplicado || 0), 0); 
+                const vDig = ventas.filter(v => v.tipo !== "Efectivo").reduce((a, v) => a + v.valor + (v.ivaAplicado || 0), 0);
                 const gastos = (b.gastos || []).filter(g => g.fecha === hoy).reduce((a, g) => a + g.valor, 0);
                 document.getElementById('cc-total-cortes').innerText = cortesTot; document.getElementById('cc-efe-hoy').innerText = fMoney(vEfe);
                 document.getElementById('cc-dig-hoy').innerText = fMoney(vDig); document.getElementById('cc-efe-final').innerText = fMoney(vEfe - gastos);
-            } else { document.getElementById('cc-admin-view').classList.add('hidden'); document.getElementById('cc-barbero-view').classList.remove('hidden'); }
+            } else { 
+                // Barberos o Cajeras con Cierre Ciego activado (Solo declaran lo que cuentan)
+                document.getElementById('cc-admin-view').classList.add('hidden'); document.getElementById('cc-barbero-view').classList.remove('hidden'); 
+            }
         }
 
         // ==========================================
@@ -6597,9 +6656,11 @@ let timerDebounceClientes = null;
 
                     // 5. Archivar el Cierre en la Base de Datos
                     if (!b.cierresDiarios) b.cierresDiarios = [];
-                    // Borramos si ya había un cierre de este mismo día (para poder re-cerrar sin duplicar info)
+                    // Borramos si ya había un cierre de este mismo día
                     b.cierresDiarios = b.cierresDiarios.filter(c => c.fecha !== hoy);
-                    b.cierresDiarios.push({ fecha: hoy, ingresos: totalDinero, gastos: gastosHoy, neto: neto, cortes: cortesTot, mejorBarbero: mejorBarbero });
+                    // 🛡️ Guardamos un snapshot (foto) exacto de las ventas del día para auditorías futuras
+                    const snapshotVentas = ventasHoy.map(v => ({ ticket: v.ticketId, valor: v.valor, tipo: v.tipo, anulado: v.anulado || false }));
+                    b.cierresDiarios.push({ fecha: hoy, ingresos: totalDinero, gastos: gastosHoy, neto: neto, cortes: cortesTot, mejorBarbero: mejorBarbero, snapshot: snapshotVentas });
                     
                     saveDB(true);
                     cerrarModales();
@@ -6677,8 +6738,27 @@ let timerDebounceClientes = null;
                 if (b.logo) { const logoSize = 25; const logoX = (pageWidth - logoSize) / 2; try { doc.addImage(b.logo, 'JPEG', logoX, currentY, logoSize, logoSize); currentY += logoSize + 8; } catch (e) { } }
                 doc.setFontSize(18); doc.setFont("helvetica", "bold"); doc.text(`REPORTE FINANCIERO - ${b.nombre}`, pageWidth / 2, currentY, { align: "center" }); currentY += 6;
                 doc.setFontSize(10); doc.setFont("helvetica", "normal"); doc.text(`Generado: ${new Date().toLocaleDateString('es-CO')} ${new Date().toLocaleTimeString('es-CO')}`, pageWidth / 2, currentY, { align: "center" }); currentY += 10;
+
                 let tIng = 0, tGas = 0, tBar = 0, tIva = 0;
-                const bodyV = (b.ventas || []).map(v => { let pBar = 0; if (!v.esProducto && v.barbero !== "ADMIN") { const cBar = ((b.barberos || []).find(x => x.nom === v.barbero) || {}).comision || 50; pBar = v.valor * (cBar / 100); } tIng += v.valor; tIva += (v.ivaAplicado || 0); tBar += pBar; let tipo = v.barbero === "ADMIN" && v.valor < 0 ? "DESC." : (v.esProducto ? "PROD." : "SERV."); return [v.fecha, v.hora, v.barbero, tipo, v.servicio, v.metodo, `${fMoney(v.valor)}`, `${fMoney(v.ivaAplicado || 0)}`, `${fMoney(v.valor + (v.ivaAplicado || 0))}`, `${fMoney(pBar)}`, `${fMoney(v.valor - pBar)}`]; });
+                const bodyV = (b.ventas || []).map(v => { 
+                    let pBar = 0; 
+                    if (v.barbero !== "ADMIN") { 
+                        let emp = (b.barberos || []).find(x => x.nom === v.barbero);
+                        if (!emp) emp = (b.cajeros || []).find(x => x.nom === v.barbero);
+                        
+                        if (!v.esProducto) {
+                            const cBar = emp ? (emp.comision !== undefined ? emp.comision : 0) : 50; 
+                            pBar = v.valor * (cBar / 100); 
+                        } else {
+                            const cProd = emp ? (emp.comisionProd !== undefined ? emp.comisionProd : 0) : 0; 
+                            pBar = v.valor * (cProd / 100); 
+                        }
+                    } 
+                    tIng += v.valor; tIva += (v.ivaAplicado || 0); tBar += pBar; 
+                    let tipo = v.barbero === "ADMIN" && v.valor < 0 ? "DESC." : (v.esProducto ? "PROD." : "SERV."); 
+                    return [v.fecha, v.hora, v.barbero, tipo, v.servicio, v.metodo, `${fMoney(v.valor)}`, `${fMoney(v.ivaAplicado || 0)}`, `${fMoney(v.valor + (v.ivaAplicado || 0))}`, `${fMoney(pBar)}`, `${fMoney(v.valor - pBar)}`]; 
+                });
+
                 const bodyG = (b.gastos || []).map(g => { tGas += g.valor; return [g.fecha, "-", g.registradoPor || "ADMIN", "GASTO", g.desc, "Efectivo", `-${fMoney(g.valor)}`, "0", `-${fMoney(g.valor)}`, "0", `-${fMoney(g.valor)}`]; });
                 let allRows = bodyV.concat(bodyG); let tNeto = tIng - tGas - tBar;
                 doc.autoTable({ startY: currentY, head: [['Fecha', 'Hora', 'Empleado', 'Tipo', 'Item', 'Método', 'V. Base', 'IMPUESTO', 'Total', 'Comisión', 'Neto Local']], body: allRows, theme: 'striped', headStyles: { fillColor: [79, 70, 229] }, styles: { fontSize: 8 }, });
@@ -7047,7 +7127,10 @@ let timerDebounceClientes = null;
                 (b.cajeros || []).forEach((caj, idx) => {
                     listC.innerHTML += `
                     <div class="flex justify-between items-center bg-[#050505] border border-zinc-800 p-3 rounded-xl mb-2">
-                        <span class="text-xs font-bold text-white uppercase">🖥️ ${caj.nom} <span class="text-orange-500 text-[8px] ml-1">${caj.cierreCiego ? '[CIEGO]' : ''}</span></span>
+
+                        <span class="text-xs font-bold text-white uppercase">🖥️ ${caj.nom} <span class="text-zinc-500">(${caj.comision || 0}%)</span> <span class="text-orange-500 text-[8px] ml-1">${caj.cierreCiego ? '[CIEGO]' : ''}</span></span>
+
+
                         <div class="flex gap-2">
                             <button type="button" onclick="editarCajero(${idx})" class="text-blue-400 hover:text-blue-300 font-bold text-[10px] uppercase">Editar</button>
                             <button type="button" onclick="db.barberias[bIdx].cajeros.splice(${idx},1); saveDB(true); renderConfigLists()" class="text-red-500 hover:text-red-400 font-bold text-[10px] uppercase">Eliminar</button>
@@ -7241,6 +7324,11 @@ let timerDebounceClientes = null;
             const n = cleanStr(getValSeguro('add-c-nom')).toUpperCase();
             const p = cleanNum(getValSeguro('add-c-pin'));
             const ciego = document.getElementById('add-c-ciego') ? document.getElementById('add-c-ciego').checked : true;
+            
+            const c = parseInt(cleanNum(getValSeguro('add-c-comision'))) || 0;
+            const cP = parseInt(cleanNum(getValSeguro('add-c-comision-prod'))) || 0;
+            const hInicio = getValSeguro('add-c-inicio') || "08:00";
+            const hFin = getValSeguro('add-c-fin') || "20:00";
 
             if (!n || !p) return Swal.fire('Faltan Datos', 'El nombre y el PIN son obligatorios.', 'error');
             if (esPinInseguro(p)) return Swal.fire('PIN Inseguro', 'No uses secuencias fáciles como 1234.', 'warning');
@@ -7249,9 +7337,9 @@ let timerDebounceClientes = null;
             if (!db.barberias[bIdx].cajeros) db.barberias[bIdx].cajeros = [];
 
             if (idX !== "") { 
-                db.barberias[bIdx].cajeros[idX] = { nom: n, pin: p, cierreCiego: ciego, estado: 'ACTIVO' }; 
+                db.barberias[bIdx].cajeros[idX] = { nom: n, pin: p, cierreCiego: ciego, comision: c, comisionProd: cP, horaInicio: hInicio, horaFin: hFin, estado: 'ACTIVO' }; 
             } else { 
-                db.barberias[bIdx].cajeros.push({ nom: n, pin: p, cierreCiego: ciego, estado: 'ACTIVO' }); 
+                db.barberias[bIdx].cajeros.push({ nom: n, pin: p, cierreCiego: ciego, comision: c, comisionProd: cP, horaInicio: hInicio, horaFin: hFin, estado: 'ACTIVO' }); 
             }
 
             saveDB(true);
@@ -7259,6 +7347,10 @@ let timerDebounceClientes = null;
             if(document.getElementById('edit-c-id')) document.getElementById('edit-c-id').value = ""; 
             if(document.getElementById('add-c-nom')) document.getElementById('add-c-nom').value = ""; 
             if(document.getElementById('add-c-pin')) document.getElementById('add-c-pin').value = ""; 
+            if(document.getElementById('add-c-comision')) document.getElementById('add-c-comision').value = ""; 
+            if(document.getElementById('add-c-comision-prod')) document.getElementById('add-c-comision-prod').value = ""; 
+            if(document.getElementById('add-c-inicio')) document.getElementById('add-c-inicio').value = ""; 
+            if(document.getElementById('add-c-fin')) document.getElementById('add-c-fin').value = ""; 
             
             renderConfigLists();
             Swal.fire({title:'¡Cajero Guardado!', toast:true, position:'top-end', timer:2000, showConfirmButton:false, background: '#111', color: '#fff', icon:'success'});
@@ -7270,6 +7362,10 @@ let timerDebounceClientes = null;
             const elNom = document.getElementById('add-c-nom'); if(elNom) elNom.value = c.nom || "";
             const elPin = document.getElementById('add-c-pin'); if(elPin) elPin.value = c.pin || "";
             const elCiego = document.getElementById('add-c-ciego'); if(elCiego) elCiego.checked = c.cierreCiego !== false;
+            const elCom = document.getElementById('add-c-comision'); if(elCom) elCom.value = c.comision || 0;
+            const elComProd = document.getElementById('add-c-comision-prod'); if(elComProd) elComProd.value = c.comisionProd || 0;
+            const elIni = document.getElementById('add-c-inicio'); if(elIni) elIni.value = c.horaInicio || "08:00";
+            const elFin = document.getElementById('add-c-fin'); if(elFin) elFin.value = c.horaFin || "20:00";
         }
  
 
@@ -7584,11 +7680,19 @@ let timerDebounceClientes = null;
                 const efec = (b.ventas || []).filter(v => v.tipo === "Efectivo").reduce((a, v) => a + v.valor + (v.ivaAplicado || 0), 0);
                 const digi = (b.ventas || []).filter(v => v.tipo !== "Efectivo").reduce((a, v) => a + v.valor + (v.ivaAplicado || 0), 0);
                 
-                let totalComisionBarberos = 0;
+               let totalComisionBarberos = 0;
                 (b.ventas || []).forEach(v => {
-                    if (!v.esProducto && v.barbero !== "ADMIN") {
-                        const cBar = ((b.barberos || []).find(x => x.nom === v.barbero) || {}).comision || 50;
-                        totalComisionBarberos += v.valor * (cBar / 100);
+                    if (v.barbero !== "ADMIN") {
+                        let emp = (b.barberos || []).find(x => x.nom === v.barbero);
+                        if (!emp) emp = (b.cajeros || []).find(x => x.nom === v.barbero);
+                        
+                        if (!v.esProducto) {
+                            const cBar = emp ? (emp.comision !== undefined ? emp.comision : 0) : 50;
+                            totalComisionBarberos += v.valor * (cBar / 100);
+                        } else {
+                            const cProd = emp ? (emp.comisionProd !== undefined ? emp.comisionProd : 0) : 0;
+                            totalComisionBarberos += v.valor * (cProd / 100);
+                        }
                     }
                 });
                 
@@ -7629,11 +7733,20 @@ let timerDebounceClientes = null;
                             let totalIva = 0;
                             const tv = (s.ventas || []).reduce((a, v) => { if (v.ivaAplicado) totalIva += v.ivaAplicado; return a + v.valor + (v.ivaAplicado || 0); }, 0);
                             const tg = (s.gastos || []).reduce((a, g) => a + g.valor, 0);
+
                             let totalComisionBarberos = 0;
                             (s.ventas || []).forEach(v => {
-                                if (!v.esProducto && v.barbero !== "ADMIN") {
-                                    const cBar = ((s.barberos || []).find(x => x.nom === v.barbero) || {}).comision || 50;
-                                    totalComisionBarberos += v.valor * (cBar / 100);
+                                if (v.barbero !== "ADMIN") {
+                                    let emp = (s.barberos || []).find(x => x.nom === v.barbero);
+                                    if (!emp) emp = (s.cajeros || []).find(x => x.nom === v.barbero);
+                                    
+                                    if (!v.esProducto) {
+                                        const cBar = emp ? (emp.comision !== undefined ? emp.comision : 0) : 50;
+                                        totalComisionBarberos += v.valor * (cBar / 100);
+                                    } else {
+                                        const cProd = emp ? (emp.comisionProd !== undefined ? emp.comisionProd : 0) : 0;
+                                        totalComisionBarberos += v.valor * (cProd / 100);
+                                    }
                                 }
                             });
                             
@@ -8520,7 +8633,12 @@ function escucharResumenFranquicia() {
             
             const imgLogo = document.getElementById('tv-real-logo');
             const fallbackLogo = document.getElementById('tv-fallback-logo');
-            if (b.logo && imgLogo) { imgLogo.src = b.logo; imgLogo.classList.remove('hidden'); fallbackLogo.classList.add('hidden'); }
+            if (b.logo && imgLogo) { 
+                imgLogo.src = b.logo; 
+                imgLogo.onerror = function() { this.classList.add('hidden'); if(fallbackLogo) fallbackLogo.classList.remove('hidden'); };
+                imgLogo.classList.remove('hidden'); 
+                if(fallbackLogo) fallbackLogo.classList.add('hidden'); 
+            }
 
             const subEl = document.getElementById('tv-subtitulo');
             if(subEl) subEl.innerText = (b.tvData && b.tvData.subtitulo) ? b.tvData.subtitulo : 'TU ESTILO, NUESTRA TECNOLOGÍA';
@@ -9927,9 +10045,13 @@ function abrirOnboardingManual() {
             
             if(document.getElementById('global-caja-nombre')) document.getElementById('global-caja-nombre').innerText = session.nom;
 
-            const selectB = document.getElementById('caja-barbero-select');
+           const selectB = document.getElementById('caja-barbero-select');
             if(selectB) {
-                const barberosList = (b.barberos || []).map(bar => `<option value="${bar.nom}">${bar.nom}</option>`).join('');
+                let staffCombo = [];
+                if(b.barberos) staffCombo = staffCombo.concat(b.barberos);
+                if(b.cajeros) staffCombo = staffCombo.concat(b.cajeros.map(c => ({...c, esCajero: true})));
+                
+                const barberosList = staffCombo.map(bar => `<option value="${bar.nom}">${bar.esCajero ? '🖥️ CAJERA:' : '💈 BARBERO:'} ${bar.nom}</option>`).join('');
                 selectB.innerHTML = '<option value="">-- ELIGE QUIÉN ATENDIÓ --</option>' + barberosList;
             }
 
@@ -10165,20 +10287,106 @@ function verificarCumpleanosCaja(celular, datosCliente) {
 
 
        function seleccionarMetodoPagoCaja(metodo, btnElem) {
+            const b = db.barberias[bIdx];
             cajaMetodoActual = metodo;
             
-            // Limpiamos todos los colores
+            // 1. Limpiamos todos los colores
             document.querySelectorAll('#caja-botones-metodo button').forEach(btn => {
-                btn.classList.remove('bg-green-900/20', 'border-green-500', 'bg-[#da0081]/20', 'border-[#da0081]', 'bg-blue-900/20', 'border-blue-500', 'bg-yellow-900/20', 'border-yellow-500');
+                btn.classList.remove('bg-green-900/20', 'border-green-500', 'bg-[#da0081]/20', 'border-[#da0081]', 'bg-blue-900/20', 'border-blue-500');
                 btn.classList.add('bg-black', 'border-zinc-800');
             });
             
-            // Encendemos el botón tocado con su color corporativo
+            // 2. Encendemos el botón tocado
             btnElem.classList.remove('bg-black', 'border-zinc-800');
-            if(metodo === 'Efectivo') btnElem.classList.add('bg-green-900/20', 'border-green-500');
-            if(metodo === 'Nequi') btnElem.classList.add('bg-[#da0081]/20', 'border-[#da0081]'); // Magenta Nequi
-            if(metodo === 'Transferencia') btnElem.classList.add('bg-yellow-900/20', 'border-yellow-500'); // Amarillo Banco
-            if(metodo === 'Tarjeta') btnElem.classList.add('bg-blue-900/20', 'border-blue-500'); // Azul Visa
+            
+            if (metodo === 'Efectivo') {
+                btnElem.classList.add('bg-green-900/20', 'border-green-500');
+            }
+            
+            // 🚀 MAGIA 1: MOSTRAR EL QR EN LA PANTALLA (Nequi/Bancolombia/Daviplata)
+            if (metodo === 'Nequi') {
+                btnElem.classList.add('bg-[#da0081]/20', 'border-[#da0081]');
+                
+                let qrHtml = "";
+                if (b.qrImage) qrHtml = `<img src="${b.qrImage}" class="w-48 h-48 object-contain mx-auto rounded-xl shadow-[0_0_20px_rgba(218,0,129,0.3)] border-2 border-[#da0081]/50">`;
+                else if (b.numeroCuenta) qrHtml = `<div id="swal-qr-caja" class="w-48 h-48 mx-auto bg-white p-2 rounded-xl flex items-center justify-center shadow-lg border-2 border-[#da0081]/50"></div>`;
+                else qrHtml = `<p class="text-zinc-500 text-xs py-4">No has configurado tu QR en Ajustes.</p>`;
+
+                Swal.fire({
+                    title: '<span class="text-[#da0081] font-black uppercase text-2xl tracking-tighter">ESCANEA PARA PAGAR</span>',
+                    html: `
+                        <p class="text-xs text-zinc-400 mb-4 uppercase font-bold tracking-widest">Gira la pantalla hacia el cliente</p>
+                        ${qrHtml}
+                        <p class="text-xs text-indigo-400 font-black mt-4 uppercase">${b.bancoTipo || 'BANCO'}: <span class="text-white tracking-widest">${b.numeroCuenta || ''}</span></p>
+                        <p class="text-[10px] text-zinc-500 uppercase mt-1 font-bold">${b.titularCuenta || ''}</p>
+                    `,
+                    background: '#0a0a0a', color: '#fff',
+                    showConfirmButton: true, confirmButtonText: 'EL CLIENTE YA PAGÓ ✔', confirmButtonColor: '#16a34a',
+                    customClass: { popup: 'rounded-[2.5rem] border border-[#da0081]/40 shadow-2xl', confirmButton: 'w-full py-4 mt-2 rounded-xl font-black uppercase tracking-widest text-white shadow-lg btn-press text-[10px]' },
+                    didOpen: () => {
+                        if (b.numeroCuenta && !b.qrImage) {
+                            new QRCode(document.getElementById('swal-qr-caja'), { text: b.numeroCuenta, width: 170, height: 170, colorDark: "#000", colorLight: "#fff", correctLevel: QRCode.CorrectLevel.L });
+                        }
+                    }
+                });
+            }
+
+            // 🚀 MAGIA 2: ENVIAR EL LINK DIRECTO Y SEGURO DE WOMPI
+            if (metodo === 'Wompi') {
+                btnElem.classList.add('bg-blue-900/20', 'border-blue-500');
+                
+                let celCliente = document.getElementById('caja-search-cli').value.trim();
+                let totalCobrarCaja = calcularCambioCaja();
+
+                if (totalCobrarCaja <= 0) {
+                    return Swal.fire('Aviso', 'El total a cobrar debe ser mayor a $0 para generar un link de pago.', 'warning');
+                }
+                if (!b.wompiActivo || !b.wompiPub) {
+                    return Swal.fire('Error', 'Wompi no está configurado en los Ajustes del local.', 'error');
+                }
+
+                Swal.fire({ title: 'Generando Link de Pago...', text: 'Conectando con Wompi 🔒', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
+
+                // Creamos un ID único de transacción
+                const idReserva = `Z-${b.id_nube || b.id}-${Date.now().toString().slice(-6)}`;
+
+                // Pedimos a la nube la firma de seguridad de Wompi
+                supabaseClient.functions.invoke('generar-firma-wompi', {
+                    body: { monto: totalCobrarCaja, reference: idReserva }
+                }).then(response => {
+                    const data = response.data;
+                    const error = response.error;
+
+                    if (error) throw new Error(error.message);
+                    if (!data || !data.signature || !data.amountInCents) throw new Error("Datos incompletos.");
+
+                    // 🌐 PREPARAMOS EL LINK DEL CHECKOUT OFICIAL DE WOMPI
+                    const redirectSeguro = encodeURIComponent("https://zeusbarberpro.com/?kiosk=" + (b.id_nube || b.id)); 
+                    const linkWompiOficial = `https://checkout.wompi.co/p/?public-key=${b.wompiPub}&currency=COP&amount-in-cents=${data.amountInCents}&reference=${idReserva}&signature:integrity=${data.signature}&redirect-url=${redirectSeguro}`;
+
+                    let msg = `¡Hola! Para pagar tu servicio en ${b.nombre} por valor de ${fMoney(totalCobrarCaja)}, por favor ingresa a nuestra pasarela segura:\n\n👉 ${linkWompiOficial}\n\n(Puedes pagar con Tarjeta, PSE o Nequi).`;
+
+                    Swal.fire({
+                        title: '<span class="text-blue-500 font-black uppercase text-xl italic">LINK GENERADO</span>',
+                        html: `
+                            <p class="text-xs text-zinc-300 mb-6 font-bold">El link de pago oficial fue creado exitosamente. Envíalo al cliente.</p>
+                            <button onclick="window.open('https://wa.me/57${celCliente}?text=${encodeURIComponent(msg)}', '_blank')" class="w-full bg-[#25D366] text-black font-black py-4 rounded-xl shadow-[0_0_20px_rgba(37,211,102,0.4)] flex items-center justify-center gap-2 uppercase text-[11px] tracking-widest btn-press">💬 ENVIAR POR WHATSAPP</button>
+                            
+                            <div class="mt-6 bg-blue-900/10 border border-blue-500/30 p-4 rounded-xl text-left">
+                                <p class="text-[9px] text-blue-400 font-black uppercase tracking-widest mb-1 flex items-center gap-1"><span>🛡️</span> MODO SEGURO</p>
+                                <p class="text-[9px] text-zinc-400 leading-tight">Al tocar el botón se abrirá WhatsApp. Cuando el cliente te confirme que ya pagó, <b>vuelve a esta pestaña de Zeus</b> y finaliza la venta.</p>
+                            </div>
+                        `,
+                        background: '#0a0a0a', color: '#fff',
+                        showConfirmButton: false, showCloseButton: true,
+                        customClass: { popup: 'rounded-[2rem] border border-blue-500/30 shadow-2xl max-w-sm' }
+                    });
+
+                }).catch(err => {
+                    console.error("Falla generando link Wompi:", err);
+                    Swal.fire('Falla Bancaria', 'No pudimos conectar con Wompi. Revisa tu internet o intenta de nuevo.', 'error');
+                });
+            }
 
             calcularCambioCaja(); 
             updateCajaCartUI();
@@ -10234,6 +10442,12 @@ function verificarCumpleanosCaja(celular, datosCliente) {
             if(displayTotal) displayTotal.innerText = fMoney(totalCobrar);
        // ACTUALIZAR IVA EN LA UI
             let subtotalIva = cajaCart.reduce((a, i) => a + i.pre, 0);
+// Conectar el badge visual superior del Subtotal
+            if (document.getElementById('caja-subtotal-badge')) {
+                document.getElementById('caja-subtotal-badge').innerText = fMoney(subtotalIva);
+            }
+
+
             if (b.vipClub && b.vipClub.passActivo && cajaClienteActual && cajaClienteActual.planSuscripcion) {
                 const hoy = getTodayYMD();
                 if (!(cajaClienteActual.planVence && cajaClienteActual.planVence < hoy) && !(cajaClienteActual.cortesRestantes === 0)) { subtotalIva = 0; }
@@ -10434,7 +10648,7 @@ function verificarCumpleanosCaja(celular, datosCliente) {
 
 // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES (GitHub)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.80"; // 👈 Subimos a 1.63 para que todos los celulares se actualicen
+            const VERSION_ACTUAL = "1.82"; // 👈 Subimos a 1.63 para que todos los celulares se actualicen
             const versionGuardada = localStorage.getItem('zeus_version');
             
             if (versionGuardada !== VERSION_ACTUAL) {
