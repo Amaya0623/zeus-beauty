@@ -159,12 +159,68 @@
 
 <body>
 
-    <div id="splash-screen" class="flex flex-col items-center justify-center h-screen w-screen fixed inset-0 z-[9999] bg-[#050505]">
-        <div class="relative w-64 mx-auto rounded-[2.5rem] overflow-hidden shadow-[0_0_30px_rgba(12,209,184,0.15)] border border-zinc-800 bg-black">
-            <img src="video.gif" alt="Iniciando Zeus Barber..." class="w-full h-auto block pointer-events-none">
-            <div class="absolute bottom-0 right-0 w-14 h-8 bg-[#181820] z-10 rounded-br-[2.5rem]"></div>
+
+
+
+    <!-- ✨ SPLASH SCREEN UNIVERSAL REDONDEADO (iOS / Android / Web) ✨ -->
+    <div id="splash-screen" class="fixed inset-0 z-[9999] bg-[#050505] flex items-center justify-center transition-opacity duration-700 ease-in-out backdrop-blur-sm">
+        
+        <!-- 📱 EL ESTUCHE MÁGICO: Forma de celular, bordes curvos y brillo -->
+        <div class="relative w-[85%] max-w-[320px] aspect-[9/18] max-h-[85vh] rounded-[3rem] overflow-hidden shadow-[0_0_40px_rgba(0,240,255,0.15)] border border-zinc-800 bg-[#090b14] flex items-center justify-center transform transition-transform duration-700">
+            
+            <!-- LA TRINIDAD DE APPLE/GOOGLE: autoplay, muted, playsinline -->
+            <!-- Usamos object-cover para que el video llene el estuche sin franjas negras -->
+            <video id="splash-video" class="absolute inset-0 w-full h-full object-cover pointer-events-none" autoplay muted playsinline preload="auto">
+                <source src="video.mp4" type="video/mp4">
+            </video>
+
         </div>
-        <p class="text-white text-[12px] font-bold uppercase tracking-widest mt-6 text-center w-64"></p>
+
+        <!-- CEREBRO MULTIPLATAFORMA -->
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const vid = document.getElementById('splash-video');
+                const splash = document.getElementById('splash-screen');
+                let yaOculto = false;
+                
+                function ocultarSplashScreen() {
+                    if (!yaOculto && splash && splash.style.display !== 'none') {
+                        yaOculto = true;
+                        splash.style.opacity = '0';
+                        splash.firstElementChild.style.transform = 'scale(0.95)';
+                        setTimeout(() => splash.style.display = 'none', 700);
+                    }
+                }
+
+                if (vid && splash) {
+                    // 1. EL CORTE CINEMATOGRÁFICO: Cuando falte 0.2 segundos para acabar
+                    vid.addEventListener('timeupdate', () => {
+                        if (vid.currentTime > 0 && vid.duration > 0 && (vid.duration - vid.currentTime) <= 0.2) {
+                            ocultarSplashScreen();
+                        }
+                    });
+
+                    // 2. SEGURO DE VIDA DINÁMICO (Se ajusta a lo que dure tu video)
+                    vid.onloadedmetadata = () => {
+                        // Lee los segundos exactos del video y le suma 1 segundo de gracia
+                        const duracionReal = (vid.duration * 1000) + 1000;
+                        setTimeout(ocultarSplashScreen, duracionReal);
+                    };
+
+                    // 3. Forzar Play
+                    let playPromise = vid.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(error => {
+                            console.warn("⚠️ Autoplay bloqueado por el navegador local.");
+                            // Si el navegador local prohíbe el video, saltamos en 4 segundos
+                            setTimeout(ocultarSplashScreen, 4000);
+                        });
+                    }
+                } else {
+                    setTimeout(ocultarSplashScreen, 1000);
+                }
+            });
+        </script>
     </div>
 
     <div id="print-area"></div>
@@ -195,9 +251,13 @@
                     </div>
                     <div class="hidden sm:flex flex-col truncate">
                         <h1 id="nav-title" class="font-black text-sm uppercase italic leading-none truncate text-white">ISI CONTROL</h1>
+
+
                         <div class="flex items-center gap-2 mt-1">
                             <span id="nav-status" class="text-[7px] text-green-500 font-black uppercase tracking-widest bg-black px-1.5 py-0.5 rounded border border-green-900/50 leading-none">🟢 ONLINE</span>
                             <p id="nav-id" class="text-[7px] text-zinc-500 font-bold uppercase tracking-widest leading-none">ID: ---</p>
+                            <span class="text-zinc-700">|</span>
+                            <p class="text-[7px] text-zinc-500 font-black uppercase tracking-widest leading-none">v <span id="display-version-nav">---</span></p>
                         </div>
                     </div>
                 </div>
@@ -264,9 +324,12 @@
             <div class="mt-4 flex flex-col items-center gap-3 border-t border-zinc-800 pt-6">
                 <p class="text-[10px] text-yellow-500 cursor-pointer hover:text-yellow-400 uppercase font-black tracking-widest transition-colors flex items-center gap-2 bg-yellow-900/20 px-4 py-2 rounded-full border border-yellow-500/30 shadow-[0_0_15px_rgba(234,179,8,0.2)] btn-press" onclick="abrirOnboardingManual()">⚡ DESCUBRE ZEUS</p>
                 <p class="text-[10px] text-indigo-400 cursor-pointer hover:text-indigo-300 uppercase font-black tracking-widest transition-colors flex items-center gap-2 bg-indigo-900/20 px-4 py-2 rounded-full border border-indigo-500/30 btn-press" onclick="guiaInstalacion()">📲 ¿CÓMO INSTALAR LA APP?</p>
+
+
                 <div class="flex items-center gap-6 mt-2">
                     <p class="text-[9px] text-zinc-500 cursor-pointer hover:text-white uppercase font-bold tracking-widest transition-colors" onclick="verPoliticas()">📄 Privacidad</p>
                     <p class="text-[9px] text-zinc-700 cursor-pointer hover:text-red-500 uppercase font-bold tracking-widest transition-colors" onclick="hardReset()">🔄 Limpiar Sistema</p>
+                    <p class="text-[9px] text-zinc-600 font-black tracking-widest ml-auto">v <span id="display-version-login">---</span></p>
                 </div>
             </div>
         </section>
@@ -8978,14 +9041,6 @@ function escucharResumenFranquicia() {
         let appArrancada = false;
         function arrancarZeus() {
             if(appArrancada) return;
-            
-            const splashDiv = document.getElementById('splash-screen');
-            if (splashDiv) { 
-                setTimeout(() => {
-                    splashDiv.style.opacity = '0'; 
-                    setTimeout(() => splashDiv.style.display = 'none', 500); 
-                }, 2000); 
-            }
 
             const url = window.location.href;
             
@@ -9017,9 +9072,6 @@ function escucharResumenFranquicia() {
             }
             if (typeof startClock === 'function') startClock();
         }
-
-
-
 
         // ==========================================
         // 17. SISTEMA DE NOTIFICACIONES Y PUNTOS ROJOS
@@ -10725,7 +10777,14 @@ function abrirOnboardingManual() {
 
 // 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES (GitHub)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.83"; // 👈 Subimos a 1.63 para que todos los celulares se actualicen
+            const VERSION_ACTUAL = "1.84"; // 👈 Tu nueva versión
+            
+            // 🏷️ INYECTAR VERSIÓN EN LA PANTALLA (Magia visual)
+            const vLogin = document.getElementById('display-version-login');
+            if (vLogin) vLogin.innerText = VERSION_ACTUAL;
+            const vNav = document.getElementById('display-version-nav');
+            if (vNav) vNav.innerText = VERSION_ACTUAL;
+
             const versionGuardada = localStorage.getItem('zeus_version');
             
             if (versionGuardada !== VERSION_ACTUAL) {
@@ -10738,7 +10797,6 @@ function abrirOnboardingManual() {
                     });
                 }
                 if ('caches' in window) {
-                    // 🛠️ AQUÍ ESTABA EL ERROR: Faltaba el => {
                     caches.keys().then((names) => {
                         names.forEach(name => caches.delete(name));
                     });
