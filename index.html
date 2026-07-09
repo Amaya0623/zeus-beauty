@@ -163,20 +163,16 @@
 
 
     <!-- ✨ SPLASH SCREEN UNIVERSAL REDONDEADO (iOS / Android / Web) ✨ -->
-    <div id="splash-screen" class="fixed inset-0 z-[9999] bg-[#050505] flex items-center justify-center transition-opacity duration-700 ease-in-out backdrop-blur-sm">
+   <div id="splash-screen" class="fixed inset-0 z-[9999] w-screen h-screen bg-[#050505] flex items-center justify-center transition-opacity duration-700 ease-in-out overflow-hidden">
         
-        <!-- 📱 EL ESTUCHE MÁGICO: Forma de celular, bordes curvos y brillo -->
-        <div class="relative w-[85%] max-w-[320px] aspect-[9/18] max-h-[85vh] rounded-[3rem] overflow-hidden shadow-[0_0_40px_rgba(0,240,255,0.15)] border border-zinc-800 bg-[#090b14] flex items-center justify-center transform transition-transform duration-700">
+        <div class="relative w-[85%] max-w-[320px] aspect-[9/16] max-h-[85vh] rounded-[2.5rem] overflow-hidden shadow-[0_0_40px_rgba(0,240,255,0.15)] border border-zinc-800 bg-[#050505] flex items-center justify-center">
             
-            <!-- LA TRINIDAD DE APPLE/GOOGLE: autoplay, muted, playsinline -->
-            <!-- Usamos object-cover para que el video llene el estuche sin franjas negras -->
             <video id="splash-video" class="absolute inset-0 w-full h-full object-cover pointer-events-none" autoplay muted playsinline preload="auto">
                 <source src="video.mp4" type="video/mp4">
             </video>
 
         </div>
 
-        <!-- CEREBRO MULTIPLATAFORMA -->
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 const vid = document.getElementById('splash-video');
@@ -193,26 +189,22 @@
                 }
 
                 if (vid && splash) {
-                    // 1. EL CORTE CINEMATOGRÁFICO: Cuando falte 0.2 segundos para acabar
+                    // EL CORTE CINEMATOGRÁFICO
                     vid.addEventListener('timeupdate', () => {
                         if (vid.currentTime > 0 && vid.duration > 0 && (vid.duration - vid.currentTime) <= 0.2) {
                             ocultarSplashScreen();
                         }
                     });
 
-                    // 2. SEGURO DE VIDA DINÁMICO (Se ajusta a lo que dure tu video)
                     vid.onloadedmetadata = () => {
-                        // Lee los segundos exactos del video y le suma 1 segundo de gracia
                         const duracionReal = (vid.duration * 1000) + 1000;
                         setTimeout(ocultarSplashScreen, duracionReal);
                     };
 
-                    // 3. Forzar Play
                     let playPromise = vid.play();
                     if (playPromise !== undefined) {
                         playPromise.catch(error => {
-                            console.warn("⚠️ Autoplay bloqueado por el navegador local.");
-                            // Si el navegador local prohíbe el video, saltamos en 4 segundos
+                            console.warn("⚠️ Autoplay bloqueado.");
                             setTimeout(ocultarSplashScreen, 4000);
                         });
                     }
@@ -222,7 +214,6 @@
             });
         </script>
     </div>
-
     <div id="print-area"></div>
 
     <div id="pantalla-bloqueo" class="hidden fixed inset-0 z-[9999] bg-[#050505] flex flex-col items-center justify-center p-6 text-center">
@@ -10775,11 +10766,11 @@ function abrirOnboardingManual() {
         }
 
 
-// 🔥 DESTRUCTOR NUCLEAR DE CACHÉ PARA ACTUALIZACIONES INVISIBLES (GitHub)
+// 🔥 ACTUALIZACIÓN SILENCIOSA (SIN DOBLE CARGA)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.84"; // 👈 Tu nueva versión
+            const VERSION_ACTUAL = "1.89"; // 👈 Subimos a 1.89 para aplicar el cambio
             
-            // 🏷️ INYECTAR VERSIÓN EN LA PANTALLA (Magia visual)
+            // 🏷️ INYECTAR VERSIÓN EN LA PANTALLA
             const vLogin = document.getElementById('display-version-login');
             if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav');
@@ -10788,26 +10779,28 @@ function abrirOnboardingManual() {
             const versionGuardada = localStorage.getItem('zeus_version');
             
             if (versionGuardada !== VERSION_ACTUAL) {
-                console.log("¡Actualización de Código detectada! Destruyendo caché...");
-                localStorage.setItem('zeus_version', VERSION_ACTUAL);
+                console.log("¡Actualización detectada! Limpiando caché en segundo plano...");
                 
+                // Borramos los Service Workers (PWA) en silencio
                 if ('serviceWorker' in navigator) {
                     navigator.serviceWorker.getRegistrations().then(function(registrations) {
                         for(let registration of registrations) { registration.unregister(); }
                     });
                 }
+                
+                // Vaciamos la caché de archivos en silencio
                 if ('caches' in window) {
                     caches.keys().then((names) => {
                         names.forEach(name => caches.delete(name));
                     });
                 }
                 
-                setTimeout(() => { 
-                    // Rescatamos el link original y le inyectamos la versión limpia
-                    let urlActual = new URL(window.location.href);
-                    urlActual.searchParams.set('v', new Date().getTime()); 
-                    window.location.href = urlActual.href; 
-                }, 1000);
+                // Guardamos la nueva versión
+                localStorage.setItem('zeus_version', VERSION_ACTUAL);
+                
+                // 🛑 ¡MAGIA! ELIMINAMOS EL window.location.reload() POR COMPLETO.
+                // El sistema limpiará la basura en segundo plano, pero NO recargará la página.
+                // Tu video correrá 1 sola vez de forma perfecta.
             }
         }
 
