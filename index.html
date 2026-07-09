@@ -162,12 +162,14 @@
 
 
 
-    <!-- ✨ SPLASH SCREEN UNIVERSAL REDONDEADO (iOS / Android / Web) ✨ -->
-   <div id="splash-screen" class="fixed inset-0 z-[9999] w-screen h-screen bg-[#050505] flex items-center justify-center transition-opacity duration-700 ease-in-out overflow-hidden">
+    <!-- ✨ SPLASH SCREEN UNIVERSAL (ANDROID, IOS, WEB) ✨ -->
+    <div id="splash-screen" class="fixed inset-0 z-[9999] w-full h-full bg-[#050505] flex items-center justify-center transition-opacity duration-500 ease-in-out">
         
-        <div class="relative w-[85%] max-w-[320px] aspect-[9/16] max-h-[85vh] rounded-[2.5rem] overflow-hidden shadow-[0_0_40px_rgba(0,240,255,0.15)] border border-zinc-800 bg-[#050505] flex items-center justify-center">
+        <!-- 📱 ESTUCHE ADAPTATIVO: Perfecto para cualquier tamaño de pantalla -->
+        <div class="relative w-[85%] max-w-[320px] aspect-[9/16] max-h-[85vh] rounded-[2.5rem] shadow-[0_0_40px_rgba(0,240,255,0.15)] border border-zinc-800 bg-[#050505] flex items-center justify-center overflow-hidden">
             
-            <video id="splash-video" class="absolute inset-0 w-full h-full object-cover pointer-events-none" autoplay muted playsinline preload="auto">
+            <!-- 🪄 TRUCO SENIOR: scaleX(1.08) recorta EXACTAMENTE los bordes negros laterales del MP4 sin tocar ni un píxel arriba ni abajo -->
+            <video id="splash-video" class="absolute inset-0 w-full h-full object-cover pointer-events-none" style="transform: scaleX(1.08);" autoplay muted playsinline preload="auto">
                 <source src="video.mp4" type="video/mp4">
             </video>
 
@@ -180,40 +182,37 @@
                 let yaOculto = false;
                 
                 function ocultarSplashScreen() {
-                    if (!yaOculto && splash && splash.style.display !== 'none') {
+                    if (!yaOculto && splash) {
                         yaOculto = true;
                         splash.style.opacity = '0';
-                        splash.firstElementChild.style.transform = 'scale(0.95)';
-                        setTimeout(() => splash.style.display = 'none', 700);
+                        setTimeout(() => splash.remove(), 500); // Destruye el elemento para liberar RAM
                     }
                 }
 
                 if (vid && splash) {
-                    // EL CORTE CINEMATOGRÁFICO
-                    vid.addEventListener('timeupdate', () => {
-                        if (vid.currentTime > 0 && vid.duration > 0 && (vid.duration - vid.currentTime) <= 0.2) {
-                            ocultarSplashScreen();
-                        }
-                    });
-
-                    vid.onloadedmetadata = () => {
-                        const duracionReal = (vid.duration * 1000) + 1000;
-                        setTimeout(ocultarSplashScreen, duracionReal);
-                    };
-
+                    // Cuando el video termina naturalmente, se oculta
+                    vid.addEventListener('ended', ocultarSplashScreen);
+                    
+                    // 🛡️ SEGURO ANTI-FALLOS (Especial para iOS en Ahorro de Batería)
                     let playPromise = vid.play();
                     if (playPromise !== undefined) {
-                        playPromise.catch(error => {
-                            console.warn("⚠️ Autoplay bloqueado.");
-                            setTimeout(ocultarSplashScreen, 4000);
+                        playPromise.catch(() => {
+                            // Si el iPhone bloquea el video, saltamos al sistema en 2.5s
+                            setTimeout(ocultarSplashScreen, 2500); 
                         });
                     }
+                    
+                    // Límite máximo de seguridad para cualquier dispositivo
+                    setTimeout(ocultarSplashScreen, 6000); 
                 } else {
                     setTimeout(ocultarSplashScreen, 1000);
                 }
             });
         </script>
     </div>
+
+
+
     <div id="print-area"></div>
 
     <div id="pantalla-bloqueo" class="hidden fixed inset-0 z-[9999] bg-[#050505] flex flex-col items-center justify-center p-6 text-center">
@@ -10768,7 +10767,7 @@ function abrirOnboardingManual() {
 
 // 🔥 ACTUALIZACIÓN SILENCIOSA (SIN DOBLE CARGA)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.89"; // 👈 Subimos a 1.89 para aplicar el cambio
+            const VERSION_ACTUAL = "1.90"; // 👈 Subimos a 1.89 para aplicar el cambio
             
             // 🏷️ INYECTAR VERSIÓN EN LA PANTALLA
             const vLogin = document.getElementById('display-version-login');
