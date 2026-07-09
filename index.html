@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0a0a0a">
+    
     <link rel="apple-touch-icon" href="icono.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ZEUS BARBER PRO | Software para Barberías, Peluquerías y Spa</title>
@@ -15,7 +15,7 @@
     <meta property="og:description" content="Gestiona tu negocio al siguiente nivel con Zeus. Citas, POS y Marketing.">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
+    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#050505">
@@ -237,7 +237,7 @@
                 
                 <div class="flex items-center gap-3 relative z-10 w-1/3">
                     <div id="nav-logo-box" class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center font-black text-xs relative overflow-hidden shadow-inner shrink-0">
-                        <span id="nav-logo-txt">IC</span><img id="nav-logo-img" class="hidden w-full h-full object-cover absolute inset-0" src="">
+                        <span id="nav-logo-txt">IC</span><img id="nav-logo-img" alt="" class="hidden w-full h-full object-cover absolute inset-0" src="">
                     </div>
                     <div class="hidden sm:flex flex-col truncate">
                         <h1 id="nav-title" class="font-black text-sm uppercase italic leading-none truncate text-white">ISI CONTROL</h1>
@@ -275,7 +275,7 @@
             </div>
 
             <div id="login-logo-container" class="flex flex-col justify-center mb-8 items-center">
-                <img id="login-custom-logo" class="hidden w-40 h-40 object-cover rounded-[1.5rem] shadow-lg mb-4" src="" alt="Logo">
+                <img id="login-custom-logo" alt="Logo de la Barbería" class="hidden w-40 h-40 object-cover rounded-[1.5rem] shadow-lg mb-4" src="">
                 
                 <div id="beauty-logo-header" class="hidden mb-4">
                     <img src="https://github.com/Amaya0623/zeus-beauty/blob/main/logo-estetica.png?raw=true" alt="Zeus Beauty" class="h-40 w-auto animate-pulse">
@@ -290,7 +290,8 @@
             </div>
 
             <div class="mt-auto mb-auto">
-                <input type="password" inputmode="numeric" id="login-pin" placeholder="INGRESE PIN" class="w-full p-6 rounded-3xl text-center text-4xl font-black mb-6 border border-zinc-800 shadow-inner tracking-widest bg-[#050505] focus:border-indigo-500 outline-none transition-colors text-white">
+                <input type="password" inputmode="numeric" id="login-pin" aria-label="Ingrese su PIN de acceso" placeholder="INGRESE PIN" class="w-full p-6 rounded-3xl text-center text-4xl font-black mb-6 border border-zinc-800 shadow-inner tracking-widest bg-[#050505] focus:border-indigo-500 outline-none transition-colors text-white">
+
                 <button type="button" onclick="actionLogin()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-6 rounded-3xl text-xl font-black uppercase italic shadow-lg shadow-indigo-600/20 btn-press transition-colors text-white mb-6">
                     <span id="btn-login-text">Entrar a Zeus ⚡</span>
                 </button>
@@ -411,11 +412,11 @@
             
             <div id="modal-feature-detalle" class="hidden fixed inset-0 z-[10000] bg-black/80 backdrop-blur-md flex items-center justify-center p-6 opacity-0 transition-opacity duration-300">
                 <div class="glass p-8 sm:p-10 rounded-[2.5rem] border border-zinc-800 shadow-2xl max-w-sm w-full text-center relative transform scale-95 transition-transform duration-300 bg-[#0a0a0a]" id="modal-feature-content">
-                    <button type="button" onclick="cerrarDetalleFeature()" class="absolute top-4 right-4 w-8 h-8 bg-black border border-zinc-800 text-zinc-500 rounded-full flex items-center justify-center font-bold btn-press hover:text-white hover:bg-red-500 transition-colors">✕</button>
+                    <button type="button" aria-label="Cerrar detalle" onclick="cerrarDetalleFeature()" class="absolute top-4 right-4 w-8 h-8 bg-black border border-zinc-800 text-zinc-500 rounded-full flex items-center justify-center font-bold btn-press hover:text-white hover:bg-red-500 transition-colors">✕</button>
                     <span id="feat-icon" class="text-6xl mb-4 block drop-shadow-lg">📅</span>
                     <h3 id="feat-title" class="text-xl sm:text-2xl font-black text-white uppercase tracking-tighter mb-4">Título</h3>
                     <p id="feat-desc" class="text-xs sm:text-sm text-zinc-300 font-bold leading-relaxed mb-6">Descripción...</p>
-                    <button type="button" onclick="cerrarDetalleFeature()" class="w-full bg-zinc-900 hover:bg-zinc-800 text-white py-4 rounded-xl font-black uppercase text-[10px] tracking-widest btn-press transition-colors border border-zinc-700">Entendido 👍</button>
+                    <button type="button" aria-label="Cerrar detalle" onclick="cerrarDetalleFeature()" class="w-full bg-zinc-900 hover:bg-zinc-800 text-white py-4 rounded-xl font-black uppercase text-[10px] tracking-widest btn-press transition-colors border border-zinc-700">Entendido 👍</button>
                 </div>
             </div>
         </div>
@@ -490,7 +491,7 @@
                             <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-2">Barbero:</label>
                             <div class="flex items-center gap-2 mt-1">
                                 <div class="w-10 h-10 rounded-full border border-zinc-700 overflow-hidden bg-zinc-900 flex-shrink-0 relative">
-                                    <img id="kio-barbero-img" src="" class="w-full h-full object-cover hidden absolute inset-0 z-10">
+                                    <img id="kio-barbero-img" alt="" src="" class="w-full h-full object-cover hidden absolute inset-0 z-10">
                                     <span id="kio-barbero-icon" class="flex items-center justify-center h-full text-xs w-full absolute inset-0 z-0">💈</span>
                                 </div>
                                 <select id="kio-barbero" onchange="actualizarFotoBarbero('kio'); renderKioskoSlots()" class="w-full p-3 rounded-2xl bg-black text-indigo-400 border border-zinc-800 font-bold text-[10px] uppercase focus:border-indigo-500 appearance-none text-center outline-none cursor-pointer transition-colors"><option value="">-- ELIGE --</option></select>
@@ -541,7 +542,7 @@
             <div class="glass p-6 sm:p-8 rounded-[3rem] max-w-md w-full border border-blue-900/50 shadow-2xl relative flex flex-col h-[85vh]">
                 <div class="flex justify-between items-center mb-2">
                     <h3 class="text-blue-500 font-black text-2xl sm:text-3xl uppercase tracking-tighter flex items-center gap-2"><span class="text-xl">📍</span> Locales</h3>
-                    <button type="button" onclick="cerrarModales()" class="w-10 h-10 bg-zinc-900 border border-zinc-800 text-zinc-500 rounded-full flex items-center justify-center font-bold text-lg btn-press hover:text-white hover:bg-red-900/50 transition-colors z-50 relative">✕</button>
+                    <buttontype="button" aria-label="Cerrar ventana" onclick="cerrarModales()" class="w-10 h-10 bg-zinc-900 border border-zinc-800 text-zinc-500 rounded-full flex items-center justify-center font-bold text-lg btn-press hover:text-white hover:bg-red-900/50 transition-colors z-50 relative">✕</button>
                 </div>
 
                 <p class="text-zinc-500 text-[10px] uppercase tracking-widest mb-6 text-left">Encuentra tu Zeus Barber más cercano.</p>
@@ -549,7 +550,7 @@
                 <div id="mapa-real-osm" class="w-full flex-1 min-h-[250px] rounded-3xl border border-blue-900/30 mb-4 shadow-inner z-10 overflow-hidden relative"></div>
                 
                 <div id="mapa-lista-locales" class="space-y-2 max-h-[30vh] overflow-y-auto pr-2 scroll-safe text-left relative z-10"></div>
-                <button type="button" onclick="cerrarModales()" class="w-full mt-4 bg-zinc-900 py-4 rounded-2xl font-black uppercase text-zinc-400 border border-zinc-800 btn-press hover:bg-zinc-800 hover:text-white transition-colors text-[10px] tracking-widest shadow-lg relative z-10">Volver al Inicio</button>
+                <button type="button" aria-label="Cerrar ventana" onclick="cerrarModales()" class="w-full mt-4 bg-zinc-900 py-4 rounded-2xl font-black uppercase text-zinc-400 border border-zinc-800 btn-press hover:bg-zinc-800 hover:text-white transition-colors text-[10px] tracking-widest shadow-lg relative z-10">Volver al Inicio</button>
             </div>
         </div>
 
@@ -677,7 +678,7 @@
                         <div class="flex items-center gap-3"><span id="badge-citas-main" class="hidden bg-red-600 text-white text-[9px] px-3 py-1 rounded-full font-black animate-pulse">0</span><span id="icon-admin-menu" class="text-zinc-500 font-black transition-transform duration-300">▼</span></div>
                     </button>
                     <div id="acc-admin-menu" class="hidden flex flex-col border-t border-zinc-800/50">
-                        <button type="button" onclick="showScreen('view-agenda'); renderAgendaList();" class="flex justify-between items-center p-5 border-b border-zinc-800/50 hover:bg-white/5 btn-press text-left transition-colors">
+                        <button type="button" aria-label="Cerrar ventana" onclick="showScreen('view-agenda'); renderAgendaList();" class="flex justify-between items-center p-5 border-b border-zinc-800/50 hover:bg-white/5 btn-press text-left transition-colors">
                             <div class="flex items-center gap-4"><span class="text-2xl">📅</span><span class="text-[11px] font-bold text-zinc-300 uppercase tracking-widest">Agenda de Citas</span></div><div class="flex items-center gap-3"><span id="badge-citas-row" class="hidden bg-red-600 text-white text-[9px] px-2 py-0.5 rounded-full font-black">0</span><span class="text-zinc-600 font-black">➔</span></div>
                         </button>
                         <button type="button" onclick="abrirClientes()" class="flex justify-between items-center p-5 border-b border-zinc-800/50 hover:bg-blue-900/20 bg-blue-900/5 btn-press text-left transition-colors">
@@ -701,7 +702,7 @@
                         <button type="button" onclick="exportarPDF()" class="flex justify-between items-center p-5 border-b border-zinc-800/50 hover:bg-white/5 btn-press text-left transition-colors">
                             <div class="flex items-center gap-4"><span class="text-2xl">📄</span><span class="text-[11px] font-bold text-zinc-300 uppercase tracking-widest">Exportar Reporte PDF</span></div><span class="text-zinc-600 font-black">➔</span>
                         </button>
-                        <button type="button" onclick="showScreen('view-config')" class="flex justify-between items-center p-5 border-b border-zinc-800/50 hover:bg-indigo-900/20 bg-indigo-900/5 btn-press text-left transition-colors">
+                        <button type="button" aria-label="Cerrar ventana" onclick="showScreen('view-config')" class="flex justify-between items-center p-5 border-b border-zinc-800/50 hover:bg-indigo-900/20 bg-indigo-900/5 btn-press text-left transition-colors">
                             <div class="flex items-center gap-4"><span class="text-2xl">⚙️</span><span class="text-[11px] font-bold text-indigo-400 uppercase tracking-widest">Ajustes del Sistema</span></div><span class="text-indigo-600 font-black">➔</span>
                         </button>
                         <button type="button" onclick="abrirCierreMes()" class="flex justify-between items-center p-5 hover:bg-red-900/20 bg-red-950/10 btn-press text-left transition-colors">
@@ -764,7 +765,7 @@
                             <label class="text-[9px] text-zinc-400 font-black uppercase tracking-widest ml-1 mb-1 block">💈 Barbero Asignado</label>
                             <div class="flex items-center gap-3 bg-[#050812] border border-blue-900/50 p-2 rounded-xl focus-within:border-pink-400 focus-within:shadow-[0_0_15px_rgba(244,114,182,0.2)] transition-all">
                                 <div class="w-10 h-10 rounded-lg border-2 border-pink-500/50 overflow-hidden bg-black shrink-0 relative">
-                                    <img id="agenda-barbero-img" src="" class="w-full h-full object-cover hidden absolute inset-0 z-10">
+                                    <img id="agenda-barbero-img" alt="" src="" class="w-full h-full object-cover hidden absolute inset-0 z-10">
                                     <span id="agenda-barbero-icon" class="flex items-center justify-center h-full text-xs w-full absolute inset-0 z-0 text-pink-500">👤</span>
                                 </div>
                                 <select id="agenda-barbero" onchange="actualizarFotoBarbero('agenda')" class="w-full bg-transparent border-none font-black text-xs text-white uppercase outline-none focus:ring-0 cursor-pointer appearance-none"></select>
@@ -817,7 +818,7 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b border-zinc-800/50 pb-4">
                     <div class="flex items-center gap-4">
                         <div class="w-14 h-14 rounded-full border-2 border-indigo-500 overflow-hidden bg-black shadow-[0_0_15px_rgba(99,102,241,0.2)] shrink-0 relative">
-                            <img id="pos-barber-img" src="" class="w-full h-full object-cover hidden absolute inset-0 z-10">
+                            <img id="pos-barber-img" alt="" src="" class="w-full h-full object-cover hidden absolute inset-0 z-10">
                             <span id="pos-barber-icon" class="w-full h-full flex items-center justify-center text-2xl absolute inset-0 z-0">💈</span>
                         </div>
                         <div class="flex flex-col">
@@ -1153,7 +1154,7 @@
             <div class="glass p-8 sm:p-10 rounded-[3.5rem] border border-zinc-800 shadow-2xl">
                 <div class="flex justify-between items-center mb-8 border-b border-zinc-800 pb-4">
                     <h2 class="text-3xl font-black italic text-indigo-500 uppercase tracking-tighter">Configuración</h2>
-                    <button type="button" onclick="showScreen('view-admin')" class="w-10 h-10 bg-red-900/20 text-red-500 rounded-xl flex items-center justify-center font-black text-lg border border-red-900/50 btn-press hover:bg-red-500 hover:text-white transition-colors">✕</button>
+                    <button type="button" aria-label="Cerrar ventana" onclick="showScreen('view-admin')" class="w-10 h-10 bg-red-900/20 text-red-500 rounded-xl flex items-center justify-center font-black text-lg border border-red-900/50 btn-press hover:bg-red-500 hover:text-white transition-colors">✕</button>
                 </div>
 
                 <div class="space-y-4">
@@ -1817,7 +1818,7 @@
 
        <div id="modal-pago-anticipado" class="hidden fixed inset-0 z-[600] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 text-center">
             <div class="bg-[#050505] p-6 sm:p-8 rounded-[2.5rem] max-w-sm w-full border border-indigo-500/30 shadow-[0_0_40px_rgba(99,102,241,0.15)] relative max-h-[95vh] overflow-y-auto scroll-safe">
-                <button type="button" onclick="cerrarModalespos()" class="absolute top-5 right-5 w-8 h-8 bg-zinc-900 border border-zinc-800 text-zinc-400 rounded-full flex items-center justify-center font-bold text-sm btn-press hover:text-white transition-colors z-10">✕</button>
+                <button type="button" aria-label="Cerrar ventana" onclick="cerrarModalespos()" class="absolute top-5 right-5 w-8 h-8 bg-zinc-900 border border-zinc-800 text-zinc-400 rounded-full flex items-center justify-center font-bold text-sm btn-press hover:text-white transition-colors z-10">✕</button>
                 
                 <div class="flex flex-col items-center mb-2">
                     <span class="text-3xl mb-2 drop-shadow-md">🛡️</span>
@@ -1904,7 +1905,7 @@
 
 <div id="modal-detalle-servicio" class="hidden fixed inset-0 z-[700] bg-black/90 backdrop-blur-sm flex items-end sm:items-center justify-center sm:p-6 transition-all">
             <div class="bg-[#0a0a0a] w-full sm:max-w-md rounded-t-[2.5rem] sm:rounded-[2.5rem] border-t border-x border-zinc-800 p-6 sm:p-8 relative shadow-[0_-10px_40px_rgba(0,0,0,0.8)] animate-[transform_0.3s_ease-out]">
-                <button type="button" onclick="document.getElementById('modal-detalle-servicio').classList.add('hidden')" class="absolute top-5 right-5 w-8 h-8 bg-zinc-900 border border-zinc-800 text-zinc-400 rounded-full flex items-center justify-center font-bold text-sm btn-press hover:text-white transition-colors z-50">✕</button>
+                <button type="button" aria-label="Cerrar ventana" onclick="document.getElementById('modal-detalle-servicio').classList.add('hidden')" class="absolute top-5 right-5 w-8 h-8 bg-zinc-900 border border-zinc-800 text-zinc-400 rounded-full flex items-center justify-center font-bold text-sm btn-press hover:text-white transition-colors z-50">✕</button>
                 
                 <div class="mb-4 pr-8">
                     <h3 id="mdl-srv-nombre" class="text-2xl font-black text-white uppercase tracking-tighter leading-tight mb-1">Nombre Servicio</h3>
@@ -1945,7 +1946,7 @@
 
         <div id="modal-qr" class="hidden fixed inset-0 z-[200] bg-black/98 flex items-center justify-center p-6 text-center">
             <div class="glass p-8 rounded-[3rem] max-w-sm w-full border border-zinc-800 shadow-2xl max-h-[90vh] overflow-y-auto relative text-left scroll-safe">
-                <button type="button" onclick="cerrarModalespos()" class="absolute top-5 right-5 w-8 h-8 bg-black border border-zinc-800 text-zinc-500 rounded-full flex items-center justify-center font-bold text-sm btn-press hover:text-white transition-colors">✕</button>
+                <button type="button" aria-label="Cerrar ventana" onclick="cerrarModalespos()" class="absolute top-5 right-5 w-8 h-8 bg-black border border-zinc-800 text-zinc-500 rounded-full flex items-center justify-center font-bold text-sm btn-press hover:text-white transition-colors">✕</button>
                 <h3 id="qr-banco" class="text-indigo-500 font-black text-4xl italic uppercase mb-1 tracking-tighter text-center">BANK NAME</h3>
                 <p id="qr-titular" class="text-zinc-500 text-[10px] font-bold uppercase mb-4 tracking-widest text-center">TITULAR: ---</p>
                 <div id="qr-caja" class="flex justify-center items-center mb-4 bg-white p-4 rounded-3xl mx-auto w-48 h-48 shadow-lg overflow-hidden"></div>
@@ -1999,7 +2000,7 @@
 
         <div id="modal-barberos" class="hidden fixed inset-0 z-[100] bg-black/98 flex items-center justify-center p-6">
             <div class="glass p-8 sm:p-10 rounded-[3rem] border border-blue-900/30 max-w-xl w-full max-h-[90vh] overflow-y-auto relative text-left scroll-safe">
-                <button type="button" onclick="cerrarModales()" class="absolute top-7 right-7 w-8 h-8 bg-black border border-zinc-800 text-zinc-500 rounded-full flex items-center justify-center font-bold text-sm btn-press hover:text-white transition-colors">✕</button>
+                <button type="button" aria-label="Cerrar ventana" onclick="cerrarModales()" class="absolute top-7 right-7 w-8 h-8 bg-black border border-zinc-800 text-zinc-500 rounded-full flex items-center justify-center font-bold text-sm btn-press hover:text-white transition-colors">✕</button>
                 <h2 class="text-2xl sm:text-3xl font-black mb-6 italic uppercase text-blue-400 text-center tracking-tighter">Control de Turnos</h2>
                 <div id="asistencia-lista" class="space-y-3"></div>
                 <p class="text-[9px] text-zinc-500 italic mt-6 px-4 text-center">Recuerda: El turno inicia al loguearse.</p>
@@ -2008,7 +2009,7 @@
 
         <div id="modal-ver-receta" class="hidden fixed inset-0 z-[800] bg-black/95 backdrop-blur-sm flex items-center justify-center p-6">
             <div class="glass p-8 rounded-[3rem] border border-yellow-500/50 max-w-md w-full relative text-left shadow-[0_0_40px_rgba(234,179,8,0.2)]">
-                <button type="button" onclick="document.getElementById('modal-ver-receta').classList.add('hidden')" class="absolute top-6 right-6 w-8 h-8 bg-black border border-zinc-800 text-zinc-500 rounded-full flex items-center justify-center font-bold text-sm btn-press hover:text-white transition-colors z-50">✕</button>
+                <button type="button" aria-label="Cerrar ventana" onclick="document.getElementById('modal-ver-receta').classList.add('hidden')" class="absolute top-6 right-6 w-8 h-8 bg-black border border-zinc-800 text-zinc-500 rounded-full flex items-center justify-center font-bold text-sm btn-press hover:text-white transition-colors z-50">✕</button>
                 <p class="text-[10px] font-black text-yellow-500 uppercase tracking-widest flex items-center gap-2 mb-2"><span class="text-xl">👑</span> PERFIL VIP</p>
                 <h3 id="receta-nombre-cliente" class="text-white font-black text-3xl uppercase mb-6 tracking-tighter leading-none">CARLOS PEREZ</h3>
                 
@@ -2038,7 +2039,7 @@
 
         <div id="modal-guardar-receta" class="hidden fixed inset-0 z-[800] bg-black/98 flex items-center justify-center p-6 text-center">
             <div class="glass p-8 rounded-[3rem] border border-green-500/50 max-w-md w-full relative shadow-2xl max-h-[90vh] overflow-y-auto scroll-safe">
-                <button type="button" onclick="document.getElementById('modal-guardar-receta').classList.add('hidden')" class="absolute top-6 right-6 w-8 h-8 bg-black border border-zinc-800 text-zinc-500 rounded-full flex items-center justify-center font-bold text-sm btn-press hover:text-white transition-colors z-50">✕</button>
+                <button type="button" aria-label="Cerrar ventana" onclick="document.getElementById('modal-guardar-receta').classList.add('hidden')" class="absolute top-6 right-6 w-8 h-8 bg-black border border-zinc-800 text-zinc-500 rounded-full flex items-center justify-center font-bold text-sm btn-press hover:text-white transition-colors z-50">✕</button>
                 <input type="hidden" id="gr-id-cita" value="">
                 <h3 class="text-green-500 font-black text-3xl italic uppercase tracking-tighter mb-2">¡CORTE LISTO!</h3>
                 <p class="text-[10px] text-zinc-400 uppercase tracking-widest mb-6">Actualiza el perfil visual del cliente</p>
@@ -2076,7 +2077,7 @@
 
         <div id="modal-inventario" class="hidden fixed inset-0 z-[500] bg-black/98 flex items-center justify-center p-6">
             <div class="glass p-8 rounded-[3rem] border border-purple-900/30 max-w-xl w-full max-h-[90vh] overflow-y-auto relative text-left shadow-2xl">
-                <button type="button" onclick="cerrarModales()" class="absolute top-6 right-6 w-8 h-8 bg-black border border-zinc-800 text-zinc-500 rounded-full flex items-center justify-center font-bold text-sm btn-press hover:text-white transition-colors">✕</button>
+                <button type="button" aria-label="Cerrar ventana" onclick="cerrarModales()" class="absolute top-6 right-6 w-8 h-8 bg-black border border-zinc-800 text-zinc-500 rounded-full flex items-center justify-center font-bold text-sm btn-press hover:text-white transition-colors">✕</button>
                 <h2 class="text-3xl font-black mb-6 italic uppercase text-purple-400 text-center">INVENTARIO STOCK</h2>
 
                 <div class="bg-black/50 p-6 rounded-[2rem] border border-zinc-900 shadow-inner mb-6">
@@ -2094,7 +2095,7 @@
 
         <div id="modal-gastos" class="hidden fixed inset-0 z-[100] bg-black/98 flex items-center justify-center p-6">
             <div class="glass p-8 sm:p-10 rounded-[3rem] border border-red-900/30 max-w-xl w-full max-h-[90vh] overflow-y-auto relative text-left shadow-2xl scroll-safe">
-                <button type="button" onclick="cerrarModales()" class="absolute top-7 right-7 w-8 h-8 bg-black border border-zinc-800 text-zinc-500 rounded-full flex items-center justify-center font-bold text-sm btn-press hover:text-white transition-colors">✕</button>
+                <button type="button" aria-label="Cerrar ventana" onclick="cerrarModales()" class="absolute top-7 right-7 w-8 h-8 bg-black border border-zinc-800 text-zinc-500 rounded-full flex items-center justify-center font-bold text-sm btn-press hover:text-white transition-colors">✕</button>
                 <h2 class="text-2xl sm:text-3xl font-black mb-8 italic uppercase text-red-500 text-center tracking-tighter">Egresos Local</h2>
                 <div class="space-y-4 mb-8 bg-black/50 p-6 rounded-[2rem] border border-zinc-900 shadow-inner">
                     <input type="text" id="gasto-desc" placeholder="Descripción (Ej: Insumos, Alquiler)" class="w-full p-4 rounded-xl font-bold uppercase text-xs border border-zinc-800 bg-zinc-950 text-white focus:border-red-500 outline-none transition-colors">
@@ -2107,7 +2108,7 @@
 
         <div id="modal-cierre-caja" class="hidden fixed inset-0 z-[400] bg-black/98 flex items-center justify-center p-6">
             <div class="glass p-8 rounded-[2.5rem] border border-green-900/30 max-w-sm w-full max-h-[90vh] overflow-y-auto relative text-left shadow-2xl scroll-safe">
-                <button type="button" onclick="cerrarModales()" class="absolute top-6 right-6 w-8 h-8 bg-black border border-zinc-800 text-zinc-500 rounded-full flex items-center justify-center font-bold text-sm btn-press hover:text-white transition-colors">✕</button>
+                <button type="button" aria-label="Cerrar ventana" onclick="cerrarModales()" class="absolute top-6 right-6 w-8 h-8 bg-black border border-zinc-800 text-zinc-500 rounded-full flex items-center justify-center font-bold text-sm btn-press hover:text-white transition-colors">✕</button>
                 <h3 class="text-white font-black text-2xl uppercase mb-1 text-center tracking-tighter">Cierre Diario</h3>
                 <p id="cc-fecha-info" class="text-green-500 text-[10px] font-bold uppercase mb-6 tracking-widest text-center">--- | 20/03/2026</p>
                 
@@ -2131,7 +2132,7 @@
 
         <div id="modal-cierre-mes" class="hidden fixed inset-0 z-[500] bg-black/98 flex items-center justify-center p-6">
             <div class="glass p-8 rounded-[3rem] border border-red-900/50 max-w-md w-full max-h-[90vh] overflow-y-auto relative text-left shadow-2xl scroll-safe">
-                <button type="button" onclick="cerrarModales()" class="absolute top-6 right-6 w-8 h-8 bg-black border border-zinc-800 text-zinc-500 rounded-full flex items-center justify-center font-bold text-sm btn-press hover:text-white transition-colors">✕</button>
+                <button type="button" aria-label="Cerrar ventana" onclick="cerrarModales()" class="absolute top-6 right-6 w-8 h-8 bg-black border border-zinc-800 text-zinc-500 rounded-full flex items-center justify-center font-bold text-sm btn-press hover:text-white transition-colors">✕</button>
                 <h3 class="text-white font-black text-2xl uppercase mb-2 text-center tracking-tighter">Cierre de Mes</h3>
                 <div class="bg-black p-6 rounded-3xl border border-zinc-900 mb-6 text-left space-y-3 shadow-inner">
                     <div class="flex justify-between"><span class="text-zinc-500 font-bold text-[10px] uppercase">Ventas Brutas</span><span id="cm-ventas" class="text-white font-black"></span></div>
@@ -2145,7 +2146,7 @@
 
         <div id="modal-facturas" class="hidden fixed inset-0 z-[100] bg-black/98 flex items-center justify-center p-6">
             <div class="glass p-8 sm:p-10 rounded-[3rem] border border-blue-900/30 max-w-2xl w-full max-h-[90vh] overflow-y-auto relative text-left shadow-2xl scroll-safe">
-                <button type="button" onclick="cerrarModales()" class="absolute top-7 right-7 w-8 h-8 bg-black border border-zinc-800 text-zinc-500 rounded-full flex items-center justify-center font-bold text-sm btn-press hover:text-white transition-colors">✕</button>
+                <button type="button" aria-label="Cerrar ventana" onclick="cerrarModales()" class="absolute top-7 right-7 w-8 h-8 bg-black border border-zinc-800 text-zinc-500 rounded-full flex items-center justify-center font-bold text-sm btn-press hover:text-white transition-colors">✕</button>
                 <h2 class="text-2xl sm:text-3xl font-black mb-6 italic uppercase text-blue-400 text-center tracking-tighter">Facturas y Recibos</h2>
                 <div class="relative mb-6">
                     <span class="absolute left-4 top-3.5 text-zinc-500 text-sm">🔍</span>
@@ -2159,7 +2160,7 @@
 
         <div id="modal-clientes" class="hidden fixed inset-0 z-[100] bg-black/98 flex items-center justify-center p-6">
             <div class="glass p-8 sm:p-10 rounded-[3rem] border border-blue-900/30 max-w-xl w-full max-h-[90vh] overflow-y-auto relative text-left scroll-safe shadow-2xl">
-                <button type="button" onclick="cerrarModales()" class="absolute top-7 right-7 w-8 h-8 bg-black border border-zinc-800 text-zinc-500 rounded-full flex items-center justify-center font-bold text-sm btn-press hover:text-white transition-colors z-50">✕</button>
+                <button type="button" aria-label="Cerrar ventana" onclick="cerrarModales()" class="absolute top-7 right-7 w-8 h-8 bg-black border border-zinc-800 text-zinc-500 rounded-full flex items-center justify-center font-bold text-sm btn-press hover:text-white transition-colors z-50">✕</button>
                 
                 <div class="mb-2 pr-10">
                     <h2 class="text-2xl sm:text-3xl font-black mb-1 italic uppercase text-blue-400 tracking-tighter">Directorio</h2>
@@ -2216,7 +2217,7 @@
         
         <div class="flex justify-between w-full px-6 mb-6 items-center">
             <h3 class="text-white font-black text-[10px] uppercase tracking-[0.3em]">BILLETERA DIGITAL</h3>
-            <button type="button" onclick="document.getElementById('modal-tarjeta-vip').classList.add('hidden')" class="w-8 h-8 bg-zinc-900 border border-zinc-800 rounded-full flex items-center justify-center text-zinc-500 font-bold hover:text-white transition-colors">✕</button>
+            <button type="button" aria-label="Cerrar ventana" onclick="document.getElementById('modal-tarjeta-vip').classList.add('hidden')" class="w-8 h-8 bg-zinc-900 border border-zinc-800 rounded-full flex items-center justify-center text-zinc-500 font-bold hover:text-white transition-colors">✕</button>
         </div>
 
         <!-- CONTENEDOR ANCLADO (Giro Perfecto) -->
@@ -2315,7 +2316,7 @@
         
         <p class="text-[9px] text-zinc-500 uppercase font-bold tracking-widest mt-6 mb-6 flex items-center gap-2"><span class="animate-pulse text-lg text-red-500">👆</span> Toca la tarjeta para girarla</p>
 
-        <button type="button" onclick="document.getElementById('modal-tarjeta-vip').classList.add('hidden')" class="w-[340px] bg-red-600 hover:bg-red-500 shadow-[0_0_15px_rgba(220,38,38,0.3)] text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest transition-colors btn-press">
+        <button type="button" aria-label="Cerrar ventana" onclick="document.getElementById('modal-tarjeta-vip').classList.add('hidden')" class="w-[340px] bg-red-600 hover:bg-red-500 shadow-[0_0_15px_rgba(220,38,38,0.3)] text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest transition-colors btn-press">
             CERRAR TARJETA
         </button>
     </div>
@@ -2339,7 +2340,7 @@
                         <h4 class="font-black text-white italic tracking-widest">ISI IA ⚡</h4>
                         <p class="text-[8px] text-[#0cd1b8] uppercase">Centro Inteligente</p>
                     </div>
-                    <button type="button" onclick="cerrarIsiIa()" class="text-zinc-500 hover:text-white font-bold text-xl btn-press transition-colors">✕</button>
+                    <button type="button" aria-label="Cerrar chat" onclick="cerrarIsiIa()" class="text-zinc-500 hover:text-white font-bold text-xl btn-press transition-colors">✕</button>
                 </div>
 
                 <div class="isi-chat-history" id="isi-ia-content-scroll">
@@ -2361,12 +2362,26 @@
 
     </div>
     <script>
+// ==========================================
+// 🔐 MOTOR CRIPTOGRÁFICO ZEUS (SHA-256 + SALT)
+// ==========================================
+async function hashPIN(pin) {
+    if (!pin) return "";
+    // El "Salt" es una palabra secreta que hace imposible hackear el PIN con tablas de arcoíris
+    const msgBuffer = new TextEncoder().encode(pin + "Zeus_Admin_2026_Secure");
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
         // ==========================================
         // 1. CONFIGURACIÓN Y ESCUDO DE SEGURIDAD
         // ==========================================
         window.onerror = function (m, s, l) { console.error("Sys Err:", m, "L:", l); return false; };
 
-        const supabaseClient = supabase.createClient('https://blfkwfmthsdifdjybssw.supabase.co', 'sb_publishable_FHeDWaFmk_vVo5KbcsQKGg__YoMAYKZ');
+        // 🛡️ ESCUDO ANTI-SCRAPERS (Obfuscación de Clave)
+const _dbHost = 'https://blfkwfmthsdifdjybssw.supabase.co';
+const _dbToken = ['sb_publishable', 'FHeDWaFmk_vVo5KbcsQKGg__YoMAYKZ'].join('_');
+const supabaseClient = supabase.createClient(_dbHost, _dbToken);
         const DB_KEY = 'ISI_PRO_DB_V70';
         const SESSION_KEY = 'ISI_SESSION_V70';
 
@@ -2964,12 +2979,15 @@
 
             if (formValues) {
                 Swal.fire({ title: 'Creando tu Nube...', text: 'Estructurando tu base de datos', allowOutsideClick: false, didOpen: () => { Swal.showLoading() }, background: '#0a0a0a', color: '#fff' });
+
                 try {
-                    const { data, error } = await supabaseClient.from('stores').insert([{ name: formValues.nombre, owner_pin: formValues.pin }]).select().single();
+                    // 🔐 CRIPTOGRAFÍA: Encriptamos el PIN antes de que toque la nube
+                    const pinSeguro = await hashPIN(formValues.pin);
+
+                    const { data, error } = await supabaseClient.from('stores').insert([{ name: formValues.nombre, owner_pin: pinSeguro }]).select().single();
                     if (error) throw error;
 
-                    // 🚨 MAGIA: Guardamos el "tipoNegocio" en la base de datos
-                    const newB = { id: "B-" + Math.random().toString(36).substr(2, 4).toUpperCase(), id_nube: data.id, nombre: formValues.nombre, pinAdmin: formValues.pin, tipoNegocio: formValues.tipo, creadoEn: Date.now(), diasSuscripcion: 15, bloqueado: false, maxBarberos: 5, barberos: [], servicios: [], productos: [], ventas: [], gastos: [], citas: [], tickets: [], clientes: {}, horaApertura: "08:00", horaCierre: "20:00", intervaloCitas: 60, lastActiveClock: Date.now(), moneda: 'COP', wpTemplate: '¡Hola {cliente}! Te recordamos tu cita para {servicio} con {barbero} a las {hora}. ¡Te esperamos!', msgBienvenida: 'Gracias por visitarnos, esperamos que hayas tenido una gran experiencia.', msgDespedida: '¡Te esperamos pronto!', ticketFooter: 'Documento no válido como factura fiscal.', logo: null };
+                    const newB = { id: "B-" + Math.random().toString(36).substr(2, 4).toUpperCase(), id_nube: data.id, nombre: formValues.nombre, pinAdmin: pinSeguro, tipoNegocio: formValues.tipo, creadoEn: Date.now(), diasSuscripcion: 15, bloqueado: false, maxBarberos: 5, barberos: [], servicios: [], productos: [], ventas: [], gastos: [], citas: [], tickets: [], clientes: {}, horaApertura: "08:00", horaCierre: "20:00", intervaloCitas: 60, lastActiveClock: Date.now(), moneda: 'COP', wpTemplate: '¡Hola {cliente}! Te recordamos tu cita para {servicio} con {barbero} a las {hora}. ¡Te esperamos!', msgBienvenida: 'Gracias por visitarnos, esperamos que hayas tenido una gran experiencia.', msgDespedida: '¡Te esperamos pronto!', ticketFooter: 'Documento no válido como factura fiscal.', logo: null };
                     db.barberias.push(newB);
                     await supabaseClient.from('stores').update({ json_data: newB }).eq('id', data.id);
 
@@ -3138,27 +3156,30 @@
             const pin = cleanNum(pinInput.value); 
             if (!pin) return;
             
-            Swal.fire({ title: 'Autenticando...', text: 'Conectando con la nube...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() }, background: '#0a0a0a', color: '#fff' });
+            Swal.fire({ title: 'Autenticando...', text: 'Verificando credenciales seguras...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() }, background: '#0a0a0a', color: '#fff' });
 
             if (isLocalStorageBlocked) { Swal.fire({ title: "Modo Protegido", text: "Abre la aplicación desde un servidor web.", icon: "error", background: "#0a0a0a", color: "#fff" }); pinInput.value = ""; return; }
             if (db.superPIN && pin === db.superPIN) { Swal.close(); bIdx = -1; session = { rol: 'superadmin' }; saveSession(); showScreen('view-superadmin'); pinInput.value = ""; return; }
 
-            let localIdx = db.barberias.findIndex(x => x.pinAdmin === pin);
+            // 🔐 CRIPTOGRAFÍA: Generamos el Hash del PIN que acaba de escribir el usuario
+            const pinHashed = await hashPIN(pin);
+
+            // 🧠 MIGRACIÓN SILENCIOSA: Comparamos contra el PIN viejo (texto plano) y el nuevo (Hashed)
+            let localIdx = db.barberias.findIndex(x => x.pinAdmin === pin || x.pinAdmin === pinHashed);
             let isBarbero = false; let barberoName = ""; 
-            let isCajero = false; let cajeroData = null; // 👑 NUEVO: Detector de Cajeros
+            let isCajero = false; let cajeroData = null;
             
             if (localIdx === -1) {
                 for (let i = 0; i < db.barberias.length; i++) {
-                    let bs = db.barberias[i].barberos?.find(x => x.pin === pin);
+                    let bs = db.barberias[i].barberos?.find(x => x.pin === pin || x.pin === pinHashed);
                     if (bs) { localIdx = i; isBarbero = true; barberoName = bs.nom; break; }
                     
-                    // 👑 Buscamos si es Cajera
-                    let cs = db.barberias[i].cajeros?.find(x => x.pin === pin);
+                    let cs = db.barberias[i].cajeros?.find(x => x.pin === pin || x.pin === pinHashed);
                     if (cs) { localIdx = i; isCajero = true; cajeroData = cs; break; }
                 }
             }
 
-            // 🚀 NUEVA LÓGICA: Si hay internet, SIEMPRE preguntamos a la nube PRIMERO
+            // Si hay internet, validamos en la base de datos central...
             if (isOnline) {
                 try {
                     const timeoutPromiseAuth = new Promise((_, r) => setTimeout(() => r(new Error("TimeoutAuth")), 15000));
@@ -4172,6 +4193,34 @@ function verificarCumpleanosPOS() {
         }
 
 
+        // ==========================================
+        // 🚀 PUENTE DE DATOS (FASE 2): MIGRACIÓN A TABLAS SQL
+        // ==========================================
+        async function guardarVentasEnTablaReal(ventasNuevas, idNubeLocal) {
+            if (!isOnline || !idNubeLocal) return; // Si no hay internet, se guarda solo en local para sincronizar luego
+            try {
+                const ventasParaSupabase = ventasNuevas.map(v => ({
+                    store_id: idNubeLocal,
+                    ticket_id: v.ticketId,
+                    staff_name: v.barbero,
+                    item_name: v.servicio,
+                    price: v.valor,
+                    payment_method: v.metodo,
+                    is_product: v.esProducto || false,
+                    cobrado_por: v.cobradoPor || v.barbero,
+                    iva_aplicado: v.ivaAplicado || 0,
+                    turno_cerrado: v.turnoCerrado || false,
+                    anulado: v.anulado || false,
+                    es_propina: v.esPropina || false,
+                    fecha: v.fecha,
+                    tipo_ingreso: v.tipo
+                }));
+                const { error } = await supabaseClient.from('sales').insert(ventasParaSupabase);
+                if (error) console.error("Error guardando en tabla sales:", error);
+                else console.log("🔥 Venta disparada a la base de datos SQL exitosamente.");
+            } catch (err) { console.error("Falla en el puente a Supabase:", err); }
+        }
+
         function finalizarVentaOK() {
             try {
                 const b = db.barberias[bIdx]; const m = document.getElementById('pos-metodo').value;
@@ -4190,7 +4239,6 @@ function verificarCumpleanosPOS() {
                     b.clientes[idCli].cortesRestantes = Math.max(0, b.clientes[idCli].cortesRestantes - serviciosRealizados);
                 }
 
-
                 const fA = getTodayYMD(); const hA = new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
                 const sV = cart.reduce((a, i) => a + i.pre, 0); const iA = b.configIVA && b.configIVA.activo;
                 const vI = iA ? Math.round(sV * (b.configIVA.porcentaje / 100)) : 0; const tV = sV + vI;
@@ -4201,14 +4249,21 @@ function verificarCumpleanosPOS() {
                 
                 if (!b.tickets) b.tickets = []; b.tickets.push(lastTicketData);
 
+                let nuevasVentasSQL = []; // 🚀 INICIAMOS EL CONTENEDOR DEL PUENTE
+
                 cart.forEach(i => {
                     if (i.isProd) { let px = b.productos.findIndex(p => p.id === i.id); if (px > -1) b.productos[px].stock -= 1; }
-                    b.ventas.push({ ticketId: tId, barbero: session.nom, servicio: i.nom, valor: i.pre, ivaAplicado: (iA ? Math.round(i.pre * (b.configIVA.porcentaje / 100)) : 0), metodo: m, tipo: m === "Efectivo" ? "Efectivo" : "Digital", fecha: fA, hora: hA, esProducto: i.isProd, turnoCerrado: false });
+                    let nuevaVenta = { ticketId: tId, barbero: session.nom, servicio: i.nom, valor: i.pre, ivaAplicado: (iA ? Math.round(i.pre * (b.configIVA.porcentaje / 100)) : 0), metodo: m, tipo: m === "Efectivo" ? "Efectivo" : "Digital", fecha: fA, hora: hA, esProducto: i.isProd, turnoCerrado: false, cobradoPor: session.nom };
+                    b.ventas.push(nuevaVenta);
+                    nuevasVentasSQL.push(nuevaVenta); // 🚀 LO SUBIMOS AL PUENTE
                 });
                 b.consecutivoFactura = (b.consecutivoFactura || 1) + 1;
 
                 if (session.rol === 'barbero') { let myB = b.barberos.find(x => x.nom === session.nom); if (myB) myB.estado = 'LIBRE'; }
+                
                 saveDB(true);
+                // 🚀 ¡BAM! DISPARAMOS LOS DATOS A LA TABLA SQL
+                guardarVentasEnTablaReal(nuevasVentasSQL, b.id_nube);
 
                 document.getElementById('ticket-total').innerText = fMoney(tV); document.getElementById('ticket-fecha').innerText = `TK N° ${tId} | ${fA}`;
                 const btnWp = document.getElementById('btn-wp-ticket');
@@ -4216,11 +4271,9 @@ function verificarCumpleanosPOS() {
                     btnWp.classList.remove('hidden'); let mSaludo = b.msgBienvenida || 'Gracias por visitarnos'; let mDesp = b.msgDespedida || '¡Te esperamos pronto!';
                     let msj = `✂️ *RECIBO ELECTRÓNICO*\n\n${mSaludo}\n\n*Recibo N°:* ${tId}\n*Total:* ${fMoney(tV)}\n*Método:* ${m}\n\n👑 *Tus Puntos:* ${ptsActuales}\n\n${mDesp}`;
                     
-                    // 🚀 INYECCIÓN MAGISTRAL DE GOOGLE MAPS
                     if (b.linkGoogle && b.linkGoogle.length > 5) {
                         msj += `\n\n⭐ ¿Te gustó tu experiencia?\n¡Ayúdanos con 5 estrellas en Google! Toca aquí:\n${b.linkGoogle}`;
                     }
-
                     btnWp.onclick = () => window.open(`https://wa.me/57${cCel}?text=${encodeURIComponent(msj)}`, '_blank');
                 } else { btnWp.classList.add('hidden'); }
 
@@ -8532,7 +8585,7 @@ function escucharResumenFranquicia() {
                     
                     <div class="flex items-center gap-3 shrink-0">
                         <input type="file" id="tv-local-video" accept="video/*,audio/*" class="hidden" onchange="cargarVideoLocal(this)">
-                        <button type="button" onclick="document.getElementById('tv-local-video').click()" class="hidden md:flex bg-indigo-900/40 border border-indigo-500/50 text-indigo-400 px-4 py-2 rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all items-center gap-2">
+                        <button type="button" aria-label="Cerrar ventana" onclick="document.getElementById('tv-local-video').click()" class="hidden md:flex bg-indigo-900/40 border border-indigo-500/50 text-indigo-400 px-4 py-2 rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all items-center gap-2">
                             📁 USB
                         </button>
                         <button type="button" onclick="toggleFullScreenTV()" class="bg-transparent border border-cyan-500/50 text-cyan-400 px-4 py-2 rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest hover:bg-cyan-600 hover:text-white transition-all flex items-center gap-2">
@@ -10643,19 +10696,27 @@ function abrirOnboardingManual() {
 
                 if (!b.tickets) b.tickets = []; b.tickets.push(lastTicketData);
 
+                let nuevasVentasSQL = []; // 🚀 INICIAMOS EL CONTENEDOR DEL PUENTE
+
                 cajaCart.forEach(i => {
                     if (i.isProd) { let px = b.productos.findIndex(p => p.id === i.id); if (px > -1) b.productos[px].stock -= 1; }
-                    b.ventas.push({ ticketId: tId, barbero: barbSelect, servicio: i.nom, valor: i.pre, ivaAplicado: (iA ? Math.round(i.pre * (b.configIVA.porcentaje / 100)) : 0), metodo: m, tipo: m === "Efectivo" ? "Efectivo" : "Digital", fecha: fA, hora: hA, esProducto: i.isProd, turnoCerrado: false, cobradoPor: session.nom });
+                    let nuevaVenta = { ticketId: tId, barbero: barbSelect, servicio: i.nom, valor: i.pre, ivaAplicado: (iA ? Math.round(i.pre * (b.configIVA.porcentaje / 100)) : 0), metodo: m, tipo: m === "Efectivo" ? "Efectivo" : "Digital", fecha: fA, hora: hA, esProducto: i.isProd, turnoCerrado: false, cobradoPor: session.nom };
+                    b.ventas.push(nuevaVenta);
+                    nuevasVentasSQL.push(nuevaVenta); // 🚀 LO SUBIMOS AL PUENTE
                 });
 
                 if (propina > 0) {
-                    b.ventas.push({ ticketId: tId, barbero: barbSelect, servicio: '💖 Propina Cliente', valor: propina, ivaAplicado: 0, metodo: m, tipo: m === "Efectivo" ? "Efectivo" : "Digital", fecha: fA, hora: hA, esProducto: false, turnoCerrado: false, cobradoPor: session.nom, esPropina: true });
+                    let ventaPropina = { ticketId: tId, barbero: barbSelect, servicio: '💖 Propina Cliente', valor: propina, ivaAplicado: 0, metodo: m, tipo: m === "Efectivo" ? "Efectivo" : "Digital", fecha: fA, hora: hA, esProducto: false, turnoCerrado: false, cobradoPor: session.nom, esPropina: true };
+                    b.ventas.push(ventaPropina);
+                    nuevasVentasSQL.push(ventaPropina); // 🚀 PROPINA AL PUENTE
                 }
                 
                 b.consecutivoFactura = (b.consecutivoFactura || 1) + 1;
-                saveDB(true);
                 
-                // 🛡️ LIMPIAR EL DRAFT DESPUÉS DEL COBRO EXITOSO
+                saveDB(true);
+                // 🚀 ¡BAM! DISPARAMOS LOS DATOS A LA TABLA SQL
+                guardarVentasEnTablaReal(nuevasVentasSQL, b.id_nube);
+                
                 sessionStorage.removeItem('zeus_caja_draft');
 
                 let turnoActualizado = false;
@@ -10767,7 +10828,7 @@ function abrirOnboardingManual() {
 
 // 🔥 ACTUALIZACIÓN SILENCIOSA (SIN DOBLE CARGA)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.90"; // 👈 Subimos a 1.89 para aplicar el cambio
+            const VERSION_ACTUAL = "1.91"; // 👈 Subimos a 1.89 para aplicar el cambio
             
             // 🏷️ INYECTAR VERSIÓN EN LA PANTALLA
             const vLogin = document.getElementById('display-version-login');
