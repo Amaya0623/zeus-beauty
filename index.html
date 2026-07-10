@@ -3626,14 +3626,10 @@ const supabaseClient = supabase.createClient(_dbHost, _dbToken);
             const hoyYMD = getTodayYMD();
 
 
-            // Mostrar botón "Franquicia" si hay más de una sede con el mismo PIN
+            // 🔒 CANDADO MAESTRO: Mostrar Franquicia SOLO si el SuperAdmin lo activó explícitamente
             const btnFran = document.getElementById('btn-regresar-franquicia');
             if (btnFran) {
-                // Buscamos cuántas sedes comparten el PIN de la sede actual
-                const sedesVinculadas = db.barberias.filter(x => x.pinAdmin === b.pinAdmin);
-                
-                // Si hay más de 1 sede con el mismo PIN (y no estamos en modo Kiosko)
-                if (sedesVinculadas.length > 1 && session && session.rol === 'admin') {
+                if (b.franquiciaActiva && session && session.rol === 'admin') {
                     btnFran.classList.remove('hidden');
                 } else {
                     btnFran.classList.add('hidden');
@@ -10826,9 +10822,9 @@ function abrirOnboardingManual() {
         }
 
 
-// 🔥 ACTUALIZACIÓN SILENCIOSA (SIN DOBLE CARGA)
+// 🔥 ACTUALIZACIÓN FORZADA (REPARACIÓN DE CACHÉ Y SYNC)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.91"; // 👈 Subimos a 1.89 para aplicar el cambio
+            const VERSION_ACTUAL = "1.93"; // 👈 Subimos versión a 1.92 para obligar a los celulares a actualizar
             
             // 🏷️ INYECTAR VERSIÓN EN LA PANTALLA
             const vLogin = document.getElementById('display-version-login');
@@ -10839,16 +10835,16 @@ function abrirOnboardingManual() {
             const versionGuardada = localStorage.getItem('zeus_version');
             
             if (versionGuardada !== VERSION_ACTUAL) {
-                console.log("¡Actualización detectada! Limpiando caché en segundo plano...");
+                console.log("¡Actualización detectada! Limpiando caché y recargando...");
                 
-                // Borramos los Service Workers (PWA) en silencio
+                // Borramos los Service Workers (PWA) 
                 if ('serviceWorker' in navigator) {
                     navigator.serviceWorker.getRegistrations().then(function(registrations) {
                         for(let registration of registrations) { registration.unregister(); }
                     });
                 }
                 
-                // Vaciamos la caché de archivos en silencio
+                // Vaciamos la caché de archivos
                 if ('caches' in window) {
                     caches.keys().then((names) => {
                         names.forEach(name => caches.delete(name));
@@ -10858,9 +10854,8 @@ function abrirOnboardingManual() {
                 // Guardamos la nueva versión
                 localStorage.setItem('zeus_version', VERSION_ACTUAL);
                 
-                // 🛑 ¡MAGIA! ELIMINAMOS EL window.location.reload() POR COMPLETO.
-                // El sistema limpiará la basura en segundo plano, pero NO recargará la página.
-                // Tu video correrá 1 sola vez de forma perfecta.
+                // 🚨 VITAL: Volvemos a activar la recarga para que el celular de Kairos suelte el código viejo
+                setTimeout(() => { window.location.reload(true); }, 1000);
             }
         }
 
