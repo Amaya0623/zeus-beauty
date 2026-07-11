@@ -4435,7 +4435,7 @@ function renderAgendaList() {
             const b = db.barberias[bIdx]; const nTime = timeToMins(h); const apertMins = timeToMins(b.horaApertura || "09:00"); const cierrMins = timeToMins(b.horaCierre || "21:00");
             if (nTime < apertMins || nTime > cierrMins) return Swal.fire('Cerrado', `El local atiende de ${b.horaApertura} a ${b.horaCierre}`, 'error');
 
-            // 🛡️ RADAR ANTI-CHOQUES INTELIGENTE (Calcula duraciones exactas)
+            // 🛡️ RADAR ANTI-CHOQUES INTELIGENTE
             let totalMinsCarrito = 0; tempServicios.forEach(s => { totalMinsCarrito += parseDuracionToMins(s.dur); });
             if (totalMinsCarrito === 0) totalMinsCarrito = (b.intervaloCitas || 60);
 
@@ -4453,8 +4453,30 @@ function renderAgendaList() {
 
             if (!b.citas) b.citas = [];
 
-            // Ya tenemos 'totalMinsCarrito' calculado arriba por el Radar Inteligente
-            b.citas.push({ id: Date.now().toString(), nombre: cli, celular: cel, barbero: barb, servicio: tempServicios.map(s=>s.nom || s).join(' + '), fecha: f, hora: h, estado: 'PENDIENTE', duracion: totalMinsCarrito });
+            // 🚀 PREPARAMOS LA CITA
+            let srvString = tempServicios.map(s=>s.nom || s).join(' + ');
+            let idCitaNueva = Date.now().toString();
+            
+            b.citas.push({ id: idCitaNueva, nombre: cli, celular: cel, barbero: barb, servicio: srvString, fecha: f, hora: h, estado: 'PENDIENTE', duracion: totalMinsCarrito });
+
+            // ⚡ PUENTE SQL: DISPARO A SUPABASE EN SEGUNDO PLANO
+            if (isOnline && typeof supabaseClient !== 'undefined' && b.id_nube) {
+                supabaseClient.from('appointments').insert([{
+                    store_id: b.id_nube,
+                    client_name: cli,
+                    client_phone: cel || null,
+                    barber_name: barb,
+                    service_name: srvString,
+                    appointment_date: f,
+                    appointment_time: h,
+                    status: 'PENDIENTE',
+                    duration: totalMinsCarrito,
+                    receipt_url: null
+                }]).then(({error}) => {
+                    if(error) console.error("❌ Error guardando cita en SQL:", error);
+                    else console.log("☁️ Cita inyectada a la tabla SQL exitosamente.");
+                });
+            }
 
             const idCli = cel || cli;
             if (!b.clientes) b.clientes = {};
@@ -4468,14 +4490,13 @@ function renderAgendaList() {
             document.getElementById('agenda-fecha').value = ""; 
             document.getElementById('agenda-hora').value = ""; 
             document.getElementById('agenda-barbero').value = ""; 
-            actualizarFotoBarbero('agenda'); // Esconde la foto del barbero anterior
+            actualizarFotoBarbero('agenda'); 
             
             tempServicios = []; renderServiciosTemp('agenda');
             renderAgendaList(); renderAdmin(); actualizarBadgesCitas();
             
             Swal.fire({ title: '¡Cita Guardada!', icon: 'success', background: '#0a0a0a', color: '#fff', timer: 1500 });
         }
-
 
 
 
@@ -5877,17 +5898,14 @@ function renderAgendaList() {
             
             const srv = tempServicios.map(s => s.nom).join(' + '); 
 
-            // Calculamos nuevamente la duración para guardarla en la base de datos
             let totalMinsCarrito = 0;
             tempServicios.forEach(s => { totalMinsCarrito += parseDuracionToMins(s.dur); });
             if (totalMinsCarrito === 0) totalMinsCarrito = (b.intervaloCitas || 60);
 
-            // 🛡️ CONTROL INTELIGENTE: Si elige pagar en sitio, salta la regla obligatoria de la foto
             if (!esEnEstablecimiento && b.pagoAnticipadoActivo && !comprobanteTemp) {
                 return Swal.fire('Aviso', 'Sube la foto del comprobante para confirmar.', 'warning');
             }
 
-            // Último filtro de seguridad anti-choques
             const choca = (b.citas || []).find(c => {
                 if(c.barbero !== barb || c.fecha !== f || c.estado === 'CANCELADA') return false;
                 let cInicio = timeToMins(c.hora); let cFin = cInicio + (c.duracion || (b.intervaloCitas || 60));
@@ -5897,17 +5915,34 @@ function renderAgendaList() {
 
             if (choca) { document.getElementById('modal-pago-anticipado').classList.add('hidden'); Swal.fire({ title: '¡Ups! Turno Ocupado', text: 'Alguien acaba de tomar este horario o no hay tiempo suficiente.', icon: 'error', background: '#0a0a0a', color: '#fff' }); renderKioskoSlots(); return; }
 
-            let pts = 0; const id = cel || cli; if (b.clientes && b.clientes[id]) pts = b.clientes[id].pts || 0;
+            let pts = 0; const idCli = cel || cli; if (b.clientes && b.clientes[idCli]) pts = b.clientes[idCli].pts || 0;
             if (!b.citas) b.citas = [];
 
-            // Etiquetamos el estado del pago para que el barbero/cajero lo sepa en su panel
             let comprobanteValor = esEnEstablecimiento ? 'PAGAR_EN_EL_ESTABLECIMIENTO' : comprobanteTemp;
+            let idCitaNueva = Date.now().toString();
 
-            // ✨ SE GUARDA LA PROPIEDAD "DURACION" PARA RESERVAR EL ESPACIO EXACTO
-            b.citas.push({ id: Date.now().toString(), nombre: cli, celular: cel, barbero: barb, servicio: srv, fecha: f, hora: h, estado: 'PENDIENTE', comprobante: comprobanteValor, duracion: totalMinsCarrito });
+            b.citas.push({ id: idCitaNueva, nombre: cli, celular: cel, barbero: barb, servicio: srv, fecha: f, hora: h, estado: 'PENDIENTE', comprobante: comprobanteValor, duracion: totalMinsCarrito });
+            
+            // ⚡ PUENTE SQL: DISPARO A SUPABASE DESDE EL KIOSKO
+            if (isOnline && typeof supabaseClient !== 'undefined' && b.id_nube) {
+                supabaseClient.from('appointments').insert([{
+                    store_id: b.id_nube,
+                    client_name: cli,
+                    client_phone: cel || null,
+                    barber_name: barb,
+                    service_name: srv,
+                    appointment_date: f,
+                    appointment_time: h,
+                    status: 'PENDIENTE',
+                    duration: totalMinsCarrito,
+                    receipt_url: comprobanteValor
+                }]).then(({error}) => {
+                    if(error) console.error("❌ Error guardando cita de kiosko en SQL:", error);
+                });
+            }
+
             saveDB(true);
 
-            // Guardamos el celular en la memoria local para reconocerlo en su próxima visita (Caza-Recompensas)
             if (cel && cel.length >= 10) { localStorage.setItem('mi_celular_zeus', cel); }
 
             document.getElementById('modal-pago-anticipado').classList.add('hidden'); comprobanteTemp = null;
@@ -5954,7 +5989,6 @@ function renderAgendaList() {
             let totalCobrarKio = 0;
             tempServicios.forEach(s => { totalCobrarKio += s.pre; });
 
-            // ID único para la transacción
             const idReserva = `Z-${b.id_nube || b.id}-${Date.now().toString().slice(-6)}`;
 
             if (!b.citas) b.citas = [];
@@ -5963,13 +5997,31 @@ function renderAgendaList() {
                 servicio: srv, fecha: f, hora: h, estado: 'PENDIENTE', 
                 comprobante: 'PAGO_EN_PROCESO_WOMPI', duracion: totalMinsCarrito 
             });
+            
+            // ⚡ PUENTE SQL: DISPARO A SUPABASE (WOMPI)
+            if (isOnline && typeof supabaseClient !== 'undefined' && b.id_nube) {
+                supabaseClient.from('appointments').insert([{
+                    store_id: b.id_nube,
+                    client_name: cli,
+                    client_phone: cel || null,
+                    barber_name: barb,
+                    service_name: srv,
+                    appointment_date: f,
+                    appointment_time: h,
+                    status: 'PENDIENTE',
+                    duration: totalMinsCarrito,
+                    receipt_url: 'PAGO_EN_PROCESO_WOMPI'
+                }]).then(({error}) => {
+                    if(error) console.error("❌ Error guardando cita Wompi en SQL:", error);
+                });
+            }
+
             if (cel && cel.length >= 10) { localStorage.setItem('mi_celular_zeus', cel); }
             saveDB(true);
 
             Swal.fire({ title: 'Conectando con el Banco...', text: 'Generando pasarela cifrada 🔒', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
 
             try {
-                // 1. Llamar a Supabase para obtener la firma secreta
                 const response = await supabaseClient.functions.invoke('generar-firma-wompi', {
                     body: { monto: totalCobrarKio, reference: idReserva }
                 });
@@ -5978,18 +6030,13 @@ function renderAgendaList() {
                 const error = response.error;
 
                 if (error) throw new Error(error.message);
-                
-                // 2. Verificación Estricta: Nos aseguramos de que Supabase devolvió la firma y los centavos
                 if (!data || !data.signature || !data.amountInCents) {
                     throw new Error("Datos incompletos desde el servidor seguro.");
                 }
 
-                // 3. 🌐 PREPARAMOS EL LINK DEL CHECKOUT OFICIAL
-                // Usamos encodeURIComponent para proteger la URL de caracteres extraños y usamos la sintaxis oficial de Wompi "signature:integrity"
                 const redirectSeguro = encodeURIComponent(window.location.href);
                 const urlWompi = `https://checkout.wompi.co/p/?public-key=${b.wompiPub}&currency=COP&amount-in-cents=${data.amountInCents}&reference=${idReserva}&signature:integrity=${data.signature}&redirect-url=${redirectSeguro}`;
 
-                // 4. Redirigimos SÓLO si la URL se construyó correctamente
                 setTimeout(() => { window.location.href = urlWompi; }, 500);
 
             } catch (err) {
@@ -10655,10 +10702,19 @@ function abrirOnboardingManual() {
             } catch(e){}
         }
 
-        function procesarVentaCaja() {
+       function procesarVentaCaja() {
             try {
                 const b = db.barberias[bIdx]; 
                 const m = cajaMetodoActual;
+                
+                // 🚀 PARCHE: Traducción exacta del método de pago para Wompi
+                let metodoReal = m;
+                if (m === 'Wompi') {
+                    metodoReal = 'Transferencia (Wompi)';
+                } else if (m === '') {
+                    return Swal.fire('Falta Método', 'Debes seleccionar cómo pagó el cliente.', 'warning');
+                }
+
                 const barbSelect = document.getElementById('caja-barbero-select').value;
                 let cNom = 'CLIENTE GENERAL'; let cCel = '';
                 
@@ -10686,7 +10742,7 @@ function abrirOnboardingManual() {
                 const tV = sV + vI + propina;
                 const tId = (b.prefijoFactura || "TK-") + (b.consecutivoFactura || 1);
 
-                lastTicketData = { nombreNegocio: b.nombre, fecha: fA, hora: hA, cliente: cNom, celular: cCel, metodo: m, total: tV, ticketId: tId, items: JSON.parse(JSON.stringify(cajaCart)), pts: ptsActuales, ivaPct: (iA ? b.configIVA.porcentaje : 0), valorIva: vI, subtotal: sV, comprobante: null, cobradoPor: session.nom };
+                lastTicketData = { nombreNegocio: b.nombre, fecha: fA, hora: hA, cliente: cNom, celular: cCel, metodo: metodoReal, total: tV, ticketId: tId, items: JSON.parse(JSON.stringify(cajaCart)), pts: ptsActuales, ivaPct: (iA ? b.configIVA.porcentaje : 0), valorIva: vI, subtotal: sV, comprobante: null, cobradoPor: session.nom };
                 
                 if (propina > 0) { lastTicketData.items.push({ nom: '💖 Propina Barbero', pre: propina, isProd: false }); }
 
@@ -10696,13 +10752,13 @@ function abrirOnboardingManual() {
 
                 cajaCart.forEach(i => {
                     if (i.isProd) { let px = b.productos.findIndex(p => p.id === i.id); if (px > -1) b.productos[px].stock -= 1; }
-                    let nuevaVenta = { ticketId: tId, barbero: barbSelect, servicio: i.nom, valor: i.pre, ivaAplicado: (iA ? Math.round(i.pre * (b.configIVA.porcentaje / 100)) : 0), metodo: m, tipo: m === "Efectivo" ? "Efectivo" : "Digital", fecha: fA, hora: hA, esProducto: i.isProd, turnoCerrado: false, cobradoPor: session.nom };
+                    let nuevaVenta = { ticketId: tId, barbero: barbSelect, servicio: i.nom, valor: i.pre, ivaAplicado: (iA ? Math.round(i.pre * (b.configIVA.porcentaje / 100)) : 0), metodo: metodoReal, tipo: m === "Efectivo" ? "Efectivo" : "Digital", fecha: fA, hora: hA, esProducto: i.isProd, turnoCerrado: false, cobradoPor: session.nom };
                     b.ventas.push(nuevaVenta);
                     nuevasVentasSQL.push(nuevaVenta); // 🚀 LO SUBIMOS AL PUENTE
                 });
 
                 if (propina > 0) {
-                    let ventaPropina = { ticketId: tId, barbero: barbSelect, servicio: '💖 Propina Cliente', valor: propina, ivaAplicado: 0, metodo: m, tipo: m === "Efectivo" ? "Efectivo" : "Digital", fecha: fA, hora: hA, esProducto: false, turnoCerrado: false, cobradoPor: session.nom, esPropina: true };
+                    let ventaPropina = { ticketId: tId, barbero: barbSelect, servicio: '💖 Propina Cliente', valor: propina, ivaAplicado: 0, metodo: metodoReal, tipo: m === "Efectivo" ? "Efectivo" : "Digital", fecha: fA, hora: hA, esProducto: false, turnoCerrado: false, cobradoPor: session.nom, esPropina: true };
                     b.ventas.push(ventaPropina);
                     nuevasVentasSQL.push(ventaPropina); // 🚀 PROPINA AL PUENTE
                 }
@@ -10730,7 +10786,7 @@ function abrirOnboardingManual() {
                 const btnWp = document.getElementById('btn-wp-ticket');
                 if (cCel && cCel.length >= 10 && isOnline) {
                     btnWp.classList.remove('hidden'); let mSaludo = b.msgBienvenida || 'Gracias por visitarnos'; let mDesp = b.msgDespedida || '¡Te esperamos pronto!';
-                    let msj = `✂️ *RECIBO ELECTRÓNICO*\n\n${mSaludo}\n\n*Recibo N°:* ${tId}\n*Cajero(a):* ${session.nom}\n*Total:* ${fMoney(tV)}\n*Método:* ${m}\n\n👑 *Tus Puntos:* ${ptsActuales}\n\n${mDesp}`;
+                    let msj = `✂️ *RECIBO ELECTRÓNICO*\n\n${mSaludo}\n\n*Recibo N°:* ${tId}\n*Cajero(a):* ${session.nom}\n*Total:* ${fMoney(tV)}\n*Método:* ${metodoReal}\n\n👑 *Tus Puntos:* ${ptsActuales}\n\n${mDesp}`;
                     if (b.linkGoogle && b.linkGoogle.length > 5) { msj += `\n\n⭐ ¿Te gustó tu experiencia?\n¡Ayúdanos con 5 estrellas en Google! Toca aquí:\n${b.linkGoogle}`; }
                     btnWp.onclick = () => window.open(`https://wa.me/57${cCel}?text=${encodeURIComponent(msj)}`, '_blank');
                 } else { btnWp.classList.add('hidden'); }
@@ -10740,7 +10796,6 @@ function abrirOnboardingManual() {
                 
             } catch (err) { console.error(err); Swal.fire('Error', 'No se pudo procesar la venta.', 'error'); }
         }
-
 
 
 
@@ -10824,7 +10879,7 @@ function abrirOnboardingManual() {
 
 // 🔥 ACTUALIZACIÓN FORZADA (REPARACIÓN DE CACHÉ Y SYNC)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.93"; // 👈 Subimos versión a 1.92 para obligar a los celulares a actualizar
+            const VERSION_ACTUAL = "1.94"; // 👈 Subimos versión a 1.92 para obligar a los celulares a actualizar
             
             // 🏷️ INYECTAR VERSIÓN EN LA PANTALLA
             const vLogin = document.getElementById('display-version-login');
