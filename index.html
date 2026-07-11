@@ -2605,8 +2605,8 @@ const supabaseClient = supabase.createClient(_dbHost, _dbToken);
                             if (necesitaFusion && nubeData) {
                                 let localData = db.barberias[idx];
                                 
-                                // 🚀 AUTO-PARCHE SUPREMO: Rescatar configuraciones de la nube para que el celular no las borre al guardar
-                                const clavesTransaccionales = ['clientes', 'ventas', 'gastos', 'tickets', 'asistencia', 'multas', 'citas', 'listaEspera', 'pendientesSync', 'data_version'];
+                                // 🚀 AUTO-PARCHE SUPREMO: Protegemos los barberos y servicios
+const clavesTransaccionales = ['clientes', 'ventas', 'gastos', 'tickets', 'asistencia', 'multas', 'citas', 'listaEspera', 'pendientesSync', 'data_version', 'barberos', 'servicios', 'productos', 'cajeros'];
                                 Object.keys(nubeData).forEach(key => {
                                     if (!clavesTransaccionales.includes(key)) {
                                         localData[key] = nubeData[key];
@@ -2709,8 +2709,8 @@ const supabaseClient = supabase.createClient(_dbHost, _dbToken);
                     let cloudB = data.json_data;
                     let localB = db.barberias[idx];
 
-                    // 🚀 AUTO-PARCHE SUPREMO: Descargar TODA la configuración nueva (Wompi, VIP, Redes, Mapas, etc.)
-                    const clavesTransaccionales = ['clientes', 'ventas', 'gastos', 'tickets', 'asistencia', 'multas', 'citas', 'listaEspera', 'pendientesSync', 'data_version'];
+                    // 🚀 AUTO-PARCHE SUPREMO: Protegemos los barberos y servicios
+const clavesTransaccionales = ['clientes', 'ventas', 'gastos', 'tickets', 'asistencia', 'multas', 'citas', 'listaEspera', 'pendientesSync', 'data_version', 'barberos', 'servicios', 'productos', 'cajeros'];
                     Object.keys(cloudB).forEach(key => {
                         if (!clavesTransaccionales.includes(key)) {
                             localB[key] = cloudB[key];
@@ -4463,9 +4463,9 @@ function renderAgendaList() {
             if (isOnline && typeof supabaseClient !== 'undefined' && b.id_nube) {
                 supabaseClient.from('appointments').insert([{
                     store_id: b.id_nube,
-                    client_name: cli,
-                    client_phone: cel || null,
-                    barber_name: barb,
+                    customer_name: cli,           // 👈 Nombre exacto de tu tabla
+                    customer_phone: cel || null,  // 👈 Nombre exacto de tu tabla
+                    staff_name: barb,             // 👈 Nombre exacto de tu tabla
                     service_name: srvString,
                     appointment_date: f,
                     appointment_time: h,
@@ -5927,9 +5927,9 @@ function renderAgendaList() {
             if (isOnline && typeof supabaseClient !== 'undefined' && b.id_nube) {
                 supabaseClient.from('appointments').insert([{
                     store_id: b.id_nube,
-                    client_name: cli,
-                    client_phone: cel || null,
-                    barber_name: barb,
+                    customer_name: cli,
+                    customer_phone: cel || null,
+                    staff_name: barb,
                     service_name: srv,
                     appointment_date: f,
                     appointment_time: h,
@@ -6002,9 +6002,9 @@ function renderAgendaList() {
             if (isOnline && typeof supabaseClient !== 'undefined' && b.id_nube) {
                 supabaseClient.from('appointments').insert([{
                     store_id: b.id_nube,
-                    client_name: cli,
-                    client_phone: cel || null,
-                    barber_name: barb,
+                    customer_name: cli,
+                    customer_phone: cel || null,
+                    staff_name: barb,
                     service_name: srv,
                     appointment_date: f,
                     appointment_time: h,
@@ -10879,7 +10879,7 @@ function abrirOnboardingManual() {
 
 // 🔥 ACTUALIZACIÓN FORZADA (REPARACIÓN DE CACHÉ Y SYNC)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.94"; // 👈 Subimos versión a 1.92 para obligar a los celulares a actualizar
+            const VERSION_ACTUAL = "1.95"; // 👈 Subimos versión a 1.92 para obligar a los celulares a actualizar
             
             // 🏷️ INYECTAR VERSIÓN EN LA PANTALLA
             const vLogin = document.getElementById('display-version-login');
