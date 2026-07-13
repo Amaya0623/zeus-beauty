@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zeus-cache-v1.101'; // Subimos de versión para limpiar caché antigua
+const CACHE_NAME = 'zeus-cache-v1.102'; // Subimos de versión para limpiar caché antigua y destrabar el sistema
 
 // Archivos críticos para modo Offline y para que el navegador active la instalación
 const urlsToCache = [
@@ -7,7 +7,6 @@ const urlsToCache = [
   './manifest.json',
   './icono.png',
   './video.gif', // Agregamos el video para que cargue siempre
-  'https://cdn.tailwindcss.com',
   'https://cdn.jsdelivr.net/npm/sweetalert2@11'
 ];
 
@@ -53,8 +52,8 @@ self.addEventListener('fetch', e => {
         // Clonamos la respuesta para guardarla en caché y que esté disponible offline después
         const responseToCache = networkResponse.clone();
         caches.open(CACHE_NAME).then(cache => {
-          // No cacheamos peticiones a Supabase para evitar datos viejos
-          if (!e.request.url.includes('supabase.co')) {
+          // ESCUDO: No cacheamos Supabase ni extensiones de navegador para evitar errores rojos en consola
+          if (!e.request.url.includes('supabase.co') && e.request.url.startsWith('http')) {
             cache.put(e.request, responseToCache);
           }
         });
