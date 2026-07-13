@@ -147,7 +147,7 @@
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
 
         /* ✨ TARJETA DE FIDELIZACIÓN VIP */
-        .card-container { width: 340px; height: 215px; perspective: 1000px; -webkit-perspective: 1000px; margin: 0 auto; position: relative; z-index: 50; }
+        .card-co+ntainer { width: 340px; height: 215px; perspective: 1000px; -webkit-perspective: 1000px; margin: 0 auto; position: relative; z-index: 50; }
         .card-3d { width: 100%; height: 100%; position: absolute; transform-style: preserve-3d; -webkit-transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); -webkit-transition: -webkit-transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); }
         .card-3d.flipped { transform: rotateY(180deg); -webkit-transform: rotateY(180deg); }
         .card-front, .card-back { position: absolute; top: 0; left: 0; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 1.25rem; background-color: #050505; border: 1px solid #ef4444; box-shadow: 0 15px 30px rgba(0,0,0,0.8), inset 0 0 15px rgba(239, 68, 68, 0.2); overflow: hidden; display: flex; flex-direction: column; transform: translateZ(1px); -webkit-transform: translateZ(1px); }
@@ -162,15 +162,13 @@
 
 
 
-    <!-- ✨ SPLASH SCREEN UNIVERSAL (ANDROID, IOS, WEB) ✨ -->
-    <div id="splash-screen" class="fixed inset-0 z-[9999] w-full h-full bg-[#050505] flex items-center justify-center transition-opacity duration-500 ease-in-out">
+   <div id="splash-screen" class="fixed inset-0 z-[9999] w-full h-full bg-black flex items-center justify-center transition-opacity duration-700 ease-in-out">
         
-        <!-- 📱 ESTUCHE ADAPTATIVO: Perfecto para cualquier tamaño de pantalla -->
-        <div id="splash-screen" class="fixed inset-0 z-[9999] w-full h-full bg-black flex items-center justify-center transition-opacity duration-700 ease-in-out">
-        
-        <video id="splash-video" class="w-full h-full object-contain pointer-events-none" autoplay muted playsinline preload="auto">
-            <source src="video.mp4?v=2" type="video/mp4">
-        </video>
+        <div class="relative w-[90%] sm:w-[70%] md:w-[400px] aspect-[9/16] max-h-[95vh] rounded-[2.5rem] overflow-hidden flex items-center justify-center">
+            
+            <video id="splash-video" class="absolute inset-0 w-full h-full object-cover pointer-events-none" autoplay muted playsinline preload="auto">
+                <source src="video.mp4?v=3" type="video/mp4">
+            </video>
 
         </div>
 
@@ -189,7 +187,7 @@
                 }
 
                 if (vid && splash) {
-                    // ⚡ MAGIA 1: Acelerar el video (1.5 = 50% más rápido. Ponle 2.0 si lo quieres el DOBLE de rápido)
+                    // ⚡ MAGIA 1: Acelerar el video (1.5 = 50% más rápido)
                     vid.playbackRate = 1.5;
 
                     // Cuando el video acelerado termina, se oculta
@@ -206,7 +204,7 @@
                         });
                     }
                     
-                    // ⏱️ Seguro ajustado a 10 segundos (como el video va rápido, no necesitamos 15)
+                    // ⏱️ Seguro ajustado a 10 segundos
                     setTimeout(ocultarSplashScreen, 10000); 
                 } else {
                     setTimeout(ocultarSplashScreen, 1000);
@@ -10992,7 +10990,7 @@ function abrirOnboardingManual() {
 
 // 🔥 ACTUALIZACIÓN FORZADA (REPARACIÓN DE CACHÉ Y SYNC)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.98"; // 👈 Subimos versión a 1.92 para obligar a los celulares a actualizar
+            const VERSION_ACTUAL = "1.99"; // 👈 Subimos versión a 1.92 para obligar a los celulares a actualizar
             
             // 🏷️ INYECTAR VERSIÓN EN LA PANTALLA
             const vLogin = document.getElementById('display-version-login');
