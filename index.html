@@ -166,12 +166,11 @@
     <div id="splash-screen" class="fixed inset-0 z-[9999] w-full h-full bg-[#050505] flex items-center justify-center transition-opacity duration-500 ease-in-out">
         
         <!-- 📱 ESTUCHE ADAPTATIVO: Perfecto para cualquier tamaño de pantalla -->
-        <div class="relative w-[85%] max-w-[320px] aspect-[9/16] max-h-[85vh] rounded-[2.5rem] shadow-[0_0_40px_rgba(0,240,255,0.15)] border border-zinc-800 bg-[#050505] flex items-center justify-center overflow-hidden">
-            
-            <!-- 🪄 TRUCO SENIOR: scaleX(1.08) recorta EXACTAMENTE los bordes negros laterales del MP4 sin tocar ni un píxel arriba ni abajo -->
-            <video id="splash-video" class="absolute inset-0 w-full h-full object-cover pointer-events-none" style="transform: scaleX(1.08);" autoplay muted playsinline preload="auto">
-                <source src="video.mp4" type="video/mp4">
-            </video>
+        <div id="splash-screen" class="fixed inset-0 z-[9999] w-full h-full bg-black flex items-center justify-center transition-opacity duration-700 ease-in-out">
+        
+        <video id="splash-video" class="w-full h-full object-contain pointer-events-none" autoplay muted playsinline preload="auto">
+            <source src="video.mp4?v=2" type="video/mp4">
+        </video>
 
         </div>
 
@@ -10993,7 +10992,7 @@ function abrirOnboardingManual() {
 
 // 🔥 ACTUALIZACIÓN FORZADA (REPARACIÓN DE CACHÉ Y SYNC)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.97"; // 👈 Subimos versión a 1.92 para obligar a los celulares a actualizar
+            const VERSION_ACTUAL = "1.98"; // 👈 Subimos versión a 1.92 para obligar a los celulares a actualizar
             
             // 🏷️ INYECTAR VERSIÓN EN LA PANTALLA
             const vLogin = document.getElementById('display-version-login');
