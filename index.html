@@ -6906,14 +6906,12 @@ function renderAgendaList() {
             const b = db.barberias[bIdx];
             const hoy = getTodayYMD();
 
-            // 1. Cálculos Inteligentes del Día
             const ventasHoy = (b.ventas || []).filter(v => v.fecha === hoy && !v.anulado);
             const cortesTot = ventasHoy.filter(v => !v.esProducto).length;
             const totalDinero = ventasHoy.reduce((a, v) => a + v.valor + (v.ivaAplicado || 0), 0);
             const gastosHoy = (b.gastos || []).filter(g => g.fecha === hoy).reduce((a, g) => a + g.valor, 0);
             const neto = totalDinero - gastosHoy;
 
-            // 2. IA: Descubrir al mejor barbero del día
             let conteoBarberos = {};
             ventasHoy.filter(v => !v.esProducto && v.barbero !== "ADMIN").forEach(v => {
                 conteoBarberos[v.barbero] = (conteoBarberos[v.barbero] || 0) + v.valor;
@@ -6933,8 +6931,6 @@ function renderAgendaList() {
                 background: '#0a0a0a', color: '#fff'
             }).then(r => {
                 if (r.isConfirmed) {
-                    // 3. Generar el Guion para Jarvis (ISI)
-                    // Extraemos solo los números para que la IA lea la cifra correctamente
                     let textoDinero = totalDinero.toString();
                     let textoNeto = neto.toString();
                     let textoGastos = gastosHoy.toString();
@@ -6950,26 +6946,31 @@ function renderAgendaList() {
                         mensajeVoz += `La utilidad libre para el local es de ${textoNeto} pesos. Buen descanso.`;
                     }
 
-                    // 4. Activar el Motor de Voz (Nativo del Navegador)
                     const synth = window.speechSynthesis;
                     if (synth) {
-                        synth.cancel(); // Apaga cualquier voz anterior atascada
+                        synth.cancel(); 
                         let utterance = new SpeechSynthesisUtterance(mensajeVoz);
-                        utterance.lang = 'es-CO'; // Acento Latino/Colombiano
-                        utterance.rate = 1.05; // Velocidad dinámica
-                        utterance.pitch = 1.1; // Tono amigable y corporativo
+                        utterance.lang = 'es-CO'; 
+                        utterance.rate = 1.05; 
+                        utterance.pitch = 1.1; 
                         synth.speak(utterance);
                     }
 
-                    // 5. Archivar el Cierre en la Base de Datos
                     if (!b.cierresDiarios) b.cierresDiarios = [];
-                    // Borramos si ya había un cierre de este mismo día
                     b.cierresDiarios = b.cierresDiarios.filter(c => c.fecha !== hoy);
-                    // 🛡️ Guardamos un snapshot (foto) exacto de las ventas del día para auditorías futuras
                     const snapshotVentas = ventasHoy.map(v => ({ ticket: v.ticketId, valor: v.valor, tipo: v.tipo, anulado: v.anulado || false }));
-                    b.cierresDiarios.push({ fecha: hoy, ingresos: totalDinero, gastos: gastosHoy, neto: neto, cortes: cortesTot, mejorBarbero: mejorBarbero, snapshot: snapshotVentas });
+                    
+                    const nuevoCierre = { fecha: hoy, ingresos: totalDinero, gastos: gastosHoy, neto: neto, cortes: cortesTot, mejorBarbero: mejorBarbero, snapshot: snapshotVentas };
+                    b.cierresDiarios.push(nuevoCierre);
                     
                     saveDB(true);
+
+                    // ⚡ PUENTE SQL: RESPALDO DE CIERRE DE CAJA EN LA NUBE
+                    if (isOnline && typeof supabaseClient !== 'undefined' && b.id_nube) {
+                        // Guardamos el snapshot de caja dentro del JSON general para forzar su subida
+                        supabaseClient.from('stores').update({ json_data: b }).eq('id', b.id_nube).then();
+                    }
+
                     cerrarModales();
 
                     Swal.fire({
@@ -11148,7 +11149,7 @@ function abrirOnboardingManual() {
 
 // 🔥 ACTUALIZACIÓN FORZADA (REPARACIÓN DE CACHÉ Y SYNC)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.100"; // 👈 Subimos versión a 1.92 para obligar a los celulares a actualizar
+            const VERSION_ACTUAL = "1.101"; // 👈 Subimos versión a 1.92 para obligar a los celulares a actualizar
             
             // 🏷️ INYECTAR VERSIÓN EN LA PANTALLA
             const vLogin = document.getElementById('display-version-login');
