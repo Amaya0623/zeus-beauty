@@ -185,25 +185,30 @@
                     if (!yaOculto && splash) {
                         yaOculto = true;
                         splash.style.opacity = '0';
-                        setTimeout(() => splash.remove(), 500); // Destruye el elemento para liberar RAM
+                        setTimeout(() => splash.remove(), 700); // Transición súper suave
                     }
                 }
 
                 if (vid && splash) {
-                    // Cuando el video termina naturalmente, se oculta
+                    // ⚡ MAGIA 1: Acelerar el video (1.5 = 50% más rápido. Ponle 2.0 si lo quieres el DOBLE de rápido)
+                    vid.playbackRate = 1.5;
+
+                    // Cuando el video acelerado termina, se oculta
                     vid.addEventListener('ended', ocultarSplashScreen);
                     
-                    // 🛡️ SEGURO ANTI-FALLOS (Especial para iOS en Ahorro de Batería)
+                    // ⚡ MAGIA 2: Si el barbero tiene prisa, toca la pantalla y salta el video al instante
+                    splash.addEventListener('click', ocultarSplashScreen);
+                    
+                    // 🛡️ SEGURO ANTI-FALLOS (Especial para iOS)
                     let playPromise = vid.play();
                     if (playPromise !== undefined) {
                         playPromise.catch(() => {
-                            // Si el iPhone bloquea el video, saltamos al sistema en 2.5s
-                            setTimeout(ocultarSplashScreen, 2500); 
+                            setTimeout(ocultarSplashScreen, 1500); 
                         });
                     }
                     
-                    // Límite máximo de seguridad para cualquier dispositivo
-                    setTimeout(ocultarSplashScreen, 6000); 
+                    // ⏱️ Seguro ajustado a 10 segundos (como el video va rápido, no necesitamos 15)
+                    setTimeout(ocultarSplashScreen, 10000); 
                 } else {
                     setTimeout(ocultarSplashScreen, 1000);
                 }
@@ -2591,16 +2596,16 @@ const supabaseClient = supabase.createClient(_dbHost, _dbToken);
                             let necesitaFusion = false;
                             let nubeData = null;
 
-                            // 🛡️ MAGIA OFFLINE: Si hay pendientes locales, APLASTAMOS LA NUBE. Si no, fusionamos normal.
-                            if (db.barberias[idx].pendientesSync) {
-                                db.barberias[idx].pendientesSync = false; // Quitamos la bandera porque ya vamos a imponer nuestra ley
-                            } else if (vNube > 0 && db.barberias[idx].data_version !== vNube) {
+                            // 🚀 ESCUDO DE PRIORIDADES (Fusión Absoluta): 
+                            // Siempre descargamos la nube si hay cambios, tengamos datos pendientes o no, para NO borrar las citas de los clientes.
+                            if (vNube > 0 && db.barberias[idx].data_version !== vNube) {
                                 const { data } = await supabaseClient.from('stores').select('json_data').eq('id', db.barberias[idx].id_nube).single();
                                 if (data && data.json_data) {
                                     nubeData = data.json_data;
                                     necesitaFusion = true;
                                 }
                             }
+                            db.barberias[idx].pendientesSync = false; // Ya no aplastamos la nube, ahora fusionamos 100% seguros
 
                             if (necesitaFusion && nubeData) {
                                 let localData = db.barberias[idx];
@@ -4840,6 +4845,9 @@ function renderAgendaList() {
         // ==========================================
         // 10. KIOSKO PÚBLICO (MODO FRESHA VIP)
         // ==========================================
+        // ==========================================
+        // 10. KIOSKO PÚBLICO (MODO FRESHA VIP)
+        // ==========================================
         function iniciarKiosko(idx) {
             kiosko_bIdx = idx; const b = db.barberias[kiosko_bIdx];
             
@@ -4859,7 +4867,8 @@ function renderAgendaList() {
 
             if (!b.barberos || b.barberos.length === 0 || !b.servicios || b.servicios.length === 0) return Swal.fire('Local Incompleto', 'El administrador debe configurar barberos y servicios.', 'warning');
             document.getElementById('kio-fecha').value = getTodayYMD(); document.getElementById('kio-titulo-local').innerText = b.nombre;
-// 👑 Mostrar el Botón VIP solo si el Admin activó los Referidos
+
+            // 👑 Mostrar el Botón VIP solo si el Admin activó los Referidos
             const btnVipCtn = document.getElementById('btn-tarjeta-vip-kio');
             if (btnVipCtn) {
                 if (b.vipClub && b.vipClub.refActivo) btnVipCtn.classList.replace('hidden', 'flex');
@@ -4888,7 +4897,7 @@ function renderAgendaList() {
                 }
             }
 
-// 🚀 MAGIA CAZA-RECOMPENSAS (Verificar si el cliente que abre el kiosko es VIP)
+            // 🚀 MAGIA CAZA-RECOMPENSAS (Verificar si el cliente que abre el kiosko es VIP)
             if (b.vipClub && b.vipClub.refActivo) {
                 let miCelular = localStorage.getItem('mi_celular_zeus');
                 if (miCelular && b.clientes && b.clientes[miCelular]) {
@@ -4918,7 +4927,8 @@ function renderAgendaList() {
                     }
                 }
             }
-          // Mostrar Banner VIP en Kiosko si está activo
+
+            // Mostrar Banner VIP en Kiosko si está activo
             const bannerVip = document.getElementById('kio-banner-afiliacion-vip');
             if (bannerVip) {
                 if (b.vipCard && b.vipCard.activo) {
@@ -4952,6 +4962,28 @@ function renderAgendaList() {
                 }
             }
 
+            // 🚀 EL DISPARO INMEDIATO AL ENTRAR (Vigilante Silencioso Kiosko)
+            if (isOnline && typeof supabaseClient !== 'undefined' && b.id_nube) {
+                supabaseClient.from('stores').select('json_data').eq('id', b.id_nube).single().then(({data, error}) => {
+                    if (!error && data && data.json_data) {
+                        const dNube = data.json_data;
+                        let hayCambios = false;
+
+                        // Solo nos importan Barberos (estado libre/ocupado), Citas (horarios tomados) y Servicios (precios).
+                        if (JSON.stringify(b.barberos) !== JSON.stringify(dNube.barberos)) { b.barberos = dNube.barberos; hayCambios = true; }
+                        if (JSON.stringify(b.citas) !== JSON.stringify(dNube.citas)) { b.citas = dNube.citas; hayCambios = true; }
+                        if (JSON.stringify(b.servicios) !== JSON.stringify(dNube.servicios)) { b.servicios = dNube.servicios; hayCambios = true; }
+
+                        if (hayCambios) {
+                            db.barberias[kiosko_bIdx] = b;
+                            saveDB(false); // Guardado sin disparar a la nube porque solo estamos leyendo
+                            renderSemaforoKiosko();
+                            renderKioskoSlots();
+                            console.log("⚡ Kiosko actualizado al instante.");
+                        }
+                    }
+                });
+            }
 
             showScreen('view-kiosko');
         }
@@ -5776,6 +5808,21 @@ function renderAgendaList() {
                     if (!b.clientes[data.cel]) {
                         b.clientes[data.cel] = { nombre: data.nom, celular: data.cel, cumple: data.cumple, pts: 0, visitas: 0, fechaRegistro: getTodayYMD() };
                         saveDB(true);
+
+                        // ⚡ PUENTE SQL: INYECCIÓN DIRECTA DESDE EL KIOSKO A SUPABASE
+                        if (isOnline && typeof supabaseClient !== 'undefined' && b.id_nube) {
+                            const cli = b.clientes[data.cel];
+                            supabaseClient.from('clients').upsert([{
+                                store_id: b.id_nube,
+                                phone: String(data.cel),
+                                name: String(cli.nombre),
+                                birthday: cli.cumple || null,
+                                points: cli.pts || 0,
+                                visits: cli.visitas || 0,
+                                registration_date: cli.fechaRegistro || null
+                            }], { onConflict: 'store_id, phone' }).then();
+                        }
+
                         Swal.fire({title: '¡Bienvenido al Club! 👑', text: 'Ya estás registrado. Sigue agendando tu cita.', icon: 'success', background: '#0a0a0a', color: '#fff', timer: 3000, allowOutsideClick: false}).then(()=> {
                             // Pre-llenamos el formulario del Kiosko y desaparecemos el banner mágicamente
                             document.getElementById('kio-nombre').value = data.nom;
@@ -6260,24 +6307,43 @@ function renderAgendaList() {
             if (!n || isNaN(p)) return Swal.fire('Error', 'Nombre y Precio son obligatorios', 'warning');
 
             if (!db.barberias[bIdx].productos) db.barberias[bIdx].productos = [];
+            
+            let localIdNuevo = Date.now();
 
             if (idX !== "") {
                 let pIdx = db.barberias[bIdx].productos.findIndex(x => x.id.toString() === idX);
-                if (pIdx !== -1) db.barberias[bIdx].productos[pIdx] = { id: parseInt(idX), nom: n, pre: p, stock: s };
+                if (pIdx !== -1) {
+                    localIdNuevo = parseInt(idX);
+                    db.barberias[bIdx].productos[pIdx] = { id: localIdNuevo, nom: n, pre: p, stock: s };
+                }
             } else {
-                db.barberias[bIdx].productos.push({ id: Date.now(), nom: n, pre: p, stock: s });
+                db.barberias[bIdx].productos.push({ id: localIdNuevo, nom: n, pre: p, stock: s });
             }
 
-            saveDB(true); // 🚀 Subida forzada a la nube
+            saveDB(true); 
+
+            // ⚡ PUENTE SQL: DISPARO DE PRODUCTOS A SUPABASE
+            const b = db.barberias[bIdx];
+            if (isOnline && typeof supabaseClient !== 'undefined' && b.id_nube) {
+                supabaseClient.from('products').upsert([{
+                    store_id: b.id_nube,
+                    local_id: localIdNuevo,
+                    name: n,
+                    price: p,
+                    stock: s
+                }], { onConflict: 'store_id, local_id' }).then(({error}) => {
+                    if(error) console.error("❌ Error guardando producto en SQL:", error);
+                });
+            }
 
             renderInventario();
-            if (document.getElementById('view-barbero').classList.contains('active')) renderBarbero(); // 👈 ESTO EVITA QUE SE BORRE EN EL POS
+            if (document.getElementById('view-barbero').classList.contains('active')) renderBarbero(); 
 
             document.getElementById('inv-id').value = "";
             document.getElementById('inv-nombre').value = "";
             document.getElementById('inv-precio').value = "";
             document.getElementById('inv-stock').value = "";
-            Swal.fire({ title: 'Guardado', icon: 'success', toast: true, position: 'top-end', timer: 1500, showConfirmButton: false });
+            Swal.fire({ title: 'Guardado', icon: 'success', toast: true, position: 'top-end', timer: 1500, showConfirmButton: false, background: '#111', color: '#fff' });
         }
 
         function editarProducto(id) {
@@ -6299,13 +6365,24 @@ function renderAgendaList() {
                 background: '#111', color: '#fff'
             }).then((r) => {
                 if (r.isConfirmed) {
-                    db.barberias[bIdx].productos = db.barberias[bIdx].productos.filter(x => x.id !== id);
+                    const b = db.barberias[bIdx];
+                    b.productos = b.productos.filter(x => x.id !== id);
                     saveDB(true);
-                    if (isOnline && db.barberias[bIdx].id_nube) {
-                        supabaseClient.from('stores').update({ json_data: db.barberias[bIdx] }).eq('id', db.barberias[bIdx].id_nube);
+                    
+                    // ⚡ PUENTE SQL: DESTRUIR PRODUCTO EN SUPABASE
+                    if (isOnline && typeof supabaseClient !== 'undefined' && b.id_nube) {
+                        supabaseClient.from('products')
+                            .delete()
+                            .match({ store_id: b.id_nube, local_id: id })
+                            .then(({error}) => {
+                                if(error) console.error("❌ Error borrando producto en SQL:", error);
+                            });
                     }
 
-                    // Re-renderizado al borrar
+                    if (isOnline && b.id_nube) {
+                        supabaseClient.from('stores').update({ json_data: b }).eq('id', b.id_nube);
+                    }
+
                     renderInventario();
                     if (document.getElementById('view-barbero').classList.contains('active')) renderBarbero();
                     if (document.getElementById('view-admin').classList.contains('active')) renderAdmin();
@@ -6328,7 +6405,23 @@ function renderAgendaList() {
                     responsable = session.nom;
                 }
                 
-                db.barberias[bIdx].gastos.push({ desc: d, valor: v, fecha: getTodayYMD(), registradoPor: responsable });
+                const fechaGasto = getTodayYMD();
+                db.barberias[bIdx].gastos.push({ desc: d, valor: v, fecha: fechaGasto, registradoPor: responsable });
+
+                // ⚡ PUENTE SQL: DISPARO DE GASTO A SUPABASE (Universal para Web/iOS/Android)
+                const b = db.barberias[bIdx];
+                if (isOnline && typeof supabaseClient !== 'undefined' && b.id_nube) {
+                    supabaseClient.from('expenses').insert([{
+                        store_id: b.id_nube,
+                        description: d,
+                        amount: v,
+                        expense_date: fechaGasto,
+                        registered_by: responsable
+                    }]).then(({error}) => {
+                        if(error) console.error("❌ Error guardando gasto en SQL:", error);
+                    });
+                }
+
                 saveDB(true);
                 renderGastos();
                 if (typeof session !== 'undefined' && session && session.rol === 'admin') renderAdmin();
@@ -9248,6 +9341,11 @@ function escucharResumenFranquicia() {
                                 db.barberias[kiosko_bIdx].citas = data.json_data.citas || [];
                                 db.barberias[kiosko_bIdx].bloqueado = data.json_data.bloqueado;
                                 db.barberias[kiosko_bIdx].diasSuscripcion = data.json_data.diasSuscripcion;
+                                
+                                // 🚀 PARCHE DE HORARIOS Y SERVICIOS: El Kiosko ahora se entera al instante si el Admin cambió el horario de un barbero o los precios.
+                                db.barberias[kiosko_bIdx].barberos = data.json_data.barberos || [];
+                                db.barberias[kiosko_bIdx].servicios = data.json_data.servicios || [];
+                                
                                 db.barberias[kiosko_bIdx].data_version = nVer; // Actualizamos versión
                                 
                                 if (typeof renderKioskoSlots === 'function') renderKioskoSlots();
@@ -10435,6 +10533,22 @@ function abrirOnboardingManual() {
                     }
                     saveDB(true);
                     
+                    // ⚡ PUENTE SQL: INYECCIÓN DIRECTA DE CLIENTES A SUPABASE
+                    if (isOnline && typeof supabaseClient !== 'undefined' && b.id_nube) {
+                        const cli = b.clientes[data.cel];
+                        supabaseClient.from('clients').upsert([{
+                            store_id: b.id_nube,
+                            phone: String(data.cel),
+                            name: String(cli.nombre),
+                            birthday: cli.cumple || null,
+                            points: cli.pts || 0,
+                            visits: cli.visitas || 0,
+                            registration_date: cli.fechaRegistro || null
+                        }], { onConflict: 'store_id, phone' }).then(({error}) => {
+                            if(error) console.error("❌ Error guardando cliente en SQL:", error);
+                        });
+                    }
+
                     const searchInput = document.getElementById('caja-search-cli');
                     searchInput.value = data.cel;
                     searchInput.dispatchEvent(new Event('keyup'));
@@ -10879,7 +10993,7 @@ function abrirOnboardingManual() {
 
 // 🔥 ACTUALIZACIÓN FORZADA (REPARACIÓN DE CACHÉ Y SYNC)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.95"; // 👈 Subimos versión a 1.92 para obligar a los celulares a actualizar
+            const VERSION_ACTUAL = "1.97"; // 👈 Subimos versión a 1.92 para obligar a los celulares a actualizar
             
             // 🏷️ INYECTAR VERSIÓN EN LA PANTALLA
             const vLogin = document.getElementById('display-version-login');
