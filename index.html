@@ -3270,8 +3270,19 @@ const clavesTransaccionales = ['clientes', 'ventas', 'gastos', 'tickets', 'asist
 
                     if (!b.asistencia[hoy][empName] || !b.asistencia[hoy][empName].ingreso) { 
                         const now = new Date();
-                        b.asistencia[hoy][empName] = { ingreso: now.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }), salida: "--" }; 
+                        const horaIngreso = now.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+                        b.asistencia[hoy][empName] = { ingreso: horaIngreso, salida: "--" }; 
                         
+                        // ⚡ PUENTE SQL: REGISTRO DE ENTRADA A SUPABASE
+                        if (isOnline && typeof supabaseClient !== 'undefined' && b.id_nube) {
+                            supabaseClient.from('attendance').upsert([{
+                                store_id: b.id_nube,
+                                worker_name: empName,
+                                work_date: hoy,
+                                check_in: horaIngreso
+                            }], { onConflict: 'store_id, worker_name, work_date' }).then();
+                        }
+
                         if (b.configMultas && b.configMultas.activo && b.configMultas.valor > 0) {
                             if (empData && empData.horaInicio) {
                                 const minIngreso = now.getHours() * 60 + now.getMinutes();
@@ -4219,6 +4230,34 @@ function verificarCumpleanosPOS() {
             } catch (err) { console.error("Falla en el puente a Supabase:", err); }
         }
 
+
+async function guardarFacturaEnSQL(ticket, storeId) {
+            if (!isOnline || typeof supabaseClient === 'undefined' || !storeId) return;
+            try {
+                const { data: invData, error: err1 } = await supabaseClient.from('invoices').insert([{
+                    store_id: storeId,
+                    invoice_number: ticket.ticketId,
+                    payment_method: ticket.metodo,
+                    total: ticket.total,
+                    customer_name: ticket.cliente,
+                    customer_phone: ticket.celular
+                }]).select('id').single();
+
+                if (err1) throw err1;
+
+                if (invData && ticket.items && ticket.items.length > 0) {
+                    const itemsSQL = ticket.items.map(i => ({
+                        invoice_id: invData.id,
+                        store_id: storeId,
+                        item_name: i.nom,
+                        price: i.pre,
+                        is_product: i.isProd || false
+                    }));
+                    await supabaseClient.from('invoice_items').insert(itemsSQL);
+                }
+            } catch(e) { console.error("❌ Error guardando factura en SQL:", e); }
+        }
+
         function finalizarVentaOK() {
             try {
                 const b = db.barberias[bIdx]; const m = document.getElementById('pos-metodo').value;
@@ -4260,8 +4299,10 @@ function verificarCumpleanosPOS() {
                 if (session.rol === 'barbero') { let myB = b.barberos.find(x => x.nom === session.nom); if (myB) myB.estado = 'LIBRE'; }
                 
                 saveDB(true);
+
                 // 🚀 ¡BAM! DISPARAMOS LOS DATOS A LA TABLA SQL
                 guardarVentasEnTablaReal(nuevasVentasSQL, b.id_nube);
+                guardarFacturaEnSQL(lastTicketData, b.id_nube); // 👈 ¡ESTA ES LA LÍNEA NUEVA!
 
                 document.getElementById('ticket-total').innerText = fMoney(tV); document.getElementById('ticket-fecha').innerText = `TK N° ${tId} | ${fA}`;
                 const btnWp = document.getElementById('btn-wp-ticket');
@@ -6941,7 +6982,28 @@ function renderAgendaList() {
                 }
             });
         }
-        function confirmarCierreTurnoBarbero() { Swal.fire('Turno Finalizado', 'Tus contadores han sido reportados al Administrador', 'success'); cerrarModales(); }
+
+        function confirmarCierreTurnoBarbero() { 
+            const b = db.barberias[bIdx];
+            const hoy = getTodayYMD();
+            const empName = session.nom;
+            
+            // Registramos la salida localmente
+            if (b.asistencia && b.asistencia[hoy] && b.asistencia[hoy][empName]) {
+                const horaSalida = new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+                b.asistencia[hoy][empName].salida = horaSalida;
+                saveDB(true);
+                
+                // ⚡ PUENTE SQL: REGISTRO DE SALIDA A SUPABASE
+                if (isOnline && typeof supabaseClient !== 'undefined' && b.id_nube) {
+                    supabaseClient.from('attendance').update({ check_out: horaSalida })
+                        .match({ store_id: b.id_nube, worker_name: empName, work_date: hoy }).then();
+                }
+            }
+            
+            Swal.fire('Turno Finalizado', 'Tus contadores y hora de salida han sido reportados al Administrador', 'success'); 
+            cerrarModales(); 
+        }
 
         function abrirCierreMes() {
             document.getElementById('modal-cierre-mes').classList.remove('hidden'); const b = db.barberias[bIdx];
@@ -7380,7 +7442,7 @@ function renderAgendaList() {
                         </div>
                         <div class="flex gap-2 items-center">
                             <button type="button" onclick="editarServicio(${idx})" class="text-blue-400 hover:text-blue-300 font-bold text-[10px] uppercase">Editar</button>
-                            <button type="button" onclick="db.barberias[bIdx].servicios.splice(${idx},1); saveDB(true); renderConfigLists()" class="text-red-500 hover:text-red-400 font-bold text-[10px] uppercase">Eliminar</button>
+                            <button type="button" onclick="borrarServicio(${idx})" class="text-red-500 hover:text-red-400 font-bold text-[10px] uppercase">Eliminar</button>
                         </div>
                     </div>`;
                 });
@@ -7399,7 +7461,7 @@ function renderAgendaList() {
 
                         <div class="flex gap-2">
                             <button type="button" onclick="editarCajero(${idx})" class="text-blue-400 hover:text-blue-300 font-bold text-[10px] uppercase">Editar</button>
-                            <button type="button" onclick="db.barberias[bIdx].cajeros.splice(${idx},1); saveDB(true); renderConfigLists()" class="text-red-500 hover:text-red-400 font-bold text-[10px] uppercase">Eliminar</button>
+                            <button type="button" onclick="borrarCajero(${idx})" class="text-red-500 hover:text-red-400 font-bold text-[10px] uppercase">Eliminar</button>
                         </div>
                     </div>`;
                 });
@@ -7525,30 +7587,26 @@ function renderAgendaList() {
             const n = cleanStr(getValSeguro('add-b-nom')).toUpperCase();
             const p = cleanNum(getValSeguro('add-b-pin'));
             
-            // CAPTURAR COMISIONES
             const cStr = getValSeguro('add-b-comision');
             const c = parseInt(cleanNum(cStr)) || 50;
             const cPStr = getValSeguro('add-b-comision-prod');
-            const cP = parseInt(cleanNum(cPStr)) || 0; // CAPTURA COMISION PRODUCTOS
+            const cP = parseInt(cleanNum(cPStr)) || 0;
 
             const hInicio = getValSeguro('add-b-inicio') || "08:00";
             const hFin = getValSeguro('add-b-fin') || "20:00";
             const esp = getValSeguro('add-b-especialidades').toUpperCase();
 
-
             if (!n || !p) return Swal.fire('Faltan Datos', 'El nombre y el PIN son obligatorios.', 'error');
             if (esPinInseguro(p)) return Swal.fire('PIN Inseguro', 'No uses 1234, 1111 ni secuencias fáciles.', 'warning');
-
             
-            if (!verificarPinUnico(p)) {
+            if (!verificarPinUnico(p) && idX === "") {
                 return Swal.fire({
                     icon: 'warning', title: '¡PIN Ocupado! 🔒',
-                    text: 'Este PIN ya está siendo utilizado por otra Barbería o Estilista. Debes inventar uno diferente.',
+                    text: 'Este PIN ya está siendo utilizado. Debes inventar uno diferente.',
                     confirmButtonColor: '#ef4444', background: '#0a0a0a', color: '#fff'
                 });
             }
             
-
            if (idX !== "") { 
                 db.barberias[bIdx].barberos[idX] = { ...db.barberias[bIdx].barberos[idX], nom: n, pin: p, comision: c, comisionProd: cP, foto: fotoBarberoTemp, fotoQR: fotoQRBarberoTemp, horaInicio: hInicio, horaFin: hFin, especialidades: esp }; 
             } else { 
@@ -7556,6 +7614,26 @@ function renderAgendaList() {
             }
 
             saveDB(true);
+
+            // ⚡ PUENTE SQL: DISPARO DE BARBERO A SUPABASE
+            const b = db.barberias[bIdx];
+            if (isOnline && typeof supabaseClient !== 'undefined' && b.id_nube) {
+                supabaseClient.from('barbers').upsert([{
+                    store_id: b.id_nube,
+                    name: n,
+                    pin: p,
+                    commission_services: c,
+                    commission_products: cP,
+                    start_time: hInicio,
+                    end_time: hFin,
+                    specialties: esp,
+                    photo_url: fotoBarberoTemp,
+                    qr_url: fotoQRBarberoTemp,
+                    status: 'LIBRE'
+                }], { onConflict: 'store_id, name' }).then(({error}) => {
+                    if(error) console.error("❌ Error guardando barbero en SQL:", error);
+                });
+            }
             
             if(document.getElementById('edit-b-id')) document.getElementById('edit-b-id').value = ""; 
             if(document.getElementById('add-b-nom')) document.getElementById('add-b-nom').value = ""; 
@@ -7634,6 +7712,34 @@ function renderAgendaList() {
             const elFin = document.getElementById('add-c-fin'); if(elFin) elFin.value = c.horaFin || "20:00";
         }
  
+function borrarCajero(idx) {
+            Swal.fire({
+                title: '¿Borrar cajero?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                background: '#111', color: '#fff'
+            }).then((r) => {
+                if (r.isConfirmed) {
+                    const b = db.barberias[bIdx];
+                    const cajeroABorrar = b.cajeros[idx];
+                    
+                    b.cajeros.splice(idx, 1);
+                    saveDB(true);
+                    
+                    // ⚡ PUENTE SQL: DESTRUIR CAJERO EN SUPABASE
+                    if (isOnline && typeof supabaseClient !== 'undefined' && b.id_nube && cajeroABorrar) {
+                        supabaseClient.from('staff')
+                            .delete()
+                            .match({ store_id: b.id_nube, name: cajeroABorrar.nom })
+                            .then(({error}) => {
+                                if(error) console.error("❌ Error borrando cajero en SQL:", error);
+                            });
+                    }
+                    renderConfigLists();
+                }
+            });
+        }
 
 
 
@@ -7678,6 +7784,21 @@ function renderAgendaList() {
             }
             saveDB(true);
 
+            // ⚡ PUENTE SQL: DISPARO DE SERVICIOS A SUPABASE
+            const b = db.barberias[bIdx];
+            if (isOnline && typeof supabaseClient !== 'undefined' && b.id_nube) {
+                supabaseClient.from('services').upsert([{
+                    store_id: b.id_nube,
+                    name: n,
+                    price: p,
+                    duration: d,
+                    description: desc,
+                    is_premium: isPremium
+                }], { onConflict: 'store_id, name' }).then(({error}) => {
+                    if(error) console.error("❌ Error guardando servicio en SQL:", error);
+                });
+            }
+
             document.getElementById('edit-s-id').value = ""; 
             document.getElementById('add-s-nom').value = ""; 
             document.getElementById('add-s-pre').value = ""; 
@@ -7688,6 +7809,42 @@ function renderAgendaList() {
             renderConfigLists();
             Swal.fire({title:'Guardado', toast:true, position:'top-end', timer:1500, showConfirmButton:false, background: '#111', color: '#fff', icon:'success'});
         }  
+
+function borrarServicio(idx) {
+            Swal.fire({
+                title: '¿Borrar servicio?',
+                text: 'Esto lo eliminará del catálogo de la caja y el Kiosko.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                background: '#111', color: '#fff'
+            }).then((r) => {
+                if (r.isConfirmed) {
+                    const b = db.barberias[bIdx];
+                    const servicioABorrar = b.servicios[idx];
+                    
+                    b.servicios.splice(idx, 1);
+                    saveDB(true);
+                    
+                    // ⚡ PUENTE SQL: DESTRUIR SERVICIO EN SUPABASE
+                    if (isOnline && typeof supabaseClient !== 'undefined' && b.id_nube && servicioABorrar) {
+                        supabaseClient.from('services')
+                            .delete()
+                            .match({ store_id: b.id_nube, name: servicioABorrar.nom })
+                            .then(({error}) => {
+                                if(error) console.error("❌ Error borrando servicio en SQL:", error);
+                            });
+                    }
+                    renderConfigLists();
+                }
+            });
+        }
+
+
+
+
+
+
 
 
          // ==========================================
@@ -10879,6 +11036,7 @@ function abrirOnboardingManual() {
                 saveDB(true);
                 // 🚀 ¡BAM! DISPARAMOS LOS DATOS A LA TABLA SQL
                 guardarVentasEnTablaReal(nuevasVentasSQL, b.id_nube);
+                guardarFacturaEnSQL(lastTicketData, b.id_nube); // 👈 ¡ESTA ES LA LÍNEA NUEVA!
                 
                 sessionStorage.removeItem('zeus_caja_draft');
 
@@ -10990,7 +11148,7 @@ function abrirOnboardingManual() {
 
 // 🔥 ACTUALIZACIÓN FORZADA (REPARACIÓN DE CACHÉ Y SYNC)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.99"; // 👈 Subimos versión a 1.92 para obligar a los celulares a actualizar
+            const VERSION_ACTUAL = "1.100"; // 👈 Subimos versión a 1.92 para obligar a los celulares a actualizar
             
             // 🏷️ INYECTAR VERSIÓN EN LA PANTALLA
             const vLogin = document.getElementById('display-version-login');
