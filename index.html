@@ -3161,7 +3161,7 @@ const clavesTransaccionales = ['clientes', 'ventas', 'gastos', 'tickets', 'asist
             
             Swal.fire({ title: 'Autenticando...', text: 'Verificando credenciales seguras...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() }, background: '#0a0a0a', color: '#fff' });
 
-            if (isLocalStorageBlocked) { Swal.fire({ title: "Modo Protegido", text: "Abre la aplicación desde un servidor web.", icon: "error", background: "#0a0a0a", color: "#fff" }); pinInput.value = ""; return; }
+            if (isLocalStorageBlocked) { Swal.fire({ title: "Modo Protegido", text: "Abre la aplicación desde un servidor web.", icon: "error", background: "#0a0a0a", color: "#fff", confirmButtonText: "Entendido" }); pinInput.value = ""; return; }
             if (db.superPIN && pin === db.superPIN) { Swal.close(); bIdx = -1; session = { rol: 'superadmin' }; saveSession(); showScreen('view-superadmin'); pinInput.value = ""; return; }
 
             // 🔐 CRIPTOGRAFÍA: Generamos el Hash del PIN que acaba de escribir el usuario
@@ -3185,7 +3185,7 @@ const clavesTransaccionales = ['clientes', 'ventas', 'gastos', 'tickets', 'asist
             // Si hay internet, validamos en la base de datos central...
             if (isOnline) {
                 try {
-                    const timeoutPromiseAuth = new Promise((_, r) => setTimeout(() => r(new Error("TimeoutAuth")), 15000));
+                    const timeoutPromiseAuth = new Promise((_, r) => setTimeout(() => r(new Error("TimeoutAuth")), 10000)); // Bajamos a 10s para que no se quede pegado
                     let { data: stores } = await Promise.race([supabaseClient.from('stores').select('*').eq('owner_pin', pin).limit(1), timeoutPromiseAuth]);
                     let store = (stores && stores.length > 0) ? stores[0] : null;
                     
@@ -3316,10 +3316,39 @@ const clavesTransaccionales = ['clientes', 'ventas', 'gastos', 'tickets', 'asist
                 if(typeof forzarSincronizacionNube === 'function') forzarSincronizacionNube(true); 
                 return;
             } else {
-                Swal.fire({ title: "PIN Incorrecto", text: "Verifique el PIN o su conexión a internet.", icon: "error", background: "#0a0a0a", color: "#fff" }); 
+                // 🚀 ESTA ES LA PARTE NUEVA: MENSAJES CLAROS Y BOTÓN DE "INTENTAR DE NUEVO"
+                if (!isOnline) {
+                    Swal.fire({ 
+                        title: "Dispositivo No Sincronizado 📵", 
+                        html: '<p class="text-sm text-zinc-300">El sistema <b>Zeus Offline</b> está activo, pero este celular aún no ha memorizado tu PIN.</p><p class="text-[10px] text-yellow-500 mt-4 uppercase font-bold tracking-widest">¿QUÉ HACER?</p><p class="text-xs text-zinc-400 mt-1">Conéctate a internet por un segundo e ingresa tu PIN. Una vez lo reconozca, podrás seguir usándolo sin internet para siempre.</p>', 
+                        icon: "info", 
+                        background: "#0a0a0a", 
+                        color: "#fff", 
+                        confirmButtonColor: '#eab308',
+                        confirmButtonText: "Entendido 🔄"
+                    }); 
+                } else {
+                    Swal.fire({ 
+                        title: "PIN Incorrecto ❌", 
+                        text: "El PIN ingresado no existe en el sistema.", 
+                        icon: "error", 
+                        background: "#0a0a0a", 
+                        color: "#fff", 
+                        confirmButtonColor: '#dc2626',
+                        confirmButtonText: "Intentar de Nuevo 🔄"
+                    }); 
+                }
                 pinInput.value = ""; 
             }
         }
+
+
+
+
+
+
+
+
 
         function saveSession() { if (!isLocalStorageBlocked) try { sessionStorage.setItem(SESSION_KEY, JSON.stringify({ bIdx, session })); } catch (e) { } }
 
@@ -11150,7 +11179,7 @@ function abrirOnboardingManual() {
 
 // 🔥 ACTUALIZACIÓN FORZADA (REPARACIÓN DE CACHÉ Y SYNC)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.103"; // 👈 Subimos versión a 1.92 para obligar a los celulares a actualizar
+            const VERSION_ACTUAL = "1.104"; // 👈 Subimos versión a 1.92 para obligar a los celulares a actualizar
             
             // 🏷️ INYECTAR VERSIÓN EN LA PANTALLA
             const vLogin = document.getElementById('display-version-login');
