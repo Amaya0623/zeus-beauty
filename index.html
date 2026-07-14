@@ -1426,6 +1426,33 @@
 
                         
                         <div id="acc-cobros" class="hidden px-6 pb-6 space-y-4 border-t border-zinc-800/50 pt-5">
+<!-- 🚫 PROTECCIÓN NO-SHOW -->
+<div class="bg-red-900/10 p-5 rounded-[1.5rem] border border-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.1)] mb-4">
+    <div class="flex justify-between items-center mb-3">
+        <div class="flex flex-col">
+            <p class="text-[10px] font-black text-red-500 uppercase tracking-widest">🚫 Protección No-Show</p>
+            <p class="text-[8px] text-zinc-400 font-bold uppercase mt-1">Exige acuerdo de penalidad al agendar.</p>
+        </div>
+        <input type="checkbox" id="cfg-noshow-activo" class="w-6 h-6 accent-red-500 cursor-pointer">
+    </div>
+    <input type="number" id="cfg-noshow-pct" placeholder="% de Penalidad (Ej: 50)" class="w-full p-4 rounded-xl text-sm font-bold bg-[#050505] border border-red-900/50 text-red-400 text-center focus:border-red-500 outline-none transition-colors">
+</div>
+
+<!-- 📈 PRECIOS DINÁMICOS IA -->
+<div class="bg-indigo-900/10 p-5 rounded-[1.5rem] border border-indigo-500/30 shadow-[0_0_15px_rgba(99,102,241,0.1)] mb-4">
+    <div class="flex justify-between items-center mb-3">
+        <div class="flex flex-col">
+            <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">📈 Tarifa Inteligente (IA)</p>
+            <p class="text-[8px] text-zinc-400 font-bold uppercase mt-1">Sube el precio en hora pico, bájalo en hora muerta.</p>
+        </div>
+        <input type="checkbox" id="cfg-dinamico-activo" class="w-6 h-6 accent-indigo-500 cursor-pointer">
+    </div>
+</div>
+
+
+
+
+
                             
                             <div class="bg-yellow-900/10 p-5 rounded-[1.5rem] border border-yellow-900/30">
                                 <div class="flex justify-between items-center mb-3">
@@ -5109,10 +5136,38 @@ function renderAgendaList() {
 
 
 
+
+
         // ==========================================
         // 💈 KIOSKO: RENDERIZADO DE BARBEROS (ESTILO TRADING CARD / NEÓN - V6 LETRA FINA)
         // ==========================================
-        function renderSemaforoKiosko() {
+       
+
+
+function calcularPrecioIA(precioBase, idLocal) {
+            const b = db.barberias[idLocal];
+            if (!b.configDinamico || !b.configDinamico.activo) return { precio: precioBase, tag: '' }; // Si está apagado, cobra normal
+
+            const ahora = new Date();
+            const dia = ahora.getDay(); // 0 es Domingo, 5 Viernes, 6 Sábado
+            const hora = ahora.getHours();
+
+            // 🚀 HORA PICO: Viernes (5), Sábado (6) o Domingo (0) después de las 4 PM (16) -> Sube 15%
+            if ((dia === 5 || dia === 6 || dia === 0) && hora >= 16) {
+                return { precio: Math.round(precioBase * 1.15), tag: '<span class="text-[8px] bg-red-900/30 text-red-400 px-1 rounded ml-1 animate-pulse">🔥 ALTA DEMANDA</span>' };
+            }
+            
+            // 😴 HORA MUERTA: Lunes (1), Martes (2) o Miércoles (3) antes de las 1 PM (13) -> Baja 10%
+            if ((dia === 1 || dia === 2 || dia === 3) && hora < 13) {
+                return { precio: Math.round(precioBase * 0.90), tag: '<span class="text-[8px] bg-green-900/30 text-green-400 px-1 rounded ml-1">📉 HORA FELIZ</span>' };
+            }
+
+            return { precio: precioBase, tag: '' };
+        }
+
+
+
+ function renderSemaforoKiosko() {
             const b = db.barberias[kiosko_bIdx];
             const barberosActivos = (b.barberos || []).filter(barb => barb.estado !== 'ALMUERZO' && barb.estado !== 'DESCANSO');
 
@@ -5180,20 +5235,27 @@ function renderAgendaList() {
             document.getElementById('kio-barbero').innerHTML = '<option value="">-- ELIGE TU BARBERO --</option>' + barberosActivos.map(bar => `<option value="${bar.nom}">${bar.nom}</option>`).join(''); 
             document.getElementById('kio-barbero').value = prevB;
 
-            const catalogoCtn = document.getElementById('kio-catalogo-servicios');
+           const catalogoCtn = document.getElementById('kio-catalogo-servicios');
             if(catalogoCtn) {
                 catalogoCtn.innerHTML = (b.servicios || []).map((s, idx) => {
+                    // 🧠 PRECIOS DINÁMICOS ACTIVADOS
+                    let precioInteligente = calcularPrecioIA(s.pre, kiosko_bIdx);
+                    // Actualizamos el precio real en la memoria temporal para que cobre eso
+                    s.preInteligente = precioInteligente.precio; 
+
                     return `
                     <div class="bg-black border border-zinc-800 p-4 rounded-[1.5rem] flex justify-between items-center hover:border-indigo-500/50 transition-colors shadow-inner">
                         <div class="flex flex-col flex-1 pr-4 cursor-pointer" onclick="abrirDetalleServicio(${idx})">
-                            <h4 class="text-sm font-black text-white uppercase leading-tight mb-1">${s.premium ? '👑 ' : ''}${s.nom}</h4>
+                            <h4 class="text-sm font-black text-white uppercase leading-tight mb-1">${s.premium ? '👑 ' : ''}${s.nom} ${precioInteligente.tag || ''}</h4>
                             <p class="text-[10px] text-zinc-500 font-bold mb-2">${s.dur || '45 min'}</p>
-                            <p class="text-[11px] font-black text-indigo-400">${fMoney(s.pre)}</p>
+                            <p class="text-[11px] font-black text-indigo-400">${fMoney(precioInteligente.precio)}</p>
                         </div>
                         <button type="button" onclick="abrirDetalleServicio(${idx})" class="w-10 h-10 rounded-full bg-white text-black font-black flex items-center justify-center text-xl shrink-0 btn-press shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:bg-zinc-200 transition-colors">+</button>
                     </div>`;
                 }).join('') || '<p class="text-xs text-zinc-500 italic text-center py-4">No hay servicios disponibles.</p>';
             }
+
+
 
             renderKioskoSlots();
         }
@@ -5915,6 +5977,43 @@ function renderAgendaList() {
             const f = document.getElementById('kio-fecha').value;
             const cel = cleanNum(document.getElementById('kio-celular').value);
             const barb = document.getElementById('kio-barbero').value;
+
+
+
+
+// 🚫 INTERCEPTOR PROTECCIÓN NO-SHOW
+            if (bLocal.configNoShow && bLocal.configNoShow.activo && !window.acuerdoNoShowAceptado) {
+                return Swal.fire({
+                    title: '<span class="text-red-500 font-black uppercase text-2xl tracking-tighter">Política de Cancelación</span>',
+                    html: `
+                        <p class="text-xs text-zinc-300 mb-4 font-bold">Nuestro tiempo es valioso. Al reservar esta cita, aceptas nuestra política de inasistencia.</p>
+                        <div class="bg-red-900/10 border border-red-500/30 p-4 rounded-xl text-left mb-4 shadow-inner">
+                            <p class="text-[10px] text-red-400 font-black uppercase tracking-widest mb-1 flex items-center gap-1"><span>⚠️</span> PENALIDAD DEL ${bLocal.configNoShow.pct}%</p>
+                            <p class="text-[9px] text-zinc-400 leading-tight font-bold">Si no asistes a tu cita o cancelas con menos de 2 horas de anticipación, el sistema cargará automáticamente una multa del ${bLocal.configNoShow.pct}% del valor del servicio a tu cuenta que deberás pagar en tu próxima visita.</p>
+                        </div>
+                        <label class="flex items-center gap-3 cursor-pointer p-3 bg-black border border-zinc-800 rounded-xl hover:border-red-500 transition-colors">
+                            <input type="checkbox" id="swal-noshow-check" class="w-6 h-6 accent-red-600">
+                            <span class="text-[10px] font-black text-white uppercase tracking-widest">Acepto los términos</span>
+                        </label>
+                    `,
+                    background: '#0a0a0a', color: '#fff',
+                    showCancelButton: true, confirmButtonText: 'ACEPTAR Y AGENDAR', cancelButtonText: 'Volver',
+                    confirmButtonColor: '#dc2626', cancelButtonColor: '#27272a',
+                    customClass: { popup: 'rounded-[2rem] border border-red-900/50 shadow-2xl', confirmButton: 'w-full py-4 mt-2 rounded-2xl font-black uppercase tracking-widest text-white shadow-lg btn-press text-[10px]' },
+                    preConfirm: () => {
+                        if (!document.getElementById('swal-noshow-check').checked) {
+                            Swal.showValidationMessage('Debes aceptar la política para agendar.'); return false;
+                        }
+                        return true;
+                    }
+                }).then((r) => {
+                    if (r.isConfirmed) {
+                        window.acuerdoNoShowAceptado = true;
+                        kioskoAgendar(); 
+                    }
+                });
+            }
+            window.acuerdoNoShowAceptado = false;
 
             // 🔥 VALIDACIÓN ESTRICTA ANTI-ERRORES
             if (!cli) return Swal.fire('Falta Nombre', 'Por favor ingresa tu nombre.', 'warning');
@@ -7286,6 +7385,13 @@ function renderAgendaList() {
            setChk('cfg-multas-activo', b.configMultas.activo || false);
            setVal('cfg-multas-valor', b.configMultas.valor || "5000");
            setVal('cfg-multas-tols', b.configMultas.tolerancia || "15");
+           // 🚫 CARGAR NO-SHOW Y TARIFA DINÁMICA
+           if(!b.configNoShow) b.configNoShow = {};
+           setChk('cfg-noshow-activo', b.configNoShow.activo || false);
+           setVal('cfg-noshow-pct', b.configNoShow.pct || "50");
+
+           if(!b.configDinamico) b.configDinamico = {};
+           setChk('cfg-dinamico-activo', b.configDinamico.activo || false);
 
 
             const baseWebUrl = "https://zeusbarberpro.com";
@@ -7431,6 +7537,14 @@ function renderAgendaList() {
             b.configMultas.valor = parseInt(cleanNum(getVal('cfg-multas-valor'))) || 0;
             b.configMultas.tolerancia = parseInt(cleanNum(getVal('cfg-multas-tols'))) || 15;
 
+            // 🚫 GUARDAR NO-SHOW Y TARIFA DINÁMICA
+           if(!b.configNoShow) b.configNoShow = {};
+           b.configNoShow.activo = getChk('cfg-noshow-activo');
+           b.configNoShow.pct = parseInt(cleanNum(getVal('cfg-noshow-pct'))) || 50;
+
+           if(!b.configDinamico) b.configDinamico = {};
+           b.configDinamico.activo = getChk('cfg-dinamico-activo');
+           
 
             saveDB(true);
             showScreen('view-admin'); 
@@ -11179,7 +11293,7 @@ function abrirOnboardingManual() {
 
 // 🔥 ACTUALIZACIÓN FORZADA (REPARACIÓN DE CACHÉ Y SYNC)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.104"; // 👈 Subimos versión a 1.92 para obligar a los celulares a actualizar
+            const VERSION_ACTUAL = "1.105"; // 👈 Subimos versión a 1.92 para obligar a los celulares a actualizar
             
             // 🏷️ INYECTAR VERSIÓN EN LA PANTALLA
             const vLogin = document.getElementById('display-version-login');
