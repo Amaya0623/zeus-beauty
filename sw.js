@@ -68,3 +68,67 @@ self.addEventListener('fetch', e => {
     })
   );
 });
+
+// ==========================================
+// 🔔 MOTOR DE NOTIFICACIONES PUSH EN SEGUNDO PLANO (ZEUS)
+// ==========================================
+
+self.addEventListener('push', function(event) {
+    console.log('[Zeus SW] ⚡ Señal Push Recibida.');
+    
+    let data = { 
+        title: '¡Nueva Cita en Zeus!', 
+        body: 'Alguien acaba de agendar en tu Kiosko.', 
+        url: '/' 
+    };
+
+    // Intentamos leer los datos que manda Supabase
+    if (event.data) {
+        try {
+            data = event.data.json();
+        } catch(e) {
+            data.body = event.data.text();
+        }
+    }
+
+    const options = {
+        body: data.body,
+        icon: 'icono.png', 
+        badge: 'icono.png', 
+        vibrate: [200, 100, 200, 100, 200, 100, 200], // 💸 Vibración estilo "Caja Registradora"
+        data: {
+            url: data.url || '/'
+        },
+        requireInteraction: true // Hace que la notificación no desaparezca sola
+    };
+
+    event.waitUntil(
+        self.registration.showNotification(data.title, options)
+    );
+});
+
+// ==========================================
+// 👆 ACCIÓN AL TOCAR LA NOTIFICACIÓN
+// ==========================================
+
+self.addEventListener('notificationclick', function(event) {
+    console.log('[Zeus SW] 👆 Notificación tocada.');
+    
+    event.notification.close(); 
+
+    event.waitUntil(
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
+            // 1. Si Zeus ya está abierto, lo enfocamos
+            for (let i = 0; i < clientList.length; i++) {
+                let client = clientList[i];
+                if (client.url.includes('zeus') && 'focus' in client) {
+                    return client.focus();
+                }
+            }
+            // 2. Si estaba cerrado, lo abrimos
+            if (clients.openWindow) {
+                return clients.openWindow(event.notification.data.url);
+            }
+        })
+    );
+});
