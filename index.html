@@ -1591,6 +1591,21 @@
 
 
                         <div id="acc-notificaciones" class="hidden px-6 pb-6 space-y-4 border-t border-zinc-800/50 pt-5">
+<!-- 🔔 ALERTAS PUSH (ADMIN) -->
+                            <div class="bg-red-900/10 p-6 rounded-[1.5rem] border border-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.1)]">
+                                <div class="flex flex-col mb-4">
+                                    <p class="text-[11px] font-black text-red-500 uppercase tracking-widest flex items-center gap-2"><span class="text-xl animate-pulse">🔔</span> Alertas en Vivo (Admin)</p>
+                                    <p class="text-[8px] text-zinc-400 font-bold uppercase mt-1">Recibe notificaciones en este celular cuando alguien agende.</p>
+                                </div>
+                                <button type="button" onclick="activarNotificacionesPush()" class="w-full bg-red-600 hover:bg-red-500 text-white py-4 rounded-xl font-black uppercase text-[10px] tracking-widest btn-press shadow-lg shadow-red-600/20 transition-all flex items-center justify-center gap-2">
+                                    <span>📲 ACTIVAR EN ESTE DISPOSITIVO</span>
+                                </button>
+                                <p id="push-status-txt" class="text-[8px] text-zinc-500 uppercase mt-3 font-bold leading-tight text-center">Estado: Esperando activación...</p>
+                            </div>
+
+
+
+
                             <div class="bg-[#25D366]/10 p-6 rounded-[1.5rem] border border-[#25D366]/20">
                                 <p class="text-[10px] font-black text-[#25D366] mb-3 uppercase tracking-widest">WhatsApp Principal</p>
                                 <input type="text" inputmode="numeric" id="cfg-whatsapp" placeholder="Ej: 573001234567" class="w-full p-4 rounded-xl text-sm font-black tracking-widest bg-[#050505] border border-zinc-800 focus:border-[#25D366] transition-colors outline-none text-white">
@@ -5483,14 +5498,18 @@ function calcularPrecioIA(precioBase, idLocal) {
             const s = b.servicios[idx];
             if(!s) return;
 
+            // 🧠 ATRAPAR PRECIO DE LA IA (Si no hay IA, usa el normal)
+            let precioFinal = s.preInteligente || s.pre;
+
             document.getElementById('mdl-srv-nombre').innerText = s.nom;
             document.getElementById('mdl-srv-duracion').innerHTML = `⏱️ ${s.dur || '45 min'}`;
             document.getElementById('mdl-srv-desc').innerHTML = s.desc ? s.desc.replace(/\n/g, '<br>') : 'Corte profesional y asesoría de imagen.';
-            document.getElementById('mdl-srv-precio').innerText = fMoney(s.pre);
+            document.getElementById('mdl-srv-precio').innerText = fMoney(precioFinal); // Muestra el precio IA
 
             const btnAdd = document.getElementById('btn-mdl-add');
             btnAdd.onclick = function() {
-                tempServicios.push({ nom: s.nom, pre: s.pre, dur: s.dur });
+                // 💰 Guarda el precio IA en el carrito
+                tempServicios.push({ nom: s.nom, pre: precioFinal, dur: s.dur });
                 renderServiciosTempKiosko();
                 
                 if(document.getElementById('kio-fecha').value && document.getElementById('kio-barbero').value) {
@@ -7007,6 +7026,74 @@ function calcularPrecioIA(precioBase, idLocal) {
             let success = 0;
             telefonos.slice(0, 10).forEach((t, i) => { setTimeout(() => { window.open(`https://wa.me/57${t}?text=${encodeURIComponent(msg)}`, '_blank'); }, i * 1500); success++; });
             Swal.fire('Procesando...', `Abriendo WhatsApp para ${success} clientes. (Recuerda permitir pop-ups en tu navegador)`, 'info'); document.getElementById('msg-oferta-masiva').value = "";
+        }
+
+       
+         // ==========================================
+        // 🔔 MOTOR DE NOTIFICACIONES PUSH (ADMIN)
+        // ==========================================
+        
+        // Llave Pública VAPID (No la cambies, es la antena que conecta con Google/Apple)
+        const publicVapidKey = "BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuB-5-cEEu0yE1k5L1c2vNY02o";
+
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+            for (let i = 0; i < rawData.length; ++i) { outputArray[i] = rawData.charCodeAt(i); }
+            return outputArray;
+        }
+
+        async function activarNotificacionesPush() {
+            const statusTxt = document.getElementById('push-status-txt');
+            
+            if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+                statusTxt.innerText = "❌ Tu navegador no soporta notificaciones Push.";
+                return Swal.fire('Error', 'Tu navegador no soporta Notificaciones Push. Usa Chrome o instala la App en iOS.', 'error');
+            }
+
+            Swal.fire({ title: 'Solicitando Permiso...', text: 'Toca "Permitir" en la ventana que aparecerá.', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
+
+            try {
+                // 1. Pedir permiso al usuario
+                const permission = await Notification.requestPermission();
+                if (permission !== 'granted') {
+                    statusTxt.innerText = "❌ Permiso Denegado por el usuario.";
+                    return Swal.fire('Permiso Denegado', 'Debes permitir las notificaciones en tu navegador para usar esto.', 'warning');
+                }
+
+                // 2. Registrar el dispositivo con Google/Apple
+                const register = await navigator.serviceWorker.ready;
+                const subscription = await register.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+                });
+
+                // 3. Guardar la "llave" del celular en tu base de datos local y en la nube
+                const b = db.barberias[bIdx];
+                b.pushSubscription = subscription;
+                saveDB(true);
+
+                if (isOnline && typeof supabaseClient !== 'undefined' && b.id_nube) {
+                    await supabaseClient.from('stores').update({ json_data: b }).eq('id', b.id_nube);
+                }
+
+                statusTxt.innerText = "✅ ¡Dispositivo Vinculado Exitosamente!";
+                statusTxt.classList.replace('text-zinc-500', 'text-green-500');
+                
+                Swal.fire({
+                    title: '¡Antena Activada! 📡',
+                    text: 'Este celular ahora recibirá alertas cuando un cliente agende una cita.',
+                    icon: 'success',
+                    background: '#0a0a0a', color: '#fff'
+                });
+
+            } catch (err) {
+                console.error("Error activando Push: ", err);
+                statusTxt.innerText = "❌ Hubo un error de conexión.";
+                Swal.fire('Error Técnico', 'No pudimos vincular este dispositivo. Asegúrate de tener internet.', 'error');
+            }
         }
 
         // ==========================================
@@ -11297,7 +11384,7 @@ function abrirOnboardingManual() {
 
 // 🔥 ACTUALIZACIÓN FORZADA (REPARACIÓN DE CACHÉ Y SYNC)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.107"; // 👈 Subimos versión a 1.92 para obligar a los celulares a actualizar
+            const VERSION_ACTUAL = "1.108"; // 👈 Subimos versión a 1.92 para obligar a los celulares a actualizar
             
             // 🏷️ INYECTAR VERSIÓN EN LA PANTALLA
             const vLogin = document.getElementById('display-version-login');
