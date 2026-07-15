@@ -148,7 +148,7 @@
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
 
         /* ✨ TARJETA DE FIDELIZACIÓN VIP */
-        .card-co+ntainer { width: 340px; height: 215px; perspective: 1000px; -webkit-perspective: 1000px; margin: 0 auto; position: relative; z-index: 50; }
+.card-container { width: 340px; height: 215px; perspective: 1000px; -webkit-perspective: 1000px; margin: 0 auto; position: relative; z-index: 50; }
         .card-3d { width: 100%; height: 100%; position: absolute; transform-style: preserve-3d; -webkit-transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); -webkit-transition: -webkit-transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); }
         .card-3d.flipped { transform: rotateY(180deg); -webkit-transform: rotateY(180deg); }
         .card-front, .card-back { position: absolute; top: 0; left: 0; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 1.25rem; background-color: #050505; border: 1px solid #ef4444; box-shadow: 0 15px 30px rgba(0,0,0,0.8), inset 0 0 15px rgba(239, 68, 68, 0.2); overflow: hidden; display: flex; flex-direction: column; transform: translateZ(1px); -webkit-transform: translateZ(1px); }
@@ -11293,7 +11293,7 @@ function abrirOnboardingManual() {
 
 // 🔥 ACTUALIZACIÓN FORZADA (REPARACIÓN DE CACHÉ Y SYNC)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.105"; // 👈 Subimos versión a 1.92 para obligar a los celulares a actualizar
+            const VERSION_ACTUAL = "1.106"; // 👈 Subimos versión a 1.92 para obligar a los celulares a actualizar
             
             // 🏷️ INYECTAR VERSIÓN EN LA PANTALLA
             const vLogin = document.getElementById('display-version-login');
