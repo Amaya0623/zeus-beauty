@@ -1291,11 +1291,15 @@
                             
                             <div class="col-span-12 mb-4 p-4 rounded-xl border border-zinc-800 bg-[#111]">
                                 <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-3">⏳ Horarios</p>
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-center">
-                                    <div><input type="time" id="cfg-apertura" class="w-full p-3 rounded-xl text-xs font-bold text-center border border-zinc-800 bg-[#050505] text-white"></div>
-                                    <div><input type="time" id="cfg-cierre" class="w-full p-3 rounded-xl text-xs font-bold text-center border border-zinc-800 bg-[#050505] text-white"></div>
-                                    <div><input type="text" inputmode="numeric" id="cfg-intervalo" placeholder="Mins/Cita" class="w-full p-3 rounded-xl text-xs font-bold text-center border border-zinc-800 bg-[#050505] text-white"></div>
+
+
+                                <div class="grid grid-cols-3 gap-2 items-center">
+                                    <div><input type="time" id="cfg-apertura" class="w-full p-3 px-1 sm:px-3 rounded-xl text-[10px] sm:text-xs font-bold text-center border border-zinc-800 bg-[#050505] text-white min-w-0 outline-none focus:border-blue-500"></div>
+                                    <div><input type="time" id="cfg-cierre" class="w-full p-3 px-1 sm:px-3 rounded-xl text-[10px] sm:text-xs font-bold text-center border border-zinc-800 bg-[#050505] text-white min-w-0 outline-none focus:border-blue-500"></div>
+                                    <div><input type="text" inputmode="numeric" id="cfg-intervalo" placeholder="Minutos" class="w-full p-3 px-1 sm:px-3 rounded-xl text-[10px] sm:text-xs font-bold text-center border border-zinc-800 bg-[#050505] text-white min-w-0 outline-none focus:border-blue-500"></div>
                                 </div>
+
+
                             </div>
 
 
@@ -11293,7 +11297,7 @@ function abrirOnboardingManual() {
 
 // 🔥 ACTUALIZACIÓN FORZADA (REPARACIÓN DE CACHÉ Y SYNC)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.106"; // 👈 Subimos versión a 1.92 para obligar a los celulares a actualizar
+            const VERSION_ACTUAL = "1.107"; // 👈 Subimos versión a 1.92 para obligar a los celulares a actualizar
             
             // 🏷️ INYECTAR VERSIÓN EN LA PANTALLA
             const vLogin = document.getElementById('display-version-login');
