@@ -6175,9 +6175,15 @@ function calcularPrecioIA(precioBase, idLocal) {
                     receipt_url: comprobanteValor
                 }]).then(({error}) => {
                     if(error) console.error("❌ Error guardando cita de kiosko en SQL:", error);
+                    
+                    // 🔔 GATILLO PUSH: Dispara la notificación al celular del Admin
+                    if (!error && b.pushSubscription) {
+                        supabaseClient.functions.invoke('enviar-push', {
+                            body: { subscription: b.pushSubscription, title: '📅 ¡Nueva Cita Kiosko!', body: `${cli} agendó con ${barb} a las ${formatTime12h(h)}.` }
+                        });
+                    }
                 });
             }
-
             saveDB(true);
 
             if (cel && cel.length >= 10) { localStorage.setItem('mi_celular_zeus', cel); }
@@ -6250,6 +6256,13 @@ function calcularPrecioIA(precioBase, idLocal) {
                     receipt_url: 'PAGO_EN_PROCESO_WOMPI'
                 }]).then(({error}) => {
                     if(error) console.error("❌ Error guardando cita Wompi en SQL:", error);
+                    
+                    // 🔔 GATILLO PUSH: Dispara la notificación
+                    if (!error && b.pushSubscription) {
+                        supabaseClient.functions.invoke('enviar-push', {
+                            body: { subscription: b.pushSubscription, title: '⏳ Cita en Pago', body: `${cli} está pagando su cita con ${barb} en Wompi...` }
+                        });
+                    }
                 });
             }
 
@@ -7034,7 +7047,7 @@ function calcularPrecioIA(precioBase, idLocal) {
         // ==========================================
         
         // Llave Pública VAPID (No la cambies, es la antena que conecta con Google/Apple)
-        const publicVapidKey = "BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuB-5-cEEu0yE1k5L1c2vNY02o";
+        const publicVapidKey = "BHKFJnWSHmcY2Q4o-J93NiUq8SeARR9oDFYLmtaSnud4bBFXiZC4VZzvmCnA5MypqXY-rZdvHwudBGb_mnafQj4";
 
         function urlBase64ToUint8Array(base64String) {
             const padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -7044,7 +7057,6 @@ function calcularPrecioIA(precioBase, idLocal) {
             for (let i = 0; i < rawData.length; ++i) { outputArray[i] = rawData.charCodeAt(i); }
             return outputArray;
         }
-
         async function activarNotificacionesPush() {
             const statusTxt = document.getElementById('push-status-txt');
             
@@ -11384,7 +11396,7 @@ function abrirOnboardingManual() {
 
 // 🔥 ACTUALIZACIÓN FORZADA (REPARACIÓN DE CACHÉ Y SYNC)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.108"; // 👈 Subimos versión a 1.92 para obligar a los celulares a actualizar
+            const VERSION_ACTUAL = "1.109"; // 👈 Subimos versión a 1.92 para obligar a los celulares a actualizar
             
             // 🏷️ INYECTAR VERSIÓN EN LA PANTALLA
             const vLogin = document.getElementById('display-version-login');
