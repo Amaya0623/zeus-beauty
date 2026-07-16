@@ -529,7 +529,7 @@
 
                     <button type="button" onclick="kioskoAgendar()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-5 rounded-3xl font-black text-lg uppercase shadow-lg shadow-indigo-600/20 btn-press mt-2 text-white transition-colors">AGENDAR AHORA ⚡</button>
                     <div id="kio-redes-sociales" class="hidden"></div>
-                    <button type="button" onclick="volverAInicioKiosko()" class="text-zinc-500 hover:text-white transition-colors text-[10px] font-bold uppercase mt-6 block mx-auto text-center p-2 btn-press">Volver al Inicio</button>
+                    <button type="button" onclick="cerrarKioskoYVolver()" class="text-zinc-500 hover:text-white transition-colors text-[10px] font-bold uppercase mt-6 block mx-auto text-center p-2 btn-press border border-zinc-800 rounded-xl px-4 hover:bg-zinc-900">Volver al Login (PIN)</button>
                 </div>
             </div>
 
@@ -6333,6 +6333,21 @@ function calcularPrecioIA(precioBase, idLocal) {
             
             showScreen('view-kiosko');
         }
+      // 🚪 PUERTA DE ESCAPE DEL KIOSKO PARA EL ADMINISTRADOR
+        function cerrarKioskoYVolver() {
+            Swal.fire({ title: 'Saliendo...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
+            // Borramos de la URL el modo Kiosko
+            let rutaLimpia = window.location.href.split('?')[0];
+            window.history.replaceState({}, document.title, rutaLimpia);
+            
+            // Forzamos el cierre de sesión y recargamos la página limpia
+            if (typeof actionLogout === 'function') actionLogout();
+            setTimeout(() => { window.location.reload(true); }, 500);
+        }
+
+
+
+
 
         function volverAInicioKiosko() { 
             // 1. Limpiamos los textos
@@ -11446,7 +11461,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.115"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.116"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
