@@ -11459,7 +11459,7 @@ function abrirOnboardingManual() {
 
 // 🔥 ACTUALIZACIÓN FORZADA (REPARACIÓN DE CACHÉ Y SYNC)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.110"; // 👈 Subimos versión a 1.92 para obligar a los celulares a actualizar
+            const VERSION_ACTUAL = "1.111"; // 👈 Subimos versión a 1.92 para obligar a los celulares a actualizar
             
             // 🏷️ INYECTAR VERSIÓN EN LA PANTALLA
             const vLogin = document.getElementById('display-version-login');
@@ -11520,6 +11520,16 @@ function abrirOnboardingManual() {
             arrancarZeus();
             document.addEventListener('DOMContentLoaded', arrancarZeus);
             window.addEventListener('load', arrancarZeus);
+        }
+     // ==========================================
+        // 🚀 MOTOR DE ARRANQUE PWA (ANDROID, IOS, WEB)
+        // ==========================================
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('✅ Agente Silencioso (SW) Instalado en:', reg.scope))
+                    .catch(err => console.error('❌ Error instalando el Agente:', err));
+            });
         }
 
     </script>
