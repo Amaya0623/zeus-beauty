@@ -6394,20 +6394,27 @@ function calcularPrecioIA(precioBase, idLocal) {
         }
 
         function volverAInicioKiosko() { 
+            // 1. Limpiamos los textos
             document.getElementById('kio-nombre').value = ""; 
             document.getElementById('kio-celular').value = ""; 
             document.getElementById('kio-barbero').value = ""; 
+            
+            // 👻 2. PARCHE ANTI-FANTASMAS: Obligamos al sistema a apagar el letrero VIP
+            if(typeof verificarClienteKiosko === 'function') verificarClienteKiosko();
+
+            // 3. Vaciamos el carrito
             tempServicios = []; 
-            renderServiciosTempKiosko(); 
-            renderKioskoSlots(); 
+            if(typeof renderServiciosTempKiosko === 'function') renderServiciosTempKiosko(); 
+            if(typeof renderKioskoSlots === 'function') renderKioskoSlots(); 
             window.scrollTo(0, 0); 
             
-            // 🔥 REPARACIÓN: Si vino desde la caja, vuelve a la caja
-            if (vinoDesdeCaja) {
+            // 🚀 4. REPARACIÓN DE PANTALLA: Lo dejamos en el Kiosko SIEMPRE
+            if (typeof vinoDesdeCaja !== 'undefined' && vinoDesdeCaja) {
                 vinoDesdeCaja = false;
                 showScreen('view-caja');
             } else {
-                showScreen('view-login'); 
+                // ¡Aquí estaba el error! Antes decía 'view-login'. Ahora se queda en el Kiosko.
+                showScreen('view-kiosko'); 
             }
         }
 
@@ -9901,9 +9908,9 @@ function escucharResumenFranquicia() {
 
 
         // =======================================================
-        // 🛠️ MOTOR DE MANTENIMIENTO DINÁMICO (MASTER CONTROL)
+        // 🛠️ MOTOR DE MANTENIMIENTO DINÁMICO (CIRUGÍA SEGURA)
         // =======================================================
-        function saGuardarAlerta() {
+        async function saGuardarAlerta() {
             const msg = document.getElementById('sa-alerta-msg').value.trim();
             const block = document.getElementById('sa-alerta-block').checked;
 
@@ -9913,25 +9920,31 @@ function escucharResumenFranquicia() {
 
             Swal.fire({ title: 'Enviando a la Nube...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
 
-            let promesas = [];
-            db.barberias.forEach(b => {
-                b.alertaMsg = msg;
-                b.alertaBlock = block;
-                b.data_version = Date.now(); 
-                if (navigator.onLine && b.id_nube) {
-                    promesas.push(supabaseClient.from('stores').update({ json_data: b }).eq('id', b.id_nube));
+            try {
+                if (navigator.onLine && typeof supabaseClient !== 'undefined') {
+                    // 🚀 CIRUGÍA: Descargamos datos frescos, cambiamos solo el bloqueo y subimos sin romper nada
+                    for (let i = 0; i < db.barberias.length; i++) {
+                        let b = db.barberias[i];
+                        if (b.id_nube) {
+                            const { data } = await supabaseClient.from('stores').select('json_data').eq('id', b.id_nube).single();
+                            if (data && data.json_data) {
+                                let nData = data.json_data;
+                                nData.alertaMsg = msg;
+                                nData.alertaBlock = block;
+                                nData.data_version = Date.now();
+                                await supabaseClient.from('stores').update({ json_data: nData }).eq('id', b.id_nube);
+                            }
+                        }
+                        b.alertaMsg = msg;
+                        b.alertaBlock = block;
+                    }
                 }
-            });
-
-            saveDB(false);
-            verificarAlertasGlobales(); 
-            
-            // Espera a que termine de guardar en la nube para confirmar
-            Promise.all(promesas).then(() => {
-                Swal.fire({ title: block ? '¡Bloqueo Activado!' : '¡Sistema Desbloqueado!', text: 'Todos los dispositivos han recibido la orden.', icon: 'success', background: '#0a0a0a', color: '#fff', timer: 2500 });
-            }).catch(() => {
-                Swal.fire({ title: 'Aviso', text: 'Se guardó en este equipo, pero la red está lenta.', icon: 'warning', background: '#0a0a0a', color: '#fff', timer: 2500 });
-            });
+                saveDB(false);
+                verificarAlertasGlobales(); 
+                Swal.fire({ title: block ? '¡Bloqueo Activado!' : '¡Sistema Desbloqueado!', text: 'La nube ha sido actualizada correctamente.', icon: 'success', background: '#0a0a0a', color: '#fff', timer: 2500 });
+            } catch (error) {
+                Swal.fire({ title: 'Error de Red', text: 'Supabase no respondió.', icon: 'error', background: '#0a0a0a', color: '#fff' });
+            }
         }
 
         function verificarAlertasGlobales() {
@@ -9993,29 +10006,41 @@ function escucharResumenFranquicia() {
             }
         }
 
-        // 🚀 NUEVO MOTOR DE DESBLOQUEO (Pregunta directo a Supabase)
+        // 🚀 NUEVO MOTOR DE DESBLOQUEO (EXTIRPA FANTASMAS DE LA NUBE)
         async function verificarDesbloqueoMantenimiento(btn) {
-            if (!navigator.onLine) { return Swal.fire('Sin Internet', 'Conéctate para verificar si el sistema ya está disponible.', 'warning'); }
-            const oldText = btn.innerText;
-            btn.innerText = "VERIFICANDO...";
+            btn.innerText = "DESTRUYENDO BLOQUEO...";
             try {
-                let idx = (bIdx !== -1) ? bIdx : (kiosko_bIdx !== -1 ? kiosko_bIdx : 0);
-                if (db.barberias.length === 0) { window.location.reload(); return; }
-                const localId = db.barberias[idx].id_nube || db.barberias[idx].id;
+                // 1. Borramos el bloqueo de la memoria local
+                db.barberias.forEach(b => { b.alertaBlock = false; b.alertaMsg = ""; });
+                if (db.masterConfig) { db.masterConfig.alertaBlock = false; db.masterConfig.alertaMsg = ""; }
+                saveDB(false);
 
-                let { data, error } = await supabaseClient.from('stores').select('json_data').eq('id', localId).single();
-                if (!error && data && data.json_data) {
-                    if (!data.json_data.alertaBlock) {
-                        // ¡El Master quitó el bloqueo! Desbloqueamos el equipo localmente.
-                        db.barberias.forEach(b => { b.alertaBlock = false; b.alertaMsg = ""; });
-                        saveDB(false);
-                        window.location.reload();
-                    } else {
-                        btn.innerText = "AÚN EN MANTENIMIENTO";
-                        setTimeout(() => btn.innerText = oldText, 2000);
+                // 2. Extirpamos el fantasma de Supabase con bisturí
+                if (navigator.onLine && typeof supabaseClient !== 'undefined') {
+                    for (let i = 0; i < db.barberias.length; i++) {
+                        let b = db.barberias[i];
+                        if (b.id_nube) {
+                            const { data } = await supabaseClient.from('stores').select('json_data').eq('id', b.id_nube).single();
+                            if (data && data.json_data && data.json_data.alertaBlock) {
+                                let nData = data.json_data;
+                                nData.alertaBlock = false;
+                                nData.alertaMsg = "";
+                                await supabaseClient.from('stores').update({ json_data: nData }).eq('id', b.id_nube);
+                            }
+                        }
                     }
-                } else { window.location.reload(); }
-            } catch (e) { window.location.reload(); }
+                }
+
+                // 3. Limpieza de caché estricta para liberar el celular
+                if ('caches' in window) {
+                    const keys = await caches.keys();
+                    for (let key of keys) await caches.delete(key);
+                }
+
+                window.location.reload(true);
+            } catch (e) { 
+                window.location.reload(true); 
+            }
         }
 
         
@@ -11459,7 +11484,7 @@ function abrirOnboardingManual() {
 
 // 🔥 ACTUALIZACIÓN FORZADA (REPARACIÓN DE CACHÉ Y SYNC)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.111"; // 👈 Subimos versión a 1.92 para obligar a los celulares a actualizar
+            const VERSION_ACTUAL = "1.113"; // 👈 Subimos versión a 1.92 para obligar a los celulares a actualizar
             
             // 🏷️ INYECTAR VERSIÓN EN LA PANTALLA
             const vLogin = document.getElementById('display-version-login');
