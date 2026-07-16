@@ -1597,9 +1597,17 @@
                                     <p class="text-[11px] font-black text-red-500 uppercase tracking-widest flex items-center gap-2"><span class="text-xl animate-pulse">🔔</span> Alertas en Vivo (Admin)</p>
                                     <p class="text-[8px] text-zinc-400 font-bold uppercase mt-1">Recibe notificaciones en este celular cuando alguien agende.</p>
                                 </div>
-                                <button type="button" onclick="activarNotificacionesPush()" class="w-full bg-red-600 hover:bg-red-500 text-white py-4 rounded-xl font-black uppercase text-[10px] tracking-widest btn-press shadow-lg shadow-red-600/20 transition-all flex items-center justify-center gap-2">
-                                    <span>📲 ACTIVAR EN ESTE DISPOSITIVO</span>
-                                </button>
+
+                                <div class="flex gap-2">
+                                    <button type="button" onclick="activarNotificacionesPush()" class="flex-1 bg-red-600 hover:bg-red-500 text-white py-4 rounded-xl font-black uppercase text-[10px] tracking-widest btn-press shadow-lg shadow-red-600/20 transition-all">
+                                        📲 ACTIVAR
+                                    </button>
+                                    <button type="button" onclick="desactivarNotificacionesPush()" class="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 py-4 rounded-xl font-black uppercase text-[10px] tracking-widest btn-press transition-all border border-zinc-700">
+                                        🔕 DESACTIVAR
+                                    </button>
+                                </div>
+
+
                                 <p id="push-status-txt" class="text-[8px] text-zinc-500 uppercase mt-3 font-bold leading-tight text-center">Estado: Esperando activación...</p>
                             </div>
 
@@ -6160,7 +6168,7 @@ function calcularPrecioIA(precioBase, idLocal) {
 
             b.citas.push({ id: idCitaNueva, nombre: cli, celular: cel, barbero: barb, servicio: srv, fecha: f, hora: h, estado: 'PENDIENTE', comprobante: comprobanteValor, duracion: totalMinsCarrito });
             
-            // ⚡ PUENTE SQL: DISPARO A SUPABASE DESDE EL KIOSKO
+           // ⚡ PUENTE SQL: DISPARO A SUPABASE DESDE EL KIOSKO
             if (isOnline && typeof supabaseClient !== 'undefined' && b.id_nube) {
                 supabaseClient.from('appointments').insert([{
                     store_id: b.id_nube,
@@ -6173,17 +6181,24 @@ function calcularPrecioIA(precioBase, idLocal) {
                     status: 'PENDIENTE',
                     duration: totalMinsCarrito,
                     receipt_url: comprobanteValor
-                }]).then(({error}) => {
+                }]).then(async ({error}) => {
                     if(error) console.error("❌ Error guardando cita de kiosko en SQL:", error);
                     
-                    // 🔔 GATILLO PUSH: Dispara la notificación al celular del Admin
-                    if (!error && b.pushSubscription) {
-                        supabaseClient.functions.invoke('enviar-push', {
-                            body: { subscription: b.pushSubscription, title: '📅 ¡Nueva Cita Kiosko!', body: `${cli} agendó con ${barb} a las ${formatTime12h(h)}.` }
-                        });
+                    // 🔔 GATILLO PUSH: Dispara la notificación
+                    if (!error) {
+                        // 🕵️‍♂️ Rescatamos la antena directamente de la nube para burlar la caché
+                        const { data: storeData } = await supabaseClient.from('stores').select('json_data').eq('id', b.id_nube).single();
+                        const subReal = (storeData && storeData.json_data) ? storeData.json_data.pushSubscription : b.pushSubscription;
+                        
+                        if (subReal) {
+                            supabaseClient.functions.invoke('enviar-push', {
+                                body: { subscription: subReal, title: '📅 ¡Nueva Cita Kiosko!', body: `${cli} agendó con ${barb} a las ${formatTime12h(h)}.` }
+                            }).then(res => console.log("Señal Push disparada:", res));
+                        }
                     }
                 });
             }
+
             saveDB(true);
 
             if (cel && cel.length >= 10) { localStorage.setItem('mi_celular_zeus', cel); }
@@ -6254,14 +6269,19 @@ function calcularPrecioIA(precioBase, idLocal) {
                     status: 'PENDIENTE',
                     duration: totalMinsCarrito,
                     receipt_url: 'PAGO_EN_PROCESO_WOMPI'
-                }]).then(({error}) => {
+                }]).then(async ({error}) => {
                     if(error) console.error("❌ Error guardando cita Wompi en SQL:", error);
                     
                     // 🔔 GATILLO PUSH: Dispara la notificación
-                    if (!error && b.pushSubscription) {
-                        supabaseClient.functions.invoke('enviar-push', {
-                            body: { subscription: b.pushSubscription, title: '⏳ Cita en Pago', body: `${cli} está pagando su cita con ${barb} en Wompi...` }
-                        });
+                    if (!error) {
+                        const { data: storeData } = await supabaseClient.from('stores').select('json_data').eq('id', b.id_nube).single();
+                        const subReal = (storeData && storeData.json_data) ? storeData.json_data.pushSubscription : b.pushSubscription;
+
+                        if (subReal) {
+                            supabaseClient.functions.invoke('enviar-push', {
+                                body: { subscription: subReal, title: '⏳ Cita en Pago', body: `${cli} está pagando su cita con ${barb} en Wompi...` }
+                            });
+                        }
                     }
                 });
             }
@@ -7105,6 +7125,49 @@ function calcularPrecioIA(precioBase, idLocal) {
                 console.error("Error activando Push: ", err);
                 statusTxt.innerText = "❌ Hubo un error de conexión.";
                 Swal.fire('Error Técnico', 'No pudimos vincular este dispositivo. Asegúrate de tener internet.', 'error');
+            }
+        }
+
+
+async function desactivarNotificacionesPush() {
+            const statusTxt = document.getElementById('push-status-txt');
+            
+            Swal.fire({ title: 'Apagando Antena...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
+
+            try {
+                // 1. Apagamos el agente silencioso en el navegador
+                if ('serviceWorker' in navigator) {
+                    const register = await navigator.serviceWorker.ready;
+                    const subscription = await register.pushManager.getSubscription();
+                    if (subscription) {
+                        await subscription.unsubscribe();
+                    }
+                }
+
+                // 2. Borramos la llave de la Base de Datos (Supabase)
+                const b = db.barberias[bIdx];
+                b.pushSubscription = null;
+                saveDB(true);
+
+                if (isOnline && typeof supabaseClient !== 'undefined' && b.id_nube) {
+                    await supabaseClient.from('stores').update({ json_data: b }).eq('id', b.id_nube);
+                }
+
+                statusTxt.innerText = "🔕 Alertas Desactivadas.";
+                if (statusTxt.classList.contains('text-green-500')) {
+                    statusTxt.classList.replace('text-green-500', 'text-zinc-500');
+                }
+                
+                Swal.fire({
+                    title: '¡Desactivado!',
+                    text: 'Ya no recibirás alertas de nuevas citas en este dispositivo.',
+                    icon: 'success',
+                    background: '#0a0a0a', color: '#fff'
+                });
+
+            } catch (err) {
+                console.error("Error desactivando Push: ", err);
+                Swal.fire('Error Técnico', 'No pudimos desactivarlo automáticamente. Ve a los ajustes de tu navegador y bloquea las notificaciones de esta página.', 'error');
             }
         }
 
@@ -11396,7 +11459,7 @@ function abrirOnboardingManual() {
 
 // 🔥 ACTUALIZACIÓN FORZADA (REPARACIÓN DE CACHÉ Y SYNC)
         function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.109"; // 👈 Subimos versión a 1.92 para obligar a los celulares a actualizar
+            const VERSION_ACTUAL = "1.110"; // 👈 Subimos versión a 1.92 para obligar a los celulares a actualizar
             
             // 🏷️ INYECTAR VERSIÓN EN LA PANTALLA
             const vLogin = document.getElementById('display-version-login');
