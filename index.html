@@ -3208,20 +3208,27 @@ const clavesTransaccionales = ['clientes', 'ventas', 'gastos', 'tickets', 'asist
             } else { showScreen('view-login'); }
         }
 
+
+
+
+
+
+
+
         async function actionLogin() {
+            if(!db) initDB();
             const pinInput = document.getElementById('login-pin'); 
             const pin = cleanNum(pinInput.value); 
-            if (!pin) return;
+            if (!pin) { Swal.fire({ title: "PIN VACÍO", text: "Por favor ingresa tu código de acceso.", icon: "info", background: "#000", color: "#fff" }); return; }
             
             Swal.fire({ title: 'Autenticando...', text: 'Verificando credenciales seguras...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() }, background: '#0a0a0a', color: '#fff' });
 
             if (isLocalStorageBlocked) { Swal.fire({ title: "Modo Protegido", text: "Abre la aplicación desde un servidor web.", icon: "error", background: "#0a0a0a", color: "#fff", confirmButtonText: "Entendido" }); pinInput.value = ""; return; }
             if (db.superPIN && pin === db.superPIN) { Swal.close(); bIdx = -1; session = { rol: 'superadmin' }; saveSession(); showScreen('view-superadmin'); pinInput.value = ""; return; }
 
-            // 🔐 CRIPTOGRAFÍA: Generamos el Hash del PIN que acaba de escribir el usuario
+            // 🔐 CRIPTOGRAFÍA: Generamos el Hash del PIN para comparar de forma segura
             const pinHashed = await hashPIN(pin);
 
-            // 🧠 MIGRACIÓN SILENCIOSA: Comparamos contra el PIN viejo (texto plano) y el nuevo (Hashed)
             let localIdx = db.barberias.findIndex(x => x.pinAdmin === pin || x.pinAdmin === pinHashed);
             let isBarbero = false; let barberoName = ""; 
             let isCajero = false; let cajeroData = null;
@@ -3236,26 +3243,26 @@ const clavesTransaccionales = ['clientes', 'ventas', 'gastos', 'tickets', 'asist
                 }
             }
 
-            // Si hay internet, validamos en la base de datos central...
-            if (isOnline) {
+            // Validamos en la base de datos central en la nube si hay internet
+            if (isOnline && typeof supabaseClient !== 'undefined') {
                 try {
-                    const timeoutPromiseAuth = new Promise((_, r) => setTimeout(() => r(new Error("TimeoutAuth")), 10000)); // Bajamos a 10s para que no se quede pegado
-                    let { data: stores } = await Promise.race([supabaseClient.from('stores').select('*').eq('owner_pin', pin).limit(1), timeoutPromiseAuth]);
+                    const timeoutPromiseAuth = new Promise((_, r) => setTimeout(() => r(new Error("TimeoutAuth")), 6000));
+                    let { data: stores } = await Promise.race([supabaseClient.from('stores').select('*').eq('owner_pin', pinHashed).limit(1), timeoutPromiseAuth]);
                     let store = (stores && stores.length > 0) ? stores[0] : null;
                     
                     if (!store) {
-                        const { data: stBarbero } = await Promise.race([supabaseClient.from('stores').select('*').contains('json_data', { barberos: [{ pin: pin }] }).limit(1), timeoutPromiseAuth]);
+                        const { data: stBarbero } = await Promise.race([supabaseClient.from('stores').select('*').contains('json_data', { barberos: [{ pin: pinHashed }] }).limit(1), timeoutPromiseAuth]);
                         if (stBarbero && stBarbero.length > 0) { 
                             store = stBarbero[0]; isBarbero = true; 
-                            let bs = store.json_data.barberos.find(x => x.pin === pin); barberoName = bs ? bs.nom : "Barbero"; 
+                            let bs = store.json_data.barberos.find(x => x.pin === pinHashed || x.pin === pin); barberoName = bs ? bs.nom : "Barbero"; 
                         }
                     }
 
                     if (!store) {
-                        const { data: stCajero } = await Promise.race([supabaseClient.from('stores').select('*').contains('json_data', { cajeros: [{ pin: pin }] }).limit(1), timeoutPromiseAuth]);
+                        const { data: stCajero } = await Promise.race([supabaseClient.from('stores').select('*').contains('json_data', { cajeros: [{ pin: pinHashed }] }).limit(1), timeoutPromiseAuth]);
                         if (stCajero && stCajero.length > 0) { 
                             store = stCajero[0]; isCajero = true; 
-                            let cs = store.json_data.cajeros.find(x => x.pin === pin); cajeroData = cs; 
+                            let cs = store.json_data.cajeros.find(x => x.pin === pinHashed || x.pin === pin); cajeroData = cs; 
                         }
                     }
 
@@ -3272,126 +3279,60 @@ const clavesTransaccionales = ['clientes', 'ventas', 'gastos', 'tickets', 'asist
                             db.barberias[localIdx].alertaMsg = bData.alertaMsg;
                             db.barberias[localIdx].alertaBlock = bData.alertaBlock;
                         }
-                        if(typeof saveDB === 'function') saveDB(false); 
+                        saveDB(false); 
                     }
-                } catch(e) {
-                    console.log("Internet lento. Usando datos guardados en el celular.");
-                }
+                } catch(e) { console.log("Usando paracaídas local por lentitud de red."); }
             }
 
             if (localIdx > -1) {
                 const bVerif = db.barberias[localIdx]; 
                 const diffDays = Math.floor((Date.now() - (bVerif.creadoEn || Date.now())) / (1000 * 60 * 60 * 24));
                 
-                if ((bVerif.lastActiveClock && Date.now() < bVerif.lastActiveClock) || (bVerif.diasSuscripcion || 15) - diffDays < 0 || bVerif.bloqueado || bVerif.alertaBlock) { 
+                if (bVerif.bloqueado || ((bVerif.diasSuscripcion || 15) - diffDays < 0) || bVerif.alertaBlock) { 
                     Swal.close(); 
-                    document.getElementById('pantalla-bloqueo').classList.remove('hidden'); 
-                    document.getElementById('app-content').classList.add('hidden'); 
-                    
-                    if (bVerif.alertaBlock) {
-                        document.getElementById('pantalla-bloqueo').innerHTML = `
-                        <div class="glass p-8 sm:p-10 rounded-[3rem] border border-orange-500/30 shadow-[0_0_40px_rgba(249,115,22,0.2)] max-w-md w-full relative overflow-hidden">
-                            <span class="text-7xl mb-4 block animate-bounce drop-shadow-[0_0_15px_rgba(249,115,22,0.8)]">🚀</span>
-                            <h1 class="text-3xl font-black text-orange-500 mb-1 uppercase italic tracking-tighter">ACTUALIZANDO</h1>
-                            <p class="text-[10px] font-black text-yellow-500 uppercase tracking-[0.3em] mb-6">Mejorando tu experiencia</p>
-                            <div class="bg-orange-900/20 border border-orange-500/30 p-5 rounded-2xl mb-6 shadow-inner">
-                                <p class="text-white text-sm sm:text-base font-bold leading-relaxed">"${bVerif.alertaMsg || 'Instalando nuevas mejoras...'}"</p>
-                            </div>
-                            <p class="text-[9px] text-zinc-500 uppercase tracking-widest mb-6 border-t border-zinc-800 pt-4">El Kiosko público sigue funcionando normal para tus clientes.</p>
-                            <button type="button" onclick="verificarDesbloqueoMantenimiento(this)" class="w-full bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-black py-4 rounded-2xl font-black uppercase tracking-widest btn-press transition-all shadow-[0_0_20px_rgba(249,115,22,0.4)]">INTENTAR DE NUEVO</button>
-                        </div>`;
-                    }
+                    verificarAlertasGlobales(); // Ejecuta la pantalla de bloqueo dinámico si aplica
                     pinInput.value = ""; return; 
                 }
                 
                 bIdx = localIdx; 
                 
-                // 👑 ASIGNAMOS EL ROL CORRECTO
                 if (isCajero) {
                     session = { rol: 'cajero', nom: cajeroData.nom, ciego: cajeroData.cierreCiego };
                 } else {
                     session = { rol: isBarbero ? 'barbero' : 'admin', nom: barberoName };
                 }
                 
-               // 👑 ASISTENCIA Y MULTAS: TANTO PARA BARBEROS COMO CAJEROS
+                // Registro de asistencia unificado
                 if (isBarbero || isCajero) { 
                     const b = db.barberias[bIdx]; 
                     if (!b.asistencia) b.asistencia = {}; 
                     const hoy = getTodayYMD(); 
-                    if (!b.asistencia[hoy]) b.asistencia[hoy] = {}; 
-                    
                     const empName = isBarbero ? barberoName : cajeroData.nom;
-                    const empData = isBarbero ? (b.barberos || []).find(x => x.nom === empName) : cajeroData;
 
+                    if (!b.asistencia[hoy]) b.asistencia[hoy] = {}; 
                     if (!b.asistencia[hoy][empName] || !b.asistencia[hoy][empName].ingreso) { 
-                        const now = new Date();
-                        const horaIngreso = now.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
-                        b.asistencia[hoy][empName] = { ingreso: horaIngreso, salida: "--" }; 
-                        
-                        // ⚡ PUENTE SQL: REGISTRO DE ENTRADA A SUPABASE
-                        if (isOnline && typeof supabaseClient !== 'undefined' && b.id_nube) {
-                            supabaseClient.from('attendance').upsert([{
-                                store_id: b.id_nube,
-                                worker_name: empName,
-                                work_date: hoy,
-                                check_in: horaIngreso
-                            }], { onConflict: 'store_id, worker_name, work_date' }).then();
-                        }
-
-                        if (b.configMultas && b.configMultas.activo && b.configMultas.valor > 0) {
-                            if (empData && empData.horaInicio) {
-                                const minIngreso = now.getHours() * 60 + now.getMinutes();
-                                const minEsperado = timeToMins(empData.horaInicio);
-                                const tol = parseInt(b.configMultas.tolerancia) || 15;
-                                if (minIngreso > (minEsperado + tol)) {
-                                    if (!b.multas) b.multas = [];
-                                    b.multas.push({ id: Date.now().toString(), barbero: empName, fecha: hoy, valor: b.configMultas.valor });
-                                    setTimeout(() => { Swal.fire({ title: '¡Llegada Tarde! ⏰', html: `<p class="text-xs text-zinc-300">Tu turno iniciaba a las <b>${formatTime12h(empData.horaInicio)}</b>.<br>Multa aplicada de <b class="text-red-500">${fMoney(b.configMultas.valor)}</b>.</p>`, icon: 'warning', background: '#111', color: '#fff', confirmButtonColor: '#dc2626' }); }, 2000);
-                                }
-                            }
-                        }
+                        b.asistencia[hoy][empName] = { ingreso: new Date().toLocaleTimeString('es-CO', {hour: '2-digit', minute:'2-digit'}), salida: "--" }; 
+                        saveDB(); 
                     } 
                 }
                 
-                if(typeof saveDB === 'function') saveDB(false); 
-                if(typeof saveSession === 'function') saveSession(); 
+                saveDB(false); 
+                saveSession(); 
                 pinInput.value = ""; Swal.close(); 
                 
-                // 🚪 PUERTAS DE REDIRECCIÓN
                 if (session.rol === 'admin') {
                     if (bVerif.franquiciaActiva) { showScreen('view-franquicia'); renderFranquiciaMaster(); } 
                     else { showScreen('view-admin'); }
                 } else if (session.rol === 'cajero') {
-                    showScreen('view-caja'); // 👑 LA NUEVA PUERTA DE SMART CASH
+                    showScreen('view-caja');
                 } else {
                     showScreen('view-barbero');
                 } 
                 
-                if(typeof forzarSincronizacionNube === 'function') forzarSincronizacionNube(true); 
+                forzarSincronizacionNube(true); 
                 return;
             } else {
-                // 🚀 ESTA ES LA PARTE NUEVA: MENSAJES CLAROS Y BOTÓN DE "INTENTAR DE NUEVO"
-                if (!isOnline) {
-                    Swal.fire({ 
-                        title: "Dispositivo No Sincronizado 📵", 
-                        html: '<p class="text-sm text-zinc-300">El sistema <b>Zeus Offline</b> está activo, pero este celular aún no ha memorizado tu PIN.</p><p class="text-[10px] text-yellow-500 mt-4 uppercase font-bold tracking-widest">¿QUÉ HACER?</p><p class="text-xs text-zinc-400 mt-1">Conéctate a internet por un segundo e ingresa tu PIN. Una vez lo reconozca, podrás seguir usándolo sin internet para siempre.</p>', 
-                        icon: "info", 
-                        background: "#0a0a0a", 
-                        color: "#fff", 
-                        confirmButtonColor: '#eab308',
-                        confirmButtonText: "Entendido 🔄"
-                    }); 
-                } else {
-                    Swal.fire({ 
-                        title: "PIN Incorrecto ❌", 
-                        text: "El PIN ingresado no existe en el sistema.", 
-                        icon: "error", 
-                        background: "#0a0a0a", 
-                        color: "#fff", 
-                        confirmButtonColor: '#dc2626',
-                        confirmButtonText: "Intentar de Nuevo 🔄"
-                    }); 
-                }
+                Swal.fire({ title: "PIN INCORRECTO", text: "Verifica tus credenciales de acceso.", icon: "error", background: "#000", color: "#fff" });
                 pinInput.value = ""; 
             }
         }
@@ -7610,13 +7551,21 @@ async function desactivarNotificacionesPush() {
 
 
         // --- BOTÓN DE GUARDAR INDESTRUCTIBLE ---
-        function actionGuardarYSalir() {
+       function actionGuardarYSalir() {
             if(bIdx === -1) return;
             const b = db.barberias[bIdx];
             
             const getVal = (id) => document.getElementById(id) ? document.getElementById(id).value.trim() : "";
             const getChk = (id) => document.getElementById(id) ? document.getElementById(id).checked : false;
 
+            // 🔒 SEGURIDAD: Validación y actualización del PIN Admin si se cambia
+            const newPin = cleanNum(getVal('cfg-admin-pin'));
+            if(newPin.length > 0) { 
+                if(esPinInseguro(newPin)) { Swal.fire('PIN Inseguro', 'El PIN de Admin debe tener 4 dígitos.', 'warning'); return; }
+                b.pinAdmin = newPin; 
+            } 
+
+            // Datos Básicos
             b.nombre = getVal('cfg-nombre').toUpperCase() || b.nombre;
             b.slogan = getVal('cfg-slogan');
             b.nit = getVal('cfg-nit');
@@ -7631,12 +7580,13 @@ async function desactivarNotificacionesPush() {
             b.horaCierre = getVal('cfg-cierre') || "20:00";
             b.intervaloCitas = parseInt(cleanNum(getVal('cfg-intervalo'))) || 60;
 
+            // Redes Sociales
             if(!b.socials) b.socials = {};
             b.socials.ig = getVal('cfg-social-ig');
             b.socials.tk = getVal('cfg-social-tk');
             b.socials.fb = getVal('cfg-social-fb');
 
-            // 🚀 REPARACIÓN: GUARDADO MAESTRO DE TEXTOS DE TV
+            // Textos Smart TV
             if(!b.tvData) b.tvData = {};
             b.tvData.youtubeId = getVal('cfg-tv-youtube');
             b.tvData.subtitulo = getVal('cfg-tv-subtitulo');
@@ -7645,17 +7595,21 @@ async function desactivarNotificacionesPush() {
             b.tvData.promoPrice = getVal('cfg-tv-promo-price');
             b.tvData.promoDesc = getVal('cfg-tv-promo-desc');
 
+            // Abonos y Pasarelas de Pago
             b.pagoAnticipadoActivo = getChk('cfg-pago-anticipado-activo');
             b.valorAnticipo = parseInt(cleanNum(getVal('cfg-pago-anticipado-valor'))) || 0;
+            
             if(!b.configIVA) b.configIVA = {};
             b.configIVA.activo = getChk('cfg-iva-activo');
             b.configIVA.porcentaje = parseInt(cleanNum(getVal('cfg-iva-pct'))) || 0;
+            
             b.wompiActivo = getChk('cfg-wompi-activo');
             b.wompiPub = getVal('cfg-wompi-pub');
             b.titularCuenta = getVal('cfg-titular');
             b.numeroCuenta = getVal('cfg-cuenta');
-            b.bancoTipo = getVal('cfg-banco-tipo'); // GUARDAR BANCO
+            b.bancoTipo = getVal('cfg-banco-tipo');
 
+            // Alertas y Mensajes de WhatsApp
             b.whatsapp = cleanNum(getVal('cfg-whatsapp'));
             b.alertasActivas = getChk('cfg-alertas');
             b.wpTemplate = getVal('cfg-wp-template');
@@ -7663,18 +7617,20 @@ async function desactivarNotificacionesPush() {
             b.msgDespedida = getVal('cfg-msg-despedida');
             b.linkGoogle = getVal('cfg-link-google');
 
+            // Módulo de Cumpleaños
             if(!b.cumple) b.cumple = {};
             b.cumple.activo = getChk('cfg-cumple-activo');
             b.cumple.desc = getVal('cfg-cumple-desc');
             b.cumple.msg = getVal('cfg-cumple-msg');
 
+            // Módulo de Marketing ISI IA
             if(!b.configMkt) b.configMkt = {};
             b.configMkt.activo = getChk('cfg-mkt-activo');
             b.configMkt.dias = parseInt(cleanNum(getVal('cfg-mkt-dias'))) || 30;
             b.configMkt.desc = getVal('cfg-mkt-desc');
             b.configMkt.msg = getVal('cfg-mkt-msg');
 
-            // 👑 GUARDAR CLUB VIP Y REFERIDOS
+            // Club VIP, Planes Zeus Pass y Referidos
             if(!b.vipClub) b.vipClub = {};
             b.vipClub.passActivo = getChk('cfg-pass-activo');
             b.vipClub.plan1Nom = getVal('cfg-pass-plan1-nom');
@@ -7687,41 +7643,47 @@ async function desactivarNotificacionesPush() {
             b.vipClub.refDesc = parseInt(cleanNum(getVal('cfg-ref-desc'))) || 15;
             b.vipClub.refPremio = getVal('cfg-ref-premio');
            
-           // 💳 GUARDAR TARJETA VIP (Pon esto junto a donde guardas vipClub)
+            // Tarjeta Física de Fidelización por Sello
             if(!b.vipCard) b.vipCard = {};
             b.vipCard.activo = getChk('cfg-tarjeta-vip-activa');
             b.vipCard.meta = parseInt(cleanNum(getVal('cfg-vip-meta'))) || 10;
             b.vipCard.premio = getVal('cfg-vip-premio');
             b.vipCard.diasValidez = parseInt(cleanNum(getVal('cfg-vip-dias'))) || 30;
-            // 📍 GUARDADO DEL GPS EN LA BASE DE DATOS (Auto o Manual)
+            
+            // Ubicación Satelital GPS
             let mLat = parseFloat(getVal('cfg-lat'));
             let mLon = parseFloat(getVal('cfg-lon'));
             if (!isNaN(mLat) && !isNaN(mLon)) {
                 b.lat = mLat;
                 b.lon = mLon;
-            } else if (tempLat && tempLon) {
+            } else if (typeof tempLat !== 'undefined' && tempLat && typeof tempLon !== 'undefined' && tempLon) {
                 b.lat = tempLat;
                 b.lon = tempLon;
             }  
 
-            // ⚖️ GUARDAR MULTAS
+            // Control de Multas por Retraso
             if(!b.configMultas) b.configMultas = {};
             b.configMultas.activo = getChk('cfg-multas-activo');
             b.configMultas.valor = parseInt(cleanNum(getVal('cfg-multas-valor'))) || 0;
             b.configMultas.tolerancia = parseInt(cleanNum(getVal('cfg-multas-tols'))) || 15;
 
-            // 🚫 GUARDAR NO-SHOW Y TARIFA DINÁMICA
-           if(!b.configNoShow) b.configNoShow = {};
-           b.configNoShow.activo = getChk('cfg-noshow-activo');
-           b.configNoShow.pct = parseInt(cleanNum(getVal('cfg-noshow-pct'))) || 50;
+            // Políticas No-Show y Precios Dinámicos IA
+            if(!b.configNoShow) b.configNoShow = {};
+            b.configNoShow.activo = getChk('cfg-noshow-activo');
+            b.configNoShow.pct = parseInt(cleanNum(getVal('cfg-noshow-pct'))) || 50;
 
-           if(!b.configDinamico) b.configDinamico = {};
-           b.configDinamico.activo = getChk('cfg-dinamico-activo');
-           
+            if(!b.configDinamico) b.configDinamico = {};
+            b.configDinamico.activo = getChk('cfg-dinamico-activo');
 
+            // Retención de imágenes temporales si existen
+            if(typeof logoTemp !== 'undefined' && logoTemp) b.logo = logoTemp; 
+            if(typeof qrImageTemp !== 'undefined' && qrImageTemp) b.qrImage = qrImageTemp; 
+
+            // Guardado y sincronización con Supabase
             saveDB(true);
+            renderConfig();
             showScreen('view-admin'); 
-            Swal.fire({ title: '¡Guardado Éxitoso!', icon: 'success', timer: 1500, background: '#050505', color: '#fff', showConfirmButton: false });
+            Swal.fire({ title: '¡Guardado Exitoso!', icon: 'success', timer: 1500, background: '#050505', color: '#fff', showConfirmButton: false });
         }
 
          // --- RECUPERAR BARBEROS Y SERVICIOS EN CONFIGURACIÓN ---
@@ -11482,40 +11444,58 @@ function abrirOnboardingManual() {
         }
 
 
-// 🔥 ACTUALIZACIÓN FORZADA (REPARACIÓN DE CACHÉ Y SYNC)
-        function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.113"; // 👈 Subimos versión a 1.92 para obligar a los celulares a actualizar
+// 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
+        async function comprobarVersionNube() {
+            const VERSION_ACTUAL = "1.115"; // 👈 Sube este número solo para guiarte tú visualmente
             
-            // 🏷️ INYECTAR VERSIÓN EN LA PANTALLA
-            const vLogin = document.getElementById('display-version-login');
-            if (vLogin) vLogin.innerText = VERSION_ACTUAL;
-            const vNav = document.getElementById('display-version-nav');
-            if (vNav) vNav.innerText = VERSION_ACTUAL;
+            const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
+            const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
 
             const versionGuardada = localStorage.getItem('zeus_version');
-            
+
+            // 1. Si cambiamos el número manual, destruimos todo de inmediato
             if (versionGuardada !== VERSION_ACTUAL) {
-                console.log("¡Actualización detectada! Limpiando caché y recargando...");
-                
-                // Borramos los Service Workers (PWA) 
+                console.log("¡Actualización detectada por versión! Limpiando caché y recargando...");
                 if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                        for(let registration of registrations) { registration.unregister(); }
-                    });
+                    const regs = await navigator.serviceWorker.getRegistrations();
+                    for(let reg of regs) await reg.unregister();
                 }
-                
-                // Vaciamos la caché de archivos
                 if ('caches' in window) {
-                    caches.keys().then((names) => {
-                        names.forEach(name => caches.delete(name));
-                    });
+                    const names = await caches.keys();
+                    for(let name of names) await caches.delete(name);
                 }
-                
-                // Guardamos la nueva versión
                 localStorage.setItem('zeus_version', VERSION_ACTUAL);
-                
-                // 🚨 VITAL: Volvemos a activar la recarga para que el celular de Kairos suelte el código viejo
-                setTimeout(() => { window.location.reload(true); }, 1000);
+                setTimeout(() => { window.location.reload(true); }, 500);
+                return; // Cortamos aquí para que recargue ya
+            }
+
+            // 2. 🕵️‍♂️ EL VIGILANTE SILENCIOSO (Verifica si GitHub tiene un archivo más nuevo sin que tú cambies el número)
+            if (navigator.onLine && window.location.protocol !== 'file:') {
+                try {
+                    // Le ponemos un ?t=... para obligar a leer directamente desde internet, saltándose el celular
+                    const r = await fetch(window.location.href.split('?')[0] + '?t=' + Date.now(), { method: 'HEAD', cache: 'no-store' });
+                    const lastMod = r.headers.get('Last-Modified');
+                    
+                    if (lastMod) {
+                        const localLastMod = localStorage.getItem('zeus_last_modified');
+                        if (localLastMod && localLastMod !== lastMod) {
+                            console.log("¡GitHub tiene una versión más nueva! Destruyendo caché...");
+                            if ('serviceWorker' in navigator) {
+                                const regs = await navigator.serviceWorker.getRegistrations();
+                                for(let reg of regs) await reg.unregister();
+                            }
+                            if ('caches' in window) {
+                                const names = await caches.keys();
+                                for(let name of names) await caches.delete(name);
+                            }
+                            localStorage.setItem('zeus_last_modified', lastMod);
+                            setTimeout(() => { window.location.reload(true); }, 500);
+                        } else {
+                            // Si es la primera vez que lo revisa, solo guardamos la fecha actual
+                            localStorage.setItem('zeus_last_modified', lastMod);
+                        }
+                    }
+                } catch(e) { console.log("Modo Vigía falló, usando versión local."); }
             }
         }
 
@@ -11533,7 +11513,6 @@ function abrirOnboardingManual() {
                 }
             }
         });
-
 
         // ==========================================
         // 🚀 SECUENCIA DE ARRANQUE MAESTRO
@@ -11555,6 +11534,21 @@ function abrirOnboardingManual() {
                     .then(reg => console.log('✅ Agente Silencioso (SW) Instalado en:', reg.scope))
                     .catch(err => console.error('❌ Error instalando el Agente:', err));
             });
+        }
+
+         // ==========================================
+        // 🚀 CONTROLADOR DE ARRANQUE MULTIPLATAFORMA
+        // ==========================================
+        function arrancarZeusMaestro() {
+            if (typeof initDB === 'function') initDB();
+            if (typeof checkSession === 'function') checkSession();
+        }
+
+        // Ejecución en cascada para evitar bloqueos de hilos nativos
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', arrancarZeusMaestro);
+        } else {
+            arrancarZeusMaestro();
         }
 
     </script>
