@@ -65,6 +65,7 @@ self.addEventListener('fetch', e => {
       if (e.request.mode === 'navigate') {
         return caches.match('./index.html');
       }
+      return new Response(JSON.stringify({ error: "Offline" }), { status: 503, headers: { 'Content-Type': 'application/json' } });
     })
   );
 });
