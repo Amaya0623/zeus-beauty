@@ -4544,9 +4544,9 @@ function renderAgendaList() {
             if (isOnline && typeof supabaseClient !== 'undefined' && b.id_nube) {
                 supabaseClient.from('appointments').insert([{
                     store_id: b.id_nube,
-                    customer_name: cli,           // 👈 Nombre exacto de tu tabla
-                    customer_phone: cel || null,  // 👈 Nombre exacto de tu tabla
-                    staff_name: barb,             // 👈 Nombre exacto de tu tabla
+                    customer_name: cli,           
+                    customer_phone: cel || null,  
+                    staff_name: barb,             
                     service_name: srvString,
                     appointment_date: f,
                     appointment_time: h,
@@ -4555,10 +4555,27 @@ function renderAgendaList() {
                     receipt_url: null
                 }]).then(({error}) => {
                     if(error) console.error("❌ Error guardando cita en SQL:", error);
-                    else console.log("☁️ Cita inyectada a la tabla SQL exitosamente.");
+                    else {
+                        console.log("☁️ Cita inyectada a la tabla SQL exitosamente.");
+                        
+                        // 🔔 GATILLO DE NOTIFICACIÓN PUSH AL ADMIN
+                        let tokenPushAdmin = b.pushSubscription;
+                        
+                        if (tokenPushAdmin) {
+                            fetch('https://blfkwfmthsdifdjybssw.supabase.co/functions/v1/enviar-push', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    subscription: tokenPushAdmin,
+                                    title: '¡Nueva Cita en Zeus! ⚡',
+                                    body: `${cli} agendó a las ${formatTime12h(h)} con ${barb}`
+                                })
+                            }).then(() => console.log('🔔 Push disparado con éxito'))
+                              .catch(err => console.log('Error disparando Push:', err));
+                        }
+                    }
                 });
             }
-
             const idCli = cel || cli;
             if (!b.clientes) b.clientes = {};
             if (!b.clientes[idCli]) b.clientes[idCli] = { nombre: cli, celular: cel, pts: 0, visitas: 0 };
@@ -8842,7 +8859,7 @@ function escucharResumenFranquicia() {
             } catch (e) { Swal.fire('Error', 'No se pudo contactar a la nube', 'error'); }
         }
 
-      // ==========================================
+     // ==========================================
 // 🔓 MOTOR DE RESCATE: VERIFICAR PAGO EN LA NUBE
 // ==========================================
 async function rescatarSuscripcionLocal() {
@@ -11527,7 +11544,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.117"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.118"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
@@ -11631,6 +11648,74 @@ function abrirOnboardingManual() {
         } else {
             arrancarZeusMaestro();
         }
+
+
+
+// ==========================================
+// 🔔 MOTOR DE NOTIFICACIONES PUSH (ADMIN)
+// ==========================================
+// Tu llave pública real
+const PUBLIC_VAPID_KEY = "BHKFJnWSHmcY2Q4o-J93NiUq8SeARR9oDFYLmtaSnud4bBFXiZC4VZzvmCnA5MypqXY-rZdvHwudBGb_mnafQj4";
+
+function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) { outputArray[i] = rawData.charCodeAt(i); }
+    return outputArray;
+}
+
+async function activarNotificacionesPush() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        return Swal.fire('Error', 'Tu navegador o dispositivo no soporta notificaciones Push. (Asegúrate de instalar la PWA)', 'error');
+    }
+
+    try {
+        const permiso = await Notification.requestPermission();
+        if (permiso !== 'granted') throw new Error('Permiso denegado por el usuario.');
+
+        Swal.fire({ title: 'Vinculando Dispositivo...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() }, background: '#0a0a0a', color: '#fff' });
+
+        const register = await navigator.serviceWorker.ready;
+        const subscription = await register.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(PUBLIC_VAPID_KEY)
+        });
+
+        // Guardar el Token en la memoria local y forzar subida a la nube
+        if (bIdx !== -1 && db.barberias[bIdx]) {
+            db.barberias[bIdx].pushSubscription = subscription;
+            saveDB(true); 
+            
+            const txtEstado = document.getElementById('push-status-txt');
+            if (txtEstado) {
+                txtEstado.innerText = "Estado: Dispositivo Vinculado ✅";
+                txtEstado.className = "text-[8px] text-green-500 uppercase mt-3 font-bold leading-tight text-center";
+            }
+            
+            Swal.fire({ title: '¡Antena Activada! 📡', text: 'Recibirás notificaciones de nuevas citas en este celular aunque la app esté cerrada.', icon: 'success', background: '#0a0a0a', color: '#fff' });
+        }
+    } catch (error) {
+        console.error(error);
+        Swal.fire({ title: 'Error Técnico', text: 'No pudimos vincular este dispositivo. Asegúrate de dar permisos y tener la app instalada.', icon: 'error', background: '#0a0a0a', color: '#fff' });
+    }
+}
+
+async function desactivarNotificacionesPush() {
+    if (bIdx !== -1 && db.barberias[bIdx]) {
+        db.barberias[bIdx].pushSubscription = null;
+        saveDB(true);
+        
+        const txtEstado = document.getElementById('push-status-txt');
+        if (txtEstado) {
+            txtEstado.innerText = "Estado: Desactivado 🔕";
+            txtEstado.className = "text-[8px] text-zinc-500 uppercase mt-3 font-bold leading-tight text-center";
+        }
+        
+        Swal.fire({ title: 'Desactivado', text: 'Ya no recibirás alertas en este dispositivo.', icon: 'info', background: '#0a0a0a', color: '#fff' });
+    }
+}
 
     </script>
 </body>
