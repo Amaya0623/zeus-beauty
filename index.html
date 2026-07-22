@@ -15,6 +15,7 @@
     <meta property="og:description" content="Gestiona tu negocio al siguiente nivel con Zeus. Citas, POS y Marketing.">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3310,16 +3311,22 @@ async function actionLogin() {
         } catch(e) { console.log("Fallo de red, usando memoria local."); }
     }
 
-   if (localIdx > -1) {
+  if (localIdx > -1) {
         const bVerif = db.barberias[localIdx]; 
         const diffDays = Math.floor((Date.now() - (bVerif.creadoEn || Date.now())) / (1000 * 60 * 60 * 24));
         
        if (bVerif.bloqueado || ((bVerif.diasSuscripcion || 15) - diffDays < 0) || bVerif.alertaBlock) { 
-                    Swal.close(); 
-                    document.getElementById('pantalla-bloqueo').classList.remove('hidden');
-                    document.getElementById('app-content').classList.add('hidden');
-                    pinInput.value = ""; return; 
-                }
+            Swal.close(); 
+            document.getElementById('pantalla-bloqueo').classList.remove('hidden');
+            document.getElementById('app-content').classList.add('hidden');
+            pinInput.value = ""; 
+            
+            // 🚀 MAGIA: Si está bloqueado pero hay internet, intenta auto-rescatarse sin tocar el botón
+            if(navigator.onLine && typeof rescatarSuscripcionLocal === 'function') {
+                rescatarSuscripcionLocal();
+            }
+            return; 
+        }
         
         bIdx = localIdx; 
         if (isCajero) session = { rol: 'cajero', nom: cajeroData.nom, ciego: cajeroData.cierreCiego };
@@ -3713,19 +3720,14 @@ async function actionLogin() {
             b.lastActiveClock = Date.now();
             saveDB(false);
 
-            // 2. 🕒 CÁLCULO DE DÍAS (Validación Híbrida)
+            // 2. 🕒 CÁLCULO DE DÍAS (Validación Local Segura)
             let diffDays = Math.floor((Date.now() - (b.creadoEn || Date.now())) / (1000 * 60 * 60 * 24));
             
-            if (isOnline) {
-                try {
-                    const res = await fetch('https://worldtimeapi.org/api/ip');
-                    const data = await res.json();
-                    const serverTime = new Date(data.datetime).getTime();
-                    diffDays = Math.floor((serverTime - (b.creadoEn || Date.now())) / (1000 * 60 * 60 * 24));
-                } catch(e) {}
-            }
-
+            // 🚀 ELIMINAMOS WORLDTIMEAPI.ORG PORQUE SU SERVIDOR ESTÁ CAÍDO (503) Y CONGELA TU APP
             const restantes = (b.diasSuscripcion || 15) - diffDays;
+
+            // 🚨 SISTEMA DE COBRO AUTOMÁTICO REPARADO (Contenedor cuadrado perfecto + Captura de Evidencia)
+            if (restantes <= 3 && restantes >= 0 && !sessionStorage.getItem('alerta_pago_mostrada')) {
 
             // 🚨 SISTEMA DE COBRO AUTOMÁTICO REPARADO (Contenedor cuadrado perfecto + Captura de Evidencia)
             if (restantes <= 3 && restantes >= 0 && !sessionStorage.getItem('alerta_pago_mostrada')) {
@@ -8866,31 +8868,22 @@ async function rescatarSuscripcionLocal() {
     let idx = bIdx !== -1 ? bIdx : kiosko_bIdx;
     let idNube = null;
 
-    // 1. Intentar sacar el ID de la nube de la memoria actual
     if (idx !== -1 && db && db.barberias[idx] && db.barberias[idx].id_nube) {
         idNube = db.barberias[idx].id_nube;
-    } 
-    // 2. Si se borró la memoria local, buscar en la URL (modo Kiosko del cliente)
-    else {
+    } else {
         const urlParams = window.MisParamsOriginales || new URLSearchParams(window.location.search);
         idNube = urlParams.get('kiosk') || urlParams.get('local');
     }
 
-    // 3. Si definitivamente no hay ID, buscar el primero guardado
     if (!idNube && db && db.barberias && db.barberias.length > 0) {
         idNube = db.barberias[0].id_nube;
         idx = 0;
     }
 
-    if (!idNube) {
-        return Swal.fire({ title: 'Error Fatal', text: 'No se encontró el enlace del local. Pídele al dueño que te envíe el link del kiosko nuevamente.', icon: 'error', background: '#0a0a0a', color: '#fff' });
-    }
+    if (!idNube) return Swal.fire('Error', 'No se encontró el enlace del local.', 'error');
+    if (!navigator.onLine) return Swal.fire('Sin Internet', 'Conéctate a WiFi o Datos.', 'warning');
 
-    if (!navigator.onLine) {
-        return Swal.fire({ title: 'Sin Internet', text: 'Conéctate a WiFi o Datos para verificar el pago en la nube.', icon: 'warning', background: '#0a0a0a', color: '#fff' });
-    }
-
-    Swal.fire({ title: 'Verificando Satélite ☁️...', text: 'Consultando pagos con Servidores Zeus', allowOutsideClick: false, didOpen: () => { Swal.showLoading() }, background: '#0a0a0a', color: '#fff' });
+    Swal.fire({ title: 'Sincronizando con Zeus ☁️...', text: 'Buscando actualizaciones de licencia', allowOutsideClick: false, didOpen: () => { Swal.showLoading() }, background: '#0a0a0a', color: '#fff' });
 
     try {
         const { data, error } = await supabaseClient.from('stores').select('json_data').eq('id', idNube).single();
@@ -8902,32 +8895,24 @@ async function rescatarSuscripcionLocal() {
             const diffDays = Math.floor((hoy - (nubeData.creadoEn || hoy)) / (1000 * 60 * 60 * 24));
             const restantes = (nubeData.diasSuscripcion || 15) - diffDays;
 
+            // Si en la nube YA NO está bloqueado, lo liberamos en el celular
             if (!nubeData.bloqueado && restantes >= 0 && !nubeData.alertaBlock) {
-                // ¡MAGIA! El pago fue detectado por Supabase
                 if (idx !== -1 && db.barberias[idx]) {
                     db.barberias[idx].bloqueado = false;
                     db.barberias[idx].diasSuscripcion = nubeData.diasSuscripcion;
                     db.barberias[idx].creadoEn = nubeData.creadoEn; 
                     db.barberias[idx].alertaBlock = false;
                     saveDB(false);
-                } else {
-                    // Si no estaba en memoria (celular nuevo), lo guardamos de cero
-                    nubeData.id_nube = idNube;
-                    if(!db) db = { barberias: [] };
-                    db.barberias.push(nubeData);
-                    saveDB(false);
                 }
-                
-                Swal.fire({ title: '¡Suscripción Activa! 🎉', text: 'El local está desbloqueado.', icon: 'success', background: '#0a0a0a', color: '#fff' }).then(() => {
-                    window.location.reload(); // Recargamos para limpiar toda la interfaz
+                Swal.fire({ title: '¡Actualizado! 🎉', text: 'El local está desbloqueado.', icon: 'success', background: '#0a0a0a', color: '#fff' }).then(() => {
+                    window.location.reload(); 
                 });
             } else {
-                Swal.fire({ title: 'Aún Bloqueado 🔒', text: 'La licencia sigue vencida o en mantenimiento. Pídele a Isi Control que revise el pago.', icon: 'warning', background: '#0a0a0a', color: '#fff' });
+                Swal.fire({ title: 'Aún Bloqueado 🔒', text: 'En la nube la licencia sigue vencida o en mantenimiento.', icon: 'warning', background: '#0a0a0a', color: '#fff' });
             }
         }
     } catch (e) {
-        console.error("Error al rescatar suscripción:", e);
-        Swal.fire({ title: 'Fallo de Red', text: 'El servidor de Zeus está saturado. Reintenta en unos segundos.', icon: 'error', background: '#0a0a0a', color: '#fff' });
+        Swal.fire('Fallo de Red', 'El servidor está saturado. Reintenta.', 'error');
     }
 }
 
@@ -11544,7 +11529,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.118"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.119"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
