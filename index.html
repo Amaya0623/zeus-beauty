@@ -3728,10 +3728,6 @@ async function actionLogin() {
 
             // 🚨 SISTEMA DE COBRO AUTOMÁTICO REPARADO (Contenedor cuadrado perfecto + Captura de Evidencia)
             if (restantes <= 3 && restantes >= 0 && !sessionStorage.getItem('alerta_pago_mostrada')) {
-
-            // 🚨 SISTEMA DE COBRO AUTOMÁTICO REPARADO (Contenedor cuadrado perfecto + Captura de Evidencia)
-            if (restantes <= 3 && restantes >= 0 && !sessionStorage.getItem('alerta_pago_mostrada')) {
-                sessionStorage.setItem('alerta_pago_mostrada', 'true');
                 
                 let miNequi = "3134941784";
                 let linkQR = "https://blfkwfmthsdifdjybssw.supabase.co/storage/v1/object/public/perfiles/Qr%20Bre-B.jpeg";
@@ -8861,7 +8857,7 @@ function escucharResumenFranquicia() {
             } catch (e) { Swal.fire('Error', 'No se pudo contactar a la nube', 'error'); }
         }
 
-     // ==========================================
+    // ==========================================
 // 🔓 MOTOR DE RESCATE: VERIFICAR PAGO EN LA NUBE
 // ==========================================
 async function rescatarSuscripcionLocal() {
@@ -8880,10 +8876,10 @@ async function rescatarSuscripcionLocal() {
         idx = 0;
     }
 
-    if (!idNube) return Swal.fire('Error', 'No se encontró el enlace del local.', 'error');
+    if (!idNube) return Swal.fire('Error Fatal', 'No se encontró el enlace del local.', 'error');
     if (!navigator.onLine) return Swal.fire('Sin Internet', 'Conéctate a WiFi o Datos.', 'warning');
 
-    Swal.fire({ title: 'Sincronizando con Zeus ☁️...', text: 'Buscando actualizaciones de licencia', allowOutsideClick: false, didOpen: () => { Swal.showLoading() }, background: '#0a0a0a', color: '#fff' });
+    Swal.fire({ title: 'Verificando Satélite ☁️...', text: 'Consultando pagos con Servidores Zeus', allowOutsideClick: false, didOpen: () => { Swal.showLoading() }, background: '#0a0a0a', color: '#fff' });
 
     try {
         const { data, error } = await supabaseClient.from('stores').select('json_data').eq('id', idNube).single();
@@ -8895,7 +8891,6 @@ async function rescatarSuscripcionLocal() {
             const diffDays = Math.floor((hoy - (nubeData.creadoEn || hoy)) / (1000 * 60 * 60 * 24));
             const restantes = (nubeData.diasSuscripcion || 15) - diffDays;
 
-            // Si en la nube YA NO está bloqueado, lo liberamos en el celular
             if (!nubeData.bloqueado && restantes >= 0 && !nubeData.alertaBlock) {
                 if (idx !== -1 && db.barberias[idx]) {
                     db.barberias[idx].bloqueado = false;
@@ -8903,16 +8898,22 @@ async function rescatarSuscripcionLocal() {
                     db.barberias[idx].creadoEn = nubeData.creadoEn; 
                     db.barberias[idx].alertaBlock = false;
                     saveDB(false);
+                } else {
+                    nubeData.id_nube = idNube;
+                    if(!db) db = { barberias: [] };
+                    db.barberias.push(nubeData);
+                    saveDB(false);
                 }
-                Swal.fire({ title: '¡Actualizado! 🎉', text: 'El local está desbloqueado.', icon: 'success', background: '#0a0a0a', color: '#fff' }).then(() => {
-                    window.location.reload(); 
+                
+                Swal.fire({ title: '¡Suscripción Activa! 🎉', text: 'El local está desbloqueado.', icon: 'success', background: '#0a0a0a', color: '#fff' }).then(() => {
+                    window.location.reload();
                 });
             } else {
-                Swal.fire({ title: 'Aún Bloqueado 🔒', text: 'En la nube la licencia sigue vencida o en mantenimiento.', icon: 'warning', background: '#0a0a0a', color: '#fff' });
+                Swal.fire({ title: 'Aún Bloqueado 🔒', text: 'La licencia sigue vencida o en mantenimiento. Revisa con Isi Control.', icon: 'warning', background: '#0a0a0a', color: '#fff' });
             }
         }
     } catch (e) {
-        Swal.fire('Fallo de Red', 'El servidor está saturado. Reintenta.', 'error');
+        Swal.fire('Fallo de Red', 'El servidor de Zeus está saturado. Reintenta.', 'error');
     }
 }
 
@@ -11529,7 +11530,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.119"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.120"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
