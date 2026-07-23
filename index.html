@@ -3442,7 +3442,22 @@ async function actionLogin() {
 
             if (id === 'view-login') renderLoginLogo();
             if (id === 'view-admin') renderAdmin();
-            if (id === 'view-config') renderConfig();
+            if (id === 'view-config') {
+             if (typeof renderConfig === 'function') renderConfig();
+    
+    // 👁️ MAGIA VISUAL: Pintar el botón de verde si la antena ya estaba activa
+    const bActual = db.barberias[bIdx !== -1 ? bIdx : kiosko_bIdx];
+    const txtEstado = document.getElementById('push-status-txt');
+    if (txtEstado && bActual) {
+        if (bActual.pushSubscription) {
+            txtEstado.innerText = "Estado: Dispositivo Vinculado ✅";
+            txtEstado.className = "text-[8px] text-green-500 uppercase mt-3 font-bold leading-tight text-center";
+        } else {
+            txtEstado.innerText = "Estado: Esperando activación... 🔕";
+            txtEstado.className = "text-[8px] text-zinc-500 uppercase mt-3 font-bold leading-tight text-center";
+        }
+    }
+}
             if (id === 'view-barbero') renderBarbero();
             if (id === 'view-caja') renderCaja();
             if (id === 'view-agenda') { tempServicios = []; document.getElementById('agenda-filtro-fecha').value = getTodayYMD(); renderAgendaList(); }
@@ -4562,25 +4577,30 @@ function renderAgendaList() {
                         if (tokenPushAdmin) {
                             fetch('https://blfkwfmthsdifdjybssw.supabase.co/functions/v1/enviar-push', {
                                 method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
+                                headers: { 
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${_dbToken}` // 👈 ¡EL PASE VIP PARA SUPABASE!
+                                },
                                 body: JSON.stringify({
                                     subscription: tokenPushAdmin,
                                     title: '¡Nueva Cita en Zeus! ⚡',
                                     body: `${cli} agendó a las ${formatTime12h(h)} con ${barb}`
                                 })
-                            }).then(() => console.log('🔔 Push disparado con éxito'))
+                            }).then(() => console.log('🔔 Push disparado con éxito (Autorizado)'))
                               .catch(err => console.log('Error disparando Push:', err));
                         }
                     }
-                });
-            }
+                }); // 👈 CIERRE 1: Termina la promesa de Supabase
+            } // 👈 CIERRE 2: Termina la condición de Internet (Lo de abajo siempre se ejecuta)
+
+            // 👇 GUARDADO LOCAL (A prueba de fallos y modo Offline)
             const idCli = cel || cli;
             if (!b.clientes) b.clientes = {};
             if (!b.clientes[idCli]) b.clientes[idCli] = { nombre: cli, celular: cel, pts: 0, visitas: 0 };
 
             saveDB(true); 
             
-            // 🧹 LIMPIEZA PROFUNDA DEL FORMULARIO Y LA FOTO
+            // 🧹 LIMPIEZA PROFUNDA DEL FORMULARIO
             document.getElementById('agenda-cli').value = ""; 
             document.getElementById('agenda-cel').value = ""; 
             document.getElementById('agenda-fecha').value = ""; 
@@ -4592,7 +4612,7 @@ function renderAgendaList() {
             renderAgendaList(); renderAdmin(); actualizarBadgesCitas();
             
             Swal.fire({ title: '¡Cita Guardada!', icon: 'success', background: '#0a0a0a', color: '#fff', timer: 1500 });
-        }
+        } // 👈 CIERRE 3: Termina la función guardarCita() de manera segura
 
 
 
@@ -11530,7 +11550,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.120"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.124"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
