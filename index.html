@@ -8368,7 +8368,9 @@ function borrarServicio(idx) {
                             <button type="button" onclick="sa_AgregarDias('${b.id_nube}', 180)" class="bg-purple-900/20 text-purple-400 border border-purple-900/50 py-2 rounded-lg text-[10px] font-black btn-press hover:bg-purple-600 hover:text-white transition-colors">+6M</button>
                             <button type="button" onclick="sa_AgregarDias('${b.id_nube}', 365)" class="bg-pink-900/20 text-pink-400 border border-pink-900/50 py-2 rounded-lg text-[10px] font-black btn-press hover:bg-pink-600 hover:text-white transition-colors">+1A</button>
                         </div>
-                        <button onclick="saAjustarLicenciaManual('${b.id_nube}')" class="...">✏️ Ajustar  licencia </button>
+                        <button type="button" onclick="saAjustarLicenciaManual('${b.id_nube}')" class="w-full bg-zinc-900 text-zinc-400 border border-zinc-700 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest btn-press hover:bg-zinc-800 hover:text-white transition-colors mt-2 flex items-center justify-center gap-2 shadow-inner">
+    <span>✏️</span> AJUSTAR LICENCIA EXACTA
+</button>
                         
                         <div class="flex justify-between items-center bg-[#050505] p-3 rounded-xl border border-zinc-900 mb-2">
                             <span class="text-[10px] font-black uppercase text-zinc-400 tracking-widest">Plan Actual:</span>
@@ -11550,7 +11552,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.127"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.128"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
@@ -11722,28 +11724,26 @@ async function desactivarNotificacionesPush() {
         Swal.fire({ title: 'Desactivado', text: 'Ya no recibirás alertas en este dispositivo.', icon: 'info', background: '#0a0a0a', color: '#fff' });
     }
 }
-
 // ==========================================
 // ⏱️ MOTOR DE LICENCIAS SAAS (RENOVACIÓN Y AJUSTE)
 // ==========================================
 
-// 1. BOTONES DE +30D, +3M, +6M, +1A (Renovación Inteligente)
-async function saAgregarTiempo(idNube, diasExtras) {
+async function sa_AgregarDias(idNube, diasExtras) {
     let b = db.barberias.find(x => x.id_nube === idNube || x.id === idNube);
     if (!b) return;
 
-    // A. Calculamos cuántos días reales le quedan HOY
+    // 1. Calculamos cuántos días reales le quedan HOY
     const ahora = Date.now();
     let diffDays = Math.floor((ahora - (b.creadoEn || ahora)) / (1000 * 60 * 60 * 24));
     let restantes = (b.diasSuscripcion || 0) - diffDays;
 
-    // B. MAGIA: Si el cliente "debía" días (estaba en negativo), perdonamos la deuda. Empieza de cero.
+    // 2. MAGIA: Si el cliente "debía" días (estaba en negativo), perdonamos la deuda.
     if (restantes < 0) restantes = 0;
 
-    // C. Sumamos los días que le quedaban + los nuevos días
+    // 3. Sumamos los días que le quedaban + los nuevos días comprados
     b.diasSuscripcion = restantes + diasExtras;
     
-    // D. 🚀 EL TRUCO MAGISTRAL: Movemos el ancla de tiempo a HOY.
+    // 4. 🚀 EL TRUCO MAGISTRAL: Movemos el ancla de tiempo a HOY.
     b.creadoEn = ahora;
     b.bloqueado = false; // Lo desbloqueamos automáticamente
     b.alertaBlock = false;
@@ -11751,15 +11751,18 @@ async function saAgregarTiempo(idNube, diasExtras) {
     saveDB(true);
     if (typeof renderSuperAdmin === 'function') renderSuperAdmin(); // Recargar vista
 
-    // E. Sincronizamos con la nube
-    if (isOnline && typeof supabaseClient !== 'undefined') {
+    // 5. Sincronizamos de inmediato con la nube
+    if (typeof isOnline !== 'undefined' && isOnline && typeof supabaseClient !== 'undefined') {
         Swal.fire({ title: 'Renovando Licencia...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
-        await supabaseClient.from('stores').update({ json_data: b }).eq('id', b.id_nube || b.id);
-        Swal.fire({ title: '¡Renovado!', text: `La licencia ahora tiene ${b.diasSuscripcion} días desde hoy.`, icon: 'success', background: '#0a0a0a', color: '#fff' });
+        try {
+            await supabaseClient.from('stores').update({ json_data: b }).eq('id', b.id_nube || b.id);
+            Swal.fire({ title: '¡Renovado!', text: `La licencia ahora tiene ${b.diasSuscripcion} días desde hoy.`, icon: 'success', background: '#0a0a0a', color: '#fff' });
+        } catch (err) {
+            Swal.fire('Atención', 'Guardado localmente. Se sincronizará a la nube en breve.', 'info');
+        }
     }
 }
 
-// 2. BOTÓN DE AJUSTE MANUAL (Por si te equivocas o quieres restar)
 async function saAjustarLicenciaManual(idNube) {
     let b = db.barberias.find(x => x.id_nube === idNube || x.id === idNube);
     if (!b) return;
@@ -11778,23 +11781,30 @@ async function saAjustarLicenciaManual(idNube) {
 
     if (diasExactos !== undefined && diasExactos !== null && diasExactos !== "") {
         b.diasSuscripcion = parseInt(diasExactos);
-        b.creadoEn = Date.now(); // Reseteamos a hoy
+        b.creadoEn = Date.now(); // Reseteamos el reloj a hoy
         
         if (b.diasSuscripcion > 0) {
             b.bloqueado = false;
             b.alertaBlock = false;
+        } else {
+            b.bloqueado = true; // Si le pone 0, se bloquea al instante
         }
 
         saveDB(true);
         if (typeof renderSuperAdmin === 'function') renderSuperAdmin();
 
-        if (isOnline && typeof supabaseClient !== 'undefined') {
+        if (typeof isOnline !== 'undefined' && isOnline && typeof supabaseClient !== 'undefined') {
             Swal.fire({ title: 'Sincronizando...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
-            await supabaseClient.from('stores').update({ json_data: b }).eq('id', b.id_nube || b.id);
-            Swal.fire({ title: 'Ajustado', text: `Licencia fijada exactamente en ${b.diasSuscripcion} días.`, icon: 'success', background: '#0a0a0a', color: '#fff' });
+            try {
+                await supabaseClient.from('stores').update({ json_data: b }).eq('id', b.id_nube || b.id);
+                Swal.fire({ title: 'Ajustado', text: `Licencia fijada exactamente en ${b.diasSuscripcion} días.`, icon: 'success', background: '#0a0a0a', color: '#fff' });
+            } catch (err) {
+                Swal.fire('Atención', 'Guardado localmente. Se sincronizará a la nube en breve.', 'info');
+            }
         }
     }
 }
+
     </script>
 </body>
 </html>
