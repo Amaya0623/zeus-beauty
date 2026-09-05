@@ -2599,56 +2599,6 @@ const supabaseClient = supabase.createClient(_dbHost, _dbToken);
             if (window.speechSynthesis) { window.speechSynthesis.cancel(); } 
         }
         function reproducirAudioExito() { detenerAudio(); const b = db.barberias[bIdx]; currentAudio = new Audio(b && b.customAudio ? b.customAudio : 'https://actions.google.com/sounds/v1/ui/digital_bell.ogg'); currentAudio.play().catch(e => console.error(e)); }
-function reproducirAudioExito() { detenerAudio(); const b = db.barberias[bIdx]; currentAudio = new Audio(b && b.customAudio ? b.customAudio : 'https://actions.google.com/sounds/v1/ui/digital_bell.ogg'); currentAudio.play().catch(e => console.error(e)); }
-
-        // ==========================================
-        // ⚡ MOTOR DE VOZ ISI IA (MODO J.A.R.V.I.S)
-        // ==========================================
-        function hablarISI(texto) {
-            if (!window.speechSynthesis) return;
-            
-            window.speechSynthesis.cancel(); 
-            const utterance = new SpeechSynthesisUtterance(texto);
-            const isBeauty = document.body.classList.contains('theme-estetica');
-            
-            utterance.lang = 'es-US'; 
-            utterance.rate = 1.0; 
-            utterance.pitch = isBeauty ? 1.2 : 0.8; 
-            
-            const voces = window.speechSynthesis.getVoices();
-            let vozElegida = null;
-            
-            if (isBeauty) {
-                vozElegida = voces.find(v => v.lang.includes('es') && (v.name.includes('Female') || v.name.includes('Mujer') || v.name.includes('Paulina') || v.name.includes('Monica')));
-            } else {
-                vozElegida = voces.find(v => v.lang.includes('es') && (v.name.includes('Male') || v.name.includes('Hombre') || v.name.includes('Diego') || v.name.includes('Jorge')));
-            }
-            
-            if (!vozElegida) vozElegida = voces.find(v => v.lang.includes('es'));
-            if (vozElegida) utterance.voice = vozElegida;
-            
-            window.speechSynthesis.speak(utterance);
-        }
-
-        function saludoBienvenidaISI() {
-            if (!session) return;
-            
-            const hora = new Date().getHours();
-            const saludo = hora < 12 ? 'Buenos días' : (hora < 18 ? 'Buenas tardes' : 'Buenas noches');
-            let mensaje = '';
-            
-            if (session.rol === 'admin' || session.rol === 'superadmin') {
-                mensaje = `${saludo}, Jefe. Sistemas en línea y panel de control sincronizado. Que tengas una excelente jornada.`;
-            } else if (session.rol === 'cajero') {
-                mensaje = `${saludo}, ${session.nom}. Smart Cash iniciado. La caja registradora está lista para operar.`;
-            } else {
-                const isBeauty = document.body.classList.contains('theme-estetica');
-                const titulo = isBeauty ? 'estilista' : 'barbero';
-                mensaje = `${saludo}, ${session.nom}. Tu estación de trabajo está lista. ¡A romperla hoy!`;
-            }
-            
-            setTimeout(() => hablarISI(mensaje), 1000);
-        }
 
 
         // ==========================================
@@ -3275,7 +3225,7 @@ const clavesTransaccionales = ['clientes', 'ventas', 'gastos', 'tickets', 'asist
 
 
 
- // ==========================================
+        // ==========================================
 // 🔓 MÓDULO 1: LOGIN HÍBRIDO (SOPORTA PIN NORMAL Y ENCRIPTADO)
 // ==========================================
 async function actionLogin() {
@@ -3400,10 +3350,6 @@ async function actionLogin() {
         else showScreen('view-barbero'); 
         
         forzarSincronizacionNube(true); 
-        
-        // 🎙️ ¡DESPERTAMOS A J.A.R.V.I.S AQUÍ!
-        saludoBienvenidaISI(); 
-        
         return;
     } else {
         Swal.fire({ title: "PIN INCORRECTO", text: "Verifica tus credenciales de acceso.", icon: "error", background: "#000", color: "#fff" });
@@ -8423,7 +8369,6 @@ function borrarServicio(idx) {
                             <button type="button" onclick="sa_AgregarDias('${b.id_nube}', 180)" class="bg-purple-900/20 text-purple-400 border border-purple-900/50 py-2 rounded-lg text-[10px] font-black btn-press hover:bg-purple-600 hover:text-white transition-colors">+6M</button>
                             <button type="button" onclick="sa_AgregarDias('${b.id_nube}', 365)" class="bg-pink-900/20 text-pink-400 border border-pink-900/50 py-2 rounded-lg text-[10px] font-black btn-press hover:bg-pink-600 hover:text-white transition-colors">+1A</button>
                         </div>
-                            <button onclick="saAjustarLicenciaManual('${b.id_nube}')" class="...">✏️ Ajustar Exacto</button>
                         
                         <div class="flex justify-between items-center bg-[#050505] p-3 rounded-xl border border-zinc-900 mb-2">
                             <span class="text-[10px] font-black uppercase text-zinc-400 tracking-widest">Plan Actual:</span>
@@ -11605,7 +11550,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.125"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.124"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
@@ -11778,79 +11723,6 @@ async function desactivarNotificacionesPush() {
     }
 }
 
-
-// ==========================================
-// ⏱️ MOTOR DE LICENCIAS SAAS (RENOVACIÓN Y AJUSTE)
-// ==========================================
-
-// 1. BOTONES DE +30D, +3M, +6M, +1A (Renovación Inteligente)
-async function saAgregarTiempo(idNube, diasExtras) {
-    let b = db.barberias.find(x => x.id_nube === idNube || x.id === idNube);
-    if (!b) return;
-
-    // A. Calculamos cuántos días reales le quedan HOY
-    const ahora = Date.now();
-    let diffDays = Math.floor((ahora - (b.creadoEn || ahora)) / (1000 * 60 * 60 * 24));
-    let restantes = (b.diasSuscripcion || 0) - diffDays;
-
-    // B. MAGIA: Si el cliente "debía" días (estaba en negativo), perdonamos la deuda. Empieza de cero.
-    if (restantes < 0) restantes = 0;
-
-    // C. Sumamos los días que le quedaban + los nuevos días
-    b.diasSuscripcion = restantes + diasExtras;
-    
-    // D. 🚀 EL TRUCO MAGISTRAL: Movemos el ancla de tiempo a HOY.
-    b.creadoEn = ahora;
-    b.bloqueado = false; // Lo desbloqueamos automáticamente
-    b.alertaBlock = false;
-
-    saveDB(true);
-    if (typeof renderSuperAdmin === 'function') renderSuperAdmin(); // Recargar vista
-
-    // E. Sincronizamos con la nube
-    if (isOnline && typeof supabaseClient !== 'undefined') {
-        Swal.fire({ title: 'Renovando Licencia...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
-        await supabaseClient.from('stores').update({ json_data: b }).eq('id', b.id_nube || b.id);
-        Swal.fire({ title: '¡Renovado!', text: `La licencia ahora tiene ${b.diasSuscripcion} días desde hoy.`, icon: 'success', background: '#0a0a0a', color: '#fff' });
-    }
-}
-
-// 2. BOTÓN DE AJUSTE MANUAL (Por si te equivocas o quieres restar)
-async function saAjustarLicenciaManual(idNube) {
-    let b = db.barberias.find(x => x.id_nube === idNube || x.id === idNube);
-    if (!b) return;
-
-    const { value: diasExactos } = await Swal.fire({
-        title: '⚙️ Ajuste Exacto',
-        text: 'Ingresa la cantidad EXACTA de días que debe tener el local desde hoy (Pon 0 para bloquearlo):',
-        input: 'number',
-        inputAttributes: { min: 0, step: 1 },
-        showCancelButton: true,
-        confirmButtonText: 'Fijar Días ✔',
-        cancelButtonText: 'Cancelar',
-        background: '#111', color: '#fff',
-        confirmButtonColor: '#4f46e5'
-    });
-
-    if (diasExactos !== undefined && diasExactos !== null && diasExactos !== "") {
-        b.diasSuscripcion = parseInt(diasExactos);
-        b.creadoEn = Date.now(); // Reseteamos a hoy
-        
-        if (b.diasSuscripcion > 0) {
-            b.bloqueado = false;
-            b.alertaBlock = false;
-        }
-
-        saveDB(true);
-        if (typeof renderSuperAdmin === 'function') renderSuperAdmin();
-
-        if (isOnline && typeof supabaseClient !== 'undefined') {
-            Swal.fire({ title: 'Sincronizando...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
-            await supabaseClient.from('stores').update({ json_data: b }).eq('id', b.id_nube || b.id);
-            Swal.fire({ title: 'Ajustado', text: `Licencia fijada exactamente en ${b.diasSuscripcion} días.`, icon: 'success', background: '#0a0a0a', color: '#fff' });
-        }
-    }
-}
     </script>
 </body>
 </html>
