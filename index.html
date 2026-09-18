@@ -156,7 +156,20 @@
         .card-back { transform: rotateY(180deg) translateZ(1px); -webkit-transform: rotateY(180deg) translateZ(1px); }
         .card-bg-neon { position: absolute; top: -50px; left: -50px; width: 150px; height: 150px; background: #ef4444; border-radius: 50%; filter: blur(70px); -webkit-filter: blur(70px); opacity: 0.25; pointer-events: none; z-index: 0; }
         .card-texture { position: absolute; inset: 0; background-image: radial-gradient(rgba(239,68,68,0.15) 1px, transparent 1px); background-size: 14px 14px; opacity: 0.5; pointer-events: none; z-index: 0; }
+
+/* 🍏 PARCHE IOS: Evita el zoom automático al tocar inputs */
+        input, select, textarea { font-size: 16px !important; }
+
+        /* 📺 MODO SMART TV: Interfaz inmersiva sin interacción manual */
+        body.tv-mode #app-nav { display: none !important; }
+        body.tv-mode .view-section { max-width: 100% !important; padding: 2rem !important; margin: 0 !important; }
+        body.tv-mode * { cursor: none !important; } /* Oculta el mouse */
+        body.tv-mode ::-webkit-scrollbar { display: none; } /* Oculta barras de desplazamiento */
+        body.tv-mode .btn-press, body.tv-mode input, body.tv-mode select { display: none !important; } /* Esconde controles */
+
     </style>
+
+
 </head>
 
 <body>
@@ -2439,15 +2452,18 @@ async function hashPIN(pin) {
         // Plan C de emergencia total
         return pin; 
     }
-}        // ==========================================
+}  
+
+
+      // ==========================================
         // 1. CONFIGURACIÓN Y ESCUDO DE SEGURIDAD
         // ==========================================
         window.onerror = function (m, s, l) { console.error("Sys Err:", m, "L:", l); return false; };
 
         // 🛡️ ESCUDO ANTI-SCRAPERS (Obfuscación de Clave)
-const _dbHost = 'https://blfkwfmthsdifdjybssw.supabase.co';
-const _dbToken = ['sb_publishable', 'FHeDWaFmk_vVo5KbcsQKGg__YoMAYKZ'].join('_');
-const supabaseClient = supabase.createClient(_dbHost, _dbToken);
+        const _dbHost = 'https://blfkwfmthsdifdjybssw.supabase.co';
+        const _dbToken = ['sb_publishable', 'FHeDWaFmk_vVo5KbcsQKGg__YoMAYKZ'].join('_');
+        const supabaseClient = supabase.createClient(_dbHost, _dbToken);
         const DB_KEY = 'ISI_PRO_DB_V70';
         const SESSION_KEY = 'ISI_SESSION_V70';
 
@@ -2463,11 +2479,35 @@ const supabaseClient = supabase.createClient(_dbHost, _dbToken);
             db = { barberias: [], superPIN: "9999", mainLogo: null, sugerencias: [], lastSyncTime: Date.now(), masterConfig: { brandingActive: true, brandingText: "Software provisto por Isi Control" } };
         }
 
+        // 📲 CAPTURADOR DE INSTALACIÓN PWA
+        let promptInstalacionPWA;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault(); promptInstalacionPWA = e;
+            const btnPwa = document.getElementById('contenedor-instalar-pwa');
+            if (btnPwa) btnPwa.classList.remove('hidden');
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnInstalar = document.getElementById('btn-instalar-pwa');
+            if(btnInstalar) {
+                btnInstalar.addEventListener('click', async () => {
+                    if (promptInstalacionPWA) {
+                        promptInstalacionPWA.prompt();
+                        const { outcome } = await promptInstalacionPWA.userChoice;
+                        if (outcome === 'accepted') document.getElementById('contenedor-instalar-pwa').classList.add('hidden');
+                        promptInstalacionPWA = null;
+                    }
+                });
+            }
+        });
+
         let bIdx = -1; let kiosko_bIdx = -1; let session = null; let cart = []; let tempServicios = [];
         let selectedKioTime = null; let fotoBarberoTemp = null; let currentAudio = null;
         let lastTicketData = null; let cloudSyncTimer = null; let comprobanteTemp = null; let saLogoTemp = null;
         let chartMetodosInstance = null; let chartBarberosInstance = null; let chartFranquiciaInstance = null; let _cloudSyncDebounce = null; let timerDebounceClientes = null;
         let tempLat = null; let tempLon = null;
+
+        
 
         // ==========================================
         // 2. COMPRESOR DE IMÁGENES (Soluciona borrado de datos)
@@ -3611,79 +3651,116 @@ async function actionLogin() {
             }
         }
 
+       // ==========================================
+        // 🗺️ MARKETPLACE GLOBAL ZEUS (DIRECTORIO EN LA NUBE)
         // ==========================================
-        // 🗺️ MOTOR DE MAPAS REALES (LEAFLET + OSM)
-        // ==========================================
-        let miMapaReal = null;
+        let miMapaReal = null; // 👈 ¡ESTA ES LA LÍNEA VITAL QUE FALTABA!
 
-        function abrirMapaLocales() {
-            document.getElementById('modal-mapa').classList.remove('hidden');
+        async function abrirMapaLocales() {
+            const modalMapa = document.getElementById('modal-mapa');
+            const ctn = document.getElementById('mapa-lista-locales');
+            
+            // 1. Mostrar el modal inmediatamente
+            modalMapa.classList.remove('hidden');
+            ctn.innerHTML = `<div class="flex flex-col items-center justify-center py-10"><span class="text-4xl animate-pulse mb-2">📡</span><p class="text-[10px] text-blue-400 font-black uppercase tracking-widest text-center">Rastreando locales<br>en la red Global Zeus...</p></div>`;
 
-            // Le damos 300ms de respiro al modal para que se abra antes de pintar el mapa
-            setTimeout(() => {
-                // 1. Iniciar el mapa si no existe
+            // 2. DARLE TIEMPO AL NAVEGADOR PARA RENDERIZAR EL MODAL
+            setTimeout(async () => {
+                // 3. Iniciar o refrescar mapa
                 if (!miMapaReal) {
-                    miMapaReal = L.map('mapa-real-osm').setView([4.6097, -74.0817], 12); // Centro en Bogotá por defecto
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        attribution: '© OpenStreetMap'
-                    }).addTo(miMapaReal);
-                } else {
-                    miMapaReal.invalidateSize(); // Refresca el tamaño si el modal estaba oculto
+                    miMapaReal = L.map('mapa-real-osm').setView([4.6097, -74.0817], 12);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© Zeus Maps' }).addTo(miMapaReal);
                 }
+                
+                // Forzar re-dibujado
+                miMapaReal.invalidateSize();
 
-                // 2. Limpiar pines viejos
-                miMapaReal.eachLayer((layer) => {
-                    if (layer instanceof L.Marker) {
-                        miMapaReal.removeLayer(layer);
+                if (isOnline && typeof supabaseClient !== 'undefined') {
+                    try {
+                        const { data, error } = await supabaseClient.from('stores').select('id, name, json_data');
+                        if (error) throw error;
+
+                        window.localesGlobalesZeus = data; 
+
+                        let baseHtml = `
+                        <div class="flex gap-2 justify-center mb-4 bg-black p-2 rounded-xl border border-blue-900/30 shadow-inner z-20 relative">
+                            <button type="button" onclick="filtrarMarketplace('ALL')" class="flex-1 bg-blue-600 text-white py-2 rounded-lg text-[9px] font-black uppercase btn-press shadow-md transition-all">🌍 Todos</button>
+                            <button type="button" onclick="filtrarMarketplace('barberia')" class="flex-1 bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-700 py-2 rounded-lg text-[9px] font-black uppercase btn-press transition-all">💈 Barbers</button>
+                            <button type="button" onclick="filtrarMarketplace('estetica')" class="flex-1 bg-pink-900/30 text-pink-400 hover:text-pink-300 border border-pink-900/50 py-2 rounded-lg text-[9px] font-black uppercase btn-press transition-all">💅 Spas</button>
+                        </div>
+                        <div id="lista-renderizada-marketplace" class="relative z-20"></div>
+                        `;
+                        ctn.innerHTML = baseHtml;
+                        filtrarMarketplace('ALL');
+
+                    } catch (err) {
+                        console.error(err);
+                        ctn.innerHTML = '<p class="text-center text-red-500 py-4 text-xs font-bold uppercase relative z-20">Error satelital. Revisa tu conexión.</p>';
                     }
-                });
-
-                const ctn = document.getElementById('mapa-lista-locales');
-                const baseWebUrl = window.location.href.split('?')[0];
-                let htmlList = '';
-
-                // Truco temporal: Si no tienen latitud/longitud en la DB, los esparcimos cerquita
-                let latBase = 4.6097; 
-                let lonBase = -74.0817; 
-
-                db.barberias.forEach((b) => {
-                    const kioLink = baseWebUrl + '?kiosk=' + (b.id_nube || b.id);
-
-                    // Simulamos coordenadas si aún no las has configurado en la base de datos
-                    let lat = b.lat || (latBase + (Math.random() * 0.05 - 0.025));
-                    let lon = b.lon || (lonBase + (Math.random() * 0.05 - 0.025));
-
-                    // 3. Crear el Pin en el mapa
-                    let marker = L.marker([lat, lon]).addTo(miMapaReal);
-                    
-                    // 4. Crear el globito de información al tocar el Pin
-                    marker.bindPopup(`
-                        <div class="text-center p-1" style="font-family: 'Inter', sans-serif;">
-                            <b style="color: #4f46e5; font-size: 14px; text-transform: uppercase;">${b.nombre}</b><br>
-                            <span style="font-size: 11px; color: #666;">${b.direccion || 'Dirección no registrada'}</span><br>
-                            <a href="${kioLink}" target="_blank" style="margin-top: 8px; display: inline-block; background: #2563eb; color: white; padding: 6px 12px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 12px;">Agendar Aquí</a>
-                        </div>
-                    `);
-
-                    // 5. Crear la lista inferior (Al tocarla, el mapa "vuela" hacia ese local)
-                    htmlList += `
-                    <div class="bg-[#050505] p-4 rounded-[1.5rem] border border-blue-900/30 flex justify-between items-center shadow-inner mb-3 transition-transform hover:scale-[1.02] cursor-pointer" onclick="miMapaReal.flyTo([${lat}, ${lon}], 16); setTimeout(()=>marker.openPopup(), 500);">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-full bg-black border-2 border-zinc-800 overflow-hidden flex-shrink-0 shadow-[0_0_10px_rgba(59,130,246,0.2)]">
-                                ${b.logo ? `<img src="${b.logo}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center text-sm">💈</div>`}
-                            </div>
-                            <div>
-                                <h4 class="font-black text-white text-xs uppercase tracking-wide">${b.nombre}</h4>
-                                <p class="text-[9px] text-blue-400 mt-1 uppercase tracking-widest font-bold">📍 Toca para centrar mapa</p>
-                            </div>
-                        </div>
-                        <button type="button" onclick="window.open('${kioLink}', '_blank'); event.stopPropagation();" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-3 rounded-xl font-black text-[10px] uppercase btn-press shadow-lg shadow-blue-900/50 transition-colors">AGENDAR</button>
-                    </div>`;
-                });
-
-                ctn.innerHTML = htmlList || '<p class="text-zinc-500 text-xs italic text-center py-4">No hay locales conectados a la red.</p>';
-            }, 300);
+                } else {
+                    ctn.innerHTML = '<p class="text-center text-yellow-500 py-4 text-xs font-bold uppercase relative z-20">Estás sin internet. No podemos cargar el mapa global.</p>';
+                }
+            }, 400); 
         }
+
+
+
+        function filtrarMarketplace(tipo) {
+            const contenedor = document.getElementById('lista-renderizada-marketplace');
+            if (!contenedor || !window.localesGlobalesZeus) return;
+
+            // Limpiamos los pines del mapa
+            miMapaReal.eachLayer((layer) => { if (layer instanceof L.Marker) miMapaReal.removeLayer(layer); });
+
+            const baseWebUrl = window.location.href.split('?')[0];
+            let htmlList = '';
+            
+            // Coordenadas base por si algún local no configuró GPS
+            let latBase = 4.6097; let lonBase = -74.0817; 
+
+            window.localesGlobalesZeus.forEach(store => {
+                let config = store.json_data || {};
+                let esSpa = config.tipoNegocio === 'estetica';
+                
+                // Filtro visual
+                if (tipo === 'barberia' && esSpa) return;
+                if (tipo === 'estetica' && !esSpa) return;
+
+                const kioLink = baseWebUrl + '?kiosk=' + store.id;
+                let lat = config.lat || (latBase + (Math.random() * 0.05 - 0.025));
+                let lon = config.lon || (lonBase + (Math.random() * 0.05 - 0.025));
+                let icono = esSpa ? '✨' : '💈';
+                let colorTema = esSpa ? 'pink' : 'blue';
+
+                // Crear el Pin en el mapa real
+                let marker = L.marker([lat, lon]).addTo(miMapaReal);
+                marker.bindPopup(`
+                    <div class="text-center p-1" style="font-family: 'Inter', sans-serif;">
+                        <b style="color: ${esSpa ? '#ec4899' : '#4f46e5'}; font-size: 14px; text-transform: uppercase;">${store.name}</b><br>
+                        <span style="font-size: 11px; color: #666;">${config.direccion || 'Dirección VIP'}</span><br>
+                        <a href="${kioLink}" target="_blank" style="margin-top: 8px; display: inline-block; background: ${esSpa ? '#db2777' : '#2563eb'}; color: white; padding: 6px 12px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 12px;">Agendar Turno</a>
+                    </div>
+                `);
+
+                // Construir la tarjeta de la lista
+                htmlList += `
+                <div class="bg-[#050505] p-4 rounded-[1.5rem] border border-${colorTema}-900/30 flex justify-between items-center shadow-inner mb-3 transition-transform hover:scale-[1.02] cursor-pointer" onclick="miMapaReal.flyTo([${lat}, ${lon}], 16); setTimeout(()=>marker.openPopup(), 500);">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-black border-2 border-${colorTema}-500/50 overflow-hidden flex-shrink-0 shadow-[0_0_10px_rgba(${esSpa?'236,72,153':'59,130,246'},0.2)]">
+                            ${config.logo ? `<img src="${config.logo}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center text-sm">${icono}</div>`}
+                        </div>
+                        <div class="truncate">
+                            <h4 class="font-black text-white text-[11px] uppercase tracking-wide truncate w-32 sm:w-48">${store.name}</h4>
+                            <p class="text-[8px] text-${colorTema}-400 mt-0.5 uppercase tracking-widest font-bold">📍 Toca para ubicar</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="window.open('${kioLink}', '_blank'); event.stopPropagation();" class="bg-${colorTema}-600 hover:bg-${colorTema}-500 text-white px-4 py-3 rounded-xl font-black text-[9px] uppercase btn-press shadow-lg shadow-${colorTema}-900/50 transition-colors shrink-0">AGENDAR</button>
+                </div>`;
+            });
+
+            contenedor.innerHTML = htmlList || `<p class="text-zinc-500 text-[10px] font-bold uppercase text-center py-6 border border-dashed border-zinc-800 rounded-xl">No se encontraron locales de este tipo.</p>`;
+        }
+
 
         // ==========================================
         // 7. ADMINISTRADOR Y MÉTRICAS
@@ -6755,7 +6832,16 @@ function calcularPrecioIA(precioBase, idLocal) {
         }
 
 
-        function reimprimirFactura(tid) { const t = (db.barberias[bIdx].tickets || []).find(x => x.ticketId === tid); if (t) { lastTicketData = t; imprimirTicketTermico(); } }
+        function reimprimirFactura(tid) {
+            const b = db.barberias[bIdx];
+            const t = (b.tickets || []).find(x => x.ticketId === tid);
+            if(t) {
+                lastTicketData = t;
+                imprimirTicketTermico();
+            } else {
+                Swal.fire('Error', 'Factura no encontrada en la base de datos.', 'error');
+            }
+        }
 
         // -- MÓDULO ASISTENCIA --
         function abrirBarberos() { document.getElementById('modal-barberos').classList.remove('hidden'); renderAsistencia(); }
@@ -11552,7 +11638,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.128"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.129"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
@@ -11631,16 +11717,8 @@ function abrirOnboardingManual() {
             document.addEventListener('DOMContentLoaded', arrancarZeus);
             window.addEventListener('load', arrancarZeus);
         }
-     // ==========================================
-        // 🚀 MOTOR DE ARRANQUE PWA (ANDROID, IOS, WEB)
-        // ==========================================
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('✅ Agente Silencioso (SW) Instalado en:', reg.scope))
-                    .catch(err => console.error('❌ Error instalando el Agente:', err));
-            });
-        }
+
+     
 
          // ==========================================
         // 🚀 CONTROLADOR DE ARRANQUE MULTIPLATAFORMA
@@ -11805,6 +11883,25 @@ async function saAjustarLicenciaManual(idNube) {
     }
 }
 
+
+
+
+        // ==========================================
+        // 🚀 MOTOR PWA (ANDROID, IOS, MAC Y WINDOWS)
+        // ==========================================
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                .then((reg) => console.log('PWA Lista: Service Worker Registrado.', reg.scope))
+                .catch((err) => console.warn('PWA Aviso: Error al registrar sw.js.', err));
+            });
+        }
+
+        // ⚡ LLAVES DE ENCENDIDO DEL SISTEMA (¡NO BORRAR!)
+        if (typeof initDB === 'function') initDB(); 
+        window.onload = checkSession;
+
     </script>
 </body>
 </html>
+
