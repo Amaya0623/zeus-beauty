@@ -368,14 +368,22 @@
             </div>
 
             <div id="onb-paso-2" class="hidden flex-col min-h-screen w-full relative pb-20">
-                <div class="sticky top-0 z-50 bg-[#050505]/90 backdrop-blur-xl border-b border-zinc-800 p-4 sm:p-6 flex items-center justify-between shadow-lg">
-                    <button onclick="document.getElementById('onb-paso-2').classList.add('hidden'); document.getElementById('onb-paso-1').classList.remove('hidden');" class="text-zinc-400 hover:text-white font-black text-sm sm:text-base uppercase tracking-widest btn-press px-2 transition-colors">← Volver</button>
-                    <h2 id="onb-titulo-pitch" class="text-xl sm:text-2xl font-black italic uppercase tracking-tighter text-white drop-shadow-md">ZEUS</h2>
-                    <div class="w-20"></div>
+                <!-- 🛠️ CABECERA LIMPIA Y BALANCEADA -->
+                <div class="sticky top-0 z-50 bg-[#050505]/95 backdrop-blur-xl border-b border-zinc-800 p-3 sm:p-5 flex items-center justify-between shadow-lg w-full min-h-[70px]">
+                    <button onclick="document.getElementById('onb-paso-2').classList.add('hidden'); document.getElementById('onb-paso-1').classList.remove('hidden');" class="text-zinc-400 hover:text-white font-black text-xs sm:text-sm uppercase tracking-widest btn-press px-2 transition-colors w-24 text-left">← Volver</button>
+                    
+                    <div class="flex-1 flex justify-center items-center overflow-hidden">
+                        <!-- Texto Dinámico -->
+                        <h2 id="onb-titulo-pitch" class="text-xl sm:text-2xl font-black italic uppercase tracking-tighter text-white drop-shadow-md whitespace-nowrap truncate">ZEUS</h2>
+                    </div>
+
+                    <div class="w-24"></div> <!-- Espaciador matemático para centrado perfecto -->
                 </div>
 
-                <div class="p-4 sm:p-8 md:p-10 max-w-3xl mx-auto w-full">
-                    <div class="text-center mb-8 mt-4 sm:mt-6 px-2">
+                <div class="p-4 sm:p-8 md:p-10 max-w-3xl mx-auto w-full pt-10 sm:pt-12">
+
+
+                    <div class="text-center mb-8 px-2">
                         <p class="text-zinc-500 font-black uppercase tracking-widest text-[10px] sm:text-xs mb-3 border border-zinc-800 bg-zinc-900/50 inline-block px-4 py-1.5 rounded-full shadow-inner">Tu negocio al siguiente nivel</p>
                         <h2 class="text-3xl sm:text-4xl font-black uppercase tracking-tighter text-white mb-2 leading-tight drop-shadow-md">DESCUBRE TU<br>NUEVO PODER</h2>
                         <p class="text-[10px] sm:text-xs text-zinc-400 font-bold max-w-xl mx-auto leading-relaxed uppercase tracking-widest">Toca cada módulo para ver la magia ⚡</p>
@@ -10779,31 +10787,55 @@ function subirFotoClienteVIP(input) {
             }
         }
 
+   // ==========================================
+        // 🚀 CONTROLADOR VISUAL DEL ONBOARDING (BARBERÍA VS SPA)
+        // ==========================================
         function seleccionarCaminoOnboarding(tipo) {
-            tipoNegocioSeleccionado = tipo;
+            // 1. Guardamos la elección para la base de datos
+            tipoNegocioSeleccionado = tipo; 
             
-            // El Motor Camaleón hace su trabajo visual
-            const tituloPitch = document.getElementById('onb-titulo-pitch');
+            // 2. Transición de pantallas
+            document.getElementById('onb-paso-1').classList.add('hidden');
+            document.getElementById('onb-paso-2').classList.remove('hidden');
+            
+            const tituloTxt = document.getElementById('onb-titulo-pitch');
             const overlay = document.getElementById('zeus-onboarding-overlay');
             
             if (tipo === 'estetica') {
+                // 💅 MODO BEAUTY: Fondo magenta, texto neón magenta e íconos de destellos
                 document.body.classList.add('theme-estetica');
-                tituloPitch.innerText = "ZEUS BEAUTY";
-                tituloPitch.className = "text-xl font-black italic uppercase tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-[#f472b6] to-[#d946ef] drop-shadow-md";
-                overlay.classList.add('bg-[#10050f]'); // Fondo oscuro magenta
-                overlay.classList.remove('bg-[#050505]');
+                if (overlay) {
+                    overlay.classList.add('bg-[#10050f]'); 
+                    overlay.classList.remove('bg-[#050505]');
+                }
+                if (tituloTxt) {
+                    tituloTxt.classList.remove('hidden');
+                    tituloTxt.innerText = "ZEUS BEAUTY";
+                    tituloTxt.className = "text-xl sm:text-2xl font-black italic uppercase tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-[#f472b6] to-[#d946ef] drop-shadow-md whitespace-nowrap";
+                }
+                
+                // Cambiamos todos los postes de barbero por destellos mágicos
+                document.getElementById('onb-paso-2').querySelectorAll('span').forEach(el => {
+                    if (el.innerText === '💈') el.innerText = '✨';
+                });
             } else {
+                // 💈 MODO BARBER: Texto épico degradado, fondo oscuro y postes de barbero
                 document.body.classList.remove('theme-estetica');
-                tituloPitch.innerText = "ZEUS BARBER PRO";
-                tituloPitch.className = "text-xl font-black italic uppercase tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-[#66ff66] to-[#0cd1b8] drop-shadow-md";
-                overlay.classList.add('bg-[#050505]');
-                overlay.classList.remove('bg-[#10050f]');
+                if (overlay) {
+                    overlay.classList.add('bg-[#050505]');
+                    overlay.classList.remove('bg-[#10050f]');
+                }
+                if (tituloTxt) {
+                    tituloTxt.classList.remove('hidden');
+                    tituloTxt.innerText = "ZEUS BARBER PRO";
+                    tituloTxt.className = "text-xl sm:text-2xl font-black italic uppercase tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-[#66ff66] to-[#0cd1b8] drop-shadow-md whitespace-nowrap";
+                }
+                
+                // Restauramos los postes de barbero
+                document.getElementById('onb-paso-2').querySelectorAll('span').forEach(el => {
+                    if (el.innerText === '✨') el.innerText = '💈';
+                });
             }
-
-            // Deslizamos al Paso 2 (Pitch de ventas)
-            document.getElementById('onb-paso-1').classList.add('hidden');
-            document.getElementById('onb-paso-2').classList.remove('hidden');
-            document.getElementById('onb-paso-2').classList.add('flex');
         }
 
         function irAWhatsAppVentas() {
@@ -10844,24 +10876,33 @@ function abrirOnboardingManual() {
         // Obligamos al sistema a verificar el onboarding apenas arranca
         window.addEventListener('DOMContentLoaded', verificarOnboarding);
 
-         // ==========================================
+
+
+    // ==========================================
         // 🚀 LÓGICA DE DETALLES DEL ONBOARDING (MODAL APP)
         // ==========================================
         const zeusFeatures = [
-            { icon: '📅', title: 'Agenda & Kiosko 24/7', desc: 'Tus clientes agendan solos desde su celular. Cero cruces de turnos, sincronización en tiempo real y lista de espera.', color: 'border-indigo-500', shadow: 'shadow-[0_0_30px_rgba(99,102,241,0.3)]' },
-            { icon: '💳', title: 'Pagos Electrónicos', desc: 'Punto de venta (POS) robusto. Cobra con efectivo, Nequi, Daviplata o Tarjetas. Envío de recibos digitales al instante.', color: 'border-green-500', shadow: 'shadow-[0_0_30px_rgba(34,197,94,0.3)]' },
-            { icon: '📊', title: 'Finanzas y Auditoría', desc: 'Control estricto de caja, registro de gastos, utilidades netas, cálculos de impuestos y exportación de reportes en PDF.', color: 'border-blue-500', shadow: 'shadow-[0_0_30px_rgba(59,130,246,0.3)]' },
-            { icon: '💈', title: 'Control de Personal', desc: 'Liquidación de nómina automática, comisiones separadas (servicios/productos) y control estricto de horas de llegada.', color: 'border-cyan-500', shadow: 'shadow-[0_0_30px_rgba(6,182,212,0.3)]' },
-            { icon: '📦', title: 'Inventario Inteligente', desc: 'Gestiona tu stock de productos, descuenta automáticamente al vender y evita pérdidas de mercancía.', color: 'border-purple-500', shadow: 'shadow-[0_0_30px_rgba(168,85,247,0.3)]' },
-            { icon: '👑', title: 'Club VIP & Membresías', desc: 'Tarjetas de puntos digitales para clientes, venta de suscripciones (Zeus Pass) y sistema Caza-Recompensas.', color: 'border-yellow-500', shadow: 'shadow-[0_0_30px_rgba(234,179,8,0.3)]' },
-            { icon: '💬', title: 'Marketing WhatsApp', desc: 'Recordatorios de citas automáticos, felicitaciones de cumpleaños y campañas masivas para recuperar clientes perdidos.', color: 'border-[#25D366]', shadow: 'shadow-[0_0_30px_rgba(37,211,102,0.3)]' },
-            { icon: '📺', title: 'Smart TV Experience', desc: 'Convierte la TV de tu sala de espera en un monitor dinámico de turnos, anuncios, videos y códigos QR de pago.', color: 'border-pink-500', shadow: 'shadow-[0_0_30px_rgba(236,72,153,0.3)]' },
-            { icon: '🤖', title: 'Inteligencia Artificial', desc: 'Asistente de voz (ISI IA), cierre de caja narrado por voz, análisis de horas pico y Upselling automático.', color: 'border-cyan-400', shadow: 'shadow-[0_0_30px_rgba(34,211,238,0.3)]' }
+            { icon: '📅', title: 'Agenda 24/7 Pro', desc: 'Tus clientes agendan solos desde nuestro Kiosko Virtual. Incluye radar anti-choques de horarios, lista de espera automatizada para no perder turnos cancelados y envíos de recordatorios por WhatsApp.', color: 'border-indigo-500', shadow: 'shadow-[0_0_30px_rgba(99,102,241,0.3)]' },
+            { icon: '💳', title: 'Smart POS', desc: 'Un Punto de Venta letal. Cobra en Efectivo, Nequi, Daviplata o con nuestra pasarela Wompi integrada. Calcula propinas, impuestos (IVA) y genera tickets térmicos.', color: 'border-green-500', shadow: 'shadow-[0_0_30px_rgba(34,197,94,0.3)]' },
+            { icon: '📊', title: 'Finanzas y Auditoría', desc: 'Control total de tu dinero. Cierres de caja ciegos anti-robo, registro de gastos, utilidades netas reales y exportación de reportes a PDF y Excel.', color: 'border-blue-500', shadow: 'shadow-[0_0_30px_rgba(59,130,246,0.3)]' },
+            { icon: '💈', title: 'Control de Personal', desc: 'Nómina automática sin errores. Asigna porcentajes de comisión distintos para servicios y productos. Incluye reloj de asistencia y multas por llegadas tarde.', color: 'border-cyan-500', shadow: 'shadow-[0_0_30px_rgba(6,182,212,0.3)]' },
+            { icon: '📦', title: 'Stock e Inventario', desc: 'Mantén tu vitrina bajo control. Registro de productos, alertas visuales de inventario agotado y comisiones cruzadas por ventas.', color: 'border-purple-500', shadow: 'shadow-[0_0_30px_rgba(168,85,247,0.3)]' },
+            { icon: '👑', title: 'Billetera VIP & Pass', desc: 'Zeus otorga a tus clientes una Tarjeta VIP 3D digital en sus celulares. Vende mensualidades (Zeus Pass), usa la Receta Visual con fotos y activa el sistema de referidos.', color: 'border-yellow-500', shadow: 'shadow-[0_0_30px_rgba(234,179,8,0.3)]' },
+            { icon: '💬', title: 'Marketing WhatsApp', desc: 'Comunícate directo al bolsillo de tu cliente. Dispara campañas masivas, pide reseñas en Google y deja que la IA envíe cupones a clientes inactivos.', color: 'border-[#25D366]', shadow: 'shadow-[0_0_30px_rgba(37,211,102,0.3)]' },
+            { icon: '📺', title: 'Smart TV Inmersivo', desc: 'Convierte el televisor de tu sala de espera en tu mejor vendedor. Proyecta tus videos, muestra promociones en vivo y lanza un QR gigante para reservar.', color: 'border-pink-500', shadow: 'shadow-[0_0_30px_rgba(236,72,153,0.3)]' },
+            { icon: '🤖', title: 'ISI Inteligencia Artificial', desc: 'Tu propio analista de datos. ISI procesa tus ventas para decirte tu retención de clientes, tu hora pico y el día más rentable. Activa precios dinámicos.', color: 'border-cyan-400', shadow: 'shadow-[0_0_30px_rgba(34,211,238,0.3)]' }
         ];
 
-        function abrirDetalleFeature(id) {
+       function abrirDetalleFeature(id) {
             const feat = zeusFeatures[id];
-            document.getElementById('feat-icon').innerText = feat.icon;
+            
+            // 🌟 MAGIA DEL MOTOR CAMALEÓN: Adaptar el icono según el tema actual justo antes de mostrarlo
+            let iconoFinal = feat.icon;
+            if (document.body.classList.contains('theme-estetica') && iconoFinal === '💈') {
+                iconoFinal = '✨';
+            }
+
+            document.getElementById('feat-icon').innerText = iconoFinal;
             document.getElementById('feat-title').innerText = feat.title;
             document.getElementById('feat-desc').innerText = feat.desc;
             
@@ -11556,11 +11597,6 @@ function abrirOnboardingManual() {
             } catch (err) { console.error(err); Swal.fire('Error', 'No se pudo procesar la venta.', 'error'); }
         }
 
-
-
-
-
-
         function cerrarTicketInteligente() {
             document.getElementById('modal-ticket').classList.add('hidden');
             cerrarModales(); 
@@ -11638,7 +11674,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.129"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.130"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
@@ -11691,6 +11727,7 @@ function abrirOnboardingManual() {
             }
         }
 
+        
         // ✨ MAGIA NIVEL DIOS: Sincronización Fantasma OPTIMIZADA (Cuida Supabase Gratis)
         let ultimaSyncFantasma = Date.now();
 
@@ -11718,8 +11755,6 @@ function abrirOnboardingManual() {
             window.addEventListener('load', arrancarZeus);
         }
 
-     
-
          // ==========================================
         // 🚀 CONTROLADOR DE ARRANQUE MULTIPLATAFORMA
         // ==========================================
@@ -11734,7 +11769,6 @@ function abrirOnboardingManual() {
         } else {
             arrancarZeusMaestro();
         }
-
 
 
 // ==========================================
@@ -11802,6 +11836,8 @@ async function desactivarNotificacionesPush() {
         Swal.fire({ title: 'Desactivado', text: 'Ya no recibirás alertas en este dispositivo.', icon: 'info', background: '#0a0a0a', color: '#fff' });
     }
 }
+
+
 // ==========================================
 // ⏱️ MOTOR DE LICENCIAS SAAS (RENOVACIÓN Y AJUSTE)
 // ==========================================
@@ -11882,9 +11918,6 @@ async function saAjustarLicenciaManual(idNube) {
         }
     }
 }
-
-
-
 
         // ==========================================
         // 🚀 MOTOR PWA (ANDROID, IOS, MAC Y WINDOWS)
