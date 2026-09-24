@@ -1,26 +1,34 @@
-<!DOCTYPE html>
-<html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <link rel="manifest" href="manifest.json">
     
     <link rel="apple-touch-icon" href="icono.png">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- 🚀 BLINDAJE PWA: FORZAR PANTALLA COMPLETA SIN BORDES -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- 🚀 BLINDAJE PWA: FORZAR COLOR NEGRO ABSOLUTO EN LA BARRA DE ESTADO ANDROID/IOS -->
+    <meta name="theme-color" content="#050505" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#050505" media="(prefers-color-scheme: light)">
+    
     <title>ZEUS BARBER PRO | Software para Barberías, Peluquerías y Spa</title>
     <meta name="description" content="El sistema definitivo para Barberías, Salones de Belleza y Spa. Agenda online 24/7, pagos electrónicos, inventario, comisiones y facturación.">
     <meta name="keywords" content="software para barberias, app para barberia, software para spa, software para peluqueria, agenda peluqueria, sistema pos barberia, zeus barber pro, zeus beauty">
     <meta name="author" content="Isi Control">
     <meta property="og:title" content="Zeus ERP | Barberías y Spa">
     <meta property="og:description" content="Gestiona tu negocio al siguiente nivel con Zeus. Citas, POS y Marketing.">
+    
+    <!-- Evitar caché al cargar la PWA -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     
+    <!-- Comportamiento de App Nativa -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <!-- iOS: Forzar barra de estado negra transparente (se funde con el fondo) -->
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#050505">
+    
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -33,8 +41,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-
-
         /* ========================================= */
         /* 📱 BLINDAJE NATIVO PWA (IOS / ANDROID)    */
         /* ========================================= */
@@ -43,16 +49,33 @@
             touch-action: manipulation !important; 
         }
         
-        /* 2. Protege la pantalla de la barra inferior (Home Indicator) del iPhone */
+        /* 2. Protege la pantalla de la barra inferior (Home Indicator) del iPhone y el notch superior */
         body { 
             padding-bottom: env(safe-area-inset-bottom); 
             padding-top: env(safe-area-inset-top);
+            /* Fuerza el fondo negro profundo en todo el documento */
+            background-color: #050505 !important;
+            color: #ffffff; 
+            font-family: 'Inter', sans-serif; 
+            overflow-x: hidden; 
+            margin: 0; 
+            -webkit-tap-highlight-color: transparent; 
+            user-select: none;
+            /* Fuerza a que el body ocupe el 100% del alto visual */
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+        }
+        /* Para navegadores webkit modernos, asegura que el html también cubra todo */
+        html {
+            height: -webkit-fill-available;
+            background-color: #050505 !important;
         }
         
         /* 3. Evita que los modales queden ocultos bajo el notch */
         .scroll-safe { 
             padding-bottom: calc(2rem + env(safe-area-inset-bottom)) !important; 
         }
+        
         /* ✨ BADGES PREMIUM ZEUS (PASOS Y ICONOS) */
         .badge-step { position: relative; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: #050505; }
         .badge-step::before { content: ''; position: absolute; inset: -1px; border-radius: 50%; background: conic-gradient(from 0deg, transparent 0%, transparent 60%, #6366f1 100%); animation: spin 2s linear infinite; }
@@ -67,7 +90,6 @@
         .badge-icon-green { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.5); box-shadow: 0 0 15px rgba(34,197,94,0.4); }
         .badge-icon span { font-size: 13px; z-index: 2; line-height: 1; display: block; margin-top: 1px; }
 
-        body { background: #050505; color: #ffffff; font-family: 'Inter', sans-serif; overflow-x: hidden; margin: 0; -webkit-tap-highlight-color: transparent; user-select: none; }
         input, textarea, select { user-select: auto; background: #000 !important; color: #fff !important; border: 1px solid #333 !important; outline: none; width: 100%; box-sizing: border-box; }
         input:focus, select:focus, textarea:focus { border-color: #4f46e5 !important; }
         input[type="date"]::-webkit-calendar-picker-indicator, input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
@@ -149,7 +171,7 @@
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
 
         /* ✨ TARJETA DE FIDELIZACIÓN VIP */
-.card-container { width: 340px; height: 215px; perspective: 1000px; -webkit-perspective: 1000px; margin: 0 auto; position: relative; z-index: 50; }
+        .card-container { width: 340px; height: 215px; perspective: 1000px; -webkit-perspective: 1000px; margin: 0 auto; position: relative; z-index: 50; }
         .card-3d { width: 100%; height: 100%; position: absolute; transform-style: preserve-3d; -webkit-transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); -webkit-transition: -webkit-transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); }
         .card-3d.flipped { transform: rotateY(180deg); -webkit-transform: rotateY(180deg); }
         .card-front, .card-back { position: absolute; top: 0; left: 0; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 1.25rem; background-color: #050505; border: 1px solid #ef4444; box-shadow: 0 15px 30px rgba(0,0,0,0.8), inset 0 0 15px rgba(239, 68, 68, 0.2); overflow: hidden; display: flex; flex-direction: column; transform: translateZ(1px); -webkit-transform: translateZ(1px); }
@@ -157,7 +179,7 @@
         .card-bg-neon { position: absolute; top: -50px; left: -50px; width: 150px; height: 150px; background: #ef4444; border-radius: 50%; filter: blur(70px); -webkit-filter: blur(70px); opacity: 0.25; pointer-events: none; z-index: 0; }
         .card-texture { position: absolute; inset: 0; background-image: radial-gradient(rgba(239,68,68,0.15) 1px, transparent 1px); background-size: 14px 14px; opacity: 0.5; pointer-events: none; z-index: 0; }
 
-/* 🍏 PARCHE IOS: Evita el zoom automático al tocar inputs */
+        /* 🍏 PARCHE IOS: Evita el zoom automático al tocar inputs */
         input, select, textarea { font-size: 16px !important; }
 
         /* 📺 MODO SMART TV: Interfaz inmersiva sin interacción manual */
@@ -168,13 +190,9 @@
         body.tv-mode .btn-press, body.tv-mode input, body.tv-mode select { display: none !important; } /* Esconde controles */
 
     </style>
-
-
 </head>
 
 <body>
-
-
 
 
    <div id="splash-screen" class="fixed inset-0 z-[9999] w-full h-full bg-black flex items-center justify-center transition-opacity duration-700 ease-in-out">
@@ -11597,6 +11615,11 @@ function abrirOnboardingManual() {
             } catch (err) { console.error(err); Swal.fire('Error', 'No se pudo procesar la venta.', 'error'); }
         }
 
+
+
+
+
+
         function cerrarTicketInteligente() {
             document.getElementById('modal-ticket').classList.add('hidden');
             cerrarModales(); 
@@ -11674,7 +11697,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.130"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.131"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
@@ -11727,7 +11750,6 @@ function abrirOnboardingManual() {
             }
         }
 
-        
         // ✨ MAGIA NIVEL DIOS: Sincronización Fantasma OPTIMIZADA (Cuida Supabase Gratis)
         let ultimaSyncFantasma = Date.now();
 
@@ -11755,6 +11777,8 @@ function abrirOnboardingManual() {
             window.addEventListener('load', arrancarZeus);
         }
 
+     
+
          // ==========================================
         // 🚀 CONTROLADOR DE ARRANQUE MULTIPLATAFORMA
         // ==========================================
@@ -11769,6 +11793,7 @@ function abrirOnboardingManual() {
         } else {
             arrancarZeusMaestro();
         }
+
 
 
 // ==========================================
@@ -11918,6 +11943,9 @@ async function saAjustarLicenciaManual(idNube) {
         }
     }
 }
+
+
+
 
         // ==========================================
         // 🚀 MOTOR PWA (ANDROID, IOS, MAC Y WINDOWS)
