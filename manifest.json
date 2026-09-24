@@ -1,11 +1,11 @@
 {
   "name": "Zeus Barber Pro",
   "short_name": "Zeus Barber",
-  "description": "Software Profesional para Barberías",
+  "description": "Software Profesional para Barberías y Spa",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#050505",
-  "theme_color": "#4f46e5",
+  "theme_color": "#050505",
   "icons": [
     {
       "src": "icono.png",
