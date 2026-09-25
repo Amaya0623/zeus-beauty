@@ -4822,26 +4822,30 @@ const btnRecibo = tieneAbono ? `<button type="button" onclick="verComprobanteCit
                     else {
                         console.log("☁️ Cita inyectada a la tabla SQL exitosamente.");
                         
-                        // 🔔 GATILLO DE NOTIFICACIÓN PUSH AL ADMIN
+                        // 🔔 GATILLO DE NOTIFICACIÓN PUSH AL ADMIN (BLINDADO)
                         let tokenPushAdmin = b.pushSubscription;
                         
                         if (tokenPushAdmin) {
-                            // 🚀 USAMOS EL INVOCADOR NATIVO DE SUPABASE (Evita bloqueos de seguridad y CORS)
+                            // 🚀 USAMOS EL INVOCADOR NATIVO DE SUPABASE PARA EVITAR BLOQUEOS CORS/401
                             supabaseClient.functions.invoke('enviar-push', {
                                 body: {
                                     subscription: tokenPushAdmin,
-                                    title: '¡Nueva Cita en Zeus! ⚡',
-                                    body: `${cli} agendó a las ${formatTime12h(h)} con ${barb}`
+                                    title: '¡NUEVA CITA KIOSKO! ⚡',
+                                    body: `📅 ${f} | ⏰ ${formatTime12h(h)}\n👤 ${cli}\n💈 ${barb}`
                                 }
                             }).then(({ data, error }) => {
-                                if (error) console.error('❌ Error disparando Push:', error);
+                                if (error) console.error('❌ Error disparando Push (Supabase Invoke):', error);
                                 else console.log('🔔 Push disparado con éxito:', data);
+                            }).catch(err => {
+                                console.error('Fallo crítico al invocar función Push:', err);
                             });
+                        } else {
+                            console.warn("⚠️ No se disparó Push: El local no tiene una antena (token) registrada.");
                         }
 
                     }
                 }); // 👈 CIERRE 1: Termina la promesa de Supabase
-            } // 👈 CIERRE 2: Termina la condición de Internet (Lo de abajo siempre se ejecuta)
+            }
 
             // 👇 GUARDADO LOCAL (A prueba de fallos y modo Offline)
             const idCli = cel || cli;
@@ -11848,7 +11852,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.137"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.138"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
