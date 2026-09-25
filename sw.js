@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zeus-cache-v1.135'; // 🚀 Subimos versión para inyectar los nuevos motores
+const CACHE_NAME = 'zeus-cache-v1.136'; // 🚀 Subimos versión para inyectar los nuevos motores
 
 // 🛡️ BÓVEDA OFFLINE: Aquí guardamos la app entera y sus librerías de diseño
 const urlsToCache = [
