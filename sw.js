@@ -1,13 +1,22 @@
-const CACHE_NAME = 'zeus-cache-v1.131'; // Subimos de versión para limpiar caché antigua y destrabar el sistema
+const CACHE_NAME = 'zeus-cache-v1.135'; // 🚀 Subimos versión para inyectar los nuevos motores
 
-// Archivos críticos para modo Offline y para que el navegador active la instalación
+// 🛡️ BÓVEDA OFFLINE: Aquí guardamos la app entera y sus librerías de diseño
 const urlsToCache = [
   './',
   './index.html',
   './manifest.json',
   './icono.png',
-  './video.gif', // Agregamos el video para que cargue siempre
-  'https://cdn.jsdelivr.net/npm/sweetalert2@11'
+  './video.mp4', // Asegúrate de que sea tu video principal
+  // LIBRERÍAS EXTERNAS VITALES PARA QUE NO SE ROMPA EL DISEÑO SIN INTERNET:
+  'https://cdn.tailwindcss.com',
+  'https://cdn.jsdelivr.net/npm/sweetalert2@11',
+  'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js',
+  'https://cdn.jsdelivr.net/npm/chart.js',
+  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
+  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
+  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
 ];
 
 self.addEventListener('install', e => {
