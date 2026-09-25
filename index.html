@@ -324,7 +324,7 @@
             </div>
 
             <div class="mt-auto mb-auto">
-                <input type="password" inputmode="numeric" id="login-pin" maxlength="4" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)" aria-label="Ingrese su PIN de acceso" placeholder="••••" class="w-full p-6 rounded-3xl text-center text-5xl font-black mb-6 border border-zinc-800 shadow-inner tracking-[0.5em] bg-[#050505] focus:border-indigo-500 outline-none transition-colors text-white">
+                <input type="password" inputmode="numeric" id="login-pin" maxlength="4" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)" aria-label="Ingrese su PIN de acceso" placeholder="••••" class="w-full p-6 rounded-3xl text-center text-4xl font-black mb-6 border border-zinc-800 shadow-inner tracking-[1em] indent-[1em] bg-[#050505] focus:border-indigo-500 outline-none transition-colors text-white">
 
                 <button type="button" onclick="actionLogin()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-6 rounded-3xl text-xl font-black uppercase italic shadow-lg shadow-indigo-600/20 btn-press transition-colors text-white mb-6">
                     <span id="btn-login-text">Entrar a Zeus ⚡</span>
@@ -11847,7 +11847,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.135"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.136"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
