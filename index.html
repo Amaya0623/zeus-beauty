@@ -4826,19 +4826,17 @@ const btnRecibo = tieneAbono ? `<button type="button" onclick="verComprobanteCit
                         let tokenPushAdmin = b.pushSubscription;
                         
                         if (tokenPushAdmin) {
-                            fetch('https://blfkwfmthsdifdjybssw.supabase.co/functions/v1/enviar-push', {
-                                method: 'POST',
-                                headers: { 
-                                    'Content-Type': 'application/json',
-                                    'Authorization': `Bearer ${_dbToken}` 
-                                },
-                                body: JSON.stringify({
+                            // 🚀 USAMOS EL INVOCADOR NATIVO DE SUPABASE (Evita bloqueos de seguridad y CORS)
+                            supabaseClient.functions.invoke('enviar-push', {
+                                body: {
                                     subscription: tokenPushAdmin,
-                                    title: '¡NUEVA CITA KIOSKO! ⚡',
-                                    body: `📅 Fecha: ${f}\n⏰ Hora: ${formatTime12h(h)}\n👤 Cliente: ${cli}\n💈 Barbero: ${barb}`
-                                })
-                            }).then(() => console.log('🔔 Push disparado con éxito (Autorizado)'))
-                              .catch(err => console.log('Error disparando Push:', err));
+                                    title: '¡Nueva Cita en Zeus! ⚡',
+                                    body: `${cli} agendó a las ${formatTime12h(h)} con ${barb}`
+                                }
+                            }).then(({ data, error }) => {
+                                if (error) console.error('❌ Error disparando Push:', error);
+                                else console.log('🔔 Push disparado con éxito:', data);
+                            });
                         }
 
                     }
@@ -7334,43 +7332,46 @@ function calcularPrecioIA(precioBase, idLocal) {
         }
 
        
-         // ==========================================
+ // ==========================================
 // 🔔 MÓDULO 3: PUSH CON TUS LLAVES VAPID
 // ==========================================
+
 async function activarNotificacionesPush() {
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-        return Swal.fire({title: 'No Soportado', text: 'Tu dispositivo no soporta Push nativo.', icon: 'error', background: '#0a0a0a', color: '#fff'});
+        return Swal.fire('Error', 'Tu navegador o dispositivo no soporta notificaciones Push. (Asegúrate de instalar la PWA)', 'error');
     }
+
     try {
-        const b = db.barberias[bIdx];
-        if (!isOnline || !b || !b.id_nube) throw new Error("Sin conexión a la nube.");
+        const permiso = await Notification.requestPermission();
+        if (permiso !== 'granted') throw new Error('Permiso denegado por el usuario.');
 
-        Swal.fire({ title: 'Vinculando...', text: 'Conectando con Supabase ☁️', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
-        
-        const permission = await Notification.requestPermission();
-        if (permission !== 'granted') throw new Error('Permiso denegado.');
+        Swal.fire({ title: 'Vinculando Dispositivo...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() }, background: '#0a0a0a', color: '#fff' });
 
-        const registration = await navigator.serviceWorker.ready;
-        // 🚨 TU LLAVE PÚBLICA (Ya inyectada)
-        const PUBLIC_VAPID_KEY = "BHKFJnWSHmcY2Q4o-J93NiUq8SeARR9oDFYLmtaSnud4bBFXiZC4VZzvmCnA5MypqXY-rZdvHwudBGb_mnafQj4";
-
-        const subscription = await registration.pushManager.subscribe({
+        const register = await navigator.serviceWorker.ready;
+        const subscription = await register.pushManager.subscribe({
             userVisibleOnly: true,
             applicationServerKey: urlBase64ToUint8Array(PUBLIC_VAPID_KEY)
         });
-        
-        b.pushSubscription = subscription;
-        if(typeof saveDB === 'function') saveDB(false);
 
-        const { error } = await supabaseClient.from('stores').update({ json_data: b }).eq('id', b.id_nube);
-        if (error) throw error;
-        
-        Swal.fire({title: '¡Activadas!', text: 'Recibirás alertas en este dispositivo.', icon: 'success', background: '#0a0a0a', color: '#fff'});
-        const statusTxt = document.getElementById('push-status-txt');
-        if(statusTxt) statusTxt.innerText = "Estado: Vinculado y Activo 🟢";
+        // 🚀 CORRECCIÓN VITAL: Convertir el objeto a JSON puro para no perder las llaves criptográficas al subirlo a Supabase
+        const tokenPuro = subscription.toJSON();
+
+        // Guardar el Token en la memoria local y forzar subida a la nube
+        if (bIdx !== -1 && db.barberias[bIdx]) {
+            db.barberias[bIdx].pushSubscription = tokenPuro;
+            saveDB(true); 
+            
+            const txtEstado = document.getElementById('push-status-txt');
+            if (txtEstado) {
+                txtEstado.innerText = "Estado: Dispositivo Vinculado ✅";
+                txtEstado.className = "text-[8px] text-green-500 uppercase mt-3 font-bold leading-tight text-center";
+            }
+            
+            Swal.fire({ title: '¡Antena Activada! 📡', text: 'Recibirás notificaciones de nuevas citas en este celular aunque la app esté cerrada.', icon: 'success', background: '#0a0a0a', color: '#fff' });
+        }
     } catch (error) {
-        console.error("Error Push:", error);
-        Swal.fire({title: 'Error Técnico', text: 'No pudimos vincular este dispositivo.', icon: 'error', background: '#0a0a0a', color: '#fff'});
+        console.error(error);
+        Swal.fire({ title: 'Error Técnico', text: 'No pudimos vincular este dispositivo. Asegúrate de dar permisos y tener la app instalada.', icon: 'error', background: '#0a0a0a', color: '#fff' });
     }
 }
 
@@ -11847,7 +11848,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.136"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.137"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
