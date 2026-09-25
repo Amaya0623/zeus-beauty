@@ -324,7 +324,7 @@
             </div>
 
             <div class="mt-auto mb-auto">
-                <input type="password" inputmode="numeric" id="login-pin" aria-label="Ingrese su PIN de acceso" placeholder="INGRESE PIN" class="w-full p-6 rounded-3xl text-center text-4xl font-black mb-6 border border-zinc-800 shadow-inner tracking-widest bg-[#050505] focus:border-indigo-500 outline-none transition-colors text-white">
+                <input type="password" inputmode="numeric" id="login-pin" maxlength="4" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)" aria-label="Ingrese su PIN de acceso" placeholder="••••" class="w-full p-6 rounded-3xl text-center text-5xl font-black mb-6 border border-zinc-800 shadow-inner tracking-[0.5em] bg-[#050505] focus:border-indigo-500 outline-none transition-colors text-white">
 
                 <button type="button" onclick="actionLogin()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-6 rounded-3xl text-xl font-black uppercase italic shadow-lg shadow-indigo-600/20 btn-press transition-colors text-white mb-6">
                     <span id="btn-login-text">Entrar a Zeus ⚡</span>
@@ -1235,44 +1235,46 @@
 
 
                             
-                            <div class="flex gap-3">
-                                <input type="text" id="cfg-direccion" placeholder="Dirección Completa" class="w-full p-4 rounded-xl text-xs font-bold border border-zinc-800 bg-[#050505] text-white focus:border-indigo-500 outline-none transition-colors">
-                                <input type="text" inputmode="numeric" id="cfg-telefono" placeholder="Teléfono" class="w-1/2 p-4 rounded-xl text-xs font-bold text-center border border-zinc-800 bg-[#050505] text-white focus:border-indigo-500 outline-none transition-colors">
+                           <!-- Dirección y Teléfono apilados -->
+                            <div class="flex flex-col gap-3 mt-2">
+                                <input type="text" id="cfg-direccion" placeholder="Dirección Completa" class="w-full p-4 rounded-xl text-sm font-bold border border-zinc-800 bg-[#050505] text-white focus:border-indigo-500 outline-none transition-colors">
+                                <input type="text" inputmode="numeric" id="cfg-telefono" placeholder="Teléfono" class="w-full p-4 rounded-xl text-sm font-bold text-center border border-zinc-800 bg-[#050505] text-white focus:border-indigo-500 outline-none transition-colors">
                             </div>
 
-                            <div class="bg-blue-900/10 p-5 rounded-[1.5rem] border border-blue-900/30 mt-3 shadow-inner">
-                                <div class="flex justify-between items-center mb-3">
-                                    <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest flex items-center gap-2"><span class="text-xl">📍</span> Ubicación GPS</p>
-                                    <button type="button" onclick="capturarUbicacionGPS()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl font-black text-[9px] uppercase btn-press shadow-lg shadow-blue-600/20 transition-all flex items-center gap-2">Capturar Auto</button>
+                            <!-- GPS Apilado -->
+                            <div class="bg-blue-900/10 p-5 rounded-[1.5rem] border border-blue-900/30 mt-4 shadow-inner flex flex-col items-center">
+                                <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest flex items-center gap-2 mb-4"><span class="text-xl">📍</span> Ubicación GPS</p>
+                                
+                                <button type="button" onclick="capturarUbicacionGPS()" class="w-full bg-blue-600 hover:bg-blue-500 text-white px-4 py-4 rounded-xl font-black text-[10px] uppercase btn-press shadow-lg shadow-blue-600/20 transition-all flex items-center justify-center gap-2 mb-5">
+                                    Capturar Automático
+                                </button>
+                                
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+                                    <div><p class="text-[8px] text-zinc-500 font-bold uppercase mb-1 ml-1">Latitud</p><input type="text" id="cfg-lat" placeholder="Ej: 4.5981" class="w-full p-4 rounded-xl text-sm font-bold border border-zinc-800 bg-[#050505] text-zinc-300 focus:border-blue-500 outline-none transition-colors"></div>
+                                    <div><p class="text-[8px] text-zinc-500 font-bold uppercase mb-1 ml-1">Longitud</p><input type="text" id="cfg-lon" placeholder="Ej: -74.0758" class="w-full p-4 rounded-xl text-sm font-bold border border-zinc-800 bg-[#050505] text-zinc-300 focus:border-blue-500 outline-none transition-colors"></div>
                                 </div>
-                                <div class="grid grid-cols-2 gap-3">
-                                    <div><p class="text-[8px] text-zinc-500 font-bold uppercase mb-1">Latitud</p><input type="text" id="cfg-lat" placeholder="Ej: 4.5981" class="w-full p-3 rounded-xl text-xs font-bold border border-zinc-800 bg-[#050505] text-zinc-300 focus:border-blue-500 outline-none transition-colors"></div>
-                                    <div><p class="text-[8px] text-zinc-500 font-bold uppercase mb-1">Longitud</p><input type="text" id="cfg-lon" placeholder="Ej: -74.0758" class="w-full p-3 rounded-xl text-xs font-bold border border-zinc-800 bg-[#050505] text-zinc-300 focus:border-blue-500 outline-none transition-colors"></div>
-                                </div>
-                                <p class="text-[8px] text-zinc-500 mt-2 uppercase italic text-center">Puedes capturar en el celular o pegar desde Google Maps.</p>
+                                <p class="text-[8px] text-zinc-500 mt-3 uppercase italic text-center w-full">Puedes capturar en el celular o pegar desde Google Maps.</p>
                             </div>
 
-
-
-
+                            <textarea id="cfg-resolucion" rows="2" placeholder="Resolución DIAN o Texto Legal Fiscal" class="w-full p-4 rounded-xl text-sm font-bold border border-zinc-800 bg-[#050505] text-zinc-400 resize-none focus:border-indigo-500 outline-none transition-colors mt-4"></textarea>
                             
-                            <textarea id="cfg-resolucion" rows="2" placeholder="Resolución DIAN o Texto Legal Fiscal" class="w-full p-4 rounded-xl text-xs font-bold border border-zinc-800 bg-[#050505] text-zinc-400 resize-none focus:border-indigo-500 outline-none transition-colors"></textarea>
-                            
-                            <div class="flex gap-3">
-                                <input type="text" id="cfg-prefijo" placeholder="Prefijo (Ej: POS-)" class="w-1/3 p-4 rounded-xl text-xs font-bold text-center border border-zinc-800 bg-[#050505] text-yellow-400 uppercase focus:border-yellow-500 outline-none transition-colors">
-                                <input type="text" inputmode="numeric" id="cfg-consecutivo" placeholder="Siguiente N°" class="w-2/3 p-4 rounded-xl text-xs font-bold border border-zinc-800 bg-[#050505] text-yellow-400 tracking-widest text-center focus:border-yellow-500 outline-none transition-colors">
+                            <div class="grid grid-cols-2 gap-3 mt-1">
+                                <input type="text" id="cfg-prefijo" placeholder="Prefijo (Ej: POS-)" class="w-full p-4 rounded-xl text-sm font-bold text-center border border-zinc-800 bg-[#050505] text-yellow-400 uppercase focus:border-yellow-500 outline-none transition-colors">
+                                <input type="text" inputmode="numeric" id="cfg-consecutivo" placeholder="Siguiente N°" class="w-full p-4 rounded-xl text-sm font-bold border border-zinc-800 bg-[#050505] text-yellow-400 tracking-widest text-center focus:border-yellow-500 outline-none transition-colors">
                             </div>
                             
-                            <div class="flex gap-3">
-                                <select id="cfg-moneda" class="w-1/3 p-4 rounded-xl text-xs font-bold text-center border border-zinc-800 bg-[#050505] text-green-400 outline-none focus:border-green-500 cursor-pointer appearance-none transition-colors">
+                            <!-- Moneda y Ticket Apilados -->
+                            <div class="flex flex-col gap-3 mt-1">
+                                <select id="cfg-moneda" class="w-full p-4 rounded-xl text-sm font-bold text-center border border-zinc-800 bg-[#050505] text-green-400 outline-none focus:border-green-500 cursor-pointer appearance-none transition-colors">
                                     <option value="COP">COP ($)</option>
                                     <option value="USD">USD (US$)</option>
                                     <option value="MXN">MXN (MX$)</option>
                                     <option value="EUR">EUR (€)</option>
                                     <option value="PEN">PEN (S/)</option>
                                 </select>
-                                <textarea id="cfg-ticket-footer" rows="1" placeholder="Texto legal al final del ticket" class="w-2/3 p-4 rounded-xl text-xs font-bold border border-zinc-800 bg-[#050505] text-zinc-500 resize-none focus:border-indigo-500 outline-none transition-colors">Documento no válido como factura</textarea>
+                                <textarea id="cfg-ticket-footer" rows="2" placeholder="Texto legal al final del ticket" class="w-full p-4 rounded-xl text-sm font-bold border border-zinc-800 bg-[#050505] text-zinc-500 resize-none focus:border-indigo-500 outline-none transition-colors">Documento no válido como factura</textarea>
                             </div>
+
                             
                             <div class="bg-indigo-900/10 p-5 rounded-[1.5rem] border border-indigo-900/30 mt-4">
                                 <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-4 flex items-center gap-2"><span class="text-lg">📺</span> Ajustes Smart TV</p>
@@ -1327,51 +1329,60 @@
 
 
                         <div id="acc-personal" class="hidden px-6 pb-6 border-t border-zinc-800/50 pt-5">
+
                             
-                            <div class="col-span-12 mb-4 p-4 rounded-xl border border-zinc-800 bg-[#111]">
-                                <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-3">⏳ Horarios</p>
-
-
-                                <div class="grid grid-cols-3 gap-2 items-center">
-                                    <div><input type="time" id="cfg-apertura" class="w-full p-3 px-1 sm:px-3 rounded-xl text-[10px] sm:text-xs font-bold text-center border border-zinc-800 bg-[#050505] text-white min-w-0 outline-none focus:border-blue-500"></div>
-                                    <div><input type="time" id="cfg-cierre" class="w-full p-3 px-1 sm:px-3 rounded-xl text-[10px] sm:text-xs font-bold text-center border border-zinc-800 bg-[#050505] text-white min-w-0 outline-none focus:border-blue-500"></div>
-                                    <div><input type="text" inputmode="numeric" id="cfg-intervalo" placeholder="Minutos" class="w-full p-3 px-1 sm:px-3 rounded-xl text-[10px] sm:text-xs font-bold text-center border border-zinc-800 bg-[#050505] text-white min-w-0 outline-none focus:border-blue-500"></div>
+                            <!-- ⏳ MÓDULO HORARIOS (DISEÑO MÓVIL OPTIMIZADO) -->
+                            <div class="col-span-12 mb-5 p-5 rounded-2xl border border-zinc-800 bg-[#111] shadow-inner">
+                                <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-4 flex items-center gap-2"><span class="text-lg">⏳</span> Horarios de Atención</p>
+                                
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
+                                    <div class="flex flex-col">
+                                        <span class="text-[8px] text-zinc-500 uppercase font-bold mb-1 ml-1">Hora Apertura</span>
+                                        <input type="time" id="cfg-apertura" class="w-full p-4 rounded-xl text-sm font-bold text-center border border-zinc-800 bg-[#050505] text-white outline-none focus:border-blue-500 appearance-none">
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="text-[8px] text-zinc-500 uppercase font-bold mb-1 ml-1">Hora Cierre</span>
+                                        <input type="time" id="cfg-cierre" class="w-full p-4 rounded-xl text-sm font-bold text-center border border-zinc-800 bg-[#050505] text-white outline-none focus:border-blue-500 appearance-none">
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="text-[8px] text-zinc-500 uppercase font-bold mb-1 ml-1">Duración Citas (Mins)</span>
+                                        <input type="text" inputmode="numeric" id="cfg-intervalo" placeholder="Ej: 60" class="w-full p-4 rounded-xl text-sm font-bold text-center border border-zinc-800 bg-[#050505] text-white outline-none focus:border-blue-500">
+                                    </div>
                                 </div>
-
-
                             </div>
 
-
-
-
-
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- ✂️ MÓDULO SERVICIOS (DISEÑO MÓVIL OPTIMIZADO) -->
                                 <div class="bg-zinc-950 p-6 rounded-[1.5rem] border border-zinc-800 shadow-inner">
-                                    <p class="text-[10px] font-black text-green-400 mb-4 uppercase tracking-widest">Servicios</p>
-                                    <div class="grid grid-cols-12 gap-2 mb-4">
+                                    <p class="text-[10px] font-black text-green-400 mb-4 uppercase tracking-widest">Catálogo de Servicios</p>
+                                    
+                                    <div class="grid grid-cols-2 md:grid-cols-12 gap-3 mb-4">
                                         <input type="hidden" id="edit-s-id" value="">
-                                        <input type="text" id="add-s-nom" placeholder="Nombre (Ej: Experiencia Gold)" class="col-span-12 md:col-span-7 p-3 text-xs rounded-xl uppercase font-bold bg-[#050505] border border-zinc-800 w-full text-white outline-none focus:border-green-500">
-                                        <input type="text" inputmode="numeric" id="add-s-pre" placeholder="Precio (Ej: 85000)" class="col-span-6 md:col-span-5 p-3 text-xs rounded-xl font-bold bg-[#050505] border border-zinc-800 w-full text-white outline-none focus:border-green-500">
-                                        <input type="text" id="add-s-dur" placeholder="Duración (Ej: 1h 40min)" class="col-span-6 md:col-span-4 p-3 text-xs rounded-xl font-bold bg-[#050505] border border-zinc-800 w-full text-white outline-none focus:border-green-500">
-                                        <label class="col-span-6 md:col-span-4 flex items-center justify-center gap-2 bg-[#050505] border border-yellow-900/50 rounded-xl text-[9px] font-black text-yellow-500 uppercase cursor-pointer hover:bg-yellow-900/20 transition-colors p-2"><input type="checkbox" id="add-s-premium" class="accent-yellow-500 w-4 h-4">👑 Destacar</label>
+                                        
+                                        <input type="text" id="add-s-nom" placeholder="Nombre (Ej: Corte Clásico)" class="col-span-2 md:col-span-12 p-4 text-sm rounded-xl uppercase font-bold bg-[#050505] border border-zinc-800 w-full text-white outline-none focus:border-green-500">
+                                        
+                                        <input type="text" inputmode="numeric" id="add-s-pre" placeholder="Precio ($)" class="col-span-1 md:col-span-4 p-4 text-sm rounded-xl font-bold bg-[#050505] border border-zinc-800 w-full text-white outline-none focus:border-green-500 text-center">
+                                        
+                                        <input type="text" id="add-s-dur" placeholder="Mins (Ej: 45)" class="col-span-1 md:col-span-4 p-4 text-sm rounded-xl font-bold bg-[#050505] border border-zinc-800 w-full text-white outline-none focus:border-green-500 text-center">
+                                        
+                                        <label class="col-span-2 md:col-span-4 flex items-center justify-center gap-2 bg-[#050505] border border-yellow-900/50 rounded-xl text-[10px] font-black text-yellow-500 uppercase cursor-pointer hover:bg-yellow-900/20 transition-colors p-4">
+                                            <input type="checkbox" id="add-s-premium" class="accent-yellow-500 w-5 h-5">👑 Destacar
+                                        </label>
 
+                                        <div class="col-span-2 md:col-span-12 flex flex-col sm:flex-row gap-2 mt-1">
+                                            <button type="button" onclick="configAddServicio()" class="flex-1 bg-green-600 text-white rounded-xl font-black btn-press transition-colors text-xs py-4 uppercase shadow-lg shadow-green-600/20 flex items-center justify-center">Guardar Servicio</button>
+                                            
+                                            <button type="button" id="btn-clonar-sedes" onclick="clonarCatalogoSedes()" class="hidden bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-black btn-press transition-colors text-[10px] py-4 uppercase shadow-lg shadow-purple-600/20 flex-col items-center justify-center leading-none">
+                                                <span>🔄 CLONAR A OTRAS SEDES</span>
+                                            </button>
+                                        </div>
 
-
-                                       <div class="col-span-12 md:col-span-4 flex flex-col sm:flex-row gap-2 h-full">
-    <button type="button" onclick="configAddServicio()" class="flex-1 bg-green-600 text-white rounded-xl font-black btn-press transition-colors text-xs py-3 uppercase shadow-lg shadow-green-600/20 h-full flex items-center justify-center">Guardar</button>
-
-    <button type="button" id="btn-clonar-sedes" onclick="clonarCatalogoSedes()" class="hidden bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-black btn-press transition-colors text-[10px] py-3 uppercase shadow-lg shadow-purple-600/20 flex-col items-center justify-center leading-none h-full">
-        <span>🔄 CLONAR</span><span class="text-[8px] text-purple-200 mt-0.5">A OTRAS SEDES</span>
-    </button>
-</div>
-
-
-
-
-                                        <textarea id="add-s-desc" rows="2" placeholder="Descripción detallada..." class="col-span-12 p-3 text-xs rounded-xl font-bold bg-[#050505] border border-zinc-800 w-full text-zinc-300 outline-none focus:border-green-500 resize-none mt-1"></textarea>
+                                        <textarea id="add-s-desc" rows="2" placeholder="Descripción detallada (Opcional)..." class="col-span-2 md:col-span-12 p-4 text-xs rounded-xl font-bold bg-[#050505] border border-zinc-800 w-full text-zinc-300 outline-none focus:border-green-500 resize-none mt-1"></textarea>
                                     </div>
                                     <div id="cfg-lista-s" class="space-y-2 max-h-48 overflow-y-auto pr-1 scroll-safe"></div>
                                 </div>
+
+
 
                                 <div class="bg-zinc-950 p-6 rounded-[1.5rem] border border-zinc-800 shadow-inner">
                                     <p class="text-[10px] font-black text-indigo-400 mb-4 uppercase tracking-widest">Personal / Barberos</p>
@@ -1576,33 +1587,51 @@
                         <button type="button" onclick="toggleAcc('acc-cajeros', 'icon-cajeros')" class="w-full flex justify-between items-center p-6 text-left hover:bg-white/5 transition-colors btn-press">
                             <span class="text-[11px] font-black text-orange-400 uppercase tracking-widest flex items-center gap-2"><span class="text-lg">🖥️</span> Cajeros y Recepción</span><span id="icon-cajeros" class="text-zinc-500 font-black transition-transform duration-300">▼</span>
                         </button>
+
+
                         <div id="acc-cajeros" class="hidden px-6 pb-6 border-t border-zinc-800/50 pt-5">
                             
                             <div class="bg-zinc-950 p-6 rounded-[1.5rem] border border-zinc-800 shadow-inner mb-6">
                                 <p class="text-[10px] font-black text-orange-500 mb-4 uppercase tracking-widest">Registrar Cajero(a)</p>
+
+
                                 
-                                <div class="flex flex-col gap-3 mb-4">
+                                <div class="flex flex-col gap-4 mb-5 mt-2">
                                     <input type="hidden" id="edit-c-id" value="">
-                                    <input type="text" id="add-c-nom" placeholder="NOMBRE DEL CAJERO (Ej: María)" class="w-full bg-[#050505] border border-zinc-700 p-4 rounded-xl text-xs font-black uppercase text-white outline-none focus:border-orange-500 shadow-inner">
                                     
-                                    <div class="flex gap-2">
-                                        <input type="password" inputmode="numeric" id="add-c-pin" autocomplete="new-password" placeholder="PIN (4 DÍGITOS)" class="w-1/3 p-4 text-xs rounded-xl font-bold text-center bg-[#050505] border border-zinc-800 text-white outline-none focus:border-orange-500">
-                                        <input type="text" inputmode="numeric" id="add-c-comision" placeholder="% Serv." title="% Comisión Servicios" class="w-1/3 p-4 text-xs rounded-xl font-bold text-center text-orange-400 bg-[#050505] border border-zinc-800 outline-none focus:border-orange-500">
-                                        <input type="text" inputmode="numeric" id="add-c-comision-prod" placeholder="% Prod." title="% Comisión Productos" class="w-1/3 p-4 text-xs rounded-xl font-bold text-center text-yellow-400 bg-[#050505] border border-zinc-800 outline-none focus:border-orange-500">
+                                    <div class="flex flex-col">
+                                        <span class="text-[8px] text-zinc-500 font-bold uppercase mb-1 ml-1">Nombre del Cajero(a)</span>
+                                        <input type="text" id="add-c-nom" placeholder="Ej: María" class="w-full bg-[#050505] border border-zinc-700 p-4 rounded-xl text-sm font-black uppercase text-white outline-none focus:border-orange-500 shadow-inner">
+                                    </div>
+                                    
+                                    <div class="flex flex-col">
+                                        <span class="text-[8px] text-zinc-500 font-bold uppercase mb-1 ml-1">PIN de Acceso Seguro</span>
+                                        <input type="password" inputmode="numeric" id="add-c-pin" autocomplete="new-password" placeholder="4 DÍGITOS" class="w-full p-4 text-sm rounded-xl font-black text-center bg-[#050505] border border-zinc-800 text-white outline-none focus:border-orange-500 tracking-[0.5em]">
                                     </div>
 
-                                    <div class="grid grid-cols-2 gap-2">
-                                        <div class="bg-[#050505] border border-zinc-800 p-3 rounded-xl flex flex-col items-center justify-center transition-colors focus-within:border-orange-500">
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div class="flex flex-col">
+                                            <span class="text-[8px] text-zinc-500 font-bold uppercase mb-1 ml-1">% Comis. Serv</span>
+                                            <input type="text" inputmode="numeric" id="add-c-comision" placeholder="Ej: 10" class="w-full p-4 text-sm rounded-xl font-bold text-center text-orange-400 bg-[#050505] border border-zinc-800 outline-none focus:border-orange-500">
+                                        </div>
+                                        <div class="flex flex-col">
+                                            <span class="text-[8px] text-zinc-500 font-bold uppercase mb-1 ml-1">% Comis. Prod</span>
+                                            <input type="text" inputmode="numeric" id="add-c-comision-prod" placeholder="Ej: 5" class="w-full p-4 text-sm rounded-xl font-bold text-center text-yellow-400 bg-[#050505] border border-zinc-800 outline-none focus:border-orange-500">
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-3 mt-1">
+                                        <div class="bg-[#050505] border border-zinc-800 p-4 rounded-xl flex flex-col items-center justify-center transition-colors focus-within:border-orange-500">
                                             <span class="text-[8px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Entrada</span>
                                             <input type="time" id="add-c-inicio" class="w-full bg-transparent text-white text-sm font-black outline-none text-center cursor-pointer appearance-none">
                                         </div>
-                                        <div class="bg-[#050505] border border-zinc-800 p-3 rounded-xl flex flex-col items-center justify-center transition-colors focus-within:border-orange-500">
+                                        <div class="bg-[#050505] border border-zinc-800 p-4 rounded-xl flex flex-col items-center justify-center transition-colors focus-within:border-orange-500">
                                             <span class="text-[8px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Salida</span>
                                             <input type="time" id="add-c-fin" class="w-full bg-transparent text-white text-sm font-black outline-none text-center cursor-pointer appearance-none">
                                         </div>
                                     </div>
 
-                                    <label class="w-full flex items-center justify-center gap-2 bg-[#050505] border border-zinc-800 rounded-xl text-[9px] font-black text-zinc-400 uppercase cursor-pointer hover:border-orange-500 p-3 transition-colors mt-1">
+                                    <label class="w-full flex items-center justify-center gap-2 bg-[#050505] border border-zinc-800 rounded-xl text-[9px] font-black text-zinc-400 uppercase cursor-pointer hover:border-orange-500 p-4 transition-colors mt-2">
                                         <input type="checkbox" id="add-c-ciego" class="accent-orange-500 w-5 h-5" checked> Activar Cierre Ciego en Caja
                                     </label>
                                     <p class="text-[8px] text-zinc-500 italic mt-1 leading-tight text-center">El "Cierre Ciego" oculta el dinero esperado en caja para que la cajera solo declare lo que contó físicamente.</p>
@@ -1679,15 +1708,31 @@
 
 
                         </button>
+
+
                         <div id="acc-promos" class="hidden px-6 pb-6 border-t border-zinc-800/50 pt-5">
+
                             <div class="bg-orange-900/10 p-6 rounded-[1.5rem] border border-orange-900/30 mb-4">
-                                <div class="flex justify-between items-center mb-4">
-                                    <p class="text-[10px] font-black text-orange-400 uppercase tracking-widest">🎂 Feliz Cumpleaños</p><input type="checkbox" id="cfg-cumple-activo" class="w-6 h-6 accent-orange-500 cursor-pointer">
-                                </div>
-                                <div class="flex gap-3">
-                                    <input type="text" inputmode="numeric" id="cfg-cumple-desc" placeholder="% Desc" class="w-1/3 p-4 rounded-xl text-sm font-black bg-[#050505] border border-zinc-800 text-orange-400 text-center focus:border-orange-500 outline-none transition-colors">
-                                    <textarea id="cfg-cumple-msg" rows="2" placeholder="Ej: 50% descuento..." class="w-2/3 p-4 rounded-xl text-xs font-bold bg-[#050505] border border-zinc-800 text-white resize-none focus:border-orange-500 outline-none transition-colors"></textarea>
-                                </div>
+    <div class="flex justify-between items-center mb-4">
+        <p class="text-[10px] font-black text-orange-400 uppercase tracking-widest">🎂 Feliz Cumpleaños</p>
+        <input type="checkbox" id="cfg-cumple-activo" class="w-6 h-6 accent-orange-500 cursor-pointer">
+    </div>
+    
+    
+    <div class="flex flex-col gap-4 mt-3">
+        <div class="flex flex-col">
+            <span class="text-[8px] text-zinc-500 font-bold uppercase mb-1 ml-1">% Descuento</span>
+            <input type="text" inputmode="numeric" id="cfg-cumple-desc" placeholder="Ej: 50" class="w-full p-4 rounded-xl text-sm font-black bg-[#050505] border border-zinc-800 text-orange-400 text-center focus:border-orange-500 outline-none transition-colors">
+        </div>
+        <div class="flex flex-col">
+            <span class="text-[8px] text-zinc-500 font-bold uppercase mb-1 ml-1">Mensaje de Cumpleaños</span>
+            <textarea id="cfg-cumple-msg" rows="3" placeholder="Ej: ¡Feliz Cumpleaños! Te regalamos un 50% de descuento en tu próximo corte. ¡Reserva hoy!" class="w-full p-4 rounded-xl text-sm font-bold bg-[#050505] border border-zinc-800 text-white resize-none focus:border-orange-500 outline-none transition-colors"></textarea>
+        </div>
+    </div>
+   
+
+
+
                             </div>
                             <div class="bg-indigo-900/10 p-6 rounded-[1.5rem] border border-indigo-900/30">
                                 <div class="flex justify-between items-center mb-4">
@@ -2532,6 +2577,7 @@ async function hashPIN(pin) {
         let lastTicketData = null; let cloudSyncTimer = null; let comprobanteTemp = null; let saLogoTemp = null;
         let chartMetodosInstance = null; let chartBarberosInstance = null; let chartFranquiciaInstance = null; let _cloudSyncDebounce = null; let timerDebounceClientes = null;
         let tempLat = null; let tempLon = null;
+        let abonoValidadoCaja = 0; // Guardará el dinero que el admin aprobó
 
         
 
@@ -2557,16 +2603,21 @@ async function hashPIN(pin) {
             reader.readAsDataURL(file);
         }
 
-         // ==========================================
-        // ☁️ MOTOR SUPABASE STORAGE (SUBIDA DE FOTOS SIN GASTAR DATOS)
+        // ==========================================
+        // ☁️ MOTOR SUPABASE STORAGE (CON BLINDAJE OFFLINE)
         // ==========================================
         async function uploadImageToSupabase(base64Data, carpeta) {
+            // 🛡️ ESCUDO OFFLINE: Si no hay internet, devolvemos la imagen cruda para guardarla en el disco duro
+            if (!navigator.onLine) {
+                console.warn("📵 OFFLINE: Guardando imagen localmente para sincronizar después.");
+                return base64Data; 
+            }
+
             try {
                 const res = await fetch(base64Data);
                 const blob = await res.blob();
                 const fileName = `${carpeta}/${Date.now()}_${Math.floor(Math.random() * 1000)}.jpg`;
 
-                // Aquí cambiamos 'zeus-storage' por 'perfiles'
                 const { data, error } = await supabaseClient
                     .storage
                     .from('perfiles')
@@ -2574,13 +2625,13 @@ async function hashPIN(pin) {
 
                 if (error) throw error;
 
-                // Aquí también cambiamos 'zeus-storage' por 'perfiles'
                 const { data: publicUrlData } = supabaseClient.storage.from('perfiles').getPublicUrl(fileName);
                 return publicUrlData.publicUrl;
                 
             } catch (error) {
-                console.error("Error subiendo foto a Storage:", error);
-                return null;
+                console.error("Error subiendo foto a Storage, activando plan B (Local):", error);
+                // Si falla Supabase por micro-cortes, también salvamos la app devolviendo la imagen local
+                return base64Data; 
             }
         }
 
@@ -3283,6 +3334,78 @@ const clavesTransaccionales = ['clientes', 'ventas', 'gastos', 'tickets', 'asist
             } else { showScreen('view-login'); }
         }
 
+         // ==========================================
+// 🌐 MOTOR DE VERIFICACIÓN WOMPI AUTOMÁTICA (OPTIMIZADO PWA)
+// ==========================================
+async function verificarRetornoWompi(txId, kioskId, env) {
+    Swal.fire({ 
+        title: 'Validando con el Banco...', 
+        text: 'Verificando transacción segura', 
+        allowOutsideClick: false, 
+        didOpen: () => { Swal.showLoading() }, 
+        background: '#0a0a0a', 
+        color: '#fff' 
+    });
+    
+    const urlWompi = env === 'test' 
+        ? `https://sandbox.wompi.co/v1/transactions/${txId}` 
+        : `https://production.wompi.co/v1/transactions/${txId}`;
+    
+    // Controlador para abortar la petición en redes lentas (Mobile)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 12000); 
+    
+    try {
+        if (!navigator.onLine) throw new Error("OFFLINE");
+
+        const response = await fetch(urlWompi, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) throw new Error(`HTTP_ERROR_${response.status}`);
+        const txData = await response.json();
+        
+        if (txData?.data?.status === 'APPROVED') {
+            const b = db.barberias[kiosko_bIdx];
+            if (!b) throw new Error("DB_INDEX_ERROR");
+
+            let montoReal = (txData.data.amount_in_cents || 0) / 100;
+            let idCitaTemp = sessionStorage.getItem('kio_cita_pendiente');
+            
+            if (idCitaTemp && b.citas) {
+                let cita = b.citas.find(c => String(c.id) === String(idCitaTemp));
+                if (cita) {
+                    cita.abonoAprobado = true;
+                    cita.valorAbono = montoReal;
+                    cita.metodoAbono = 'WOMPI';
+                }
+            }
+            
+            saveDB(true);
+            sessionStorage.removeItem('kio_cita_pendiente');
+            
+            Swal.fire({
+                title: '¡PAGO EXITOSO!',
+                text: `Tu pago de ${fMoney(montoReal)} ha sido aprobado por Wompi. Tu cita está 100% confirmada.`,
+                icon: 'success', 
+                background: '#0a0a0a', 
+                color: '#fff', 
+                confirmButtonColor: '#4f46e5'
+            }).then(() => {
+                // Evita acumular historial en iOS/Android
+                window.location.replace(window.location.origin + window.location.pathname + '?kiosk=' + kioskId);
+            });
+        } else {
+            Swal.fire('Pago Declinado', 'El banco no aprobó la transacción o sigue pendiente.', 'error');
+        }
+    } catch (e) {
+        console.error("Error validando Wompi:", e);
+        if (e.message === "OFFLINE" || e.name === 'AbortError') {
+            Swal.fire('Red Inestable', 'Se perdió la conexión. Validaremos el pago en cuanto recuperes la señal.', 'warning');
+        } else {
+            Swal.fire('Error de conexión', 'No pudimos verificar con el banco en este momento.', 'error');
+        }
+    }
+}
 
 
 
@@ -3290,7 +3413,7 @@ const clavesTransaccionales = ['clientes', 'ventas', 'gastos', 'tickets', 'asist
 
 
 
-        // ==========================================
+ // ==========================================
 // 🔓 MÓDULO 1: LOGIN HÍBRIDO (SOPORTA PIN NORMAL Y ENCRIPTADO)
 // ==========================================
 async function actionLogin() {
@@ -3300,9 +3423,18 @@ async function actionLogin() {
     }
     const pinInput = document.getElementById('login-pin'); 
     const pin = cleanNum(pinInput.value); 
+    
     if (!pin) { Swal.fire({ title: "PIN VACÍO", text: "Por favor ingresa tu código de acceso.", icon: "info", background: "#000", color: "#fff" }); return; }
     
+    // 🛡️ NUEVO BLINDAJE: Exigir exactamente 4 números
+    if (pin.length !== 4) { 
+        Swal.fire({ title: "PIN INVÁLIDO", text: "El código de acceso debe tener exactamente 4 números.", icon: "warning", background: "#0a0a0a", color: "#fff", confirmButtonColor: "#4f46e5" }); 
+        return; 
+    }
+    
     Swal.fire({ title: 'Autenticando...', text: 'Verificando credenciales...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() }, background: '#0a0a0a', color: '#fff' });
+
+
 
     // ... (Deja el resto de tu código de actionLogin exactamente igual hacia abajo)
 
@@ -4136,7 +4268,8 @@ async function actionLogin() {
                         const badgeMia = esMia ? `<span class="bg-indigo-600 text-white px-1.5 py-0.5 rounded text-[7px] ml-1">MÍA</span>` : `<span class="bg-zinc-800 text-zinc-400 px-1.5 py-0.5 rounded text-[7px] ml-1">${c.barbero}</span>`;
 
                         // 🚀 MEJORA: Botón de recibo en la vista del barbero
-                        const btnRecibo = c.comprobante ? `<button type="button" onclick="verComprobanteCita('${c.id}')" class="bg-yellow-900/30 text-yellow-500 p-2 px-3 rounded-xl text-[9px] font-black uppercase btn-press border border-yellow-900/50 flex items-center gap-1"><span>📄</span> Recibo</button>` : '';
+                       const tieneAbono = (c.comprobante && c.comprobante.toString().length > 10 && c.comprobante.toString().startsWith('http')) || c.abonoAprobado;
+const btnRecibo = tieneAbono ? `<button type="button" onclick="verComprobanteCita('${c.id}')" class="bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500 hover:text-black px-3 py-2 rounded-xl text-[9px] font-black uppercase btn-press border border-yellow-900/50 flex items-center gap-1"><span>📄</span> Recibo</button>` : '';
 
                         return `<div class="flex justify-between items-center p-3 rounded-2xl border ${fin ? 'border-zinc-800 bg-black/20' : (esMia ? 'border-indigo-500/50 bg-indigo-500/10' : 'border-zinc-700/50 bg-zinc-900/50')} mb-2">
                             <div>
@@ -4278,6 +4411,11 @@ function verificarCumpleanosPOS() {
             let iP = b.configIVA ? b.configIVA.porcentaje : 0;
             let vI = iA ? Math.round(sCon * (iP / 100)) : 0; 
             let tF = sCon + vI;
+             // 🚀 LÓGICA BOLD: Restamos el abono que la cajera acaba de aprobar
+            if (typeof abonoValidadoCaja !== 'undefined' && abonoValidadoCaja > 0) {
+                tF = tF - abonoValidadoCaja;
+                if (tF < 0) tF = 0; // Evitar que la caja quede en negativo
+            }
 
             const ctnCarrito = document.getElementById('pos-carrito');
             
@@ -4564,7 +4702,8 @@ function renderAgendaList() {
                     const fin = c.estado === 'COMPLETADA'; 
                     const bData = b.barberos.find(x => x.nom === c.barbero);
 
-                    const btnRecibo = c.comprobante ? `<button type="button" onclick="verComprobanteCita('${c.id}')" class="bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500 hover:text-black px-4 py-2 rounded-lg font-black text-[9px] btn-press uppercase border border-yellow-500/50 transition-all tracking-widest shadow-[0_0_10px_rgba(234,179,8,0.2)]">📄 Abono</button>` : '';
+                    const tieneAbono = (c.comprobante && c.comprobante.toString().length > 10 && c.comprobante.toString().startsWith('http')) || c.abonoAprobado;
+const btnRecibo = tieneAbono ? `<button type="button" onclick="verComprobanteCita('${c.id}')" class="bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500 hover:text-black px-4 py-2 rounded-lg font-black text-[9px] btn-press uppercase border border-yellow-500/50 transition-all tracking-widest shadow-[0_0_10px_rgba(234,179,8,0.2)] flex items-center gap-1"><span>📄</span> Abono</button>` : '';
 
                     const cStyle = fin ? { bg: 'bg-zinc-600', shadowNode: '', border: 'border-zinc-800', text: 'text-zinc-500', shadowCard: '' } : colores[index % colores.length];
                     const bgCard = fin ? 'bg-[#050810] opacity-60' : `bg-[#0b1121] ${cStyle.shadowCard} hover:-translate-y-1`;
@@ -4608,12 +4747,22 @@ function renderAgendaList() {
         }
 
 
-        // 🚀 MEJORA: Función para previsualizar el recibo
+        // 🚀 MEJORA: Función para previsualizar el recibo (Corregido Falso Positivo)
         function verComprobanteCita(id) {
-            const b = db.barberias[bIdx]; const c = b.citas.find(x => x.id === id);
-            if (c && c.comprobante) {
+            const b = db.barberias[bIdx]; 
+            const c = b.citas.find(x => x.id === id);
+            if (!c) return;
+
+            let htmlMsg = `<p class="text-xs text-yellow-500 mb-4">Abono pagado: ${fMoney(c.valorAbono || b.valorAnticipo || 5000)}<br><span class="text-zinc-400 text-[10px]">Recuerda descontarlo del total en el Punto de Venta al cobrar.</span></p>`;
+
+            if (c.metodoAbono === 'WOMPI' || c.abonoAprobado) {
+                htmlMsg = `<p class="text-indigo-400 font-black text-lg mb-2">✅ PAGO ELECTRÓNICO</p>` + htmlMsg;
                 Swal.fire({
-                    title: 'Comprobante de Abono', html: `<p class="text-xs text-yellow-500 mb-4">Abono pagado: ${fMoney(b.valorAnticipo || 5000)}<br><span class="text-zinc-400 text-[10px]">Recuerda descontarlo del total en el Punto de Venta al cobrar.</span></p>`,
+                    title: 'Abono Confirmado', html: htmlMsg, background: '#111', color: '#fff', confirmButtonColor: '#4f46e5'
+                });
+            } else if (c.comprobante && c.comprobante.toString().startsWith('http')) {
+                Swal.fire({
+                    title: 'Comprobante de Abono', html: htmlMsg,
                     imageUrl: c.comprobante, imageAlt: 'Recibo', background: '#111', color: '#fff', confirmButtonColor: '#4f46e5', confirmButtonText: 'ENTENDIDO', customClass: { image: 'rounded-2xl max-h-[60vh] object-contain border border-zinc-800' }
                 });
             }
@@ -4681,16 +4830,17 @@ function renderAgendaList() {
                                 method: 'POST',
                                 headers: { 
                                     'Content-Type': 'application/json',
-                                    'Authorization': `Bearer ${_dbToken}` // 👈 ¡EL PASE VIP PARA SUPABASE!
+                                    'Authorization': `Bearer ${_dbToken}` 
                                 },
                                 body: JSON.stringify({
                                     subscription: tokenPushAdmin,
-                                    title: '¡Nueva Cita en Zeus! ⚡',
-                                    body: `${cli} agendó a las ${formatTime12h(h)} con ${barb}`
+                                    title: '¡NUEVA CITA KIOSKO! ⚡',
+                                    body: `📅 Fecha: ${f}\n⏰ Hora: ${formatTime12h(h)}\n👤 Cliente: ${cli}\n💈 Barbero: ${barb}`
                                 })
                             }).then(() => console.log('🔔 Push disparado con éxito (Autorizado)'))
                               .catch(err => console.log('Error disparando Push:', err));
                         }
+
                     }
                 }); // 👈 CIERRE 1: Termina la promesa de Supabase
             } // 👈 CIERRE 2: Termina la condición de Internet (Lo de abajo siempre se ejecuta)
@@ -11691,13 +11841,13 @@ function abrirOnboardingManual() {
                 title: 'Turno en Caja ⚡', 
                 html: `<p class="text-xs text-zinc-300">Cliente <b class="text-white">${c.nombre}</b> con <b class="text-indigo-400">${c.barbero}</b> listo.</p><p class="text-[10px] text-zinc-500 mt-2 uppercase">Por favor selecciona sus servicios en el catálogo para generar el cobro.</p>`, 
                 icon: 'info', background: '#111', color: '#fff', confirmButtonColor: '#4f46e5'
-            });
+            });ok 
         }
 
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.131"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.135"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
@@ -11944,6 +12094,84 @@ async function saAjustarLicenciaManual(idNube) {
     }
 }
 
+
+// ==========================================
+// 💵 PUENTE AGENDA -> CAJA CON VALIDACIÓN BOLD (OPTIMIZADO PWA)
+// ==========================================
+function cargarTurnoACaja(idCita) {
+    const b = db.barberias[bIdx];
+    const cita = b.citas?.find(c => String(c.id) === String(idCita));
+    if (!cita) return;
+
+    cart = [];
+    abonoValidadoCaja = 0;
+    
+    const inputSearch = document.getElementById('caja-search-cli');
+    if (inputSearch) inputSearch.value = cita.celular || "";
+    
+    if (typeof buscarClienteManualCaja === 'function') {
+        buscarClienteManualCaja(cita.celular, cita.nombre); 
+    }
+    
+    const inputBarbero = document.getElementById('caja-barbero-select');
+    if (inputBarbero) inputBarbero.value = cita.barbero || "";
+
+    if (cita.servicio) {
+        let serviciosCita = cita.servicio.split(' + ');
+        serviciosCita.forEach(srvNom => {
+            let servCompleto = b.servicios?.find(s => s.nom === srvNom);
+            if (servCompleto) {
+                cart.push({ ...servCompleto, idT: Date.now() + Math.random(), isProd: false });
+            }
+        });
+    }
+
+    updateCart(); 
+
+    if (cita.comprobante && !cita.abonoAprobado) {
+        Swal.fire({
+            title: '⚠️ REVISIÓN DE PAGO',
+            html: `
+                <p class="text-sm text-zinc-300 mb-2">El cliente reportó un pago anticipado. ¿El dinero ya ingresó a tus cuentas?</p>
+                <img src="${cita.comprobante}" class="w-full h-48 object-contain rounded-xl border border-zinc-800 mb-4 bg-black" loading="lazy">
+                <input type="number" inputmode="numeric" id="swal-monto-abono" class="w-full p-4 rounded-xl text-xl font-black bg-[#111] border border-green-500/50 text-green-400 text-center outline-none" placeholder="¿Cuánto entró exacto? Ej: 15000">
+            `,
+            background: '#0a0a0a', 
+            color: '#fff',
+            showCancelButton: true, 
+            showDenyButton: true,
+            confirmButtonText: '✅ APROBAR ABONO',
+            denyButtonText: '❌ RECHAZAR (No llegó)',
+            cancelButtonText: 'Decidir Luego',
+            confirmButtonColor: '#16a34a', 
+            denyButtonColor: '#dc2626',
+            preConfirm: () => {
+                const monto = document.getElementById('swal-monto-abono').value;
+                const numMonto = parseInt(monto, 10);
+                if (!monto || isNaN(numMonto) || numMonto <= 0) {
+                    Swal.showValidationMessage('Ingresa el valor numérico exacto que aprobaste');
+                    return false;
+                }
+                return numMonto;
+            }
+        }).then((r) => {
+            if (r.isConfirmed) {
+                abonoValidadoCaja = r.value;
+                cita.abonoAprobado = true;
+                cita.valorAbono = abonoValidadoCaja;
+                saveDB(false);
+                updateCart(); 
+                Swal.fire({title:'Aprobado', text:`Se descontarán ${fMoney(abonoValidadoCaja)} del total de la caja.`, icon:'success', toast:true, position:'top-end', timer:3000, showConfirmButton:false});
+            } else if (r.isDenied) {
+                Swal.fire('Rechazado', 'Se le cobrará la tarifa completa al cliente.', 'info');
+            }
+        });
+    } else if (cita.abonoAprobado) {
+        abonoValidadoCaja = cita.valorAbono;
+        updateCart();
+        Swal.fire({title:'Pago Automático Detectado', text:`El cliente ya tiene un saldo a favor de ${fMoney(abonoValidadoCaja)} vía ${cita.metodoAbono || 'Wompi'}.`, icon:'info', toast:true, position:'top-end', timer:4000, showConfirmButton:false});
+    }
+}
 
 
 
