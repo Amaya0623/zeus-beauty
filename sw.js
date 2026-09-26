@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zeus-cache-v1.139'; // 🚀 Subimos versión para inyectar los nuevos motores
+const CACHE_NAME = 'zeus-cache-v1.140'; // 🚀 Versión actualizada para forzar la limpieza del error HEAD
 
 // 🛡️ BÓVEDA OFFLINE: Aquí guardamos la app entera y sus librerías de diseño
 const urlsToCache = [
@@ -6,7 +6,7 @@ const urlsToCache = [
   './index.html',
   './manifest.json',
   './icono.png',
-  './video.mp4', // Asegúrate de que sea tu video principal
+  './video.mp4', 
   // LIBRERÍAS EXTERNAS VITALES PARA QUE NO SE ROMPA EL DISEÑO SIN INTERNET:
   'https://cdn.tailwindcss.com',
   'https://cdn.jsdelivr.net/npm/sweetalert2@11',
@@ -45,7 +45,13 @@ self.addEventListener('activate', e => {
   );
 });
 
+// ==========================================
+// 🛡️ INTERCEPTOR DE RED (CON ESCUDO ANTI-HEAD/POST)
+// ==========================================
 self.addEventListener('fetch', e => {
+  // 🛡️ ESCUDO: Solo guardar en caché peticiones GET (Soluciona el error HEAD y POST)
+  if (e.request.method !== 'GET') return;
+
   e.respondWith(
     caches.match(e.request).then(response => {
       // 1. Si está en caché, lo servimos de una vez
@@ -82,7 +88,6 @@ self.addEventListener('fetch', e => {
 // ==========================================
 // 🔔 MOTOR DE NOTIFICACIONES PUSH EN SEGUNDO PLANO (ZEUS)
 // ==========================================
-
 self.addEventListener('push', function(event) {
     console.log('[Zeus SW] ⚡ Señal Push Recibida.');
     
@@ -120,7 +125,6 @@ self.addEventListener('push', function(event) {
 // ==========================================
 // 👆 ACCIÓN AL TOCAR LA NOTIFICACIÓN
 // ==========================================
-
 self.addEventListener('notificationclick', function(event) {
     console.log('[Zeus SW] 👆 Notificación tocada.');
     
