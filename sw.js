@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zeus-cache-v1.145'; // 🚀 Subimos versión para aplicar el parche CORS y escudo GET
+const CACHE_NAME = 'zeus-cache-v1.145'; // 🚀 Subimos versión para forzar el Modo Supervivencia
 
 // 🛡️ BÓVEDA OFFLINE INICIAL: Solo archivos locales. 
 // Las librerías externas (Tailwind, SweetAlert) se guardarán automáticamente en caché cuando la app las use por primera vez.
@@ -74,40 +74,29 @@ self.addEventListener('fetch', e => {
 });
 
 // ==========================================
-// 🔔 MOTOR DE NOTIFICACIONES PUSH EN SEGUNDO PLANO (ZEUS)
+// 🔔 MOTOR DE NOTIFICACIONES PUSH EN SEGUNDO PLANO (MODO SUPERVIVENCIA)
 // ==========================================
 
 self.addEventListener('push', function(event) {
-    console.log('[Zeus SW] ⚡ Señal Push Recibida.');
+    let texto = "Alguien acaba de agendar en tu Kiosko.";
+    let titulo = "¡Nueva Cita en Zeus! ⚡";
     
-    let data = { 
-        title: '¡Nueva Cita en Zeus!', 
-        body: 'Alguien acaba de agendar en tu Kiosko.', 
-        url: '/' 
-    };
-
-    // Intentamos leer los datos que manda Supabase
     if (event.data) {
         try {
-            data = event.data.json();
+            const dataObj = event.data.json();
+            titulo = dataObj.title || titulo;
+            texto = dataObj.body || texto;
         } catch(e) {
-            data.body = event.data.text();
+            texto = event.data.text();
         }
     }
 
-    const options = {
-        body: data.body,
-        icon: 'icono.png', 
-        badge: 'icono.png', 
-        vibrate: [200, 100, 200, 100, 200, 100, 200], // 💸 Vibración estilo "Caja Registradora"
-        data: {
-            url: data.url || '/'
-        },
-        requireInteraction: true // Hace que la notificación no desaparezca sola
-    };
-
     event.waitUntil(
-        self.registration.showNotification(data.title, options)
+        self.registration.showNotification(titulo, {
+            body: texto,
+            vibrate: [200, 100, 200, 100, 200],
+            data: { url: '/' }
+        })
     );
 });
 
