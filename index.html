@@ -7317,35 +7317,50 @@ function calcularPrecioIA(precioBase, idLocal) {
         }
 
        
-          // ==========================================
-        // 🔔 FUNCIONES DE GESTIÓN PUSH (CON AUTO-SYNC A LA NUBE)
+         // ==========================================
+        // 🔔 MÓDULO DE NOTIFICACIONES PUSH (AUTO-SYNC Y BLINDAJE)
         // ==========================================
+
+        // 1. ACTIVAR ANTENA
         async function activarNotificacionesPush() {
             if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-                return Swal.fire('Error', 'Tu navegador o dispositivo no soporta notificaciones Push en segundo plano.', 'error');
+                return Swal.fire('Error', 'Tu navegador no soporta notificaciones Push.', 'error');
             }
+
             try {
+                // 🛡️ PEDIR PERMISO EXPLÍCITO AL USUARIO PRIMERO
+                const permiso = await Notification.requestPermission();
+                if (permiso !== 'granted') {
+                    throw new Error('PERMISO_DENEGADO');
+                }
+
                 Swal.fire({ title: 'Vinculando dispositivo...', text: 'Generando llaves de seguridad...', didOpen: () => Swal.showLoading(), allowOutsideClick: false, background: '#0a0a0a', color: '#fff' });
-                
+
                 const reg = await navigator.serviceWorker.ready;
-                
-                // 🔑 LLAVE PÚBLICA DE TU SERVIDOR (Asegúrate de que sea la misma de tu index.ts)
+
+                // 🧹 LIMPIAR ANTENAS FANTASMAS
+                const subAntigua = await reg.pushManager.getSubscription();
+                if (subAntigua) {
+                    await subAntigua.unsubscribe();
+                }
+
+                // 🔑 LLAVE PÚBLICA DE TU SERVIDOR
                 const PUBLIC_VAPID_KEY = "BHKFJnWSHmcY2Q4o-J93NiUq8SeARR9oDFYLmtaSnud4bBFXiZC4VZzvmCnA5MypqXY-rZdvHwudBGb_mnafQj4";
-                
+
+                // CREAR LA NUEVA SUSCRIPCIÓN
                 const subscription = await reg.pushManager.subscribe({
                     userVisibleOnly: true,
                     applicationServerKey: urlB64ToUint8Array(PUBLIC_VAPID_KEY)
                 });
 
-                // 🚀 CORRECCIÓN VITAL: Convertir el objeto a JSON puro para no perder las llaves criptográficas
+                // 🚀 CORRECCIÓN VITAL: Convertir a JSON puro
                 const tokenPuro = subscription.toJSON();
 
-                // Guardar la nueva antena en la base de datos local
+                // Guardar local y en la nube
                 const b = db.barberias[bIdx];
                 b.pushSubscription = tokenPuro;
-                saveDB(false); // Guardado local silencioso
+                saveDB(false); 
 
-                // 🚀 ESCUDO ÉLITE: FORZAR SUBIDA A LA NUBE INMEDIATA
                 if (isOnline && typeof supabaseClient !== 'undefined' && b.id_nube) {
                     const { error } = await supabaseClient.from('stores').update({ json_data: b }).eq('id', b.id_nube);
                     if (error) throw error;
@@ -7357,44 +7372,52 @@ function calcularPrecioIA(precioBase, idLocal) {
                     txtStatus.className = "text-[8px] text-green-500 uppercase mt-3 font-bold leading-tight text-center";
                 }
 
-                Swal.fire('¡Antena Activada!', 'Este dispositivo ahora recibirá las alertas del Kiosko. (El Kiosko debe recargarse para detectar esta nueva antena).', 'success');
+                Swal.fire('¡Antena Activada!', 'Este dispositivo ahora recibirá las alertas del Kiosko.', 'success');
             } catch (e) {
                 console.error("Fallo Push:", e);
-                Swal.fire('Error de Permisos', 'No se pudo activar. Asegúrate de darle permisos de Notificación al navegador en la configuración de tu celular.', 'error');
+                if (e.message === 'PERMISO_DENEGADO' || e.message.includes('denied')) {
+                    Swal.fire('Permiso Bloqueado 🔕', 'Tu navegador tiene las notificaciones bloqueadas para esta página. Ve a "Configuración del sitio" en tu navegador y cambia Notificaciones a "Permitir".', 'warning');
+                } else {
+                    Swal.fire('Error Técnico', 'No pudimos vincular este dispositivo. Asegúrate de tener conexión estable. Detalle: ' + e.message, 'error');
+                }
             }
         }
 
+        // 2. DESACTIVAR ANTENA
         async function desactivarNotificacionesPush() {
-            try {
-                Swal.fire({ title: 'Desvinculando...', didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
-                const reg = await navigator.serviceWorker.ready;
-                const sub = await reg.pushManager.getSubscription();
-                if (sub) await sub.unsubscribe();
+            const statusTxt = document.getElementById('push-status-txt');
+            Swal.fire({ title: 'Apagando Antena...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
 
-                // Borrar la antena localmente
+            try {
+                if ('serviceWorker' in navigator) {
+                    const register = await navigator.serviceWorker.ready;
+                    const subscription = await register.pushManager.getSubscription();
+                    if (subscription) {
+                        await subscription.unsubscribe();
+                    }
+                }
+
                 const b = db.barberias[bIdx];
                 b.pushSubscription = null;
-                saveDB(false);
+                saveDB(true);
 
-                // 🚀 ESCUDO ÉLITE: BORRAR LA ANTENA EN LA NUBE INMEDIATAMENTE
                 if (isOnline && typeof supabaseClient !== 'undefined' && b.id_nube) {
                     await supabaseClient.from('stores').update({ json_data: b }).eq('id', b.id_nube);
                 }
 
-                const txtStatus = document.getElementById('push-status-txt');
-                if(txtStatus) {
-                    txtStatus.innerText = "Estado: Esperando activación... 🔕";
-                    txtStatus.className = "text-[8px] text-zinc-500 uppercase mt-3 font-bold leading-tight text-center";
+                if(statusTxt) {
+                    statusTxt.innerText = "Estado: Esperando activación... 🔕";
+                    statusTxt.className = "text-[8px] text-zinc-500 uppercase mt-3 font-bold leading-tight text-center";
                 }
 
-                Swal.fire('Desactivado', 'Ya no recibirás alertas en este dispositivo.', 'info');
-            } catch (e) {
-                console.error(e);
-                Swal.fire('Error', 'Fallo al desactivar las alertas.', 'error');
+                Swal.fire({ title: '¡Desactivado!', text: 'Ya no recibirás alertas en este dispositivo.', icon: 'success', background: '#0a0a0a', color: '#fff' });
+            } catch (err) {
+                console.error("Error desactivando Push: ", err);
+                Swal.fire('Error Técnico', 'No pudimos desactivarlo automáticamente.', 'error');
             }
         }
 
-        // Función auxiliar obligatoria para codificar la llave VAPID
+        // 3. FUNCIÓN AUXILIAR DE DESENCRIPTACIÓN VAPID (¡No la borres!)
         function urlB64ToUint8Array(base64String) {
             const padding = '='.repeat((4 - base64String.length % 4) % 4);
             const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
@@ -11827,7 +11850,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.150"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.151"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
@@ -11923,74 +11946,6 @@ function abrirOnboardingManual() {
         } else {
             arrancarZeusMaestro();
         }
-
-
-
-// ==========================================
-// 🔔 MOTOR DE NOTIFICACIONES PUSH (ADMIN)
-// ==========================================
-// Tu llave pública real
-const PUBLIC_VAPID_KEY = "BHKFJnWSHmcY2Q4o-J93NiUq8SeARR9oDFYLmtaSnud4bBFXiZC4VZzvmCnA5MypqXY-rZdvHwudBGb_mnafQj4";
-
-function urlBase64ToUint8Array(base64String) {
-    const padding = '='.repeat((4 - base64String.length % 4) % 4);
-    const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
-    const rawData = window.atob(base64);
-    const outputArray = new Uint8Array(rawData.length);
-    for (let i = 0; i < rawData.length; ++i) { outputArray[i] = rawData.charCodeAt(i); }
-    return outputArray;
-}
-
-async function activarNotificacionesPush() {
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-        return Swal.fire('Error', 'Tu navegador o dispositivo no soporta notificaciones Push. (Asegúrate de instalar la PWA)', 'error');
-    }
-
-    try {
-        const permiso = await Notification.requestPermission();
-        if (permiso !== 'granted') throw new Error('Permiso denegado por el usuario.');
-
-        Swal.fire({ title: 'Vinculando Dispositivo...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() }, background: '#0a0a0a', color: '#fff' });
-
-        const register = await navigator.serviceWorker.ready;
-        const subscription = await register.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(PUBLIC_VAPID_KEY)
-        });
-
-        // Guardar el Token en la memoria local y forzar subida a la nube
-        if (bIdx !== -1 && db.barberias[bIdx]) {
-            db.barberias[bIdx].pushSubscription = subscription;
-            saveDB(true); 
-            
-            const txtEstado = document.getElementById('push-status-txt');
-            if (txtEstado) {
-                txtEstado.innerText = "Estado: Dispositivo Vinculado ✅";
-                txtEstado.className = "text-[8px] text-green-500 uppercase mt-3 font-bold leading-tight text-center";
-            }
-            
-            Swal.fire({ title: '¡Antena Activada! 📡', text: 'Recibirás notificaciones de nuevas citas en este celular aunque la app esté cerrada.', icon: 'success', background: '#0a0a0a', color: '#fff' });
-        }
-    } catch (error) {
-        console.error(error);
-        Swal.fire({ title: 'Error Técnico', text: 'No pudimos vincular este dispositivo. Asegúrate de dar permisos y tener la app instalada.', icon: 'error', background: '#0a0a0a', color: '#fff' });
-    }
-}
-
-async function desactivarNotificacionesPush() {
-    if (bIdx !== -1 && db.barberias[bIdx]) {
-        db.barberias[bIdx].pushSubscription = null;
-        saveDB(true);
-        
-        const txtEstado = document.getElementById('push-status-txt');
-        if (txtEstado) {
-            txtEstado.innerText = "Estado: Desactivado 🔕";
-            txtEstado.className = "text-[8px] text-zinc-500 uppercase mt-3 font-bold leading-tight text-center";
-        }
-        
-        Swal.fire({ title: 'Desactivado', text: 'Ya no recibirás alertas en este dispositivo.', icon: 'info', background: '#0a0a0a', color: '#fff' });
-    }
-}
 
 
 // ==========================================
@@ -12152,7 +12107,6 @@ function cargarTurnoACaja(idCita) {
         Swal.fire({title:'Pago Automático Detectado', text:`El cliente ya tiene un saldo a favor de ${fMoney(abonoValidadoCaja)} vía ${cita.metodoAbono || 'Wompi'}.`, icon:'info', toast:true, position:'top-end', timer:4000, showConfirmButton:false});
     }
 }
-
 
 
         // ==========================================
