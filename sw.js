@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zeus-cache-v1.145'; // 🚀 Subimos versión para forzar el Modo Supervivencia
+const CACHE_NAME = 'zeus-cache-v1.146'; // 🚀 Subimos versión para forzar el Modo Supervivencia
 
 // 🛡️ BÓVEDA OFFLINE INICIAL: Solo archivos locales. 
 // Las librerías externas (Tailwind, SweetAlert) se guardarán automáticamente en caché cuando la app las use por primera vez.
