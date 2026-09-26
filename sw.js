@@ -1,7 +1,6 @@
-const CACHE_NAME = 'zeus-cache-v1.146'; // 🚀 Subimos versión para forzar el Modo Supervivencia
+const CACHE_NAME = 'zeus-cache-v1.147'; // 🚀 Subimos versión para el Parche de Notificaciones
 
-// 🛡️ BÓVEDA OFFLINE INICIAL: Solo archivos locales. 
-// Las librerías externas (Tailwind, SweetAlert) se guardarán automáticamente en caché cuando la app las use por primera vez.
+// 🛡️ BÓVEDA OFFLINE INICIAL
 const urlsToCache = [
   './',
   './index.html',
@@ -15,7 +14,6 @@ self.addEventListener('install', e => {
   console.log('[Zeus SW] Instalando Motor Offline Ultraligero 🛡️');
   e.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      // Usamos cache.addAll pero con un catch por si un archivo falta no rompa todo
       return cache.addAll(urlsToCache).catch(err => console.warn('Error en precarga de caché:', err));
     })
   );
@@ -37,25 +35,19 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  // 🛡️ ESCUDO: Solo guardar en caché peticiones GET (Soluciona el error HEAD y bloqueos CORS)
   if (e.request.method !== 'GET') return;
 
   e.respondWith(
     caches.match(e.request).then(response => {
-      // 1. Si está en caché, lo servimos de una vez (Offline)
       if (response) return response;
 
-      // 2. Si no, intentamos buscarlo en la red (Dinámico)
       return fetch(e.request).then(networkResponse => {
-        // Validamos que sea una respuesta válida para guardar en caché
         if (!networkResponse || networkResponse.status !== 200) {
           return networkResponse;
         }
 
-        // Clonamos la respuesta para guardarla en caché y que esté disponible offline después
         const responseToCache = networkResponse.clone();
         caches.open(CACHE_NAME).then(cache => {
-          // ESCUDO: No cacheamos Supabase ni extensiones de navegador para evitar errores rojos en consola
           if (!e.request.url.includes('supabase.co') && e.request.url.startsWith('http')) {
             cache.put(e.request, responseToCache);
           }
@@ -64,7 +56,6 @@ self.addEventListener('fetch', e => {
         return networkResponse;
       });
     }).catch(() => {
-      // Si falla la red y no está en caché (emergencia para navegación)
       if (e.request.mode === 'navigate') {
         return caches.match('./index.html');
       }
@@ -74,7 +65,7 @@ self.addEventListener('fetch', e => {
 });
 
 // ==========================================
-// 🔔 MOTOR DE NOTIFICACIONES PUSH EN SEGUNDO PLANO (MODO SUPERVIVENCIA)
+// 🔔 MOTOR DE NOTIFICACIONES PUSH (MODO ÉLITE)
 // ==========================================
 
 self.addEventListener('push', function(event) {
@@ -91,12 +82,20 @@ self.addEventListener('push', function(event) {
         }
     }
 
+    // 🚀 CONFIGURACIÓN AGRESIVA PARA QUE SUENE SIEMPRE Y MUESTRE EL LOGO
+    const options = {
+        body: texto,
+        icon: './icono.png',         // 👈 Regresamos tu Logo principal
+        badge: './icono.png',        // 👈 Logo chiquito para la barra superior
+        vibrate: [200, 100, 200, 100, 200], // Vibración triple
+        requireInteraction: true,    // La notificación no desaparece sola
+        renotify: true,              // 👈 OBLIGA al celular a vibrar y sonar OTRA VEZ
+        tag: 'zeus-cita-' + Date.now(), // 👈 TAG ÚNICO: Evita que Android las agrupe y las silencie
+        data: { url: '/' }
+    };
+
     event.waitUntil(
-        self.registration.showNotification(titulo, {
-            body: texto,
-            vibrate: [200, 100, 200, 100, 200],
-            data: { url: '/' }
-        })
+        self.registration.showNotification(titulo, options)
     );
 });
 
@@ -111,14 +110,12 @@ self.addEventListener('notificationclick', function(event) {
 
     event.waitUntil(
         clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
-            // 1. Si Zeus ya está abierto, lo enfocamos
             for (let i = 0; i < clientList.length; i++) {
                 let client = clientList[i];
                 if (client.url.includes('zeus') && 'focus' in client) {
                     return client.focus();
                 }
             }
-            // 2. Si estaba cerrado, lo abrimos
             if (clients.openWindow) {
                 return clients.openWindow(event.notification.data.url);
             }
