@@ -1,27 +1,18 @@
-const CACHE_NAME = 'zeus-cache-v1.140'; // 🚀 Versión actualizada para forzar la limpieza del error HEAD
+const CACHE_NAME = 'zeus-cache-v1.141'; // 🚀 Subimos versión para aplicar el parche CORS y escudo GET
 
-// 🛡️ BÓVEDA OFFLINE: Aquí guardamos la app entera y sus librerías de diseño
+// 🛡️ BÓVEDA OFFLINE INICIAL: Solo archivos locales. 
+// Las librerías externas (Tailwind, SweetAlert) se guardarán automáticamente en caché cuando la app las use por primera vez.
 const urlsToCache = [
   './',
   './index.html',
   './manifest.json',
   './icono.png',
-  './video.mp4', 
-  // LIBRERÍAS EXTERNAS VITALES PARA QUE NO SE ROMPA EL DISEÑO SIN INTERNET:
-  'https://cdn.tailwindcss.com',
-  'https://cdn.jsdelivr.net/npm/sweetalert2@11',
-  'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js',
-  'https://cdn.jsdelivr.net/npm/chart.js',
-  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
-  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
-  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
+  './video.mp4'
 ];
 
 self.addEventListener('install', e => {
   self.skipWaiting();
-  console.log('[Zeus SW] Instalando Motor Offline Total 🛡️');
+  console.log('[Zeus SW] Instalando Motor Offline Ultraligero 🛡️');
   e.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
       // Usamos cache.addAll pero con un catch por si un archivo falta no rompa todo
@@ -45,19 +36,16 @@ self.addEventListener('activate', e => {
   );
 });
 
-// ==========================================
-// 🛡️ INTERCEPTOR DE RED (CON ESCUDO ANTI-HEAD/POST)
-// ==========================================
 self.addEventListener('fetch', e => {
-  // 🛡️ ESCUDO: Solo guardar en caché peticiones GET (Soluciona el error HEAD y POST)
+  // 🛡️ ESCUDO: Solo guardar en caché peticiones GET (Soluciona el error HEAD y bloqueos CORS)
   if (e.request.method !== 'GET') return;
 
   e.respondWith(
     caches.match(e.request).then(response => {
-      // 1. Si está en caché, lo servimos de una vez
+      // 1. Si está en caché, lo servimos de una vez (Offline)
       if (response) return response;
 
-      // 2. Si no, intentamos buscarlo en la red
+      // 2. Si no, intentamos buscarlo en la red (Dinámico)
       return fetch(e.request).then(networkResponse => {
         // Validamos que sea una respuesta válida para guardar en caché
         if (!networkResponse || networkResponse.status !== 200) {
@@ -88,6 +76,7 @@ self.addEventListener('fetch', e => {
 // ==========================================
 // 🔔 MOTOR DE NOTIFICACIONES PUSH EN SEGUNDO PLANO (ZEUS)
 // ==========================================
+
 self.addEventListener('push', function(event) {
     console.log('[Zeus SW] ⚡ Señal Push Recibida.');
     
@@ -125,6 +114,7 @@ self.addEventListener('push', function(event) {
 // ==========================================
 // 👆 ACCIÓN AL TOCAR LA NOTIFICACIÓN
 // ==========================================
+
 self.addEventListener('notificationclick', function(event) {
     console.log('[Zeus SW] 👆 Notificación tocada.');
     
