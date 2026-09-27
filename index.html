@@ -465,85 +465,109 @@
 
 
 
-<section id="view-kiosko" class="view-section p-4 sm:p-6 w-full max-w-7xl mx-auto mt-4 sm:mt-6">
-            <div class="glass p-6 sm:p-8 xl:p-10 rounded-[2rem] sm:rounded-[3rem] border border-indigo-500/30 shadow-2xl text-left flex flex-col min-h-[85vh] lg:min-h-0">
+ <section id="view-kiosko" class="view-section p-4 max-w-md mx-auto mt-6">
 
-                <h2 id="kio-titulo-local" class="text-3xl sm:text-4xl xl:text-5xl font-black italic text-indigo-500 uppercase mb-1 text-center leading-none tracking-tighter">RESERVA TU TURNO</h2>
-                <p class="text-[9px] sm:text-xs text-zinc-400 text-center uppercase tracking-widest mb-6 lg:mb-8">Estado de los barberos en tiempo real</p>
+            <div class="glass p-8 rounded-[3rem] border border-indigo-500/30 shadow-2xl text-left">
 
-                <div id="kiosko-semaforo" class="flex justify-center gap-3 sm:gap-4 mb-6 lg:mb-8 flex-wrap"></div>
+                <h2 id="kio-titulo-local" class="text-3xl font-black italic text-indigo-500 uppercase mb-2 text-center leading-none">RESERVA TU TURNO</h2>
 
-                <div id="btn-tarjeta-vip-kio" class="hidden justify-center mb-6 lg:mb-8">
-                    <button type="button" onclick="abrirMiTarjetaVIP()" class="bg-gradient-to-r from-yellow-600 to-yellow-400 text-black px-6 lg:px-8 py-3 rounded-full font-black text-[10px] lg:text-xs uppercase tracking-widest shadow-[0_0_20px_rgba(234,179,8,0.4)] btn-press hover:scale-105 transition-transform flex items-center gap-2">
+                <p class="text-[9px] text-zinc-400 text-center uppercase tracking-widest mb-6">Estado de los barberos en tiempo real</p>
+
+                <div id="kiosko-semaforo" class="flex justify-center gap-4 mb-6 flex-wrap"></div>
+
+<div id="btn-tarjeta-vip-kio" class="hidden justify-center mb-6">
+
+                    <button type="button" onclick="abrirMiTarjetaVIP()" class="bg-gradient-to-r from-yellow-600 to-yellow-400 text-black px-6 py-2.5 rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(234,179,8,0.4)] btn-press hover:scale-105 transition-transform flex items-center gap-2">
+
+
+
                         👑 SOY CLIENTE VIP
                     </button>
                 </div>
+
+
                 
-                <!-- 🖥️ MAGIA RESPONSIVE: 1 col Móvil, 2 cols Tablet/Laptop (lg), 3 cols Escritorio ancho (xl) -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-12 gap-6 lg:gap-8 flex-1">
-                    
-                    <!-- COLUMNA 1: Datos del Cliente (Ocupa 4 columnas en PC ancha) -->
-                    <div class="xl:col-span-4 space-y-4 lg:space-y-6 flex flex-col">
-                        <div class="bg-black/30 p-5 lg:p-6 rounded-[2rem] border border-zinc-800/50 shadow-inner flex-1">
-                            <label class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-3 block flex items-center gap-2"><span class="text-lg">👤</span> Tus Datos</label>
-                            <input type="text" id="kio-nombre" placeholder="Nombre Completo" class="w-full p-3.5 lg:p-4 mt-1 rounded-2xl bg-black text-white border border-zinc-800 font-bold uppercase text-sm focus:border-indigo-500 outline-none transition-colors mb-3 shadow-inner">
-                            <input type="text" inputmode="numeric" id="kio-celular" onkeyup="verificarClienteKiosko()" placeholder="WhatsApp (Ej: 300...)" class="w-full p-3.5 lg:p-4 rounded-2xl bg-black text-white border border-zinc-800 font-bold tracking-widest text-sm focus:border-indigo-500 outline-none transition-colors shadow-inner">
-                            
-                            <div id="kio-vip-status-container" class="hidden flex-col items-start mt-3 p-3 bg-green-900/10 border border-green-500/30 rounded-xl">
-                                <p id="kio-badge-vip" class="text-[10px] text-green-500 font-black uppercase tracking-widest mb-2 flex items-center gap-1"><span>👑</span> Cliente Detectado</p>
-                                <button type="button" onclick="abrirMiTarjetaVIP('kio-celular')" class="text-[9px] bg-red-600 hover:bg-red-500 text-white px-3 py-2 rounded-lg font-black uppercase tracking-widest shadow-[0_0_10px_rgba(220,38,38,0.4)] btn-press flex items-center gap-1">💳 VER BILLETERA DIGITAL</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- COLUMNA 2: Catálogo de Servicios (Ocupa 4 columnas en PC ancha) -->
-                    <div class="xl:col-span-4 space-y-4 lg:space-y-6 flex flex-col">
-                        <div class="bg-black/30 p-5 lg:p-6 rounded-[2rem] border border-zinc-800/50 shadow-inner flex-1 flex flex-col">
-                            <label class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-3 block flex items-center gap-2"><span class="text-lg">✂️</span> Selecciona tus Servicios</label>
-                            <!-- 💻 SCROLL INTERNO PARA PORTÁTILES: Evita que la pantalla baje infinitamente -->
-                            <div id="kio-catalogo-servicios" class="flex flex-col gap-3 flex-1 overflow-y-auto pr-2 scroll-safe max-h-[40vh] lg:max-h-[50vh] xl:max-h-[45vh]">
-                                <!-- Servicios inyectados por JS -->
-                            </div>
-                        </div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-2">Tu Nombre:</label>
+                        <input type="text" id="kio-nombre" placeholder="Ej: Juan Perez" class="w-full p-4 mt-1 rounded-2xl bg-black text-white border border-zinc-800 font-bold uppercase text-sm focus:border-indigo-500 outline-none transition-colors">
                     </div>
                     
-                    <!-- COLUMNA 3: Agenda, Resumen y Pago (Ocupa 4 columnas en PC ancha) -->
-                    <div class="xl:col-span-4 space-y-4 lg:space-y-6 flex flex-col">
-                        <div class="bg-black/30 p-5 lg:p-6 rounded-[2rem] border border-zinc-800/50 shadow-inner">
-                            <label class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-3 block flex items-center gap-2"><span class="text-lg">📅</span> Fecha y Profesional</label>
-                            <div class="grid grid-cols-2 gap-3 mb-4">
-                                <input type="date" id="kio-fecha" onchange="renderKioskoSlots()" class="w-full p-3 lg:p-4 rounded-xl bg-black text-white border border-zinc-800 font-bold text-xs focus:border-indigo-500 uppercase outline-none transition-colors cursor-pointer shadow-inner">
-                                <div class="flex items-center gap-2 bg-black border border-zinc-800 rounded-xl p-2 focus-within:border-indigo-500 transition-colors shadow-inner">
-                                    <div class="w-8 h-8 lg:w-10 lg:h-10 rounded-lg overflow-hidden bg-zinc-900 flex-shrink-0 relative border border-zinc-700">
-                                        <img id="kio-barbero-img" alt="" src="" class="w-full h-full object-cover hidden absolute inset-0 z-10">
-                                        <span id="kio-barbero-icon" class="flex items-center justify-center h-full text-xs w-full absolute inset-0 z-0">💈</span>
-                                    </div>
-                                    <select id="kio-barbero" onchange="actualizarFotoBarbero('kio'); renderKioskoSlots()" class="w-full bg-transparent text-indigo-400 font-bold text-[9px] lg:text-[10px] uppercase appearance-none outline-none cursor-pointer"><option value="">-- ELIGE --</option></select>
-                                </div>
+
+                    <div>
+    <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-2">Tu WhatsApp (Puntos y Alertas):</label>
+    <input type="text" inputmode="numeric" id="kio-celular" onkeyup="verificarClienteKiosko()" placeholder="Ej: 3001234567" class="w-full p-4 mt-1 rounded-2xl bg-black text-white border border-zinc-800 font-bold tracking-widest text-sm focus:border-indigo-500 outline-none transition-colors">
+    
+    <div id="kio-vip-status-container" class="hidden flex-col items-start mt-2 ml-2">
+        <p id="kio-badge-vip" class="text-[10px] text-green-500 font-black uppercase tracking-widest mb-2">👑 Cliente Detectado (Visitas: 0)</p>
+        <button type="button" onclick="abrirMiTarjetaVIP('kio-celular')" class="text-[9px] bg-red-600 hover:bg-red-500 text-white px-3 py-2 rounded-lg font-black uppercase tracking-widest shadow-[0_0_10px_rgba(220,38,38,0.4)] btn-press flex items-center gap-1">💳 VER TU TARJETA DE FIDELIZACIÓN</button>
+    </div>
+</div>
+
+
+                    <div class="mt-4 mb-2">
+                        <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-2 mb-2 block">Selecciona tus Servicios:</label>
+                        <div id="kio-catalogo-servicios" class="flex flex-col gap-3 max-h-[300px] overflow-y-auto pr-2 scroll-safe">
                             </div>
-
-                            <div class="bg-black p-4 rounded-xl border border-zinc-800 shadow-inner min-h-[100px] max-h-[25vh] overflow-y-auto scroll-safe">
-                                <p class="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-3 text-center sticky top-0 bg-black pb-1 z-10">Horarios Disponibles</p>
-                                <div id="kio-slots-container" class="grid grid-cols-3 gap-2">
-                                    <p class="text-[10px] text-zinc-600 col-span-full text-center py-2 italic">Selecciona fecha y profesional.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div id="contenedor-servicios-elegidos" class="hidden bg-indigo-900/10 border border-indigo-500/30 p-4 lg:p-5 rounded-3xl shadow-inner mt-auto">
-                            <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-3 flex items-center justify-between"><span>🛒 Resumen de Reserva</span> <span id="kio-total-temp" class="text-white text-xs lg:text-sm bg-black px-3 py-1 rounded-lg border border-indigo-500/50">$0</span></p>
-                            <div id="kio-servicios-seleccionados" class="space-y-2 max-h-24 lg:max-h-32 overflow-y-auto pr-1 scroll-safe"></div>
-                        </div>
-
-                        <!-- Botón fijado al fondo en pantallas grandes -->
-                        <button type="button" onclick="kioskoAgendar()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-5 lg:py-6 rounded-2xl lg:rounded-3xl font-black text-lg lg:text-xl uppercase shadow-[0_0_25px_rgba(99,102,241,0.3)] btn-press text-white transition-all hover:scale-[1.02]">AGENDAR AHORA ⚡</button>
                     </div>
+                    
+                    <div id="contenedor-servicios-elegidos" class="hidden bg-indigo-900/10 border border-indigo-500/30 p-4 rounded-2xl mb-4 shadow-inner">
+                        <p class="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-2 flex items-center justify-between"><span>🛒 Servicios Añadidos</span> <span id="kio-total-temp" class="text-white text-xs">$0</span></p>
+                        <div id="kio-servicios-seleccionados" class="space-y-2"></div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-2">Fecha:</label>
+                            <input type="date" id="kio-fecha" onchange="renderKioskoSlots()" class="w-full p-4 mt-1 rounded-2xl bg-black text-white border border-zinc-800 font-bold text-xs focus:border-indigo-500 uppercase outline-none transition-colors cursor-pointer">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-2">Barbero:</label>
+                            <div class="flex items-center gap-2 mt-1">
+                                <div class="w-10 h-10 rounded-full border border-zinc-700 overflow-hidden bg-zinc-900 flex-shrink-0 relative">
+                                    <img id="kio-barbero-img" alt="" src="" class="w-full h-full object-cover hidden absolute inset-0 z-10">
+                                    <span id="kio-barbero-icon" class="flex items-center justify-center h-full text-xs w-full absolute inset-0 z-0">💈</span>
+                                </div>
+                                <select id="kio-barbero" onchange="actualizarFotoBarbero('kio'); renderKioskoSlots()" class="w-full p-3 rounded-2xl bg-black text-indigo-400 border border-zinc-800 font-bold text-[10px] uppercase focus:border-indigo-500 appearance-none text-center outline-none cursor-pointer transition-colors"><option value="">-- ELIGE --</option></select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-black/50 p-4 rounded-2xl border border-zinc-800 shadow-inner min-h-[100px] mt-4">
+                        <p class="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-3 text-center">Horarios Disponibles</p>
+                        <div id="kio-slots-container" class="grid grid-cols-3 gap-2">
+                            <p class="text-[10px] text-zinc-600 col-span-3 text-center py-2 italic">Selecciona fecha y barbero.</p>
+                        </div>
+                    </div>
+<div id="kio-banner-afiliacion-vip" class="hidden mt-8 pt-6 border-t border-zinc-800/50 flex-col items-center">
+    <div class="bg-gradient-to-br from-red-900/40 to-black border border-red-500/30 rounded-2xl p-5 w-full flex items-center justify-between shadow-[0_0_15px_rgba(220,38,38,0.15)] relative overflow-hidden">
+        <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-red-600 rounded-full blur-[30px] opacity-20"></div>
+        
+        <div class="flex flex-col z-10 w-2/3">
+            <h4 class="text-sm font-black text-white italic tracking-tighter uppercase leading-tight">ÚNETE AL CLUB VIP</h4>
+            <p id="kio-txt-afiliacion-vip" class="text-[9px] text-zinc-300 font-bold uppercase mt-1 leading-snug">Acumula 10 cortes y gana 1 Gratis.</p>
+            <button type="button" onclick="abrirMiTarjetaVIP()" class="bg-red-600 hover:bg-red-500 text-white text-[9px] font-black px-3 py-2 rounded-lg uppercase tracking-widest mt-3 w-fit transition-colors shadow-[0_0_10px_rgba(220,38,38,0.4)]">OBTENER TARJETA 💳</button>
+        </div>
+        
+        <div class="w-1/3 flex justify-end z-10">
+            <div id="kio-qr-afiliacion" class="bg-white p-1 rounded-lg w-16 h-16 shadow-[0_0_10px_rgba(255,255,255,0.2)]"></div>
+        </div>
+    </div>
+</div>
+
+
+
+
+                    <button type="button" onclick="kioskoAgendar()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-5 rounded-3xl font-black text-lg uppercase shadow-lg shadow-indigo-600/20 btn-press mt-2 text-white transition-colors">AGENDAR AHORA ⚡</button>
+                    <div id="kio-redes-sociales" class="hidden"></div>
+                    <button type="button" onclick="cerrarKioskoYVolver()" class="text-zinc-500 hover:text-white transition-colors text-[10px] font-bold uppercase mt-6 block mx-auto text-center p-2 btn-press border border-zinc-800 rounded-xl px-4 hover:bg-zinc-900">Volver al Login (PIN)</button>
                 </div>
-
-                <div id="kio-redes-sociales" class="hidden mt-6"></div>
-                <button type="button" onclick="cerrarKioskoYVolver()" class="text-zinc-500 hover:text-white transition-colors text-[10px] font-bold uppercase mt-6 block mx-auto text-center p-3 btn-press border border-zinc-800 rounded-xl px-6 hover:bg-zinc-900 shadow-inner">Volver al Menú Principal</button>
             </div>
+
         </section>
+
+
+
 
 
 
@@ -2716,23 +2740,20 @@ async function hashPIN(pin) {
             else { s.innerHTML = '🔴 OFFLINE'; s.className = 'text-[8px] text-red-500 font-bold uppercase tracking-widest bg-black px-1.5 py-0.5 rounded border border-red-900/50 animate-pulse'; }
         }
 
-        function saveDB(triggerCloudSync = true) {
+        function saveDB(triggerCloudSync = true, forceConfigUpload = false) {
             let idx = bIdx !== -1 ? bIdx : kiosko_bIdx;
 
-            // 🛡️ ESCUDO: Si guardamos sin internet, marcamos que tenemos datos pendientes de subir
+            // 🛡️ ESCUDO: Si guardamos sin internet, marcamos que tenemos datos pendientes
             if (idx !== -1 && db.barberias[idx]) {
-                if (!isOnline) {
-                    db.barberias[idx].pendientesSync = true;
-                }
+                if (!isOnline) db.barberias[idx].pendientesSync = true;
             }
 
-            // 1. Guardado local seguro
             if (!isLocalStorageBlocked) {
                 try { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
                 catch (e) { console.error("Error guardando local"); }
             }
 
-            // 2. Subida a la Nube Inteligente (ESCUDO AHORRADOR DE DATOS 99%)
+            // 2. Subida a la Nube Inteligente (ESCUDO AHORRADOR DE DATOS)
             if (triggerCloudSync && isOnline) {
                 clearTimeout(_cloudSyncDebounce);
                 _cloudSyncDebounce = setTimeout(async () => {
@@ -2744,29 +2765,24 @@ async function hashPIN(pin) {
                             let necesitaFusion = false;
                             let nubeData = null;
 
-                            // 🚀 ESCUDO DE PRIORIDADES (Fusión Absoluta): 
-                            // Siempre descargamos la nube si hay cambios, tengamos datos pendientes o no, para NO borrar las citas de los clientes.
                             if (vNube > 0 && db.barberias[idx].data_version !== vNube) {
                                 const { data } = await supabaseClient.from('stores').select('json_data').eq('id', db.barberias[idx].id_nube).single();
-                                if (data && data.json_data) {
-                                    nubeData = data.json_data;
-                                    necesitaFusion = true;
-                                }
+                                if (data && data.json_data) { nubeData = data.json_data; necesitaFusion = true; }
                             }
-                            db.barberias[idx].pendientesSync = false; // Ya no aplastamos la nube, ahora fusionamos 100% seguros
+                            db.barberias[idx].pendientesSync = false;
 
                             if (necesitaFusion && nubeData) {
                                 let localData = db.barberias[idx];
                                 
-                                // 🚀 AUTO-PARCHE SUPREMO: Protegemos los barberos y servicios
-const clavesTransaccionales = ['clientes', 'ventas', 'gastos', 'tickets', 'asistencia', 'multas', 'citas', 'listaEspera', 'pendientesSync', 'data_version', 'barberos', 'servicios', 'productos', 'cajeros'];
-                                Object.keys(nubeData).forEach(key => {
-                                    if (!clavesTransaccionales.includes(key)) {
-                                        localData[key] = nubeData[key];
-                                    }
-                                });
+                                // 🚀 PROTECCIÓN DE CONFIGURACIONES DEL ADMIN
+                                if (!forceConfigUpload) {
+                                    const clavesTransaccionales = ['clientes', 'ventas', 'gastos', 'tickets', 'asistencia', 'multas', 'citas', 'listaEspera', 'pendientesSync', 'data_version', 'barberos', 'servicios', 'productos', 'cajeros', 'pushSubscription'];
+                                    Object.keys(nubeData).forEach(key => {
+                                        if (!clavesTransaccionales.includes(key)) localData[key] = nubeData[key];
+                                    });
+                                }
 
-                                // ✨ MAGIA NIVEL DIOS: Fusión de Finanzas y Clientes sin aplastar datos
+                                // ✨ FUSIÓN DE TRANSACCIONES (Citas y Dinero jamás se pierden)
                                 localData.clientes = { ...(nubeData.clientes || {}), ...(localData.clientes || {}) };
 
                                 let mVentas = [...(nubeData.ventas || []), ...(localData.ventas || [])];
@@ -2782,8 +2798,6 @@ const clavesTransaccionales = ['clientes', 'ventas', 'gastos', 'tickets', 'asist
                                 let mMultas = [...(nubeData.multas || []), ...(localData.multas || [])];
                                 localData.multas = Array.from(new Set(mMultas.map(a => a.id))).map(id => mMultas.find(a => a.id === id));
 
-                                // CÓDIGO VIEJO: let coincidencia = fusionCitas.find(cNube => cNube.id === cLocal.id);
-                                // CÓDIGO NUEVO Y BLINDADO:
                                 let fusionCitas = [...(nubeData.citas || [])];
                                 (localData.citas || []).forEach(cLocal => {
                                     let coincidencia = fusionCitas.find(cNube => String(cNube.id) === String(cLocal.id));
@@ -2800,21 +2814,20 @@ const clavesTransaccionales = ['clientes', 'ventas', 'gastos', 'tickets', 'asist
                                 });
                                 localData.listaEspera = fusionEspera;
                                 
-                            } // 🔴🔴 ¡AQUÍ ESTÁ LA LLAVE QUE DESTRABA EL SISTEMA! 🔴🔴
+                                // Si no forzamos config, la antena de la nube sobrevive
+                                if (!forceConfigUpload && nubeData.pushSubscription !== undefined) {
+                                    localData.pushSubscription = nubeData.pushSubscription;
+                                }
+                            }
 
-                            // 💉 PASO C: INYECTAMOS LA NUEVA VERSIÓN AL GUARDAR
                             db.barberias[idx].data_version = Date.now();
 
-                            // AHORA SÍ, subimos la data protegida
-                            supabaseClient.from('stores')
-                                .update({ json_data: db.barberias[idx] })
-                                .eq('id', db.barberias[idx].id_nube)
-                                .then(({ error }) => {
-                                    if (!error) {
-                                        console.log("Nube sincronizada ✅");
-                                        if (document.getElementById('view-barbero')?.classList.contains('active')) renderBarbero();
-                                    }
-                                });
+                            supabaseClient.from('stores').update({ json_data: db.barberias[idx] }).eq('id', db.barberias[idx].id_nube).then(({ error }) => {
+                                if (!error) {
+                                    console.log("Nube sincronizada ✅");
+                                    if (document.getElementById('view-barbero')?.classList.contains('active')) renderBarbero();
+                                }
+                            });
                         } catch(e) { console.error("Error en Escudo de Sync:", e); }
                     }
                 }, 1500);
@@ -3263,16 +3276,54 @@ const clavesTransaccionales = ['clientes', 'ventas', 'gastos', 'tickets', 'asist
                     supabaseClient.from('stores').select('id, name, json_data').eq('id', kioskId).single().then(({data, error}) => {
                         Swal.close();
                         if(!error && data && data.json_data) {
-                            let bData = data.json_data;
-                            bData.id_nube = data.id; bData.nombre = data.name;
+                            let cloudB = data.json_data;
+                            cloudB.id_nube = data.id; cloudB.nombre = data.name;
                             let lIdx = db.barberias.findIndex(b => b.id_nube === kioskId || b.id === kioskId);
+                            
                             if (lIdx > -1) {
-                                db.barberias[lIdx] = { ...db.barberias[lIdx], ...bData };
+                                let localB = db.barberias[lIdx];
+                                
+                                // 🛡️ FUSIÓN ÉLITE KIOSKO: Protege las citas locales que aún no subieron
+                                const clavesTransaccionales = ['citas', 'listaEspera', 'ventas', 'clientes', 'tickets', 'asistencia', 'multas', 'gastos'];
+                                Object.keys(cloudB).forEach(key => {
+                                    if (!clavesTransaccionales.includes(key)) {
+                                        localB[key] = cloudB[key];
+                                    }
+                                });
+
+                                // Fusiona sin aplastar la cita fantasma local
+                                let mergedCitas = [...(localB.citas || [])];
+                                (cloudB.citas || []).forEach(cC => {
+                                    let lMatch = mergedCitas.find(lC => String(lC.id) === String(cC.id));
+                                    if (!lMatch) {
+                                        mergedCitas.push(cC); // Si la nube tiene una cita nueva, la agregamos
+                                    } else {
+                                        lMatch.estado = cC.estado; // Actualizamos el estado si ya existía
+                                    }
+                                });
+                                localB.citas = mergedCitas;
+
+                                let mergedEspera = [...(localB.listaEspera || [])];
+                                (cloudB.listaEspera || []).forEach(eC => {
+                                    let eMatch = mergedEspera.find(lE => String(lE.id) === String(eC.id));
+                                    if (!eMatch) {
+                                        mergedEspera.push(eC);
+                                    } else {
+                                        eMatch.estado = eC.estado;
+                                    }
+                                });
+                                localB.listaEspera = mergedEspera;
+
+                                db.barberias[lIdx] = localB;
+                                
+                                // 🔥 GUARDAMOS EN LOCAL SOLAMENTE. 
+                                // EL KIOSKO JAMÁS DEBE FORZAR UNA SUBIDA AL ABRIR LA PÁGINA.
+                                saveDB(false);
                             } else {
-                                db.barberias.push(bData);
+                                db.barberias.push(cloudB);
                                 lIdx = db.barberias.length - 1;
+                                saveDB(false);
                             }
-                            if(typeof saveDB === 'function') saveDB(false);
                             iniciarKiosko(lIdx);
                         } else {
                             let lIdx = db.barberias.findIndex(b => b.id_nube === kioskId || b.id === kioskId);
@@ -3314,6 +3365,7 @@ const clavesTransaccionales = ['clientes', 'ventas', 'gastos', 'tickets', 'asist
                 else { showScreen('view-login'); }
             } else { showScreen('view-login'); }
         }
+
 
          // ==========================================
 // 🌐 MOTOR DE VERIFICACIÓN WOMPI AUTOMÁTICA (OPTIMIZADO PWA)
@@ -7317,11 +7369,10 @@ function calcularPrecioIA(precioBase, idLocal) {
         }
 
        
-         // ==========================================
+        // ==========================================
         // 🔔 MÓDULO DE NOTIFICACIONES PUSH (AUTO-SYNC Y BLINDAJE)
         // ==========================================
 
-        // 1. ACTIVAR ANTENA
         async function activarNotificacionesPush() {
             if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
                 return Swal.fire('Error', 'Tu navegador no soporta notificaciones Push.', 'error');
@@ -7330,41 +7381,30 @@ function calcularPrecioIA(precioBase, idLocal) {
             try {
                 // 🛡️ PEDIR PERMISO EXPLÍCITO AL USUARIO PRIMERO
                 const permiso = await Notification.requestPermission();
-                if (permiso !== 'granted') {
-                    throw new Error('PERMISO_DENEGADO');
-                }
+                if (permiso !== 'granted') throw new Error('PERMISO_DENEGADO');
 
-                Swal.fire({ title: 'Vinculando dispositivo...', text: 'Generando llaves de seguridad...', didOpen: () => Swal.showLoading(), allowOutsideClick: false, background: '#0a0a0a', color: '#fff' });
+                Swal.fire({ title: 'Vinculando dispositivo...', text: 'Actualizando protocolos...', didOpen: () => Swal.showLoading(), allowOutsideClick: false, background: '#0a0a0a', color: '#fff' });
 
                 const reg = await navigator.serviceWorker.ready;
+                await reg.update(); // 🚀 MAGIA: Fuerza al celular a bajar el sw.js nuevo sin borrar caché a mano
 
-                // 🧹 LIMPIAR ANTENAS FANTASMAS
-                const subAntigua = await reg.pushManager.getSubscription();
-                if (subAntigua) {
-                    await subAntigua.unsubscribe();
-                }
-
-                // 🔑 LLAVE PÚBLICA DE TU SERVIDOR
                 const PUBLIC_VAPID_KEY = "BHKFJnWSHmcY2Q4o-J93NiUq8SeARR9oDFYLmtaSnud4bBFXiZC4VZzvmCnA5MypqXY-rZdvHwudBGb_mnafQj4";
 
-                // CREAR LA NUEVA SUSCRIPCIÓN
-                const subscription = await reg.pushManager.subscribe({
-                    userVisibleOnly: true,
-                    applicationServerKey: urlB64ToUint8Array(PUBLIC_VAPID_KEY)
-                });
+                // 🚀 REGLA DE ORO ANTI-BLOQUEOS: No desuscribir. Reutilizar si ya existe.
+                let subscription = await reg.pushManager.getSubscription();
+                if (!subscription) {
+                    subscription = await reg.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: urlB64ToUint8Array(PUBLIC_VAPID_KEY)
+                    });
+                }
 
-                // 🚀 CORRECCIÓN VITAL: Convertir a JSON puro
                 const tokenPuro = subscription.toJSON();
-
-                // Guardar local y en la nube
                 const b = db.barberias[bIdx];
                 b.pushSubscription = tokenPuro;
-                saveDB(false); 
 
-                if (isOnline && typeof supabaseClient !== 'undefined' && b.id_nube) {
-                    const { error } = await supabaseClient.from('stores').update({ json_data: b }).eq('id', b.id_nube);
-                    if (error) throw error;
-                }
+                // 🚀 GUARDADO ÉLITE: Forzamos la subida de la antena sin aplastar citas del Kiosko
+                saveDB(true, true); 
 
                 const txtStatus = document.getElementById('push-status-txt');
                 if(txtStatus) {
@@ -7376,14 +7416,13 @@ function calcularPrecioIA(precioBase, idLocal) {
             } catch (e) {
                 console.error("Fallo Push:", e);
                 if (e.message === 'PERMISO_DENEGADO' || e.message.includes('denied')) {
-                    Swal.fire('Permiso Bloqueado 🔕', 'Tu navegador tiene las notificaciones bloqueadas para esta página. Ve a "Configuración del sitio" en tu navegador y cambia Notificaciones a "Permitir".', 'warning');
+                    Swal.fire('Permiso Bloqueado 🔕', 'Ve a la configuración de Chrome y permite las notificaciones para esta página.', 'warning');
                 } else {
-                    Swal.fire('Error Técnico', 'No pudimos vincular este dispositivo. Asegúrate de tener conexión estable. Detalle: ' + e.message, 'error');
+                    Swal.fire('Reintenta', 'Estamos purgiendo la caché vieja automáticamente. Por favor, toca el botón de Activar de nuevo en 3 segundos.', 'info');
                 }
             }
         }
 
-        // 2. DESACTIVAR ANTENA
         async function desactivarNotificacionesPush() {
             const statusTxt = document.getElementById('push-status-txt');
             Swal.fire({ title: 'Apagando Antena...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
@@ -7392,18 +7431,14 @@ function calcularPrecioIA(precioBase, idLocal) {
                 if ('serviceWorker' in navigator) {
                     const register = await navigator.serviceWorker.ready;
                     const subscription = await register.pushManager.getSubscription();
-                    if (subscription) {
-                        await subscription.unsubscribe();
-                    }
+                    if (subscription) await subscription.unsubscribe();
                 }
 
                 const b = db.barberias[bIdx];
                 b.pushSubscription = null;
-                saveDB(true);
-
-                if (isOnline && typeof supabaseClient !== 'undefined' && b.id_nube) {
-                    await supabaseClient.from('stores').update({ json_data: b }).eq('id', b.id_nube);
-                }
+                
+                // 🚀 GUARDADO ÉLITE: Forzamos la subida sin aplastar citas
+                saveDB(true, true);
 
                 if(statusTxt) {
                     statusTxt.innerText = "Estado: Esperando activación... 🔕";
@@ -7412,20 +7447,16 @@ function calcularPrecioIA(precioBase, idLocal) {
 
                 Swal.fire({ title: '¡Desactivado!', text: 'Ya no recibirás alertas en este dispositivo.', icon: 'success', background: '#0a0a0a', color: '#fff' });
             } catch (err) {
-                console.error("Error desactivando Push: ", err);
-                Swal.fire('Error Técnico', 'No pudimos desactivarlo automáticamente.', 'error');
+                Swal.fire('Error Técnico', 'No pudimos desactivarlo.', 'error');
             }
         }
 
-        // 3. FUNCIÓN AUXILIAR DE DESENCRIPTACIÓN VAPID (¡No la borres!)
         function urlB64ToUint8Array(base64String) {
             const padding = '='.repeat((4 - base64String.length % 4) % 4);
             const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
             const rawData = window.atob(base64);
             const outputArray = new Uint8Array(rawData.length);
-            for (let i = 0; i < rawData.length; ++i) {
-                outputArray[i] = rawData.charCodeAt(i);
-            }
+            for (let i = 0; i < rawData.length; ++i) { outputArray[i] = rawData.charCodeAt(i); }
             return outputArray;
         }
 
@@ -11850,7 +11881,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.151"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.155"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
@@ -11946,6 +11977,8 @@ function abrirOnboardingManual() {
         } else {
             arrancarZeusMaestro();
         }
+
+
 
 
 // ==========================================
@@ -12109,18 +12142,22 @@ function cargarTurnoACaja(idCita) {
 }
 
 
-        // ==========================================
-        // 🚀 MOTOR PWA (ANDROID, IOS, MAC Y WINDOWS)
+
+    // ==========================================
+        // 🚀 MOTOR PWA Y PURGADOR DE CACHÉ
         // ==========================================
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
-                .then((reg) => console.log('PWA Lista: Service Worker Registrado.', reg.scope))
+                .then((reg) => {
+                    console.log('PWA Lista: Service Worker Registrado.', reg.scope);
+                    reg.update(); // 👈 Obliga al navegador a purgar el caché del SW en cada carga
+                })
                 .catch((err) => console.warn('PWA Aviso: Error al registrar sw.js.', err));
             });
         }
 
-        // ⚡ LLAVES DE ENCENDIDO DEL SISTEMA (¡NO BORRAR!)
+        // ⚡ LLAVES DE ENCENDIDO DEL SISTEMA MULTIPLATAFORMA (¡NO BORRAR!)
         if (typeof initDB === 'function') initDB(); 
         window.onload = checkSession;
 
