@@ -326,9 +326,21 @@
             <div class="mt-auto mb-auto">
                 <input type="password" inputmode="numeric" id="login-pin" maxlength="4" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)" aria-label="Ingrese su PIN de acceso" placeholder="••••" class="w-full p-6 rounded-3xl text-center text-4xl font-black mb-6 border border-zinc-800 shadow-inner tracking-[1em] indent-[1em] bg-[#050505] focus:border-indigo-500 outline-none transition-colors text-white">
 
-                <button type="button" onclick="actionLogin()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-6 rounded-3xl text-xl font-black uppercase italic shadow-lg shadow-indigo-600/20 btn-press transition-colors text-white mb-6">
-                    <span id="btn-login-text">Entrar a Zeus ⚡</span>
-                </button>
+
+
+               <div class="flex gap-3 mb-6">
+    <button type="button" onclick="actionLogin()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 py-6 rounded-3xl text-xl font-black uppercase italic shadow-lg shadow-indigo-600/20 btn-press transition-colors text-white">
+        <span id="btn-login-text">Entrar a Zeus ⚡</span>
+    </button>
+    
+    <!-- Botón Biométrico Inteligente -->
+    <button type="button" id="btn-biometria" onclick="loginConBiometria()" class="hidden w-20 bg-zinc-900 border border-zinc-700 hover:border-[#0cd1b8] py-6 rounded-3xl text-2xl flex items-center justify-center shadow-lg btn-press transition-all text-[#0cd1b8]">
+        <span class="animate-pulse">👁️‍🗨️</span>
+    </button>
+</div>
+
+
+
                 <hr class="border-zinc-800 mb-6">
                 <button type="button" onclick="crearCuentaNueva()" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 py-5 rounded-3xl text-sm font-black uppercase text-white shadow-[0_0_20px_rgba(16,185,129,0.2)] btn-press transition-all mb-4">
                     🚀 <span id="btn-create-text">Crear Mi Barbería</span>
@@ -3343,14 +3355,16 @@ async function hashPIN(pin) {
             
             let s = null;
             if (!isLocalStorageBlocked) { try { s = sessionStorage.getItem(SESSION_KEY); } catch (e) { } }
-            if (s) {
+
+           if (s) {
                 const d = JSON.parse(s); bIdx = d.bIdx; session = d.session;
                 
                 if (bIdx !== -1 && db.barberias[bIdx] && session.rol !== 'superadmin') {
                     const bVerif = db.barberias[bIdx];
                     const diffDays = Math.floor((Date.now() - (bVerif.creadoEn || Date.now())) / (1000 * 60 * 60 * 24));
                     
-                    if ((bVerif.lastActiveClock && Date.now() < bVerif.lastActiveClock) || (bVerif.diasSuscripcion || 15) - diffDays < 0 || bVerif.bloqueado) {
+                    // 🛡️ PARCHE ÉLITE: Tolerancia de 24h (86400000 ms) para desfases de reloj entre celulares
+                    if ((bVerif.lastActiveClock && Date.now() < (bVerif.lastActiveClock - 86400000)) || (bVerif.diasSuscripcion || 15) - diffDays < 0 || bVerif.bloqueado) {
                         sessionStorage.removeItem(SESSION_KEY);
                         bIdx = -1;
                         session = null;
@@ -3574,6 +3588,8 @@ async function actionLogin() {
         }
         
         saveDB(false); saveSession(); pinInput.value = ""; Swal.close(); 
+       // Gatillo Biométrico
+      ofrecerRegistroBiometrico(pin);
         
         if (session.rol === 'admin') showScreen('view-admin'); 
         else if (session.rol === 'cajero') showScreen('view-caja'); 
@@ -3986,13 +4002,13 @@ async function actionLogin() {
                 }
             }
 
-            // 1. 🛡️ ESCUDO ANTI-RETROCESO DE FECHA (Anti-Abejas)
-            if (b.lastActiveClock && Date.now() < b.lastActiveClock) {
+           // 1. 🛡️ ESCUDO ANTI-RETROCESO DE FECHA (Con tolerancia Multi-Dispositivo)
+            if (b.lastActiveClock && Date.now() < (b.lastActiveClock - 86400000)) {
                 document.getElementById('pantalla-bloqueo').classList.remove('hidden');
                 document.getElementById('app-content').classList.add('hidden');
                 Swal.fire({
                     title: 'Error de Sistema',
-                    text: 'Se detectó una inconsistencia en el reloj del dispositivo. Por favor, ajusta la fecha a la hora real.',
+                    text: 'Se detectó una inconsistencia severa en el reloj del dispositivo. Por favor, ajusta la fecha a la hora real.',
                     icon: 'error',
                     background: '#0a0a0a',
                     color: '#fff'
@@ -5243,9 +5259,7 @@ const btnRecibo = tieneAbono ? `<button type="button" onclick="verComprobanteCit
         // ==========================================
         // 10. KIOSKO PÚBLICO (MODO FRESHA VIP)
         // ==========================================
-        // ==========================================
-        // 10. KIOSKO PÚBLICO (MODO FRESHA VIP)
-        // ==========================================
+        
         function iniciarKiosko(idx) {
             kiosko_bIdx = idx; const b = db.barberias[kiosko_bIdx];
             
@@ -11881,7 +11895,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.155"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.156"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
@@ -12064,86 +12078,181 @@ async function saAjustarLicenciaManual(idNube) {
 
 
 // ==========================================
-// 💵 PUENTE AGENDA -> CAJA CON VALIDACIÓN BOLD (OPTIMIZADO PWA)
-// ==========================================
-function cargarTurnoACaja(idCita) {
-    const b = db.barberias[bIdx];
-    const cita = b.citas?.find(c => String(c.id) === String(idCita));
-    if (!cita) return;
+        // 💵 PUENTE AGENDA -> CAJA CON VALIDACIÓN BOLD (OPTIMIZADO PWA)
+        // ==========================================
+        function cargarTurnoACaja(idCita) {
+            const b = db.barberias[bIdx];
+            const cita = b.citas?.find(c => String(c.id) === String(idCita));
+            if (!cita) return;
 
-    cart = [];
-    abonoValidadoCaja = 0;
-    
-    const inputSearch = document.getElementById('caja-search-cli');
-    if (inputSearch) inputSearch.value = cita.celular || "";
-    
-    if (typeof buscarClienteManualCaja === 'function') {
-        buscarClienteManualCaja(cita.celular, cita.nombre); 
-    }
-    
-    const inputBarbero = document.getElementById('caja-barbero-select');
-    if (inputBarbero) inputBarbero.value = cita.barbero || "";
-
-    if (cita.servicio) {
-        let serviciosCita = cita.servicio.split(' + ');
-        serviciosCita.forEach(srvNom => {
-            let servCompleto = b.servicios?.find(s => s.nom === srvNom);
-            if (servCompleto) {
-                cart.push({ ...servCompleto, idT: Date.now() + Math.random(), isProd: false });
+            cart = [];
+            abonoValidadoCaja = 0;
+            
+            const inputSearch = document.getElementById('caja-search-cli');
+            if (inputSearch) inputSearch.value = cita.celular || "";
+            
+            if (typeof buscarClienteManualCaja === 'function') {
+                buscarClienteManualCaja(cita.celular, cita.nombre); 
             }
-        });
-    }
+            
+            const inputBarbero = document.getElementById('caja-barbero-select');
+            if (inputBarbero) inputBarbero.value = cita.barbero || "";
 
-    updateCart(); 
+            if (cita.servicio) {
+                let serviciosCita = cita.servicio.split(' + ');
+                serviciosCita.forEach(srvNom => {
+                    let servCompleto = b.servicios?.find(s => s.nom === srvNom);
+                    if (servCompleto) {
+                        cart.push({ ...servCompleto, idT: Date.now() + Math.random(), isProd: false });
+                    }
+                });
+            }
 
-    if (cita.comprobante && !cita.abonoAprobado) {
-        Swal.fire({
-            title: '⚠️ REVISIÓN DE PAGO',
-            html: `
-                <p class="text-sm text-zinc-300 mb-2">El cliente reportó un pago anticipado. ¿El dinero ya ingresó a tus cuentas?</p>
-                <img src="${cita.comprobante}" class="w-full h-48 object-contain rounded-xl border border-zinc-800 mb-4 bg-black" loading="lazy">
-                <input type="number" inputmode="numeric" id="swal-monto-abono" class="w-full p-4 rounded-xl text-xl font-black bg-[#111] border border-green-500/50 text-green-400 text-center outline-none" placeholder="¿Cuánto entró exacto? Ej: 15000">
-            `,
-            background: '#0a0a0a', 
-            color: '#fff',
-            showCancelButton: true, 
-            showDenyButton: true,
-            confirmButtonText: '✅ APROBAR ABONO',
-            denyButtonText: '❌ RECHAZAR (No llegó)',
-            cancelButtonText: 'Decidir Luego',
-            confirmButtonColor: '#16a34a', 
-            denyButtonColor: '#dc2626',
-            preConfirm: () => {
-                const monto = document.getElementById('swal-monto-abono').value;
-                const numMonto = parseInt(monto, 10);
-                if (!monto || isNaN(numMonto) || numMonto <= 0) {
-                    Swal.showValidationMessage('Ingresa el valor numérico exacto que aprobaste');
-                    return false;
+            updateCart(); 
+
+            if (cita.comprobante && !cita.abonoAprobado) {
+                Swal.fire({
+                    title: '⚠️ REVISIÓN DE PAGO',
+                    html: `
+                        <p class="text-sm text-zinc-300 mb-2">El cliente reportó un pago anticipado. ¿El dinero ya ingresó a tus cuentas?</p>
+                        <img src="${cita.comprobante}" class="w-full h-48 object-contain rounded-xl border border-zinc-800 mb-4 bg-black" loading="lazy">
+                        <input type="number" inputmode="numeric" id="swal-monto-abono" class="w-full p-4 rounded-xl text-xl font-black bg-[#111] border border-green-500/50 text-green-400 text-center outline-none" placeholder="¿Cuánto entró exacto? Ej: 15000">
+                    `,
+                    background: '#0a0a0a', 
+                    color: '#fff',
+                    showCancelButton: true, 
+                    showDenyButton: true,
+                    confirmButtonText: '✅ APROBAR ABONO',
+                    denyButtonText: '❌ RECHAZAR (No llegó)',
+                    cancelButtonText: 'Decidir Luego',
+                    confirmButtonColor: '#16a34a', 
+                    denyButtonColor: '#dc2626',
+                    preConfirm: () => {
+                        const monto = document.getElementById('swal-monto-abono').value;
+                        const numMonto = parseInt(monto, 10);
+                        if (!monto || isNaN(numMonto) || numMonto <= 0) {
+                            Swal.showValidationMessage('Ingresa el valor numérico exacto que aprobaste');
+                            return false;
+                        }
+                        return numMonto;
+                    }
+                }).then((r) => {
+                    if (r.isConfirmed) {
+                        abonoValidadoCaja = r.value;
+                        cita.abonoAprobado = true;
+                        cita.valorAbono = abonoValidadoCaja;
+                        saveDB(false);
+                        updateCart(); 
+                        Swal.fire({title:'Aprobado', text:`Se descontarán ${fMoney(abonoValidadoCaja)} del total de la caja.`, icon:'success', toast:true, position:'top-end', timer:3000, showConfirmButton:false});
+                    } else if (r.isDenied) {
+                        Swal.fire('Rechazado', 'Se le cobrará la tarifa completa al cliente.', 'info');
+                    }
+                });
+            } else if (cita.abonoAprobado) {
+                abonoValidadoCaja = cita.valorAbono;
+                updateCart();
+                Swal.fire({title:'Pago Automático Detectado', text:`El cliente ya tiene un saldo a favor de ${fMoney(abonoValidadoCaja)} vía ${cita.metodoAbono || 'Wompi'}.`, icon:'info', toast:true, position:'top-end', timer:4000, showConfirmButton:false});
+            }
+        }
+
+        // ==========================================
+        // 👁️‍🗨️ MOTOR BIOMÉTRICO (FACE ID / TOUCH ID / HUELLA)
+        // ==========================================
+        
+        // 1. Evaluar si el celular soporta biometría nativa
+        async function verificarSoporteBiometrico() {
+            if (window.PublicKeyCredential && await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()) {
+                // Si el dispositivo tiene FaceID o Huella y ya hay un PIN guardado localmente, mostramos el botón
+                if (localStorage.getItem('zeus_bio_pin')) {
+                    const btnBio = document.getElementById('btn-biometria');
+                    if (btnBio) btnBio.classList.remove('hidden');
                 }
-                return numMonto;
             }
-        }).then((r) => {
-            if (r.isConfirmed) {
-                abonoValidadoCaja = r.value;
-                cita.abonoAprobado = true;
-                cita.valorAbono = abonoValidadoCaja;
-                saveDB(false);
-                updateCart(); 
-                Swal.fire({title:'Aprobado', text:`Se descontarán ${fMoney(abonoValidadoCaja)} del total de la caja.`, icon:'success', toast:true, position:'top-end', timer:3000, showConfirmButton:false});
-            } else if (r.isDenied) {
-                Swal.fire('Rechazado', 'Se le cobrará la tarifa completa al cliente.', 'info');
+        }
+
+        // Llamamos a la verificación apenas cargue el login
+        window.addEventListener('DOMContentLoaded', verificarSoporteBiometrico);
+
+        // 2. Ofrecer activar la biometría DESPUÉS de un login exitoso con PIN
+        async function ofrecerRegistroBiometrico(pinReal) {
+            if (!window.PublicKeyCredential) return;
+            const isAvailable = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+            
+            if (isAvailable && !localStorage.getItem('zeus_bio_pin')) {
+                Swal.fire({
+                    title: '¿Activar Face ID / Huella?',
+                    text: 'Ingresa más rápido a Zeus la próxima vez sin escribir tu PIN.',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, Activar',
+                    cancelButtonText: 'Ahora no',
+                    background: '#0a0a0a', color: '#fff', confirmButtonColor: '#0cd1b8'
+                }).then(async (result) => {
+                    if (result.isConfirmed) {
+                        try {
+                            // Creamos un desafío criptográfico aleatorio
+                            const challenge = new Uint8Array(32);
+                            window.crypto.getRandomValues(challenge);
+                            const userId = new Uint8Array(16);
+                            window.crypto.getRandomValues(userId);
+
+                            const credenciales = await navigator.credentials.create({
+                                publicKey: {
+                                    challenge: challenge,
+                                    rp: { name: "Zeus Barber Pro", id: window.location.hostname },
+                                    user: { id: userId, name: "zeus_user", displayName: "Zeus Admin" },
+                                    pubKeyCredParams: [{ type: "public-key", alg: -7 }, { type: "public-key", alg: -257 }],
+                                    authenticatorSelection: { authenticatorAttachment: "platform", userVerification: "required" },
+                                    timeout: 60000
+                                }
+                            });
+
+                            if (credenciales) {
+                                // Guardamos el PIN encriptado localmente como llave de acceso rápido
+                                localStorage.setItem('zeus_bio_pin', btoa(pinReal));
+                                Swal.fire('¡Activado!', 'Biometría vinculada con éxito. Ya puedes usar el botón del ojo en la pantalla de inicio.', 'success');
+                                const btnBio = document.getElementById('btn-biometria');
+                                if (btnBio) btnBio.classList.remove('hidden');
+                            }
+                        } catch (err) {
+                            console.error("Error Biométrico:", err);
+                            Swal.fire('Cancelado', 'No se pudo configurar la biometría.', 'info');
+                        }
+                    }
+                });
             }
-        });
-    } else if (cita.abonoAprobado) {
-        abonoValidadoCaja = cita.valorAbono;
-        updateCart();
-        Swal.fire({title:'Pago Automático Detectado', text:`El cliente ya tiene un saldo a favor de ${fMoney(abonoValidadoCaja)} vía ${cita.metodoAbono || 'Wompi'}.`, icon:'info', toast:true, position:'top-end', timer:4000, showConfirmButton:false});
-    }
-}
+        }
 
+        // 3. Ejecutar Login con el rostro o la huella
+        async function loginConBiometria() {
+            try {
+                const challenge = new Uint8Array(32);
+                window.crypto.getRandomValues(challenge);
 
+                const credenciales = await navigator.credentials.get({
+                    publicKey: {
+                        challenge: challenge,
+                        rpId: window.location.hostname,
+                        userVerification: "required"
+                    }
+                });
 
-    // ==========================================
+                if (credenciales) {
+                    // Si el rostro/huella es correcto, extraemos la llave local y simulamos el login
+                    const pinGuardado = atob(localStorage.getItem('zeus_bio_pin'));
+                    const pinInput = document.getElementById('login-pin');
+                    if (pinInput) pinInput.value = pinGuardado;
+                    
+                    // Disparamos la función de login existente
+                    actionLogin();
+                }
+            } catch (err) {
+                console.error("Error al autenticar:", err);
+                Swal.fire('Acceso Denegado', 'No pudimos verificar tu identidad.', 'error');
+            }
+        }
+
+        // ==========================================
         // 🚀 MOTOR PWA Y PURGADOR DE CACHÉ
         // ==========================================
         if ('serviceWorker' in navigator) {
@@ -12164,4 +12273,3 @@ function cargarTurnoACaja(idCita) {
     </script>
 </body>
 </html>
-
