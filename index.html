@@ -323,28 +323,33 @@
                 <p id="beauty-phrase" class="hidden text-[10px] italic text-rose-400 mt-4 mb-4 font-bold tracking-widest">"Belleza que inspira, tecnología que transforma"</p>
             </div>
 
+
+
             <div class="mt-auto mb-auto">
+                <!-- 1. Campo del PIN -->
                 <input type="password" inputmode="numeric" id="login-pin" maxlength="4" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)" aria-label="Ingrese su PIN de acceso" placeholder="••••" class="w-full p-6 rounded-3xl text-center text-4xl font-black mb-6 border border-zinc-800 shadow-inner tracking-[1em] indent-[1em] bg-[#050505] focus:border-indigo-500 outline-none transition-colors text-white">
 
+                <!-- 2. Contenedor Flex para Entrar + Biometría -->
+                <div class="flex gap-3 mb-6">
+                    <button type="button" onclick="actionLogin()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 py-6 rounded-3xl text-xl font-black uppercase italic shadow-lg shadow-indigo-600/20 btn-press transition-colors text-white">
+                        <span id="btn-login-text">Entrar a Zeus ⚡</span>
+                    </button>
+                    
+                    <!-- Botón Biométrico Inteligente con Ícono de Huella -->
+                    <button type="button" id="btn-biometria" onclick="loginConBiometria()" class="hidden w-20 bg-zinc-900 border border-zinc-700 hover:border-indigo-500 py-6 rounded-3xl flex items-center justify-center shadow-lg btn-press transition-all text-indigo-400">
+                        <svg class="w-8 h-8 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path>
+                        </svg>
+                    </button>
+                </div>
 
-
-               <div class="flex gap-3 mb-6">
-    <button type="button" onclick="actionLogin()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 py-6 rounded-3xl text-xl font-black uppercase italic shadow-lg shadow-indigo-600/20 btn-press transition-colors text-white">
-        <span id="btn-login-text">Entrar a Zeus ⚡</span>
-    </button>
-    
-    <!-- Botón Biométrico Inteligente -->
-    <button type="button" id="btn-biometria" onclick="loginConBiometria()" class="hidden w-20 bg-zinc-900 border border-zinc-700 hover:border-[#0cd1b8] py-6 rounded-3xl text-2xl flex items-center justify-center shadow-lg btn-press transition-all text-[#0cd1b8]">
-        <span class="animate-pulse">👁️‍🗨️</span>
-    </button>
-</div>
-
-
-
+                <!-- 3. Botones Inferiores -->
                 <hr class="border-zinc-800 mb-6">
+                
                 <button type="button" onclick="crearCuentaNueva()" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 py-5 rounded-3xl text-sm font-black uppercase text-white shadow-[0_0_20px_rgba(16,185,129,0.2)] btn-press transition-all mb-4">
                     🚀 <span id="btn-create-text">Crear Mi Barbería</span>
                 </button>
+                
                 <div class="grid grid-cols-2 gap-3 mt-4">
                     <button type="button" onclick="abrirKioskoPublico()" class="w-full glass bg-white/5 hover:bg-white/10 py-4 rounded-2xl text-[10px] font-black uppercase text-indigo-400 border border-indigo-500/30 btn-press transition-all shadow-[0_0_15px_rgba(99,102,241,0.1)]">📅 Kiosko</button>
                     <button type="button" onclick="abrirMapaLocales()" class="w-full glass bg-white/5 hover:bg-white/10 py-4 rounded-2xl text-[10px] font-black uppercase text-blue-400 border border-blue-500/30 btn-press transition-all shadow-[0_0_15px_rgba(59,130,246,0.1)]">📍 Locales</button>
@@ -1569,19 +1574,26 @@
 
                             <div class="bg-red-900/10 p-6 rounded-[1.5rem] border border-red-900/30 flex flex-col items-center">
                                 <p class="text-[10px] font-black text-red-500 mb-3 uppercase tracking-widest w-full text-left">🔒 Seguridad de Panel</p>
-                                <div class="bg-indigo-950 p-5 rounded-2xl border border-indigo-900/50 mb-4 w-full">
+                                
+                                <!-- MÓDULO 1: FACE ID / HUELLA DIGITAL -->
+                                <div class="flex items-center justify-between gap-3 mb-4 bg-indigo-900/10 p-4 rounded-xl border border-indigo-500/30 w-full shadow-inner">
+                                    <div class="flex flex-col text-left">
+                                        <span class="text-[10px] font-black text-indigo-400 uppercase flex items-center gap-2"><span class="text-sm">👁️‍🗨️</span> Face ID / Huella</span>
+                                        <span class="text-[8px] text-zinc-400 font-bold mt-1 leading-tight">Activa o desactiva el acceso rápido para este dispositivo.</span>
+                                    </div>
+                                    <input type="checkbox" id="cfg-bio-activo" onchange="toggleBiometriaConfig(this)" class="w-6 h-6 accent-indigo-500 cursor-pointer flex-shrink-0">
+                                </div>
 
-
-                                    
-<div class="flex flex-col sm:flex-row gap-2 mt-1.5">
-                                        <input type="password" inputmode="numeric" id="cfg-admin-pin" autocomplete="new-password" data-lpignore="true" placeholder="PIN ACTUAL" class="w-full p-4 rounded-xl text-center text-sm font-black bg-black/30 border border-zinc-800 text-white tracking-widest focus:border-indigo-500 outline-none transition-colors">
-                                        <input type="password" inputmode="numeric" id="cfg-new-admin-pin" autocomplete="new-password" data-lpignore="true" placeholder="NUEVO PIN" class="w-full p-4 rounded-xl text-center text-sm font-black bg-black/30 border border-zinc-800 text-white tracking-widest focus:border-indigo-500 outline-none transition-colors">
+                                <!-- MÓDULO 2: CAMBIAR PIN MAESTRO -->
+                                <div class="bg-indigo-950 p-5 rounded-2xl border border-indigo-900/50 mb-4 w-full shadow-inner">
+                                    <p class="text-[8px] text-indigo-400 font-bold uppercase tracking-widest mb-3 text-center">Cambiar mi PIN Maestro</p>
+                                    <div class="flex flex-col sm:flex-row gap-2">
+                                        <input type="password" inputmode="numeric" id="cfg-admin-pin" autocomplete="new-password" data-lpignore="true" placeholder="PIN ACTUAL" class="w-full p-4 rounded-xl text-center text-sm font-black bg-black/40 border border-zinc-800 text-white tracking-widest focus:border-indigo-500 outline-none transition-colors">
+                                        <input type="password" inputmode="numeric" id="cfg-new-admin-pin" autocomplete="new-password" data-lpignore="true" placeholder="NUEVO PIN" class="w-full p-4 rounded-xl text-center text-sm font-black bg-black/40 border border-zinc-800 text-white tracking-widest focus:border-indigo-500 outline-none transition-colors">
                                     </div>    
- </div>
+                                </div>
 
-
-
-                                <button type="button" onclick="saCambiarMasterPin()" class="w-full bg-green-600 text-white py-4 rounded-2xl font-black text-xs uppercase italic btn-press transition-colors shadow-lg">GUARDAR NUEVO PIN</button>
+                                <button type="button" onclick="saCambiarMasterPin()" class="w-full bg-green-600 hover:bg-green-500 text-white py-4 rounded-2xl font-black text-xs uppercase italic btn-press transition-colors shadow-lg">GUARDAR NUEVO PIN</button>
                             </div>
                         </div>
                     </div>
@@ -3463,13 +3475,16 @@ async function verificarRetornoWompi(txId, kioskId, env) {
  // ==========================================
 // 🔓 MÓDULO 1: LOGIN HÍBRIDO (SOPORTA PIN NORMAL Y ENCRIPTADO)
 // ==========================================
-async function actionLogin() {
+
+
+async function actionLogin(pinForzado = null) {
     // Si la base de datos se borró, la reconstruimos limpiamente sin usar initDB()
     if(!db) {
         db = { barberias: [], superPIN: "9999", mainLogo: null, sugerencias: [], lastSyncTime: Date.now(), masterConfig: { brandingActive: true, brandingText: "Software provisto por Isi Control" } };
     }
     const pinInput = document.getElementById('login-pin'); 
-    const pin = cleanNum(pinInput.value); 
+    // Magia: Toma el PIN biométrico directo del procesador, o del teclado si es manual
+    const pin = pinForzado || cleanNum(pinInput.value);
     
     if (!pin) { Swal.fire({ title: "PIN VACÍO", text: "Por favor ingresa tu código de acceso.", icon: "info", background: "#000", color: "#fff" }); return; }
     
@@ -11895,7 +11910,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.156"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.157"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
