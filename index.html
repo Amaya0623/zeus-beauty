@@ -329,6 +329,9 @@
                 <!-- 1. Campo del PIN -->
                 <input type="password" inputmode="numeric" id="login-pin" maxlength="4" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)" aria-label="Ingrese su PIN de acceso" placeholder="••••" class="w-full p-6 rounded-3xl text-center text-4xl font-black mb-6 border border-zinc-800 shadow-inner tracking-[1em] indent-[1em] bg-[#050505] focus:border-indigo-500 outline-none transition-colors text-white">
 
+
+
+
                 <!-- 2. Contenedor Flex para Entrar + Biometría -->
                 <div class="flex gap-3 mb-6">
                     <button type="button" onclick="actionLogin()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 py-6 rounded-3xl text-xl font-black uppercase italic shadow-lg shadow-indigo-600/20 btn-press transition-colors text-white">
@@ -342,6 +345,8 @@
                         </svg>
                     </button>
                 </div>
+
+
 
                 <!-- 3. Botones Inferiores -->
                 <hr class="border-zinc-800 mb-6">
@@ -3479,6 +3484,7 @@ async function verificarRetornoWompi(txId, kioskId, env) {
 
 async function actionLogin(pinForzado = null) {
     // Si la base de datos se borró, la reconstruimos limpiamente sin usar initDB()
+
     if(!db) {
         db = { barberias: [], superPIN: "9999", mainLogo: null, sugerencias: [], lastSyncTime: Date.now(), masterConfig: { brandingActive: true, brandingText: "Software provisto por Isi Control" } };
     }
@@ -11910,7 +11916,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.157"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.158"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
@@ -12239,31 +12245,40 @@ async function saAjustarLicenciaManual(idNube) {
         }
 
         // 3. Ejecutar Login con el rostro o la huella
-        async function loginConBiometria() {
+       async function loginConBiometria() {
             try {
-                const challenge = new Uint8Array(32);
-                window.crypto.getRandomValues(challenge);
+                // 1. Mostrar que estamos autenticando
+                Swal.fire({ title: 'Autenticando...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
 
-                const credenciales = await navigator.credentials.get({
-                    publicKey: {
-                        challenge: challenge,
-                        rpId: window.location.hostname,
-                        userVerification: "required"
-                    }
-                });
+                const challenge = new Uint8Array(32); window.crypto.getRandomValues(challenge);
+                const opt = { challenge: challenge, userVerification: "required" };
+                if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') opt.rpId = window.location.hostname;
+
+                // 2. Pedir huella/FaceID al sistema operativo
+                const credenciales = await navigator.credentials.get({ publicKey: opt });
 
                 if (credenciales) {
-                    // Si el rostro/huella es correcto, extraemos la llave local y simulamos el login
-                    const pinGuardado = atob(localStorage.getItem('zeus_bio_pin'));
-                    const pinInput = document.getElementById('login-pin');
-                    if (pinInput) pinInput.value = pinGuardado;
+                    // 3. Extraer el PIN encriptado
+                    const pinGuardadoBase64 = localStorage.getItem('zeus_bio_pin');
                     
-                    // Disparamos la función de login existente
-                    actionLogin();
+                    if (pinGuardadoBase64) {
+                        const pinGuardado = atob(pinGuardadoBase64); // Desencriptar Base64 a texto plano
+                        
+                        // 4. Llenar el input visualmente
+                        const pinInput = document.getElementById('login-pin');
+                        if (pinInput) pinInput.value = pinGuardado; 
+                        
+                        Swal.close(); // Cerrar el loading de biometría
+                        
+                        // 5. Inyectar el PIN en la función de login
+                        actionLogin(pinGuardado); 
+                    } else {
+                        throw new Error("No hay PIN guardado");
+                    }
                 }
             } catch (err) {
-                console.error("Error al autenticar:", err);
-                Swal.fire('Acceso Denegado', 'No pudimos verificar tu identidad.', 'error');
+                console.error("Autenticación fallida:", err);
+                Swal.fire('Denegado', 'No pudimos verificar tu biometría o cancelaste la operación.', 'error');
             }
         }
 
