@@ -11916,7 +11916,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.158"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.159"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
@@ -12098,7 +12098,7 @@ async function saAjustarLicenciaManual(idNube) {
 }
 
 
-// ==========================================
+         // ==========================================
         // 💵 PUENTE AGENDA -> CAJA CON VALIDACIÓN BOLD (OPTIMIZADO PWA)
         // ==========================================
         function cargarTurnoACaja(idCita) {
@@ -12177,108 +12177,148 @@ async function saAjustarLicenciaManual(idNube) {
         }
 
         // ==========================================
-        // 👁️‍🗨️ MOTOR BIOMÉTRICO (FACE ID / TOUCH ID / HUELLA)
+        // 👁️‍🗨️ MOTOR BIOMÉTRICO ÉLITE (FACE ID / HUELLA)
         // ==========================================
         
         // 1. Evaluar si el celular soporta biometría nativa
         async function verificarSoporteBiometrico() {
             if (window.PublicKeyCredential && await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()) {
-                // Si el dispositivo tiene FaceID o Huella y ya hay un PIN guardado localmente, mostramos el botón
                 if (localStorage.getItem('zeus_bio_pin')) {
                     const btnBio = document.getElementById('btn-biometria');
                     if (btnBio) btnBio.classList.remove('hidden');
+                    const chk = document.getElementById('cfg-bio-activo');
+                    if (chk) chk.checked = true;
                 }
             }
         }
-
-        // Llamamos a la verificación apenas cargue el login
         window.addEventListener('DOMContentLoaded', verificarSoporteBiometrico);
 
-        // 2. Ofrecer activar la biometría DESPUÉS de un login exitoso con PIN
-        async function ofrecerRegistroBiometrico(pinReal) {
+        // 2. Crear y Registrar Huella/FaceID
+        async function ofrecerRegistroBiometrico(pinReal, silencioso = false) {
             if (!window.PublicKeyCredential) return;
             const isAvailable = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
             
-            if (isAvailable && !localStorage.getItem('zeus_bio_pin')) {
-                Swal.fire({
-                    title: '¿Activar Face ID / Huella?',
-                    text: 'Ingresa más rápido a Zeus la próxima vez sin escribir tu PIN.',
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonText: 'Sí, Activar',
-                    cancelButtonText: 'Ahora no',
-                    background: '#0a0a0a', color: '#fff', confirmButtonColor: '#0cd1b8'
-                }).then(async (result) => {
-                    if (result.isConfirmed) {
-                        try {
-                            // Creamos un desafío criptográfico aleatorio
-                            const challenge = new Uint8Array(32);
-                            window.crypto.getRandomValues(challenge);
-                            const userId = new Uint8Array(16);
-                            window.crypto.getRandomValues(userId);
+            if (isAvailable && (!localStorage.getItem('zeus_bio_pin') || silencioso)) {
+                
+                const procesarBiometria = async () => {
+                    try {
+                        const challenge = new Uint8Array(32); window.crypto.getRandomValues(challenge);
+                        const userId = new Uint8Array(16); window.crypto.getRandomValues(userId);
 
-                            const credenciales = await navigator.credentials.create({
-                                publicKey: {
-                                    challenge: challenge,
-                                    rp: { name: "Zeus Barber Pro", id: window.location.hostname },
-                                    user: { id: userId, name: "zeus_user", displayName: "Zeus Admin" },
-                                    pubKeyCredParams: [{ type: "public-key", alg: -7 }, { type: "public-key", alg: -257 }],
-                                    authenticatorSelection: { authenticatorAttachment: "platform", userVerification: "required" },
-                                    timeout: 60000
-                                }
-                            });
-
-                            if (credenciales) {
-                                // Guardamos el PIN encriptado localmente como llave de acceso rápido
-                                localStorage.setItem('zeus_bio_pin', btoa(pinReal));
-                                Swal.fire('¡Activado!', 'Biometría vinculada con éxito. Ya puedes usar el botón del ojo en la pantalla de inicio.', 'success');
-                                const btnBio = document.getElementById('btn-biometria');
-                                if (btnBio) btnBio.classList.remove('hidden');
-                            }
-                        } catch (err) {
-                            console.error("Error Biométrico:", err);
-                            Swal.fire('Cancelado', 'No se pudo configurar la biometría.', 'info');
+                        const opt = {
+                            challenge: challenge,
+                            rp: { name: "Zeus Barber Pro", id: window.location.hostname },
+                            user: { id: userId, name: "zeus_user", displayName: "Administrador Zeus" },
+                            pubKeyCredParams: [{ type: "public-key", alg: -7 }, { type: "public-key", alg: -257 }],
+                            authenticatorSelection: { 
+                                authenticatorAttachment: "platform", 
+                                userVerification: "required",
+                                residentKey: "preferred"
+                            },
+                            timeout: 60000
+                        };
+                        
+                        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                            delete opt.rp.id;
                         }
+
+                        // Llama al lector de huellas nativo del celular
+                        const credenciales = await navigator.credentials.create({ publicKey: opt });
+
+                        if (credenciales) {
+                            // 🚀 TRUCO VITAL: Guardar el ID único de esta huella para el Login futuro
+                            const credId = Array.from(new Uint8Array(credenciales.rawId));
+                            localStorage.setItem('zeus_bio_credId', JSON.stringify(credId));
+                            localStorage.setItem('zeus_bio_pin', btoa(pinReal));
+                            
+                            document.getElementById('btn-biometria')?.classList.remove('hidden');
+                            const chk = document.getElementById('cfg-bio-activo'); if (chk) chk.checked = true;
+                            Swal.fire('¡Seguridad Activada!', 'Tu huella/FaceID se vinculó con éxito.', 'success');
+                        }
+                    } catch (err) {
+                        console.error("Error Biométrico:", err);
+                        Swal.fire('Cancelado', 'No pudimos registrar tu biometría. Verifica que tengas PIN o Huella activados en los ajustes de tu celular.', 'warning');
+                        const chk = document.getElementById('cfg-bio-activo'); if (chk) chk.checked = false;
                     }
-                });
+                };
+
+                if (silencioso) {
+                    await procesarBiometria();
+                } else {
+                    Swal.fire({
+                        title: '¿Activar Face ID / Huella?',
+                        text: 'Ingresa más rápido la próxima vez sin escribir tu PIN.',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Sí, Activar',
+                        cancelButtonText: 'Ahora no',
+                        background: '#0a0a0a', color: '#fff', confirmButtonColor: '#4f46e5'
+                    }).then(async (result) => {
+                        if (result.isConfirmed) await procesarBiometria();
+                    });
+                }
             }
         }
 
         // 3. Ejecutar Login con el rostro o la huella
-       async function loginConBiometria() {
+        async function loginConBiometria() {
             try {
-                // 1. Mostrar que estamos autenticando
-                Swal.fire({ title: 'Autenticando...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
+                const storedCredIdStr = localStorage.getItem('zeus_bio_credId');
+                if (!storedCredIdStr) throw new Error("No hay credencial previa");
 
                 const challenge = new Uint8Array(32); window.crypto.getRandomValues(challenge);
-                const opt = { challenge: challenge, userVerification: "required" };
-                if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') opt.rpId = window.location.hostname;
+                const opt = { 
+                    challenge: challenge, 
+                    userVerification: "required",
+                    // 🚀 PASAR EL ID EXACTO: Le dice a Android/iOS qué huella verificar
+                    allowCredentials: [{
+                        id: new Uint8Array(JSON.parse(storedCredIdStr)),
+                        type: 'public-key'
+                    }]
+                };
+                
+                if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+                    opt.rpId = window.location.hostname;
+                }
 
-                // 2. Pedir huella/FaceID al sistema operativo
+                // Despierta el Hardware del Celular (FaceID/Huella)
                 const credenciales = await navigator.credentials.get({ publicKey: opt });
 
                 if (credenciales) {
-                    // 3. Extraer el PIN encriptado
-                    const pinGuardadoBase64 = localStorage.getItem('zeus_bio_pin');
+                    // Si la huella es correcta, sacamos el PIN oculto y entramos
+                    const pinGuardado = atob(localStorage.getItem('zeus_bio_pin'));
+                    const pinInput = document.getElementById('login-pin');
+                    if (pinInput) pinInput.value = pinGuardado; 
                     
-                    if (pinGuardadoBase64) {
-                        const pinGuardado = atob(pinGuardadoBase64); // Desencriptar Base64 a texto plano
-                        
-                        // 4. Llenar el input visualmente
-                        const pinInput = document.getElementById('login-pin');
-                        if (pinInput) pinInput.value = pinGuardado; 
-                        
-                        Swal.close(); // Cerrar el loading de biometría
-                        
-                        // 5. Inyectar el PIN en la función de login
-                        actionLogin(pinGuardado); 
-                    } else {
-                        throw new Error("No hay PIN guardado");
-                    }
+                    actionLogin(pinGuardado); 
                 }
             } catch (err) {
                 console.error("Autenticación fallida:", err);
-                Swal.fire('Denegado', 'No pudimos verificar tu biometría o cancelaste la operación.', 'error');
+                Swal.fire('Denegado', 'No se detectó la huella correctamente o cancelaste la operación.', 'error');
+            }
+        }
+
+        // 4. Panel de Configuración (Prender/Apagar)
+        async function toggleBiometriaConfig(chk) {
+            if (chk.checked) {
+                const { value: pinConf } = await Swal.fire({
+                    title: 'Verificación de Seguridad',
+                    input: 'password',
+                    inputAttributes: { inputmode: 'numeric', maxlength: 4 },
+                    text: 'Digita tu PIN actual de 4 números para activar la Huella:',
+                    background: '#0a0a0a', color: '#fff', confirmButtonColor: '#4f46e5'
+                });
+                
+                if (pinConf && pinConf.length === 4) {
+                    ofrecerRegistroBiometrico(pinConf, true);
+                } else {
+                    chk.checked = false;
+                }
+            } else {
+                localStorage.removeItem('zeus_bio_pin');
+                localStorage.removeItem('zeus_bio_credId');
+                document.getElementById('btn-biometria')?.classList.add('hidden');
+                Swal.fire('Desactivado', 'Biometría removida de este dispositivo.', 'info');
             }
         }
 
