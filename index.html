@@ -3186,14 +3186,49 @@ async function hashPIN(pin) {
             if (formValues) {
                 Swal.fire({ title: 'Creando tu Nube...', text: 'Estructurando tu base de datos', allowOutsideClick: false, didOpen: () => { Swal.showLoading() }, background: '#0a0a0a', color: '#fff' });
 
-                try {
+               try {
                     // 🔐 CRIPTOGRAFÍA: Encriptamos el PIN antes de que toque la nube
                     const pinSeguro = await hashPIN(formValues.pin);
 
                     const { data, error } = await supabaseClient.from('stores').insert([{ name: formValues.nombre, owner_pin: pinSeguro }]).select().single();
                     if (error) throw error;
 
-                    const newB = { id: "B-" + Math.random().toString(36).substr(2, 4).toUpperCase(), id_nube: data.id, nombre: formValues.nombre, pinAdmin: pinSeguro, tipoNegocio: formValues.tipo, creadoEn: Date.now(), diasSuscripcion: 15, bloqueado: false, maxBarberos: 5, barberos: [], servicios: [], productos: [], ventas: [], gastos: [], citas: [], tickets: [], clientes: {}, horaApertura: "08:00", horaCierre: "20:00", intervaloCitas: 60, lastActiveClock: Date.now(), moneda: 'COP', wpTemplate: '¡Hola {cliente}! Te recordamos tu cita para {servicio} con {barbero} a las {hora}. ¡Te esperamos!', msgBienvenida: 'Gracias por visitarnos, esperamos que hayas tenido una gran experiencia.', msgDespedida: '¡Te esperamos pronto!', ticketFooter: 'Documento no válido como factura fiscal.', logo: null };
+                    // 🚀 MAGIA ZEUS: Definir plantilla de WhatsApp según el nicho del negocio
+                    let plantillaInteligente = formValues.tipo === 'estetica' 
+                        ? '🌸 *{local}* 🌸\n✨ *¡CITA CONFIRMADA!*\n\nHola, *{cliente}* 💖\nTu espacio de belleza ha sido reservado con éxito.\n\n📅 *Fecha:* {fecha}\n🕐 *Hora:* {hora}\n💅 *Especialista:* {barbero}\n✨ *Servicio:* {servicio}\n\n🌸 _¡Te esperamos para consentirte!_\nGracias por elegirnos.\n📍 Belleza que inspira.'
+                        : '💈 *{local}* 💈\n👑 *¡CITA CONFIRMADA!*\n\nHola, *{cliente}* 👋\nTu cita ha sido agendada exitosamente.\n\n📅 *Fecha:* {fecha}\n🕐 *Hora:* {hora}\n💈 *Profesional:* {barbero}\n✂️ *Servicio:* {servicio}\n\n🔥 _¡Te esperamos!_\nGracias por elegirnos.\n📍 Tu estilo, nuestro compromiso.';
+
+                    // Se inyecta 'plantillaInteligente' directamente en la base de datos
+                    const newB = { 
+                        id: "B-" + Math.random().toString(36).substr(2, 4).toUpperCase(), 
+                        id_nube: data.id, 
+                        nombre: formValues.nombre, 
+                        pinAdmin: pinSeguro, 
+                        tipoNegocio: formValues.tipo, 
+                        creadoEn: Date.now(), 
+                        diasSuscripcion: 15, 
+                        bloqueado: false, 
+                        maxBarberos: 5, 
+                        barberos: [], 
+                        servicios: [], 
+                        productos: [], 
+                        ventas: [], 
+                        gastos: [], 
+                        citas: [], 
+                        tickets: [], 
+                        clientes: {}, 
+                        horaApertura: "08:00", 
+                        horaCierre: "20:00", 
+                        intervaloCitas: 60, 
+                        lastActiveClock: Date.now(), 
+                        moneda: 'COP', 
+                        wpTemplate: plantillaInteligente, // 👈 AQUÍ SE INYECTA LA PLANTILLA DINÁMICA
+                        msgBienvenida: formValues.tipo === 'estetica' ? 'Gracias por visitarnos, esperamos que hayas tenido una experiencia hermosa.' : 'Gracias por visitarnos, esperamos que hayas tenido una gran experiencia.', 
+                        msgDespedida: '¡Te esperamos pronto!', 
+                        ticketFooter: 'Documento no válido como factura fiscal.', 
+                        logo: null 
+                    };
+                    
                     db.barberias.push(newB);
                     await supabaseClient.from('stores').update({ json_data: newB }).eq('id', data.id);
 
@@ -6312,7 +6347,7 @@ function calcularPrecioIA(precioBase, idLocal) {
             });
         }
 
-        // Y LA FUNCIÓN ORIGINAL EMPIEZA JUSTO DEBAJO, UNA SOLA VEZ
+       // Y LA FUNCIÓN ORIGINAL EMPIEZA JUSTO DEBAJO, UNA SOLA VEZ
         function kioskoAgendar() {
             const bLocal = db.barberias[kiosko_bIdx];
             const cli = cleanStr(document.getElementById('kio-nombre').value).toUpperCase();
@@ -6320,10 +6355,7 @@ function calcularPrecioIA(precioBase, idLocal) {
             const cel = cleanNum(document.getElementById('kio-celular').value);
             const barb = document.getElementById('kio-barbero').value;
 
-
-
-
-// 🚫 INTERCEPTOR PROTECCIÓN NO-SHOW
+            // 🚫 INTERCEPTOR PROTECCIÓN NO-SHOW
             if (bLocal.configNoShow && bLocal.configNoShow.activo && !window.acuerdoNoShowAceptado) {
                 return Swal.fire({
                     title: '<span class="text-red-500 font-black uppercase text-2xl tracking-tighter">Política de Cancelación</span>',
@@ -6364,8 +6396,6 @@ function calcularPrecioIA(precioBase, idLocal) {
             if (!f) return Swal.fire('Falta Fecha', 'Selecciona la fecha para tu cita.', 'warning');
             if (!barb) return Swal.fire('Falta Barbero', 'Selecciona quién te va a atender.', 'warning');
             if (!selectedKioTime) return Swal.fire('Falta Hora', 'Debes tocar uno de los horarios disponibles en la lista.', 'warning');
-
-            
 
             // 🛑 SISTEMA DE KARMA ANTI-FANTASMAS
             const idCli = cel || cli;
@@ -6518,7 +6548,18 @@ function calcularPrecioIA(precioBase, idLocal) {
 
             Swal.fire({ title: '¡CONFIRMADO!', text: `Reservado el ${f} a las ${formatTime12h(h)} (${totalMinsCarrito} min).`, icon: 'success', background: '#0a0a0a', color: '#fff', timer: 4000, showConfirmButton: false }).then(() => {
                 volverAInicioKiosko();
-                if (cel && cel.length >= 10 && isOnline) { let msj = `✅ CITA CONFIRMADA\n\nFecha: ${f}\nHora: ${formatTime12h(h)}\nBarbero: ${barb}\nServicio: ${srv}`; window.open(`https://wa.me/57${cel}?text=${encodeURIComponent(msj)}`, '_blank'); }
+                
+                // 🚀 MAGIA ZEUS: WHATSAPP ENRIQUECIDO CON {local}
+                if (cel && cel.length >= 10 && b.wpTemplate && isOnline) { 
+                    let mensaje = b.wpTemplate
+                        .replace(/{local}/g, b.nombre) // Inyectamos el nombre de la Barbería/Spa
+                        .replace(/{cliente}/g, cli)
+                        .replace(/{fecha}/g, f) 
+                        .replace(/{hora}/g, formatTime12h(h))
+                        .replace(/{barbero}/g, barb)
+                        .replace(/{servicio}/g, srv);
+                    window.open(`https://wa.me/57${cel}?text=${encodeURIComponent(mensaje)}`, '_blank'); 
+                }
             });
         }
 
