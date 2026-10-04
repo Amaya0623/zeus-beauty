@@ -6549,17 +6549,24 @@ function calcularPrecioIA(precioBase, idLocal) {
             Swal.fire({ title: '¡CONFIRMADO!', text: `Reservado el ${f} a las ${formatTime12h(h)} (${totalMinsCarrito} min).`, icon: 'success', background: '#0a0a0a', color: '#fff', timer: 4000, showConfirmButton: false }).then(() => {
                 volverAInicioKiosko();
                 
-                // 🚀 MAGIA ZEUS: WHATSAPP ENRIQUECIDO CON {local}
-                if (cel && cel.length >= 10 && b.wpTemplate && isOnline) { 
-                    let mensaje = b.wpTemplate
-                        .replace(/{local}/g, b.nombre) // Inyectamos el nombre de la Barbería/Spa
-                        .replace(/{cliente}/g, cli)
-                        .replace(/{fecha}/g, f) 
-                        .replace(/{hora}/g, formatTime12h(h))
-                        .replace(/{barbero}/g, barb)
-                        .replace(/{servicio}/g, srv);
-                    window.open(`https://wa.me/57${cel}?text=${encodeURIComponent(mensaje)}`, '_blank'); 
-                }
+                // 🚀 MAGIA ZEUS: WHATSAPP ENRIQUECIDO BLINDADO (UNICODE PURO)
+            if (cel && cel.length >= 10) {
+                // 🛡️ Ignoramos la base de datos y forzamos el texto perfecto desde el código
+                let esSpa = b.tipoNegocio === 'estetica';
+                let plantillaSegura = esSpa 
+                    ? "\uD83C\uDF38 *{local}* \uD83C\uDF38\n\u2728 *\u00A1CITA CONFIRMADA!*\n\nHola, *{cliente}* \uD83D\uDC96\nTu espacio de belleza ha sido reservado con \u00E9xito.\n\n\uD83D\uDCC5 *Fecha:* {fecha}\n\uD83D\uDD50 *Hora:* {hora}\n\uD83D\uDC85 *Especialista:* {barbero}\n\u2728 *Servicio:* {servicio}\n\n\uD83C\uDF38 _\u00A1Te esperamos para consentirte!_\nGracias por elegirnos.\n\uD83D\uDCCD Belleza que inspira."
+                    : "\uD83D\uDC88 *{local}* \uD83D\uDC88\n\uD83D\uDC51 *\u00A1CITA CONFIRMADA!*\n\nHola, *{cliente}* \uD83D\uDC4B\nTu cita ha sido agendada exitosamente.\n\n\uD83D\uDCC5 *Fecha:* {fecha}\n\uD83D\uDD50 *Hora:* {hora}\n\uD83D\uDC88 *Profesional:* {barbero}\n\u2702\uFE0F *Servicio:* {servicio}\n\n\uD83D\uDD25 _\u00A1Te esperamos!_\nGracias por elegirnos.\n\uD83D\uDCCD Tu estilo, nuestro compromiso.";
+
+                let mensaje = plantillaSegura
+                    .replace(/{local}/g, b.nombre)
+                    .replace(/{cliente}/g, cli)
+                    .replace(/{fecha}/g, f) 
+                    .replace(/{hora}/g, formatTime12h(h))
+                    .replace(/{barbero}/g, barb)
+                    .replace(/{servicio}/g, srvString);
+                
+                window.open(`https://wa.me/57${cel}?text=${encodeURIComponent(mensaje)}`, '_blank');
+            }
             });
         }
 
@@ -11957,7 +11964,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.160"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.161"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
