@@ -3932,7 +3932,10 @@ async function actionLogin(pinForzado = null) {
             setTimeout(async () => {
                 if (!miMapaReal) {
                     miMapaReal = L.map('mapa-real-osm').setView([4.6097, -74.0817], 12);
-                    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '© Zeus Maps & CartoDB' }).addTo(miMapaReal);
+                    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', { 
+    attribution: '© Esri & Zeus Maps',
+    maxZoom: 16
+}).addTo(miMapaReal);
                 }
                 
                 miMapaReal.invalidateSize();
@@ -11738,7 +11741,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.163"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.164"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
