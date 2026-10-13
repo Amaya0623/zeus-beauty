@@ -1,6 +1,6 @@
-const CACHE_NAME = 'zeus-cache-v1.162'; // 🚀 Subimos versión para el Parche de Notificaciones
+const CACHE_NAME = 'zeus-cache-v1.163'; // 🚀 Subimos versión para el Parche de Notificaciones
 
-// 🛡️ BÓVEDA OFFLINE INICIAL
+// 🛡️ BÓVEDA OFFLINE INICIAL (Archivos Vitales)
 const urlsToCache = [
   './',
   './index.html',
@@ -9,65 +9,64 @@ const urlsToCache = [
   './video.mp4'
 ];
 
+// 1. INSTALACIÓN INMEDIATA
 self.addEventListener('install', e => {
-  self.skipWaiting();
-  console.log('[Zeus SW] Instalando Motor Offline Ultraligero 🛡️');
+  self.skipWaiting(); // Obliga al SW a instalarse sin esperar
+  console.log('[Zeus SW] Instalando Motor Enterprise PWA ⚡');
   e.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(urlsToCache).catch(err => console.warn('Error en precarga de caché:', err));
+      return cache.addAll(urlsToCache).catch(err => console.warn('Aviso caché:', err));
     })
   );
 });
 
+// 2. ACTIVACIÓN Y LIMPIEZA DE CACHÉ VIEJA
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cacheName => {
           if (cacheName !== CACHE_NAME) {
-            console.log('[Zeus SW] Borrando caché antiguo:', cacheName);
+            console.log('[Zeus SW] Destruyendo caché obsoleta:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
-    }).then(() => self.clients.claim())
+    }).then(() => self.clients.claim()) // Toma el control de la página al instante
   );
 });
 
+// 3. ESTRATEGIA STALE-WHILE-REVALIDATE (Carga rápida + Auto-Actualización)
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
+  
+  // 🛑 Excluimos las peticiones a Supabase (La BD siempre debe ser en vivo)
+  if (e.request.url.includes('supabase.co')) return;
 
   e.respondWith(
-    caches.match(e.request).then(response => {
-      if (response) return response;
-
-      return fetch(e.request).then(networkResponse => {
-        if (!networkResponse || networkResponse.status !== 200) {
-          return networkResponse;
-        }
-
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then(cache => {
-          if (!e.request.url.includes('supabase.co') && e.request.url.startsWith('http')) {
-            cache.put(e.request, responseToCache);
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.match(e.request).then(cachedResponse => {
+        // Disparamos la petición a la red en segundo plano (para actualizar la caché)
+        const fetchPromise = fetch(e.request).then(networkResponse => {
+          // Solo guardamos si es una respuesta válida HTTP (http o https)
+          if (networkResponse && networkResponse.status === 200 && e.request.url.startsWith('http')) {
+            cache.put(e.request, networkResponse.clone());
           }
+          return networkResponse;
+        }).catch(() => {
+            console.warn('[Zeus SW] Modo 100% Offline Activado 📵');
         });
 
-        return networkResponse;
+        // Si tenemos el archivo en caché, lo mostramos AL INSTANTE. Si no, esperamos a la red.
+        return cachedResponse || fetchPromise;
       });
-    }).catch(() => {
-      if (e.request.mode === 'navigate') {
-        return caches.match('./index.html');
-      }
-      return new Response(JSON.stringify({ error: "Offline" }), { status: 503, headers: { 'Content-Type': 'application/json' } });
     })
   );
 });
 
 // ==========================================
-// 🔔 MOTOR DE NOTIFICACIONES PUSH (MODO ÉLITE)
+// 🔔 MOTOR DE NOTIFICACIONES PUSH (ÉLITE)
 // ==========================================
-
 self.addEventListener('push', function(event) {
     let texto = "Alguien acaba de agendar en tu Kiosko.";
     let titulo = "¡Nueva Cita en Zeus! ⚡";
@@ -82,16 +81,15 @@ self.addEventListener('push', function(event) {
         }
     }
 
-    // 🚀 CONFIGURACIÓN AGRESIVA PARA QUE SUENE SIEMPRE Y MUESTRE EL LOGO
     const options = {
         body: texto,
-        icon: './icono.png',         // 👈 Regresamos tu Logo principal
-        badge: './icono.png',        // 👈 Logo chiquito para la barra superior
-        vibrate: [200, 100, 200, 100, 200], // Vibración triple
-        requireInteraction: true,    // La notificación no desaparece sola
-        renotify: true,              // 👈 OBLIGA al celular a vibrar y sonar OTRA VEZ
-        tag: 'zeus-cita-' + Date.now(), // 👈 TAG ÚNICO: Evita que Android las agrupe y las silencie
-        data: { url: '/' }
+        icon: './icono.png',         
+        badge: './icono.png',        
+        vibrate: [200, 100, 200, 100, 200], 
+        requireInteraction: true,    
+        renotify: true,              
+        tag: 'zeus-cita-' + Date.now(), 
+        data: { url: './index.html' } // URL segura local
     };
 
     event.waitUntil(
@@ -102,17 +100,15 @@ self.addEventListener('push', function(event) {
 // ==========================================
 // 👆 ACCIÓN AL TOCAR LA NOTIFICACIÓN
 // ==========================================
-
 self.addEventListener('notificationclick', function(event) {
     console.log('[Zeus SW] 👆 Notificación tocada.');
-    
     event.notification.close(); 
 
     event.waitUntil(
         clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
             for (let i = 0; i < clientList.length; i++) {
                 let client = clientList[i];
-                if (client.url.includes('zeus') && 'focus' in client) {
+                if (client.url.includes('index.html') && 'focus' in client) {
                     return client.focus();
                 }
             }
