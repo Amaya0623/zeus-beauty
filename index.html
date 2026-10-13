@@ -2834,11 +2834,23 @@ async function hashPIN(pin) {
                                 // ✨ FUSIÓN DE TRANSACCIONES (Citas y Dinero jamás se pierden)
                                 localData.clientes = { ...(nubeData.clientes || {}), ...(localData.clientes || {}) };
 
+                                // 🛡️ FILTRO ANTI-DUPLICADOS (VENTAS)
                                 let mVentas = [...(nubeData.ventas || []), ...(localData.ventas || [])];
-                                localData.ventas = Array.from(new Set(mVentas.map(a => JSON.stringify(a)))).map(a => JSON.parse(a));
+                                let mapaVentas = new Map();
+                                mVentas.forEach(v => {
+                                    let idUnico = (v.ticketId || 'ST') + '_' + (v.servicio || 'SS') + '_' + (v.hora || 'SH');
+                                    mapaVentas.set(idUnico, v);
+                                });
+                                localData.ventas = Array.from(mapaVentas.values());
 
+                                // 🛡️ FILTRO ANTI-DUPLICADOS (GASTOS)
                                 let mGastos = [...(nubeData.gastos || []), ...(localData.gastos || [])];
-                                localData.gastos = Array.from(new Set(mGastos.map(a => JSON.stringify(a)))).map(a => JSON.parse(a));
+                                let mapaGastos = new Map();
+                                mGastos.forEach(g => {
+                                    let idGasto = g.id || (g.desc + '_' + g.valor);
+                                    mapaGastos.set(idGasto, g);
+                                });
+                                localData.gastos = Array.from(mapaGastos.values());
 
                                 let mTickets = [...(nubeData.tickets || []), ...(localData.tickets || [])];
                                 localData.tickets = Array.from(new Set(mTickets.map(a => a.ticketId))).map(id => mTickets.find(a => a.ticketId === id));
@@ -2933,14 +2945,26 @@ async function hashPIN(pin) {
                         }
                     });
 
-                    // ✨ MAGIA NIVEL DIOS: Descargar las Finanzas y Clientes de la Nube al Celular
+                   // ✨ MAGIA NIVEL DIOS: Descargar las Finanzas y Clientes de la Nube al Celular
                     localB.clientes = { ...(localB.clientes || {}), ...(cloudB.clientes || {}) };
                     
-                    let mVentas = [...(localB.ventas || []), ...(cloudB.ventas || [])];
-                    localB.ventas = Array.from(new Set(mVentas.map(a => JSON.stringify(a)))).map(a => JSON.parse(a));
+                    // 🛡️ FILTRO ANTI-DUPLICADOS (VENTAS): Usa el ticketId y el nombre del servicio como identificador único
+                    let mVentas = [...(cloudB.ventas || []), ...(localB.ventas || [])];
+                    let mapaVentas = new Map();
+                    mVentas.forEach(v => {
+                        let idUnico = (v.ticketId || 'ST') + '_' + (v.servicio || 'SS') + '_' + (v.hora || 'SH');
+                        mapaVentas.set(idUnico, v);
+                    });
+                    localB.ventas = Array.from(mapaVentas.values());
                     
-                    let mGastos = [...(localB.gastos || []), ...(cloudB.gastos || [])];
-                    localB.gastos = Array.from(new Set(mGastos.map(a => JSON.stringify(a)))).map(a => JSON.parse(a));
+                    // 🛡️ FILTRO ANTI-DUPLICADOS (GASTOS)
+                    let mGastos = [...(cloudB.gastos || []), ...(localB.gastos || [])];
+                    let mapaGastos = new Map();
+                    mGastos.forEach(g => {
+                        let idGasto = g.id || (g.desc + '_' + g.valor);
+                        mapaGastos.set(idGasto, g);
+                    });
+                    localB.gastos = Array.from(mapaGastos.values());
                     
                     let mTickets = [...(localB.tickets || []), ...(cloudB.tickets || [])];
                     localB.tickets = Array.from(new Set(mTickets.map(a => a.ticketId))).map(id => mTickets.find(a => a.ticketId === id));
@@ -11741,7 +11765,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.164"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.165"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
