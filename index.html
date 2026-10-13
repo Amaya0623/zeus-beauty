@@ -2595,7 +2595,10 @@ async function hashPIN(pin) {
             }
         });
 
-        let bIdx = -1; let kiosko_bIdx = -1; let session = null; let cart = []; let tempServicios = [];
+        let bIdx = -1; let kiosko_bIdx = -1; let session = null; let cart = []; 
+        let tempServicios = []; // Exclusivo del Kiosko
+        let descuentoReferidoActivo = 0;
+        let agendaServiciosTemp = []; // Exclusivo de la Agenda Admin
         let selectedKioTime = null; let fotoBarberoTemp = null; let currentAudio = null;
         let lastTicketData = null; let cloudSyncTimer = null; let comprobanteTemp = null; let saLogoTemp = null;
         let chartMetodosInstance = null; let chartBarberosInstance = null; let chartFranquiciaInstance = null; let _cloudSyncDebounce = null; let timerDebounceClientes = null;
@@ -2680,10 +2683,27 @@ async function hashPIN(pin) {
             if (limpiado) { saveDB(true); console.log("Citas antiguas eliminadas del sistema automáticamente. 🧹"); }
         }
 
-       window.onload = () => {
-            try { optimizarBaseDeDatos(); } catch (e) { console.warn("Optimizador saltado", e); }
-            // 🛑 SE ELIMINÓ EL DOBLE ARRANQUE AQUÍ. AHORA EL CONTROL ABSOLUTO LO TIENE LA FUNCIÓN arrancarZeus()
-        };
+       // ==========================================
+        // 🚀 CEREBRO CENTRAL DE ARRANQUE ZEUS
+        // ==========================================
+        window.addEventListener('load', () => {
+            console.log("⚡ Iniciando Core ZEUS PWA...");
+            try { optimizarBaseDeDatos(); } catch (e) { console.warn("Optimizador en espera.", e); }
+            
+            // 1. Disparamos la validación de sesión de forma segura
+            if (typeof checkSession === 'function') {
+                checkSession();
+            } else {
+                showScreen('view-login');
+            }
+            
+            // 2. Registro del Service Worker (PWA Offline)
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('🛡️ ServiceWorker ACTIVO:', reg.scope))
+                    .catch(err => console.error('Error ServiceWorker:', err));
+            }
+        });
 
         function getTodayYMD() { return new Date(new Date().getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0]; }
         function normalizeDate(dStr) { if (!dStr) return ""; if (dStr.includes('/')) { let p = dStr.split('/'); if (p.length === 3) return `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}`; } return dStr; }
@@ -3506,158 +3526,130 @@ async function verificarRetornoWompi(txId, kioskId, env) {
     }
 }
 
-
-
-
-
-
-
  // ==========================================
 // 🔓 MÓDULO 1: LOGIN HÍBRIDO (SOPORTA PIN NORMAL Y ENCRIPTADO)
 // ==========================================
 
 
 async function actionLogin(pinForzado = null) {
-    // Si la base de datos se borró, la reconstruimos limpiamente sin usar initDB()
-
-    if(!db) {
-        db = { barberias: [], superPIN: "9999", mainLogo: null, sugerencias: [], lastSyncTime: Date.now(), masterConfig: { brandingActive: true, brandingText: "Software provisto por Isi Control" } };
-    }
-    const pinInput = document.getElementById('login-pin'); 
-    // Magia: Toma el PIN biométrico directo del procesador, o del teclado si es manual
-    const pin = pinForzado || cleanNum(pinInput.value);
-    
-    if (!pin) { Swal.fire({ title: "PIN VACÍO", text: "Por favor ingresa tu código de acceso.", icon: "info", background: "#000", color: "#fff" }); return; }
-    
-    // 🛡️ NUEVO BLINDAJE: Exigir exactamente 4 números
-    if (pin.length !== 4) { 
-        Swal.fire({ title: "PIN INVÁLIDO", text: "El código de acceso debe tener exactamente 4 números.", icon: "warning", background: "#0a0a0a", color: "#fff", confirmButtonColor: "#4f46e5" }); 
-        return; 
-    }
-    
-    Swal.fire({ title: 'Autenticando...', text: 'Verificando credenciales...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() }, background: '#0a0a0a', color: '#fff' });
-
-
-
-    // ... (Deja el resto de tu código de actionLogin exactamente igual hacia abajo)
-
-    if (isLocalStorageBlocked) { Swal.fire({ title: "Modo Protegido", text: "Abre la aplicación desde un servidor web.", icon: "error", background: "#0a0a0a", color: "#fff" }); pinInput.value = ""; return; }
-    if (db.superPIN && pin === db.superPIN) { Swal.close(); bIdx = -1; session = { rol: 'superadmin' }; saveSession(); showScreen('view-superadmin'); pinInput.value = ""; return; }
-
-    const pinHashed = await hashPIN(pin);
-
-    let localIdx = db.barberias.findIndex(x => x.pinAdmin === pin || x.pinAdmin === pinHashed);
-    let isBarbero = false; let barberoName = ""; 
-    let isCajero = false; let cajeroData = null;
-    
-    if (localIdx === -1) {
-        for (let i = 0; i < db.barberias.length; i++) {
-            let bs = db.barberias[i].barberos?.find(x => x.pin === pin || x.pin === pinHashed);
-            if (bs) { localIdx = i; isBarbero = true; barberoName = bs.nom; break; }
+            if(!db) {
+                db = { barberias: [], superPIN: "9999", mainLogo: null, sugerencias: [], lastSyncTime: Date.now(), masterConfig: { brandingActive: true, brandingText: "Software provisto por Isi Control" } };
+            }
+            const pinInput = document.getElementById('login-pin'); 
+            const pin = pinForzado || cleanNum(pinInput.value);
             
-            let cs = db.barberias[i].cajeros?.find(x => x.pin === pin || x.pin === pinHashed);
-            if (cs) { localIdx = i; isCajero = true; cajeroData = cs; break; }
-        }
-    }
-
-    // 🚀 VALIDACIÓN EN LA NUBE (SOPORTA LA TRANSICIÓN DEL PIN)
-    if (isOnline && typeof supabaseClient !== 'undefined') {
-        try {
-            let store = null;
+            if (!pin) { Swal.fire({ title: "PIN VACÍO", text: "Por favor ingresa tu código de acceso.", icon: "info", background: "#000", color: "#fff" }); return; }
+            if (pin.length !== 4) { Swal.fire({ title: "PIN INVÁLIDO", text: "El código de acceso debe tener exactamente 4 números.", icon: "warning", background: "#0a0a0a", color: "#fff", confirmButtonColor: "#4f46e5" }); return; }
             
-            // 1. Buscar Dueño (Plano o Encriptado)
-            const { data: stOwner } = await supabaseClient.from('stores').select('*').or(`owner_pin.eq.${pin},owner_pin.eq.${pinHashed}`).limit(1);
-            if (stOwner && stOwner.length > 0) store = stOwner[0];
+            Swal.fire({ 
+                title: '<span class="text-2xl font-black italic text-indigo-500 uppercase tracking-tighter drop-shadow-md">INICIANDO ⚡</span>', 
+                html: '<p class="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mt-1">Conectando con Zeus...</p>', 
+                allowOutsideClick: false, 
+                didOpen: () => { Swal.showLoading() }, 
+                background: '#050505', 
+                color: '#fff',
+                customClass: { 
+                    popup: 'rounded-[2.5rem] border border-indigo-900/50 shadow-[0_0_40px_rgba(99,102,241,0.15)] max-w-xs' 
+                }
+            });
 
-            // 2. Buscar Barbero (Plano o Encriptado)
-            if (!store) {
-                const { data: stBPlain } = await supabaseClient.from('stores').select('*').contains('json_data', { barberos: [{ pin: pin }] }).limit(1);
-                const { data: stBHash } = await supabaseClient.from('stores').select('*').contains('json_data', { barberos: [{ pin: pinHashed }] }).limit(1);
-                if (stBPlain && stBPlain.length > 0) store = stBPlain[0];
-                else if (stBHash && stBHash.length > 0) store = stBHash[0];
+            if (isLocalStorageBlocked) { Swal.fire({ title: "Modo Protegido", text: "Abre la aplicación desde un servidor web.", icon: "error", background: "#0a0a0a", color: "#fff" }); pinInput.value = ""; return; }
+            if (db.superPIN && pin === db.superPIN) { Swal.close(); bIdx = -1; session = { rol: 'superadmin' }; saveSession(); showScreen('view-superadmin'); pinInput.value = ""; return; }
+
+            const pinHashed = await hashPIN(pin);
+
+            // 1. Buscamos primero en el disco duro (Modo Offline / Caché Rápida)
+            let localIdx = db.barberias.findIndex(x => x.pinAdmin === pin || x.pinAdmin === pinHashed);
+            let isBarbero = false; let barberoName = ""; 
+            let isCajero = false; let cajeroData = null;
+            
+            if (localIdx === -1) {
+                for (let i = 0; i < db.barberias.length; i++) {
+                    let bs = db.barberias[i].barberos?.find(x => x.pin === pin || x.pin === pinHashed);
+                    if (bs) { localIdx = i; isBarbero = true; barberoName = bs.nom; break; }
+                    
+                    let cs = db.barberias[i].cajeros?.find(x => x.pin === pin || x.pin === pinHashed);
+                    if (cs) { localIdx = i; isCajero = true; cajeroData = cs; break; }
+                }
+            }
+
+            // 2. 🚀 NUEVA VALIDACIÓN INVISIBLE POR EDGE FUNCTION
+            if (isOnline && typeof supabaseClient !== 'undefined') {
+                try {
+                    const { data, error } = await supabaseClient.functions.invoke('zeus-login', {
+                        body: { pin: pin, pinHashed: pinHashed }
+                    });
+
+                    if (!error && data && data.success) {
+                        let storeData = data.store_data || {}; 
+                        storeData.id_nube = data.store_id; 
+                        storeData.nombre = data.store_name; 
+                        storeData.pinAdmin = data.owner_pin;
+
+                        if (data.session.rol === 'barbero') {
+                            isBarbero = true; barberoName = data.session.nom;
+                        } else if (data.session.rol === 'cajero') {
+                            isCajero = true; cajeroData = { nom: data.session.nom };
+                        } else {
+                            isBarbero = false; isCajero = false;
+                        }
+                        
+                        if (localIdx === -1) { 
+                            db.barberias.push(storeData); localIdx = db.barberias.length - 1; 
+                        } else { 
+                            db.barberias[localIdx] = { ...db.barberias[localIdx], bloqueado: storeData.bloqueado, diasSuscripcion: storeData.diasSuscripcion, alertaBlock: storeData.alertaBlock, plan: storeData.plan };
+                        }
+                        saveDB(false); 
+                    } else if (data && data.error) {
+                        localIdx = -1; // Forzamos el fallo si la nube dice que el PIN no existe
+                    }
+                } catch(e) { console.log("Fallo en la nube, intentando modo offline local."); }
+            }
+
+            if (localIdx > -1) {
+                const bVerif = db.barberias[localIdx]; 
+                const diffDays = Math.floor((Date.now() - (bVerif.creadoEn || Date.now())) / (1000 * 60 * 60 * 24));
                 
-                if (store) {
-                    isBarbero = true;
-                    let bs = store.json_data.barberos.find(x => x.pin === pin || x.pin === pinHashed);
-                    barberoName = bs ? bs.nom : "Barbero";
+               if (bVerif.bloqueado || ((bVerif.diasSuscripcion || 15) - diffDays < 0) || bVerif.alertaBlock) { 
+                    Swal.close(); 
+                    document.getElementById('pantalla-bloqueo').classList.remove('hidden');
+                    document.getElementById('app-content').classList.add('hidden');
+                    pinInput.value = ""; 
+                    if(navigator.onLine && typeof rescatarSuscripcionLocal === 'function') {
+                        rescatarSuscripcionLocal();
+                    }
+                    return; 
                 }
-            }
-
-            // 3. Buscar Cajero (Plano o Encriptado)
-            if (!store) {
-                const { data: stCPlain } = await supabaseClient.from('stores').select('*').contains('json_data', { cajeros: [{ pin: pin }] }).limit(1);
-                const { data: stCHash } = await supabaseClient.from('stores').select('*').contains('json_data', { cajeros: [{ pin: pinHashed }] }).limit(1);
-                if (stCPlain && stCPlain.length > 0) store = stCPlain[0];
-                else if (stCHash && stCHash.length > 0) store = stCHash[0];
-
-                if (store) {
-                    isCajero = true;
-                    let cs = store.json_data.cajeros.find(x => x.pin === pin || x.pin === pinHashed);
-                    cajeroData = cs;
-                }
-            }
-
-            if (store) {
-                let bData = store.json_data || {}; 
-                bData.id_nube = store.id; bData.nombre = store.name; bData.pinAdmin = store.owner_pin;
                 
-                if (localIdx === -1) { 
-                    db.barberias.push(bData); localIdx = db.barberias.length - 1; 
-                } else { 
-                    db.barberias[localIdx] = { ...db.barberias[localIdx], bloqueado: bData.bloqueado, diasSuscripcion: bData.diasSuscripcion, alertaBlock: bData.alertaBlock, plan: bData.plan };
+                bIdx = localIdx; 
+                if (isCajero) session = { rol: 'cajero', nom: cajeroData.nom, ciego: cajeroData.cierreCiego };
+                else session = { rol: isBarbero ? 'barbero' : 'admin', nom: barberoName };
+                
+                if (isBarbero || isCajero) { 
+                    const b = db.barberias[bIdx]; 
+                    if (!b.asistencia) b.asistencia = {}; 
+                    const hoy = getTodayYMD(); 
+                    const empName = isBarbero ? barberoName : cajeroData.nom;
+                    if (!b.asistencia[hoy]) b.asistencia[hoy] = {}; 
+                    if (!b.asistencia[hoy][empName] || !b.asistencia[hoy][empName].ingreso) { 
+                        b.asistencia[hoy][empName] = { ingreso: new Date().toLocaleTimeString('es-CO', {hour: '2-digit', minute:'2-digit'}), salida: "--" }; 
+                    } 
                 }
-                saveDB(false); 
+                
+                saveDB(false); saveSession(); pinInput.value = ""; Swal.close(); 
+                if (typeof ofrecerRegistroBiometrico === 'function') ofrecerRegistroBiometrico(pin);
+                
+                if (session.rol === 'admin') showScreen('view-admin'); 
+                else if (session.rol === 'cajero') showScreen('view-caja'); 
+                else showScreen('view-barbero'); 
+                
+                forzarSincronizacionNube(true); 
+                return;
+            } else {
+                Swal.fire({ title: "PIN INCORRECTO", text: "Verifica tus credenciales de acceso.", icon: "error", background: "#000", color: "#fff" });
+                pinInput.value = ""; 
             }
-        } catch(e) { console.log("Fallo de red, usando memoria local."); }
-    }
-
-  if (localIdx > -1) {
-        const bVerif = db.barberias[localIdx]; 
-        const diffDays = Math.floor((Date.now() - (bVerif.creadoEn || Date.now())) / (1000 * 60 * 60 * 24));
-        
-       if (bVerif.bloqueado || ((bVerif.diasSuscripcion || 15) - diffDays < 0) || bVerif.alertaBlock) { 
-            Swal.close(); 
-            document.getElementById('pantalla-bloqueo').classList.remove('hidden');
-            document.getElementById('app-content').classList.add('hidden');
-            pinInput.value = ""; 
-            
-            // 🚀 MAGIA: Si está bloqueado pero hay internet, intenta auto-rescatarse sin tocar el botón
-            if(navigator.onLine && typeof rescatarSuscripcionLocal === 'function') {
-                rescatarSuscripcionLocal();
-            }
-            return; 
         }
-        
-        bIdx = localIdx; 
-        if (isCajero) session = { rol: 'cajero', nom: cajeroData.nom, ciego: cajeroData.cierreCiego };
-        else session = { rol: isBarbero ? 'barbero' : 'admin', nom: barberoName };
-        
-        if (isBarbero || isCajero) { 
-            const b = db.barberias[bIdx]; 
-            if (!b.asistencia) b.asistencia = {}; 
-            const hoy = getTodayYMD(); 
-            const empName = isBarbero ? barberoName : cajeroData.nom;
-            if (!b.asistencia[hoy]) b.asistencia[hoy] = {}; 
-            if (!b.asistencia[hoy][empName] || !b.asistencia[hoy][empName].ingreso) { 
-                b.asistencia[hoy][empName] = { ingreso: new Date().toLocaleTimeString('es-CO', {hour: '2-digit', minute:'2-digit'}), salida: "--" }; 
-            } 
-        }
-        
-        saveDB(false); saveSession(); pinInput.value = ""; Swal.close(); 
-       // Gatillo Biométrico
-      ofrecerRegistroBiometrico(pin);
-        
-        if (session.rol === 'admin') showScreen('view-admin'); 
-        else if (session.rol === 'cajero') showScreen('view-caja'); 
-        else showScreen('view-barbero'); 
-        
-        forzarSincronizacionNube(true); 
-        return;
-    } else {
-        Swal.fire({ title: "PIN INCORRECTO", text: "Verifica tus credenciales de acceso.", icon: "error", background: "#000", color: "#fff" });
-        pinInput.value = ""; 
-    }
-}
 
 
 
@@ -3696,7 +3688,18 @@ async function actionLogin(pinForzado = null) {
         }
 
         function toggleAcc(idC, idI) { document.getElementById(idC).classList.toggle('hidden'); document.getElementById(idI).classList.toggle('rotate-180'); }
-        function cerrarModales() { detenerAudio(); document.querySelectorAll('.fixed').forEach(m => { if (m.id !== 'splash-screen' && m.id !== 'offline-banner' && m.id !== 'pantalla-bloqueo') m.classList.add('hidden'); }); }
+
+        function cerrarModales() { 
+            detenerAudio(); 
+            document.querySelectorAll('.fixed').forEach(m => { 
+                // 🛡️ Ignoramos splash, bloqueos y el contenedor maestro de ISI IA
+                if (m.id !== 'splash-screen' && m.id !== 'offline-banner' && m.id !== 'pantalla-bloqueo' && !m.querySelector('#box-isi-ia')) {
+                    m.classList.add('hidden'); 
+                }
+            }); 
+        }
+
+
         function cerrarModalespos() { detenerAudio(); document.getElementById('modal-qr').classList.add('hidden'); document.getElementById('modal-pago-anticipado').classList.add('hidden'); }
 
         // ==========================================
@@ -3762,7 +3765,7 @@ async function actionLogin(pinForzado = null) {
 }
             if (id === 'view-barbero') renderBarbero();
             if (id === 'view-caja') renderCaja();
-            if (id === 'view-agenda') { tempServicios = []; document.getElementById('agenda-filtro-fecha').value = getTodayYMD(); renderAgendaList(); }
+            if (id === 'view-agenda') { agendaServiciosTemp = []; document.getElementById('agenda-filtro-fecha').value = getTodayYMD(); renderAgendaList(); }
             if (id === 'view-superadmin') { renderSuperAdmin(); if (isiBtn) isiBtn.classList.remove('hidden'); }
             
             // 🚀 EJECUTAMOS EL MOTOR CAMALEÓN AL CAMBIAR DE PANTALLA
@@ -3923,24 +3926,21 @@ async function actionLogin(pinForzado = null) {
             const modalMapa = document.getElementById('modal-mapa');
             const ctn = document.getElementById('mapa-lista-locales');
             
-            // 1. Mostrar el modal inmediatamente
             modalMapa.classList.remove('hidden');
             ctn.innerHTML = `<div class="flex flex-col items-center justify-center py-10"><span class="text-4xl animate-pulse mb-2">📡</span><p class="text-[10px] text-blue-400 font-black uppercase tracking-widest text-center">Rastreando locales<br>en la red Global Zeus...</p></div>`;
 
-            // 2. DARLE TIEMPO AL NAVEGADOR PARA RENDERIZAR EL MODAL
             setTimeout(async () => {
-                // 3. Iniciar o refrescar mapa
                 if (!miMapaReal) {
                     miMapaReal = L.map('mapa-real-osm').setView([4.6097, -74.0817], 12);
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© Zeus Maps' }).addTo(miMapaReal);
+                    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '© Zeus Maps & CartoDB' }).addTo(miMapaReal);
                 }
                 
-                // Forzar re-dibujado
                 miMapaReal.invalidateSize();
 
                 if (isOnline && typeof supabaseClient !== 'undefined') {
                     try {
-                        const { data, error } = await supabaseClient.from('stores').select('id, name, json_data');
+                        // 🔒 CAMBIO DE SEGURIDAD: Ahora consultamos la VISTA SEGURA, no la tabla
+                        const { data, error } = await supabaseClient.from('locales_publicos').select('*');
                         if (error) throw error;
 
                         window.localesGlobalesZeus = data; 
@@ -3966,36 +3966,31 @@ async function actionLogin(pinForzado = null) {
             }, 400); 
         }
 
-
-
         function filtrarMarketplace(tipo) {
             const contenedor = document.getElementById('lista-renderizada-marketplace');
             if (!contenedor || !window.localesGlobalesZeus) return;
 
-            // Limpiamos los pines del mapa
             miMapaReal.eachLayer((layer) => { if (layer instanceof L.Marker) miMapaReal.removeLayer(layer); });
 
             const baseWebUrl = window.location.href.split('?')[0];
             let htmlList = '';
             
-            // Coordenadas base por si algún local no configuró GPS
             let latBase = 4.6097; let lonBase = -74.0817; 
 
             window.localesGlobalesZeus.forEach(store => {
-                let config = store.json_data || {};
+                // 🔒 CAMBIO DE SEGURIDAD: Los datos ya vienen limpios de la vista SQL
+                let config = store;
                 let esSpa = config.tipoNegocio === 'estetica';
                 
-                // Filtro visual
                 if (tipo === 'barberia' && esSpa) return;
                 if (tipo === 'estetica' && !esSpa) return;
 
                 const kioLink = baseWebUrl + '?kiosk=' + store.id;
-                let lat = config.lat || (latBase + (Math.random() * 0.05 - 0.025));
-                let lon = config.lon || (lonBase + (Math.random() * 0.05 - 0.025));
+                let lat = parseFloat(config.lat) || (latBase + (Math.random() * 0.05 - 0.025));
+                let lon = parseFloat(config.lon) || (lonBase + (Math.random() * 0.05 - 0.025));
                 let icono = esSpa ? '✨' : '💈';
                 let colorTema = esSpa ? 'pink' : 'blue';
 
-                // Crear el Pin en el mapa real
                 let marker = L.marker([lat, lon]).addTo(miMapaReal);
                 marker.bindPopup(`
                     <div class="text-center p-1" style="font-family: 'Inter', sans-serif;">
@@ -4005,7 +4000,6 @@ async function actionLogin(pinForzado = null) {
                     </div>
                 `);
 
-                // Construir la tarjeta de la lista
                 htmlList += `
                 <div class="bg-[#050505] p-4 rounded-[1.5rem] border border-${colorTema}-900/30 flex justify-between items-center shadow-inner mb-3 transition-transform hover:scale-[1.02] cursor-pointer" onclick="miMapaReal.flyTo([${lat}, ${lon}], 16); setTimeout(()=>marker.openPopup(), 500);">
                     <div class="flex items-center gap-4">
@@ -4468,61 +4462,52 @@ function verificarCumpleanosPOS() {
         }
 
         function updateCart() {
-            const b = db.barberias[bIdx];
+            const b = db.barberias[bIdx !== -1 ? bIdx : kiosko_bIdx]; 
             let sCon = cart.reduce((a, i) => a + i.pre, 0);
+
+            let esReferido = typeof descuentoReferidoActivo !== 'undefined' && descuentoReferidoActivo > 0;
+            let dctoReferido = esReferido ? descuentoReferidoActivo : 0;
             
-            // 👑 1. LÓGICA ZEUS PASS (Suscripciones VIP Inteligentes)
+            if (esReferido && document.getElementById('view-kiosko') && document.getElementById('view-kiosko').classList.contains('active')) {
+                sCon = sCon - (sCon * (dctoReferido / 100)); 
+            }
+            
             let esSocioVIP = false;
             let nombrePlanVIP = "";
             let cortesQueLeQuedan = 0;
             let planEstaVencido = false;
 
-            const celInput = document.getElementById('pos-cli-celular');
+            const celInput = document.getElementById('pos-cli-celular') || document.getElementById('kio-celular');
             const cel = celInput ? celInput.value.trim() : "";
             
-            if (b.vipClub && b.vipClub.passActivo && cel && b.clientes && b.clientes[cel] && b.clientes[cel].planSuscripcion) {
+            if (b && b.vipClub && b.vipClub.passActivo && cel && b.clientes && b.clientes[cel] && b.clientes[cel].planSuscripcion) {
                 const cData = b.clientes[cel];
                 const hoy = getTodayYMD();
                 
                 if (cData.planVence && cData.planVence < hoy) {
-                    planEstaVencido = true; // El plan ya caducó por fecha
+                    planEstaVencido = true; 
                 } else if (cData.cortesRestantes !== undefined && cData.cortesRestantes === 0) {
-                    planEstaVencido = true; // Se le acabaron los cortes
+                    planEstaVencido = true; 
                 } else {
                     esSocioVIP = true;
                     nombrePlanVIP = cData.planSuscripcion;
                     cortesQueLeQuedan = cData.cortesRestantes;
-                    sCon = 0; // MAGIA: Todo el carrito pasa a $0
+                    sCon = 0; 
                 }
             }
 
-
-            // 🚀 2. LÓGICA CAZA-RECOMPENSAS (Descuento a referidos en el Kiosko)
-            let esReferido = false;
-            let dctoReferido = 0;
-            const urlParams = new URLSearchParams(window.location.search);
-            const refSponsor = urlParams.get('ref');
-            
-            if (refSponsor && b.vipClub && b.vipClub.refActivo) {
-                const isKioskoPWA = document.getElementById('view-kiosko') && document.getElementById('view-kiosko').classList.contains('active');
-                if (isKioskoPWA) {
-                    esReferido = true;
-                    dctoReferido = b.vipClub.refDesc || 15;
-                    sCon = sCon - (sCon * (dctoReferido / 100)); // Aplica el descuento
-                }
-            }
-
-            let iA = b.configIVA ? b.configIVA.activo : false;
-            let iP = b.configIVA ? b.configIVA.porcentaje : 0;
+            let iA = b && b.configIVA ? b.configIVA.activo : false;
+            let iP = b && b.configIVA ? b.configIVA.porcentaje : 0;
             let vI = iA ? Math.round(sCon * (iP / 100)) : 0; 
             let tF = sCon + vI;
-             // 🚀 LÓGICA BOLD: Restamos el abono que la cajera acaba de aprobar
+            
             if (typeof abonoValidadoCaja !== 'undefined' && abonoValidadoCaja > 0) {
                 tF = tF - abonoValidadoCaja;
-                if (tF < 0) tF = 0; // Evitar que la caja quede en negativo
+                if (tF < 0) tF = 0; 
             }
 
-            const ctnCarrito = document.getElementById('pos-carrito');
+            const ctnCarrito = document.getElementById('pos-carrito') || document.getElementById('kio-servicios-seleccionados');
+            if (!ctnCarrito) return;
             
             if (cart.length === 0) {
                 ctnCarrito.innerHTML = '<p class="text-zinc-700 text-center text-xs mt-4">Vacío</p>';
@@ -4536,7 +4521,6 @@ function verificarCumpleanosPOS() {
                     htmlCart = `<div class="bg-red-900/30 border border-red-500/50 p-2 rounded-xl mb-3 flex items-center justify-center gap-2 shadow-inner"><span class="text-xl">⚠️</span><div class="flex flex-col"><span class="text-[9px] font-black text-red-500 uppercase tracking-widest leading-none">Plan Vencido o Agotado</span><span class="text-[7px] font-bold text-zinc-400 uppercase mt-0.5">Dile al cliente que renueve.</span></div></div>` + htmlCart;
                 }
 
-
                 if (esReferido && !esSocioVIP) {
                     htmlCart = `<div class="bg-gradient-to-r from-indigo-600 to-blue-500 p-2 rounded-xl mb-3 flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(99,102,241,0.3)]"><span class="text-xl">🎁</span><span class="text-[10px] font-black text-white uppercase tracking-widest">Invitado VIP: -${dctoReferido}% Aplicado</span></div>` + htmlCart;
                 }
@@ -4544,14 +4528,20 @@ function verificarCumpleanosPOS() {
             }
 
             let tD = document.getElementById('pos-total-breakdown');
-            if (iA && sCon > 0 && !esSocioVIP) {
-                tD.innerHTML = `<p class="text-[10px] text-zinc-400">SUB: ${fMoney(sCon)} | IMPUESTO: ${fMoney(vI)}</p><span id="pos-total" class="text-4xl font-black text-indigo-500">${fMoney(tF)}</span>`;
-            } else {
-                tD.innerHTML = `<span id="pos-total" class="text-4xl font-black ${esSocioVIP ? 'text-yellow-400 drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]' : 'text-indigo-500'}">${fMoney(tF)}</span>`;
+            if (tD) {
+                if (iA && sCon > 0 && !esSocioVIP) {
+                    tD.innerHTML = `<p class="text-[10px] text-zinc-400">SUB: ${fMoney(sCon)} | IMPUESTO: ${fMoney(vI)}</p><span id="pos-total" class="text-4xl font-black text-indigo-500">${fMoney(tF)}</span>`;
+                } else {
+                    tD.innerHTML = `<span id="pos-total" class="text-4xl font-black ${esSocioVIP ? 'text-yellow-400 drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]' : 'text-indigo-500'}">${fMoney(tF)}</span>`;
+                }
             }
 
-            validarBotonCobro();
+            let kioTotal = document.getElementById('kio-total-temp');
+            if(kioTotal) kioTotal.innerText = fMoney(tF);
+
+            if(typeof validarBotonCobro === 'function') validarBotonCobro();
         }
+
 
         function validarBotonCobro() { const m = document.getElementById('pos-metodo').value; const ok = cart.length > 0 && m !== ""; const b = document.getElementById('pos-btn-cobrar'); if (b) { b.disabled = !ok; b.classList.toggle('opacity-20', !ok); b.classList.toggle('cursor-not-allowed', !ok); } }
 
@@ -4768,14 +4758,25 @@ async function guardarFacturaEnSQL(ticket, storeId) {
         }
 
         function agregarServicioTemp(origen) {
-            const select = document.getElementById(`${origen}-servicio`); if (!select.value) return;
-            tempServicios.push(select.value); renderServiciosTemp(origen);
+            const select = document.getElementById(`${origen}-servicio`); 
+            if (!select.value) return;
+            
+            if (origen === 'agenda') {
+                agendaServiciosTemp.push(select.value); 
+            } else {
+                // Modo Kiosko usa la estructura de objeto
+                const sData = db.barberias[kiosko_bIdx !== -1 ? kiosko_bIdx : bIdx].servicios.find(x => x.nom === select.value);
+                tempServicios.push(sData || { nom: select.value, pre: 0, dur: 30 });
+            }
+            renderServiciosTemp(origen);
         }
 
         function renderServiciosTemp(origen) {
-            document.getElementById(`${origen}-servicios-seleccionados`).innerHTML = tempServicios.map((s, i) => `
+            const arrayTarget = origen === 'agenda' ? agendaServiciosTemp : tempServicios;
+            document.getElementById(`${origen}-servicios-seleccionados`).innerHTML = arrayTarget.map((s, i) => `
             <div class="flex justify-between bg-zinc-900 px-3 py-2 rounded-lg text-[10px] text-green-400 font-bold uppercase items-center border border-zinc-800">
-                <span class="text-wrap-tight pr-2">${s}</span><button type="button" onclick="tempServicios.splice(${i},1); renderServiciosTemp('${origen}')" class="text-red-500 font-black hover:scale-110">X</button>
+                <span class="text-wrap-tight pr-2">${origen === 'agenda' ? s : (s.nom || s)}</span>
+                <button type="button" onclick="${origen === 'agenda' ? 'agendaServiciosTemp' : 'tempServicios'}.splice(${i},1); renderServiciosTemp('${origen}')" class="text-red-500 font-black hover:scale-110">X</button>
             </div>`).join('');
         }
 
@@ -4880,13 +4881,22 @@ const btnRecibo = tieneAbono ? `<button type="button" onclick="verComprobanteCit
             const cli = cleanStr(document.getElementById('agenda-cli').value).toUpperCase(); const cel = cleanNum(document.getElementById('agenda-cel').value);
             const barb = document.getElementById('agenda-barbero').value;
 
-            if (!f || !h || !cli || !barb || tempServicios.length === 0) return Swal.fire('Aviso', 'Fecha, hora, cliente, barbero y servicios obligatorios.', 'warning');
+            // 1. 🛡️ REEMPLAZO 1: Validamos con agendaServiciosTemp
+            if (!f || !h || !cli || !barb || agendaServiciosTemp.length === 0) return Swal.fire('Aviso', 'Fecha, hora, cliente, barbero y servicios obligatorios.', 'warning');
 
             const b = db.barberias[bIdx]; const nTime = timeToMins(h); const apertMins = timeToMins(b.horaApertura || "09:00"); const cierrMins = timeToMins(b.horaCierre || "21:00");
             if (nTime < apertMins || nTime > cierrMins) return Swal.fire('Cerrado', `El local atiende de ${b.horaApertura} a ${b.horaCierre}`, 'error');
 
-            // 🛡️ RADAR ANTI-CHOQUES INTELIGENTE
-            let totalMinsCarrito = 0; tempServicios.forEach(s => { totalMinsCarrito += parseDuracionToMins(s.dur); });
+            // 2. 🛡️ REEMPLAZO 2: Calculamos duración buscando los servicios por su nombre
+            let totalMinsCarrito = 0; 
+            agendaServiciosTemp.forEach(nombreServicio => { 
+                let sData = (b.servicios || []).find(x => x.nom === nombreServicio);
+                if (sData && sData.dur) {
+                    totalMinsCarrito += parseDuracionToMins(sData.dur);
+                } else {
+                    totalMinsCarrito += 30; // 30 mins por defecto si falla
+                }
+            });
             if (totalMinsCarrito === 0) totalMinsCarrito = (b.intervaloCitas || 60);
 
             const miInicio = timeToMins(h); 
@@ -4903,76 +4913,48 @@ const btnRecibo = tieneAbono ? `<button type="button" onclick="verComprobanteCit
 
             if (!b.citas) b.citas = [];
 
-            // 🚀 PREPARAMOS LA CITA
-            let srvString = tempServicios.map(s=>s.nom || s).join(' + ');
+            // 3. 🛡️ REEMPLAZO 3: Unimos los servicios correctamente
+            let srvString = agendaServiciosTemp.join(' + ');
             let idCitaNueva = Date.now().toString();
             
             b.citas.push({ id: idCitaNueva, nombre: cli, celular: cel, barbero: barb, servicio: srvString, fecha: f, hora: h, estado: 'PENDIENTE', duracion: totalMinsCarrito });
 
-            // ⚡ PUENTE SQL: DISPARO A SUPABASE EN SEGUNDO PLANO
+            // ⚡ PUENTE SQL
             if (isOnline && typeof supabaseClient !== 'undefined' && b.id_nube) {
-                // 1. Inserción en la tabla SQL (appointments)
                 supabaseClient.from('appointments').insert([{
-                    store_id: b.id_nube,
-                    customer_name: cli,           
-                    customer_phone: cel || null,  
-                    staff_name: barb,             
-                    service_name: srvString,
-                    appointment_date: f,
-                    appointment_time: h,
-                    status: 'PENDIENTE',
-                    duration: totalMinsCarrito,
-                    receipt_url: null
+                    store_id: b.id_nube, customer_name: cli, customer_phone: cel || null, staff_name: barb,             
+                    service_name: srvString, appointment_date: f, appointment_time: h, status: 'PENDIENTE', duration: totalMinsCarrito, receipt_url: null
                 }]).then(({error}) => {
                     if(error) console.error("❌ Error guardando cita en SQL:", error);
                     else console.log("☁️ Cita inyectada a la tabla SQL exitosamente.");
                 }); 
                 
-                // 2. 🔔 GATILLO DE NOTIFICACIÓN PUSH AL ADMIN
-                console.log("Revisando token Push para enviar notificación...");
                 let tokenPushAdmin = b.pushSubscription;
-                
                 if (tokenPushAdmin) {
-                    console.log("✅ Token Push encontrado. Intentando invocar Edge Function...");
-                    // 🚀 USAMOS EL INVOCADOR NATIVO DE SUPABASE PARA EVITAR BLOQUEOS CORS/401
                     supabaseClient.functions.invoke('enviar-push', {
-                        body: {
-                            subscription: tokenPushAdmin,
-                            title: '¡NUEVA CITA KIOSKO! ⚡',
-                            body: `📅 ${f} | ⏰ ${formatTime12h(h)}\n👤 ${cli}\n💈 ${barb}`
-                        }
-                    }).then(({ data, error }) => {
-                        if (error) console.error('❌ Error disparando Push (Supabase Invoke):', error);
-                        else console.log('🔔 Push disparado con éxito:', data);
-                    }).catch(err => {
-                        console.error('Fallo crítico al invocar función Push:', err);
-                    });
-                } else {
-                    console.warn("⚠️ No se disparó Push: El local (Kiosko) no tiene una antena (pushSubscription) registrada en su base de datos local. ¿Se sincronizó el Kiosko después de que el Admin activara las alertas?");
+                        body: { subscription: tokenPushAdmin, title: '¡NUEVA CITA KIOSKO! ⚡', body: `📅 ${f} | ⏰ ${formatTime12h(h)}\n👤 ${cli}\n💈 ${barb}` }
+                    }).catch(err => console.error('Fallo Push:', err));
                 }
             }
 
-            // 👇 GUARDADO LOCAL (A prueba de fallos y modo Offline)
             const idCli = cel || cli;
             if (!b.clientes) b.clientes = {};
             if (!b.clientes[idCli]) b.clientes[idCli] = { nombre: cli, celular: cel, pts: 0, visitas: 0 };
 
             saveDB(true); 
             
-            // 🧹 LIMPIEZA PROFUNDA DEL FORMULARIO
-            document.getElementById('agenda-cli').value = ""; 
-            document.getElementById('agenda-cel').value = ""; 
-            document.getElementById('agenda-fecha').value = ""; 
-            document.getElementById('agenda-hora').value = ""; 
-            document.getElementById('agenda-barbero').value = ""; 
-            actualizarFotoBarbero('agenda'); 
+            document.getElementById('agenda-cli').value = ""; document.getElementById('agenda-cel').value = ""; 
+            document.getElementById('agenda-fecha').value = ""; document.getElementById('agenda-hora').value = ""; 
+            document.getElementById('agenda-barbero').value = ""; actualizarFotoBarbero('agenda'); 
             
-            tempServicios = []; renderServiciosTemp('agenda');
+            // 4. 🛡️ REEMPLAZO 4: Vaciamos la memoria correcta al terminar
+            agendaServiciosTemp = []; 
+            renderServiciosTemp('agenda');
+            
             renderAgendaList(); renderAdmin(); actualizarBadgesCitas();
             
             Swal.fire({ title: '¡Cita Guardada!', icon: 'success', background: '#0a0a0a', color: '#fff', timer: 1500 });
         }
-
 
 
         function completarCita(id) {
@@ -5315,9 +5297,22 @@ const btnRecibo = tieneAbono ? `<button type="button" onclick="verComprobanteCit
         // ==========================================
         // 10. KIOSKO PÚBLICO (MODO FRESHA VIP)
         // ==========================================
+
         
         function iniciarKiosko(idx) {
-            kiosko_bIdx = idx; const b = db.barberias[kiosko_bIdx];
+            if (idx === -1 || !db.barberias[idx]) return;
+            kiosko_bIdx = idx;
+            const b = db.barberias[idx];
+            
+            // 🛡️ LÓGICA SEGURA CAZA-RECOMPENSAS (Se lee 1 sola vez)
+            const urlParams = new URLSearchParams(window.location.search);
+            const refSponsor = urlParams.get('ref');
+            if (refSponsor && b.vipClub && b.vipClub.refActivo) {
+                descuentoReferidoActivo = b.vipClub.refDesc || 15;
+            } else {
+                descuentoReferidoActivo = 0;
+            }
+
             
             // 🛑 ESCUDO DEL KIOSKO (Sin el chequeo del reloj para clientes externos)
             const diffDays = Math.floor((Date.now() - (b.creadoEn || Date.now())) / (1000 * 60 * 60 * 24));
@@ -7991,7 +7986,7 @@ function calcularPrecioIA(precioBase, idLocal) {
 
 
         // --- BOTÓN DE GUARDAR INDESTRUCTIBLE ---
-       function actionGuardarYSalir() {
+        function actionGuardarYSalir() {
             if(bIdx === -1) return;
             const b = db.barberias[bIdx];
             
@@ -8007,7 +8002,6 @@ function calcularPrecioIA(precioBase, idLocal) {
 
             // Datos Básicos
             b.nombre = getVal('cfg-nombre').toUpperCase() || b.nombre;
-            b.slogan = getVal('cfg-slogan');
             b.nit = getVal('cfg-nit');
             b.direccion = getVal('cfg-direccion');
             b.telefono = getVal('cfg-telefono');
@@ -8053,8 +8047,6 @@ function calcularPrecioIA(precioBase, idLocal) {
             b.whatsapp = cleanNum(getVal('cfg-whatsapp'));
             b.alertasActivas = getChk('cfg-alertas');
             b.wpTemplate = getVal('cfg-wp-template');
-            b.msgBienvenida = getVal('cfg-msg-bienvenida');
-            b.msgDespedida = getVal('cfg-msg-despedida');
             b.linkGoogle = getVal('cfg-link-google');
 
             // Módulo de Cumpleaños
@@ -8073,16 +8065,12 @@ function calcularPrecioIA(precioBase, idLocal) {
             // Club VIP, Planes Zeus Pass y Referidos
             if(!b.vipClub) b.vipClub = {};
             b.vipClub.passActivo = getChk('cfg-pass-activo');
-            b.vipClub.plan1Nom = getVal('cfg-pass-plan1-nom');
-            b.vipClub.plan1Pre = parseInt(cleanNum(getVal('cfg-pass-plan1-pre'))) || 0;
-            b.vipClub.plan2Nom = getVal('cfg-pass-plan2-nom');
-            b.vipClub.plan2Pre = parseInt(cleanNum(getVal('cfg-pass-plan2-pre'))) || 0;
             
             b.vipClub.refActivo = getChk('cfg-ref-activo');
             b.vipClub.refMeta = parseInt(cleanNum(getVal('cfg-ref-meta'))) || 5;
             b.vipClub.refDesc = parseInt(cleanNum(getVal('cfg-ref-desc'))) || 15;
             b.vipClub.refPremio = getVal('cfg-ref-premio');
-           
+            
             // Tarjeta Física de Fidelización por Sello
             if(!b.vipCard) b.vipCard = {};
             b.vipCard.activo = getChk('cfg-tarjeta-vip-activa');
@@ -8641,30 +8629,7 @@ function borrarServicio(idx) {
         // ==========================================
         // 💸 MOTOR DE PROPINA AL BARBERO
         // ==========================================
-        function mostrarQRPropina() {
-            if (!lastTicketData || !lastTicketData.items || lastTicketData.items.length === 0) return;
-            const nombreBarbero = lastTicketData.items[0].barbero || session.nom;
-            const b = db.barberias[bIdx];
-            const dataBarbero = (b.barberos || []).find(x => x.nom === nombreBarbero);
-            
-            let imagenMostrar = dataBarbero && dataBarbero.fotoQR ? dataBarbero.fotoQR : 'https://cdn-icons-png.flaticon.com/512/3141/3141445.png';
-            let textoFaltaQR = (dataBarbero && !dataBarbero.fotoQR) ? '<p class="text-yellow-500 text-[10px] mt-2 animate-pulse">Este barbero no ha subido su QR en Ajustes.</p>' : '';
-
-            Swal.fire({
-                title: `<span class="text-pink-500 font-black text-3xl uppercase tracking-tighter">¡GRACIAS!</span>`,
-                html: `<p class="text-xs text-zinc-300 font-bold uppercase tracking-widest mb-4">Tu propina va directo a <b>${nombreBarbero}</b></p>${textoFaltaQR}`,
-                imageUrl: imagenMostrar,
-                imageAlt: 'QR Propina',
-                background: '#0a0a0a',
-                color: '#fff',
-                confirmButtonText: '¡PROPINA ENVIADA! ✔️',
-                confirmButtonColor: '#d946ef',
-                customClass: {
-                    image: 'rounded-2xl max-h-[40vh] object-contain border-2 border-pink-500 shadow-[0_0_20px_rgba(236,72,153,0.3)] bg-white p-2',
-                    confirmButton: 'w-full py-4 rounded-2xl font-black uppercase shadow-lg shadow-pink-600/30'
-                }
-            });
-        }
+        
 
         // ==========================================
         // 👑 SUPERADMIN Y MASTER CONTROL
@@ -9128,51 +9093,6 @@ function escucharResumenFranquicia() {
             try {
                 await supabaseClient.from('stores').delete().eq('id', idNube); db.barberias = db.barberias.filter(x => x.id_nube !== idNube); saveDB(true); renderSuperAdmin(); Swal.fire('¡Borrado Exitoso!', '', 'success');
             } catch (e) { Swal.fire('Error', 'No se pudo borrar.', 'error'); }
-        }
-
-
-
-        async function sa_AgregarDias(idNube, dias) {
-            if (!isOnline) return Swal.fire('Error', 'Sin conexión a internet', 'error');
-
-            let txtDias = dias === 30 ? '+30 Días' : dias === 90 ? '+3 Meses' : dias === 180 ? '+6 Meses' : '+1 Año';
-
-            const { value: valorCobrado, isConfirmed } = await Swal.fire({
-                title: `<span class="text-green-400">✅</span> Agregar ${txtDias}`,
-                text: 'Ingresa el valor (Si es prueba o corrección, déjalo en 0)',
-                input: 'number',
-                inputValue: 0,
-                showCancelButton: true,
-                confirmButtonText: 'Procesar',
-                cancelButtonText: 'Cancelar',
-                confirmButtonColor: '#6366f1', cancelButtonColor: '#4b5563',
-                background: '#0a0a0a', color: '#fff',
-                customClass: { popup: 'rounded-[2rem] border border-zinc-800 shadow-2xl' }
-            });
-
-            if (!isConfirmed) return;
-
-            Swal.fire({ title: 'Procesando...', didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
-            try {
-                const { data: store } = await supabaseClient.from('stores').select('*').eq('id', idNube).single();
-                let bSup = store.json_data; 
-                
-                bSup.diasSuscripcion = (bSup.diasSuscripcion || 15) + dias;
-                bSup.lastActiveClock = Date.now(); // 🛠️ REPARA EL BUG DEL RELOJ INVERTIDO
-                bSup.bloqueado = false; // 🛠️ DESBLOQUEA LA TIENDA AUTOMÁTICAMENTE
-                
-                let cobroNum = parseInt(valorCobrado) || 0;
-                
-                // Si pusiste 0, NO entra a la contabilidad SaaS
-                if (cobroNum > 0) {
-                    if (!bSup.pagosSaaS) bSup.pagosSaaS = [];
-                    bSup.pagosSaaS.push({ id_pago: Date.now(), fecha: getTodayYMD(), dias: dias, valor: cobroNum }); 
-                }
-                
-                await supabaseClient.from('stores').update({ json_data: bSup }).eq('id', idNube);
-                db.barberias[db.barberias.findIndex(x => x.id_nube === idNube)] = bSup; saveDB(true); renderSuperAdmin();
-                Swal.fire('¡Días Agregados!', cobroNum > 0 ? `Se sumaron $${fMoney(cobroNum)} al balance.` : 'Días sumados gratis.', 'success');
-            } catch (e) { Swal.fire('Error', 'No se pudo contactar a la nube', 'error'); }
         }
 
         // 🛠️ NUEVA FUNCIÓN MAESTRA: ELIMINAR PAGOS EQUIVOCADOS DEL SAAS
@@ -10037,29 +9957,6 @@ async function rescatarSuscripcionLocal() {
             } 
         } 
 
-
-
-         
-
-
-
-        
-
-
-        function toggleFullScreenTV() {
-            let elem = document.documentElement;
-            if (!document.fullscreenElement) elem.requestFullscreen().catch(err => {});
-            else document.exitFullscreen();
-        }
-
-        function formatTime12h(timeStr) {
-            if (!timeStr) return "--:--";
-            let p = timeStr.toString().replace(/[A-Za-z\s]/g, '').split(':');
-            let h = parseInt(p[0]) || 0; let m = (p[1] || "00").substring(0, 2);
-            let ampm = h >= 12 ? 'PM' : 'AM'; let h12 = h % 12 || 12;
-            return `${h12}:${m.padStart(2, '0')} ${ampm}`;
-        }
-
         // ==========================================
         // 12. HERRAMIENTAS ÉLITE (SMART TV) - BLINDADO PARA TVS
         // ==========================================
@@ -10149,43 +10046,7 @@ async function rescatarSuscripcionLocal() {
             }
         }, 5000);
 
-        // ==========================================
-        // MOTOR DE ARRANQUE ABSOLUTO (FUERZA BRUTA BLINDADA)
-        // ==========================================
-        let appArrancada = false;
-        function arrancarZeus() {
-            if(appArrancada) return;
-
-            const url = window.location.href;
-            
-            // 🚀 KIOSKO BLINDADO: Si el link tiene kiosk=, DESTRUYE cualquier sesión local admin atrapada.
-            if (url.includes('kiosk=')) {
-                try { sessionStorage.removeItem(typeof SESSION_KEY !== 'undefined' ? SESSION_KEY : 'ISI_SESSION_V70'); } catch(e){}
-                appArrancada = true;
-                checkSession(); 
-            } else if (url.includes('screen=tv')) {
-                appArrancada = true;
-                checkSession();
-            } else {
-                let sData = null;
-                try { sData = JSON.parse(sessionStorage.getItem(typeof SESSION_KEY !== 'undefined' ? SESSION_KEY : 'ISI_SESSION_V70')); } catch(e){}
-                if(sData && sData.session) {
-                    appArrancada = true;
-                    if(typeof bIdx !== 'undefined') bIdx = sData.bIdx; 
-                    if(typeof session !== 'undefined') session = sData.session;
-                    if (typeof showScreen === 'function') showScreen(sData.session.rol === 'admin' ? 'view-admin' : 'view-barbero');
-                } else {
-                    appArrancada = true;
-                    if (typeof checkSession === 'function') checkSession(); 
-                }
-            }
-
-            if (typeof resetearTiempo === 'function') {
-                ['mousemove','click','touchstart','keypress'].forEach(evt => document.addEventListener(evt, resetearTiempo));
-                resetearTiempo();
-            }
-            if (typeof startClock === 'function') startClock();
-        }
+        
 
         // ==========================================
         // 17. SISTEMA DE NOTIFICACIONES Y PUNTOS ROJOS
@@ -10696,88 +10557,11 @@ async function rescatarSuscripcionLocal() {
                 { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
             );
         }
+
          // ==========================================
         // 👑 SPRINT 5: TARJETA BLACK VIP (SIN QR)
         // ==========================================
-        async function abrirMiTarjetaBlackVIP() {
-            const b = db.barberias[kiosko_bIdx];
-            if (!b.vipClub || !b.vipClub.refActivo) return;
-
-            // 1. Pedimos el celular
-            const { value: cel } = await Swal.fire({
-                title: '<span class="text-xl font-black text-yellow-500 uppercase italic">Ingreso Black 👑</span>',
-                text: 'Ingresa tu WhatsApp para verificar tu nivel de cliente:',
-                input: 'text',
-                inputAttributes: { inputmode: 'numeric', placeholder: 'Ej: 3001234567' },
-                background: '#050505', color: '#fff',
-                showCancelButton: true, confirmButtonText: 'VERIFICAR', cancelButtonText: 'Cerrar',
-                confirmButtonColor: '#eab308',
-                customClass: { 
-                    popup: 'rounded-[2rem] border border-yellow-500/30 shadow-[0_0_30px_rgba(234,179,8,0.2)]',
-                    input: 'bg-black text-white font-black tracking-widest text-center rounded-xl border border-zinc-800 focus:border-yellow-500 outline-none p-4' 
-                }
-            });
-
-            if (!cel) return;
-            const cNum = cleanNum(cel);
-            const cli = b.clientes && b.clientes[cNum] ? b.clientes[cNum] : null;
-            const meta = b.vipClub.refMeta || 5; // Visitas necesarias configuradas por el admin
-
-            // 2. Si es cliente nuevo
-            if (!cli) {
-                return Swal.fire({
-                    title: 'Aún no eres miembro',
-                    text: 'No encontramos historial con este número. ¡Agenda turnos para acumular visitas y ganar recompensas!',
-                    icon: 'warning', background: '#111', color: '#fff'
-                });
-            }
-
-            // 3. Si es cliente pero le faltan visitas
-            if (cli.visitas < meta) {
-                let faltan = meta - cli.visitas;
-                return Swal.fire({
-                    title: '¡Casi lo logras! 🚀',
-                    html: `<p class="text-zinc-300 text-sm">Llevas <b class="text-white text-lg">${cli.visitas}</b> visitas.</p>
-                           <p class="text-zinc-400 text-xs mt-2">Te faltan <b>${faltan}</b> cortes para desbloquear tu Tarjeta Black y ganar cortes gratis.</p>`,
-                    icon: 'info', background: '#111', color: '#fff', confirmButtonColor: '#4f46e5'
-                });
-            }
-
-            // 4. 👑 SI ES VIP: Creamos el link y la experiencia Social Premium
-            let linkReferido = window.location.href.split('?')[0] + `?kiosk=${b.id_nube || b.id}&ref=${cNum}`;
-            let dctoAmigo = b.vipClub.refDesc || 15;
-            
-            // Texto pre-armado para WhatsApp (¡Mentalidad Viral!)
-            let msgShare = `¡Hey! 👑 Soy cliente VIP en ${b.nombre}. Si agendas tu primer corte con mi link exclusivo, te regalan ${dctoAmigo}% de descuento de una vez. ¡Aprovéchalo!\n\n👉 ${linkReferido}`;
-
-            Swal.fire({
-                html: `
-                <div class="relative p-8 rounded-[2rem] bg-gradient-to-br from-[#0a0a0a] to-[#000000] border border-yellow-500 shadow-[0_0_50px_rgba(234,179,8,0.4)] overflow-hidden text-left mt-4">
-                    <div class="absolute -top-10 -right-10 w-40 h-40 bg-yellow-500 rounded-full blur-[70px] opacity-20 pointer-events-none"></div>
-                    <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-yellow-600 rounded-full blur-[70px] opacity-10 pointer-events-none"></div>
-                    
-                    <div class="relative z-10">
-                        <p class="text-[9px] text-yellow-500 font-black uppercase tracking-[0.4em] mb-1">MIEMBRO OFICIAL</p>
-                        <h3 class="text-3xl font-black text-white uppercase italic tracking-tighter leading-none mb-6 drop-shadow-md">${cli.nombre}</h3>
-                        
-                        <div class="bg-black/60 border border-zinc-800 p-5 rounded-2xl mb-6">
-                            <p class="text-[9px] text-zinc-400 uppercase font-bold tracking-widest mb-1">Tu Recompensa Actual:</p>
-                            <p class="text-lg font-black text-green-400 uppercase leading-tight">${b.vipClub.refPremio || 'Premio Sorpresa'}</p>
-                            <p class="text-[8px] text-zinc-500 uppercase mt-2 font-bold leading-tight">Por cada amigo que agende con tu link y asista a su cita, este premio se cargará a tu cuenta.</p>
-                        </div>
-                        
-                        <button onclick="window.open('https://wa.me/?text=${encodeURIComponent(msgShare)}', '_blank')" class="w-full bg-gradient-to-r from-[#25D366] to-[#1DA851] text-black py-4 rounded-xl font-black uppercase text-xs tracking-widest btn-press shadow-[0_0_20px_rgba(37,211,102,0.3)] flex items-center justify-center gap-2">
-                            <span>💬 ENVIAR LINK POR WHATSAPP</span>
-                        </button>
-                    </div>
-                </div>
-                `,
-                showConfirmButton: false,
-                showCloseButton: true,
-                background: 'transparent',
-                customClass: { popup: 'p-0 bg-transparent shadow-none', closeButton: 'text-white bg-black/50 hover:bg-red-500 transition-colors rounded-full w-10 h-10 right-0 top-0' }
-            });
-        }
+        
          // ==========================================
         // 👑 SPRINT 7: CREADOR DINÁMICO DE PLANES VIP
         // ==========================================
@@ -11950,37 +11734,11 @@ function abrirOnboardingManual() {
             }).join('');
         }
 
-        function cargarTurnoACaja(idCita) {
-            const b = db.barberias[bIdx];
-            const c = b.citas.find(x => x.id === idCita);
-            if(!c) return;
-
-            limpiarBilletesCaja();
-            cajaCart = [];
-
-            const barberoSelect = document.getElementById('caja-barbero-select');
-            if(barberoSelect) barberoSelect.value = c.barbero;
-
-            const idCli = c.celular || c.nombre;
-            if (b.clientes && b.clientes[idCli]) {
-                document.getElementById('caja-search-cli').value = c.celular || c.nombre;
-                const ev = new Event('keyup');
-                document.getElementById('caja-search-cli').dispatchEvent(ev);
-            } else {
-                document.getElementById('caja-search-cli').value = c.nombre;
-            }
-
-            Swal.fire({
-                title: 'Turno en Caja ⚡', 
-                html: `<p class="text-xs text-zinc-300">Cliente <b class="text-white">${c.nombre}</b> con <b class="text-indigo-400">${c.barbero}</b> listo.</p><p class="text-[10px] text-zinc-500 mt-2 uppercase">Por favor selecciona sus servicios en el catálogo para generar el cobro.</p>`, 
-                icon: 'info', background: '#111', color: '#fff', confirmButtonColor: '#4f46e5'
-            });ok 
-        }
-
+        
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.162"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.163"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
@@ -12060,25 +11818,7 @@ function abrirOnboardingManual() {
             window.addEventListener('load', arrancarZeus);
         }
 
-     
-
-         // ==========================================
-        // 🚀 CONTROLADOR DE ARRANQUE MULTIPLATAFORMA
-        // ==========================================
-        function arrancarZeusMaestro() {
-            if (typeof initDB === 'function') initDB();
-            if (typeof checkSession === 'function') checkSession();
-        }
-
-        // Ejecución en cascada para evitar bloqueos de hilos nativos
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', arrancarZeusMaestro);
-        } else {
-            arrancarZeusMaestro();
-        }
-
-
-
+    
 
 // ==========================================
 // ⏱️ MOTOR DE LICENCIAS SAAS (RENOVACIÓN Y AJUSTE)
@@ -12162,11 +11902,12 @@ async function saAjustarLicenciaManual(idNube) {
 }
 
 
-         // ==========================================
+    // ==========================================
         // 💵 PUENTE AGENDA -> CAJA CON VALIDACIÓN BOLD (OPTIMIZADO PWA)
         // ==========================================
+
         function cargarTurnoACaja(idCita) {
-            const b = db.barberias[bIdx];
+            const b = db.barberias[bIdx !== -1 ? bIdx : kiosko_bIdx];
             const cita = b.citas?.find(c => String(c.id) === String(idCita));
             if (!cita) return;
 
@@ -12176,9 +11917,7 @@ async function saAjustarLicenciaManual(idNube) {
             const inputSearch = document.getElementById('caja-search-cli');
             if (inputSearch) inputSearch.value = cita.celular || "";
             
-            if (typeof buscarClienteManualCaja === 'function') {
-                buscarClienteManualCaja(cita.celular, cita.nombre); 
-            }
+            // 🧹 Código fantasma de 'buscarClienteManualCaja' eliminado con éxito
             
             const inputBarbero = document.getElementById('caja-barbero-select');
             if (inputBarbero) inputBarbero.value = cita.barbero || "";
