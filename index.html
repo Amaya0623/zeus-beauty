@@ -566,6 +566,15 @@
 </div>
 
 
+<!-- ⚖️ BLINDAJE LEGAL SIC: Consentimiento de Datos -->
+                    <div class="flex items-start gap-3 mt-4 mb-4 bg-zinc-950/50 p-4 rounded-2xl border border-zinc-800 shadow-inner">
+                        <input type="checkbox" id="kio-check-legal" class="w-6 h-6 accent-indigo-500 cursor-pointer flex-shrink-0 mt-0.5">
+                        <label for="kio-check-legal" class="text-[9px] text-zinc-400 font-bold leading-tight cursor-pointer">
+                            Acepto las <a href="#" onclick="verPoliticas(); return false;" class="text-indigo-400 underline font-black">Políticas de Privacidad</a> y autorizo el tratamiento de mis datos personales y envío de notificaciones vía WhatsApp.
+                        </label>
+                    </div>
+
+
 
 
                     <button type="button" onclick="kioskoAgendar()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-5 rounded-3xl font-black text-lg uppercase shadow-lg shadow-indigo-600/20 btn-press mt-2 text-white transition-colors">AGENDAR AHORA ⚡</button>
@@ -575,12 +584,6 @@
             </div>
 
         </section>
-
-
-
-
-
-
 
 
 
@@ -6424,6 +6427,14 @@ function calcularPrecioIA(precioBase, idLocal) {
             const cel = cleanNum(document.getElementById('kio-celular').value);
             const barb = document.getElementById('kio-barbero').value;
 
+           // ⚖️ VALIDACIÓN LEGAL SIC
+            const checkLegal = document.getElementById('kio-check-legal');
+            if (checkLegal && !checkLegal.checked) {
+                return Swal.fire('Protección de Datos', 'Por ley, debes aceptar las Políticas de Privacidad para poder agendar tu cita.', 'warning');
+            }
+
+
+
             // 🚫 INTERCEPTOR PROTECCIÓN NO-SHOW
             if (bLocal.configNoShow && bLocal.configNoShow.activo && !window.acuerdoNoShowAceptado) {
                 return Swal.fire({
@@ -6756,7 +6767,11 @@ function calcularPrecioIA(precioBase, idLocal) {
                 const data = response.data;
                 const error = response.error;
 
-                if (error) throw new Error(error.message);
+                if (error) {
+                    let motivo = error.message;
+                    try { if (error.context && typeof error.context.json === 'function') { const j = await error.context.json(); if (j && j.error) motivo = j.error; } } catch (e) {}
+                    throw new Error(motivo);
+                }
                 if (!data || !data.signature || !data.amountInCents) {
                     throw new Error("Datos incompletos desde el servidor seguro.");
                 }
@@ -6770,7 +6785,7 @@ function calcularPrecioIA(precioBase, idLocal) {
                 console.error("Falla en pasarela cifrada:", err);
                 Swal.fire({
                     title: 'Falla Bancaria', 
-                    text: 'El banco tardó en responder. Por favor, intenta usar la opción "PAGAR EN EL ESTABLECIMIENTO".', 
+                    html: 'No pudimos abrir el pago. Por favor, usa la opción "PAGAR EN EL ESTABLECIMIENTO".<br><br><span style="font-size:10px;opacity:.6">Detalle técnico: ' + String((err && err.message) || err).replace(/[<>]/g, '') + '</span>',
                     icon: 'warning', 
                     background: '#0a0a0a', color: '#fff'
                 });
@@ -6823,6 +6838,7 @@ function calcularPrecioIA(precioBase, idLocal) {
             document.getElementById('kio-nombre').value = ""; 
             document.getElementById('kio-celular').value = ""; 
             document.getElementById('kio-barbero').value = ""; 
+            if (document.getElementById('kio-check-legal')) document.getElementById('kio-check-legal').checked = false;
             
             // 👻 2. PARCHE ANTI-FANTASMAS: Obligamos al sistema a apagar el letrero VIP
             if(typeof verificarClienteKiosko === 'function') verificarClienteKiosko();
@@ -8684,7 +8700,7 @@ function borrarServicio(idx) {
 
             Swal.fire({ title: 'Guardando...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
             try {
-                const { data, error } = await supabaseClient.functions.invoke('guardar-secreto-wompi', {
+                const { data, error } = await supabaseClient.functions.invoke('swift-function', {
                     body: { store_id: b.id_nube, pin: cleanNum(pin), secreto: secreto }
                 });
                 let resp = data;
@@ -11772,7 +11788,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.167"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.169"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
@@ -11854,7 +11870,7 @@ function abrirOnboardingManual() {
 
     
 
-// ==========================================
+         // ==========================================
         // ⏱️ MOTOR DE LICENCIAS SAAS (RENOVACIÓN Y AJUSTE SEGURO)
         // ==========================================
 
