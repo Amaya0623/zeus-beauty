@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zeus-cache-v1.165'; // 🚀 Subimos versión para el Parche de Notificaciones
+const CACHE_NAME = 'zeus-cache-v1.166'; // 🚀 Subimos versión para el Parche de Notificaciones
 
 // 🛡️ BÓVEDA OFFLINE INICIAL (Archivos Vitales)
 const urlsToCache = [
