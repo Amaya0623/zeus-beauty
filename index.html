@@ -7524,54 +7524,48 @@ function calcularPrecioIA(precioBase, idLocal) {
         // ==========================================
 
         async function activarNotificacionesPush() {
-            if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-                return Swal.fire('Error', 'Tu navegador no soporta notificaciones Push.', 'error');
-            }
-
-            try {
-                // 🛡️ PEDIR PERMISO EXPLÍCITO AL USUARIO PRIMERO
-                const permiso = await Notification.requestPermission();
-                if (permiso !== 'granted') throw new Error('PERMISO_DENEGADO');
-
-                Swal.fire({ title: 'Vinculando dispositivo...', text: 'Actualizando protocolos...', didOpen: () => Swal.showLoading(), allowOutsideClick: false, background: '#0a0a0a', color: '#fff' });
-
-                const reg = await navigator.serviceWorker.ready;
-                await reg.update(); // 🚀 MAGIA: Fuerza al celular a bajar el sw.js nuevo sin borrar caché a mano
-
-                const PUBLIC_VAPID_KEY = "BHKFJnWSHmcY2Q4o-J93NiUq8SeARR9oDFYLmtaSnud4bBFXiZC4VZzvmCnA5MypqXY-rZdvHwudBGb_mnafQj4";
-
-                // 🚀 REGLA DE ORO ANTI-BLOQUEOS: No desuscribir. Reutilizar si ya existe.
-                let subscription = await reg.pushManager.getSubscription();
-                if (!subscription) {
-                    subscription = await reg.pushManager.subscribe({
-                        userVisibleOnly: true,
-                        applicationServerKey: urlB64ToUint8Array(PUBLIC_VAPID_KEY)
-                    });
-                }
-
-                const tokenPuro = subscription.toJSON();
-                const b = db.barberias[bIdx];
-                b.pushSubscription = tokenPuro;
-
-                // 🚀 GUARDADO ÉLITE: Forzamos la subida de la antena sin aplastar citas del Kiosko
-                saveDB(true, true); 
-
-                const txtStatus = document.getElementById('push-status-txt');
-                if(txtStatus) {
-                    txtStatus.innerText = "Estado: Dispositivo Vinculado ✅";
-                    txtStatus.className = "text-[8px] text-green-500 uppercase mt-3 font-bold leading-tight text-center";
-                }
-
-                Swal.fire('¡Antena Activada!', 'Este dispositivo ahora recibirá las alertas del Kiosko.', 'success');
-            } catch (e) {
-                console.error("Fallo Push:", e);
-                if (e.message === 'PERMISO_DENEGADO' || e.message.includes('denied')) {
-                    Swal.fire('Permiso Bloqueado 🔕', 'Ve a la configuración de Chrome y permite las notificaciones para esta página.', 'warning');
-                } else {
-                    Swal.fire('Reintenta', 'Estamos purgiendo la caché vieja automáticamente. Por favor, toca el botón de Activar de nuevo en 3 segundos.', 'info');
-                }
-            }
+    try {
+        if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+            return Swal.fire('No soportado', 'Tu navegador o dispositivo (ej. iPhone antiguo) no soporta notificaciones Push directas.', 'info');
         }
+
+        const reg = await navigator.serviceWorker.ready;
+        
+        // La misma llave de Supabase
+        const publicKey = "BHKFJnWSHmcY2Q4o-J93NiUq8SeARR9oDFYLmtaSnud4bBFXiZC4VZzvmCnA5MypqXY-rZdvHwudBGb_mnafQj4";
+        
+        // ⚙️ CONVERSOR OBLIGATORIO: Transforma la llave string en formato binario para el navegador
+        const padding = '='.repeat((4 - publicKey.length % 4) % 4);
+        const base64 = (publicKey + padding).replace(/\-/g, '+').replace(/_/g, '/');
+        const rawData = window.atob(base64);
+        const outputArray = new Uint8Array(rawData.length);
+        for (let i = 0; i < rawData.length; ++i) { outputArray[i] = rawData.charCodeAt(i); }
+
+        // Pedimos permiso al usuario y generamos el token
+        const sub = await reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: outputArray
+        });
+
+        // ☁️ Guardamos el token limpio en la base de datos
+        const b = db.barberias[bIdx];
+        b.pushSubscription = sub; 
+        saveDB(true);
+        
+        // Actualizamos la UI
+        const txtStatus = document.getElementById('push-status-txt');
+        if (txtStatus) {
+            txtStatus.innerText = "Estado: Dispositivo Vinculado ✅";
+            txtStatus.className = "text-[8px] text-green-500 uppercase mt-3 font-bold leading-tight text-center";
+        }
+        
+        Swal.fire({title: '¡Activado!', text: 'Recibirás alertas de nuevas citas directamente en este dispositivo.', icon: 'success', background: '#0a0a0a', color: '#fff'});
+
+    } catch(e) {
+        console.error("Error Push:", e);
+        Swal.fire('Permiso Denegado', 'Debes dar permisos de notificación en tu navegador (el candadito de arriba).', 'error');
+    }
+}
 
         async function desactivarNotificacionesPush() {
             const statusTxt = document.getElementById('push-status-txt');
@@ -11788,7 +11782,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.169"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.170"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
