@@ -1539,7 +1539,8 @@
                                 
                                 <p class="text-[8px] text-pink-500 uppercase font-bold mb-1 flex items-center gap-1"><span>🔒</span> Secreto de Integridad (Integrity Secret)</p>
                                 <input type="password" id="cfg-wompi-priv" autocomplete="new-password" spellcheck="false" placeholder="Ej: prod_integrity_XXXXXXXXXXXXXXXXX..." class="w-full p-4 rounded-xl text-xs font-bold bg-[#050505] border border-pink-900/30 text-pink-400 focus:border-pink-500 outline-none transition-colors shadow-inner">
-                                <p class="text-[7px] text-zinc-500 uppercase mt-1.5 font-bold">Esta llave se guarda encriptada y protege los precios de tu Kiosko.</p>
+                                <button type="button" onclick="guardarSecretoWompi()" class="w-full mt-2 bg-pink-600 hover:bg-pink-500 text-white py-3 rounded-xl font-black text-[10px] uppercase tracking-widest btn-press transition-colors">🔒 GUARDAR SECRETO (pide tu PIN)</button>
+                                <p class="text-[7px] text-zinc-500 uppercase mt-1.5 font-bold">Se guarda en un lugar privado del servidor. Nunca se vuelve a mostrar aquí.</p>
                             </div>
 
                             <div class="bg-zinc-950 p-6 rounded-[1.5rem] border border-zinc-800 mt-4 mb-4">
@@ -3079,6 +3080,24 @@ async function hashPIN(pin) {
             } catch(e) {}
         }, 5000);
 
+        // ==========================================
+        // 14. CIERRE AUTOMÁTICO POR INACTIVIDAD
+        // (la actividad se registra en resetearTiempoThrottled -> 'ultimo_toque_zeus')
+        // ==========================================
+        setInterval(() => {
+            if (session && (session.rol === 'admin' || session.rol === 'barbero')) {
+                let ultimoToque = parseInt(localStorage.getItem('ultimo_toque_zeus')) || Date.now();
+                if (Date.now() - ultimoToque > 600000) { // 10 minutos
+                    localStorage.setItem('ultimo_toque_zeus', Date.now()); // evita bucles
+                    Swal.fire({
+                        title: '⏳ Sesión Expirada',
+                        text: 'Por tu seguridad, cerramos el sistema tras 10 minutos de inactividad.',
+                        icon: 'info', timer: 4000, showConfirmButton: false, background: '#0a0a0a', color: '#fff'
+                    }).then(() => { actionLogout(); });
+                }
+            }
+        }, 5000);
+
         // 3. Alertas de Citas
         window.alertasCitasInterval = setInterval(function() {
             try {
@@ -3518,15 +3537,17 @@ async function verificarRetornoWompi(txId, kioskId, env) {
 }
 
 async function procesarAprobacionWompi(referencia, kioskId, txId, montoReal) {
-    const idCitaTemp = sessionStorage.getItem('kio_cita_pendiente');
     const { data, error } = await supabaseClient.from('stores').select('id, json_data').eq('id', kioskId).single();
     
     if (!error && data && data.json_data) {
         let b = data.json_data;
         let citaActualizada = false;
         
-        let cita = (b.citas || []).find(c => String(c.id) === String(idCitaTemp || referencia));
-        if (cita) {
+        // Busca la cita SOLO por la referencia exacta
+        let cita = (b.citas || []).find(c => String(c.id) === String(referencia));
+        
+        // Solo la marca como pagada si estaba esperando el pago de Wompi
+        if (cita && cita.comprobante === 'PAGO_EN_PROCESO_WOMPI') {
             cita.comprobante = `WOMPI APROBADO: ${txId}`;
             cita.abonoAprobado = true;
             cita.valorAbono = montoReal;
@@ -3540,8 +3561,7 @@ async function procesarAprobacionWompi(referencia, kioskId, txId, montoReal) {
         }
     }
     
-    sessionStorage.removeItem('kio_cita_pendiente');
-    Swal.fire({ title: '¡PAGO EXITOSO! 🎉', text: 'El banco aprobó la transacción. Tu cita está 100% confirmada.', icon: 'success', background: '#0a0a0a', color: '#fff' }).then(() => {
+    Swal.fire({ title: '¡PAGO EXITOSO! 🎉', text: 'El banco aprobó la transacción. Tu cita está confirmada.', icon: 'success', background: '#0a0a0a', color: '#fff' }).then(() => {
         window.location.replace(window.location.origin + window.location.pathname + '?kiosk=' + kioskId);
     });
 }
@@ -3600,9 +3620,15 @@ async function actionLogin(pinForzado = null) {
                         body: { pin: pin, pinHashed: pinHashed }
                     });
 
-                    if (error || (data && data.success === false)) {
-                        // 🛑 Bloqueo estricto si la nube lo rechaza (No cae al login local)
-                        localIdx = -1; 
+                    if (error) {
+                        const status = error.context?.status || error.status;
+                        if (status === 400 || status === 401 || status === 403 || status === 429) {
+                            localIdx = -1; // PIN rechazado por seguridad
+                        } else {
+                            console.log("Error de red/servidor, permitiendo login local por caché."); 
+                        }
+                    } else if (data && (data.success === false || data.error)) {
+                        localIdx = -1; // PIN incorrecto según la base de datos
                     } else if (data && data.success) {
                         let storeData = data.store_data || {}; 
                         storeData.id_nube = data.store_id; 
@@ -3618,7 +3644,7 @@ async function actionLogin(pinForzado = null) {
                         saveDB(false); 
                     }
                 } catch(e) { 
-                    console.log("Error de red, permitiendo login local por caché."); 
+                    console.log("Fallo crítico de fetch, permitiendo login local por caché."); 
                 }
             }
 
@@ -6720,10 +6746,10 @@ function calcularPrecioIA(precioBase, idLocal) {
             try {
                 // 🛡️ PARCHE DE SEGURIDAD EXTREMA: La nube calcula el precio.
                 const response = await supabaseClient.functions.invoke('generar-firma-wompi', {
-                    body: { 
-                        store_id: b.id_nube, 
-                        servicios: serviciosArray, 
-                        reference: idReserva 
+                    body: {
+                        store_id: b.id_nube || b.id,
+                        servicios: serviciosArray,
+                        reference: idReserva
                     }
                 });
 
@@ -7901,7 +7927,7 @@ function calcularPrecioIA(precioBase, idLocal) {
             }
             setChk('cfg-wompi-activo', b.wompiActivo || false);
             setVal('cfg-wompi-pub', b.wompiPub || "");
-            setVal('cfg-wompi-priv', b.wompiPriv || ""); // 🔒 AQUÍ SE CARGA EL SECRETO EN LA PANTALLA
+            setVal('cfg-wompi-priv', ""); // 🔒 El secreto vive en el servidor (store_secrets); nunca se carga aquí
             setVal('cfg-titular', b.titularCuenta || "");
             setVal('cfg-cuenta', b.numeroCuenta || "");
             setVal('cfg-banco-tipo', b.bancoTipo || "GENERICO"); 
@@ -8047,7 +8073,7 @@ function calcularPrecioIA(precioBase, idLocal) {
             
             b.wompiActivo = getChk('cfg-wompi-activo');
             b.wompiPub = getVal('cfg-wompi-pub');
-            b.wompiPriv = getVal('cfg-wompi-priv'); // 🔒 AQUI GUARDAMOS EL SECRETO DE INTEGRIDAD
+            // 🔒 El secreto de integridad NO se guarda aquí: usa el botón "GUARDAR SECRETO" (guardarSecretoWompi)
             b.titularCuenta = getVal('cfg-titular');
             b.numeroCuenta = getVal('cfg-cuenta');
             b.bancoTipo = getVal('cfg-banco-tipo');
@@ -8639,6 +8665,42 @@ function borrarServicio(idx) {
         // ==========================================
         // 👑 SUPERADMIN Y MASTER CONTROL
         // ==========================================
+
+       async function guardarSecretoWompi() {
+            const b = db.barberias[bIdx];
+            if (!b || !b.id_nube) return Swal.fire('Error', 'Este local aún no está sincronizado con la nube.', 'error');
+            if (!isOnline) return Swal.fire('Sin conexión', 'Necesitas internet para guardar el secreto.', 'error');
+
+            const secreto = (document.getElementById('cfg-wompi-priv').value || '').trim();
+            if (!secreto) return Swal.fire('Campo vacío', 'Pega el Secreto de Integridad de Wompi.', 'warning');
+
+            const { value: pin } = await Swal.fire({
+                title: 'Confirma tu PIN', text: 'Escribe tu PIN de administrador para guardar el secreto.',
+                input: 'password', inputAttributes: { inputmode: 'numeric', autocomplete: 'new-password' },
+                showCancelButton: true, confirmButtonText: 'Guardar', cancelButtonText: 'Cancelar',
+                background: '#0a0a0a', color: '#fff'
+            });
+            if (!pin) return;
+
+            Swal.fire({ title: 'Guardando...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
+            try {
+                const { data, error } = await supabaseClient.functions.invoke('guardar-secreto-wompi', {
+                    body: { store_id: b.id_nube, pin: cleanNum(pin), secreto: secreto }
+                });
+                let resp = data;
+                if (!resp && error && error.context && typeof error.context.json === 'function') { try { resp = await error.context.json(); } catch (e) {} }
+                if (error || !resp || !resp.success) {
+                    return Swal.fire('Error', (resp && resp.error) || 'No se pudo guardar el secreto.', 'error');
+                }
+                // Ya está seguro en el servidor: borramos cualquier copia vieja del navegador
+                document.getElementById('cfg-wompi-priv').value = '';
+                if (b.wompiPriv) { delete b.wompiPriv; saveDB(true); }
+                Swal.fire('¡Guardado! 🔒', 'El secreto quedó guardado de forma privada.', 'success');
+            } catch (e) {
+                console.error(e);
+                Swal.fire('Error', 'Falla de red. Intenta de nuevo.', 'error');
+            }
+        }
 
        async function saCambiarMasterPin() {
             const b = db.barberias[bIdx];
@@ -10046,32 +10108,7 @@ async function rescatarSuscripcionLocal() {
 
         
 
-        // ==========================================
-        // 14. CIERRE AUTOMÁTICO POR INACTIVIDAD (BLINDADO ANTI-BLOQUEO DE PANTALLA)
-        // ==========================================
-        function resetearTiempo() {
-            if (session && (session.rol === 'admin' || session.rol === 'barbero')) {
-                localStorage.setItem('ultimo_toque_zeus', Date.now());
-            }
-        }
-
-        // Este vigilante corre cada 5 segundos y calcula la hora real contra el reloj mundial
-        setInterval(() => {
-            if (session && (session.rol === 'admin' || session.rol === 'barbero')) {
-                let ultimoToque = localStorage.getItem('ultimo_toque_zeus') || Date.now();
-                // Si pasaron más de 10 Minutos (600,000 milisegundos)
-                if (Date.now() - ultimoToque > 600000) { 
-                    localStorage.setItem('ultimo_toque_zeus', Date.now()); // Reseteamos para evitar loops
-                    Swal.fire({
-                        title: '⏳ Sesión Expirada',
-                        text: 'Por tu seguridad, cerramos el sistema tras 10 minutos de inactividad.',
-                        icon: 'info', timer: 4000, showConfirmButton: false, background: '#0a0a0a', color: '#fff'
-                    }).then(() => { actionLogout(); });
-                }
-            }
-        }, 5000);
-
-        
+       
 
         // ==========================================
         // 17. SISTEMA DE NOTIFICACIONES Y PUNTOS ROJOS
@@ -10529,36 +10566,8 @@ async function rescatarSuscripcionLocal() {
             reconocimiento.start();
         }
 
-        // ==========================================
-        // 💸 MOTOR DE PROPINAS DIRECTAS AL BARBERO
-        // ==========================================
-        function mostrarQRPropina() {
-            if (!lastTicketData || !lastTicketData.items || lastTicketData.items.length === 0) return;
-            
-            // Buscamos quién hizo el corte
-            const nombreBarbero = lastTicketData.items[0].barbero || session.nom;
-            const b = db.barberias[bIdx];
-            const dataBarbero = (b.barberos || []).find(x => x.nom === nombreBarbero);
-            
-            // Si el barbero subió su foto (con su QR), la mostramos. Si no, mostramos una genérica.
-            let imagenMostrar = dataBarbero && dataBarbero.foto ? dataBarbero.foto : 'https://cdn-icons-png.flaticon.com/512/3141/3141445.png';
-
-            Swal.fire({
-                title: `<span class="text-pink-500 font-black text-3xl uppercase tracking-tighter">¡GRACIAS!</span>`,
-                html: `<p class="text-xs text-zinc-300 font-bold uppercase tracking-widest mb-4">Tu propina va directo a <b>${nombreBarbero}</b></p>`,
-                imageUrl: imagenMostrar,
-                imageAlt: 'QR Propina',
-                background: '#0a0a0a',
-                color: '#fff',
-                confirmButtonText: '¡PROPINA ENVIADA! ✔️',
-                confirmButtonColor: '#d946ef',
-                customClass: {
-                    image: 'rounded-2xl max-h-[40vh] object-contain border-2 border-pink-500 shadow-[0_0_20px_rgba(236,72,153,0.3)] bg-white p-2',
-                    confirmButton: 'w-full py-4 rounded-2xl font-black uppercase shadow-lg shadow-pink-600/30'
-                }
-            });
-        }
-
+       
+        
        
                function capturarUbicacionGPS() {
             if (!navigator.geolocation) return Swal.fire('Error', 'Tu celular no soporta GPS.', 'error');
@@ -11453,7 +11462,7 @@ function abrirOnboardingManual() {
                 const idReserva = `Z-${b.id_nube || b.id}-${Date.now().toString().slice(-6)}`;
 
                 supabaseClient.functions.invoke('generar-firma-wompi', {
-                    body: { monto: totalCobrarCaja, reference: idReserva }
+                    body: { monto: totalCobrarCaja, reference: idReserva, store_id: b.id_nube || b.id }
                 }).then(response => {
                     const data = response.data;
                     const error = response.error;
@@ -11763,7 +11772,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.166"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.167"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
