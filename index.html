@@ -1695,6 +1695,7 @@
                                         🔕 DESACTIVAR
                                     </button>
                                 </div>
+                                <button type="button" onclick="probarNotificacionPush()" class="w-full mt-2 bg-zinc-900 border border-zinc-700 hover:border-red-500 text-zinc-300 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest btn-press transition-colors">🧪 PROBAR NOTIFICACIÓN (DIAGNÓSTICO)</button>
 
 
                                 <p id="push-status-txt" class="text-[8px] text-zinc-500 uppercase mt-3 font-bold leading-tight text-center">Estado: Esperando activación...</p>
@@ -3561,6 +3562,9 @@ async function procesarAprobacionWompi(referencia, kioskId, txId, montoReal) {
         if (citaActualizada) {
             b.data_version = Date.now(); 
             await supabaseClient.from('stores').update({ json_data: b }).eq('id', kioskId);
+            
+            // ⚡ DISPARADOR PUSH AL ADMIN (PAGO WOMPI APROBADO)
+            enviarPushAlAdmin(b, '💰 ¡PAGO WOMPI RECIBIDO! ⚡', `El cliente ${cita.nombre} acaba de confirmar y pagar su cita con Wompi.`);
         }
     }
     
@@ -6557,7 +6561,7 @@ function calcularPrecioIA(precioBase, idLocal) {
         }
 
 
-       // ==========================================
+        // ==========================================
         // 🔒 GUARDAR CITA CON LA DURACIÓN EXACTA (MODULADA CON PAGO EN SITIO) Y BLINDAJE XSS
         // ==========================================
         function confirmarPagoAnticipado(esEnEstablecimiento = false) {
@@ -6610,22 +6614,11 @@ function calcularPrecioIA(precioBase, idLocal) {
                     status: 'PENDIENTE',
                     duration: totalMinsCarrito,
                     receipt_url: comprobanteValor
-                }]).then(async ({error}) => {
+                }]).then(({error}) => {
                     if(error) console.error("❌ Error guardando cita de kiosko en SQL:", error);
-                    
-                    // 🔔 GATILLO PUSH: Dispara la notificación
-                    if (!error) {
-                        // 🕵️‍♂️ Rescatamos la antena directamente de la nube para burlar la caché
-                        const { data: storeData } = await supabaseClient.from('stores').select('json_data').eq('id', b.id_nube).single();
-                        const subReal = (storeData && storeData.json_data) ? storeData.json_data.pushSubscription : b.pushSubscription;
-                        
-                        if (subReal) {
-                            supabaseClient.functions.invoke('enviar-push', {
-                                body: { subscription: subReal, title: '📅 ¡Nueva Cita Kiosko!', body: `${cli} agendó con ${barb} a las ${formatTime12h(h)}.` }
-                            }).then(res => console.log("Señal Push disparada:", res));
-                        }
-                    }
                 });
+                // 🔔 Push al admin: ya NO depende de que el INSERT SQL funcione
+                enviarPushAlAdmin(b, '📅 ¡Nueva Cita Kiosko!', `${cli} agendó con ${barb} a las ${formatTime12h(h)}.`);
             }
 
             saveDB(true);
@@ -6732,21 +6725,11 @@ function calcularPrecioIA(precioBase, idLocal) {
                     status: 'PENDIENTE',
                     duration: totalMinsCarrito,
                     receipt_url: 'PAGO_EN_PROCESO_WOMPI'
-                }]).then(async ({error}) => {
+                }]).then(({error}) => {
                     if(error) console.error("❌ Error guardando cita Wompi en SQL:", error);
-                    
-                    // 🔔 GATILLO PUSH: Dispara la notificación
-                    if (!error) {
-                        const { data: storeData } = await supabaseClient.from('stores').select('json_data').eq('id', b.id_nube).single();
-                        const subReal = (storeData && storeData.json_data) ? storeData.json_data.pushSubscription : b.pushSubscription;
-
-                        if (subReal) {
-                            supabaseClient.functions.invoke('enviar-push', {
-                                body: { subscription: subReal, title: '⏳ Cita en Pago', body: `${cli} está pagando su cita con ${barb} en Wompi...` }
-                            });
-                        }
-                    }
                 });
+                // 🔔 Push al admin: ya NO depende de que el INSERT SQL funcione
+                enviarPushAlAdmin(b, '⏳ Cita en Pago', `${cli} está pagando su cita con ${barb} en Wompi...`);
             }
 
             if (cel && cel.length >= 10) { localStorage.setItem('mi_celular_zeus', cel); }
@@ -7522,6 +7505,82 @@ function calcularPrecioIA(precioBase, idLocal) {
         // ==========================================
         // 🔔 MÓDULO DE NOTIFICACIONES PUSH (AUTO-SYNC Y BLINDAJE)
         // ==========================================
+
+        // 🔔 Avisa al admin por Push. Lee la antena desde la nube (no depende de la caché del Kiosko)
+        async function enviarPushAlAdmin(b, title, body) {
+            try {
+                if (typeof supabaseClient === 'undefined' || !b) return;
+                let sub = b.pushSubscription || null;
+                if (b.id_nube) {
+                    try {
+                        const { data } = await supabaseClient.from('stores').select('sub:json_data->pushSubscription').eq('id', b.id_nube).single();
+                        if (data && data.sub) sub = data.sub;
+                    } catch (e) { console.warn('Push: no se pudo leer la antena en la nube', e); }
+                }
+                if (!sub) { console.warn('Push: no hay dispositivo vinculado (activa las notificaciones en el admin).'); return; }
+
+                const { data, error } = await supabaseClient.functions.invoke('enviar-push', {
+                    body: { subscription: sub, title: title, body: body }
+                });
+                if (error) {
+                    let detalle = null;
+                    try { if (error.context && typeof error.context.json === 'function') detalle = await error.context.json(); } catch (e) {}
+                    console.error('Push FALLÓ:', (error.context && error.context.status) || '', detalle || error.message);
+                } else {
+                    console.log('Push enviado:', data);
+                }
+            } catch (e) { console.error('Push: error inesperado', e); }
+        }
+
+        // 🧪 Diagnóstico: revisa permiso, antena local, antena guardada en la nube y envía una prueba
+        async function probarNotificacionPush() {
+            const b = db.barberias[bIdx];
+            if (!b) return;
+            Swal.fire({ title: 'Probando...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
+            const filas = [];
+            const ok = (t) => '✅ ' + t, mal = (t) => '❌ ' + t;
+            try {
+                if (!('serviceWorker' in navigator) || !('PushManager' in window)) throw new Error('Este navegador no soporta Push.');
+
+                const permiso = Notification.permission;
+                filas.push(permiso === 'granted' ? ok('Permiso de notificaciones: concedido') : mal('Permiso de notificaciones: ' + permiso + ' (permítelo en la configuración del sitio)'));
+
+                const reg = await Promise.race([navigator.serviceWorker.ready, new Promise((_, rej) => setTimeout(() => rej(new Error('El Service Worker no está activo (abre la app desde https, no desde un archivo).')), 6000))]);
+                const local = await reg.pushManager.getSubscription();
+                filas.push(local ? ok('Este dispositivo tiene antena propia') : mal('Este dispositivo NO tiene antena: toca ACTIVAR'));
+
+                let cloudSub = null;
+                if (b.id_nube) {
+                    const { data } = await supabaseClient.from('stores').select('sub:json_data->pushSubscription').eq('id', b.id_nube).single();
+                    cloudSub = data ? data.sub : null;
+                }
+                const coincide = !!(local && cloudSub && local.endpoint === cloudSub.endpoint);
+                if (!cloudSub) filas.push(mal('La nube NO tiene ninguna antena guardada'));
+                else filas.push(coincide ? ok('La antena guardada en la nube es la de ESTE dispositivo') : mal('La nube tiene la antena de OTRO dispositivo'));
+
+                if (local && !coincide) {
+                    b.pushSubscription = local.toJSON();
+                    saveDB(true, true);
+                    filas.push('🔧 Corregido: ahora la nube usa la antena de este dispositivo');
+                }
+
+                if (local) {
+                    const { data, error } = await supabaseClient.functions.invoke('enviar-push', {
+                        body: { subscription: local.toJSON(), title: '🧪 Prueba Zeus', body: 'Si ves esto, las notificaciones funcionan en este celular.' }
+                    });
+                    if (error) {
+                        let det = null;
+                        try { if (error.context && typeof error.context.json === 'function') det = await error.context.json(); } catch (e) {}
+                        filas.push(mal('Envío falló (' + ((error.context && error.context.status) || '?') + '): ' + ((det && det.error) || error.message)));
+                    } else {
+                        filas.push(ok('El servidor entregó la prueba (código ' + (data && data.status) + '). Debe sonar ahora.'));
+                    }
+                }
+            } catch (e) {
+                filas.push(mal(String(e.message || e)));
+            }
+            Swal.fire({ title: 'Diagnóstico de notificaciones', html: '<div style="text-align:left;font-size:12px;line-height:1.7">' + filas.map(t => String(t).replace(/[<>]/g, '')).join('<br>') + '</div>', background: '#0a0a0a', color: '#fff' });
+        }
 
         async function activarNotificacionesPush() {
     try {
@@ -11782,7 +11841,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.170"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.172"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
