@@ -3526,6 +3526,21 @@ async function verificarRetornoWompi(txId, kioskId, env) {
         if (txData?.data?.status === 'APPROVED') {
             await procesarAprobacionWompi(txData.data.reference, kioskId, txId, (txData.data.amount_in_cents || 0) / 100);
         } else {
+            // 🧹 Rechazado/anulado/error (no PENDING): liberar el turno apartado
+            try {
+                const st = txData?.data?.status;
+                if (st && st !== 'PENDING' && txData.data.reference) {
+                    const { data: sd } = await supabaseClient.from('stores').select('json_data').eq('id', kioskId).single();
+                    const bb = sd && sd.json_data;
+                    const ct = bb && (bb.citas || []).find(c => String(c.id) === String(txData.data.reference));
+                    if (ct && ct.comprobante === 'PAGO_EN_PROCESO_WOMPI') {
+                        ct.estado = 'CANCELADA';
+                        ct.comprobante = 'WOMPI_NO_APROBADO: ' + st;
+                        bb.data_version = Date.now();
+                        await supabaseClient.from('stores').update({ json_data: bb }).eq('id', kioskId);
+                    }
+                }
+            } catch (e3) { console.error('No se pudo liberar el turno rechazado:', e3); }
             Swal.fire('Pago Declinado', 'El banco no aprobó la transacción o sigue pendiente.', 'error').then(() => {
                 window.location.replace(window.location.origin + window.location.pathname + '?kiosk=' + kioskId);
             });
@@ -3549,10 +3564,26 @@ async function procesarAprobacionWompi(referencia, kioskId, txId, montoReal) {
         
         // Busca la cita SOLO por la referencia exacta
         let cita = (b.citas || []).find(c => String(c.id) === String(referencia));
+
+        // 🛟 Si la cita todavía no había subido a la nube (el cliente salió al banco muy rápido),
+        // la recuperamos de la copia local de este mismo dispositivo.
+        if (!cita) {
+            try {
+                const bLocal = db.barberias[kiosko_bIdx];
+                const cLocal = bLocal && (bLocal.citas || []).find(c => String(c.id) === String(referencia));
+                if (cLocal) {
+                    cita = JSON.parse(JSON.stringify(cLocal));
+                    cita.comprobante = 'PAGO_EN_PROCESO_WOMPI';
+                    if (!b.citas) b.citas = [];
+                    b.citas.push(cita);
+                }
+            } catch (e) { console.warn('No se pudo recuperar la cita local:', e); }
+        }
         
         // Solo la marca como pagada si estaba esperando el pago de Wompi
         if (cita && cita.comprobante === 'PAGO_EN_PROCESO_WOMPI') {
             cita.comprobante = `WOMPI APROBADO: ${txId}`;
+            if (cita.estado === 'CANCELADA') cita.estado = 'PENDIENTE';
             cita.abonoAprobado = true;
             cita.valorAbono = montoReal;
             cita.metodoAbono = 'WOMPI';
@@ -4432,7 +4463,7 @@ async function actionLogin(pinForzado = null) {
 
             let fF = document.getElementById('barbero-filtro-fecha').value;
             if (!fF) { fF = getTodayYMD(); document.getElementById('barbero-filtro-fecha').value = fF; }
-            const todasCitas = (b.citas || []).filter(c => c.fecha === fF).sort((a, b) => a.hora.localeCompare(b.hora));
+            const todasCitas = (b.citas || []).filter(c => c.fecha === fF).sort((a, b) => String(a.hora||'').localeCompare(String(b.hora||'')));
             const ctnC = document.getElementById('barbero-historial-citas');
             if (ctnC) {
                 if (todasCitas.length === 0) ctnC.innerHTML = `<p class="text-[10px] text-zinc-600 text-center py-4">No hay citas programadas.</p>`;
@@ -4863,7 +4894,7 @@ function renderAgendaList() {
             document.getElementById('agenda-barbero').innerHTML = '<option value="">-- SELECCIONAR --</option>' + (b.barberos || []).map(bar => `<option value="${bar.nom}">${bar.nom}</option>`).join('');
             document.getElementById('agenda-servicio').innerHTML = '<option value="">-- SELECCIONAR --</option>' + (b.servicios || []).map(s => `<option value="${s.nom}">${s.premium ? '👑 ' : ''}${s.nom}</option>`).join('');
 
-            const citasDelDia = (b.citas || []).filter(c => c.fecha === fF).sort((a, b) => a.hora.localeCompare(b.hora));
+            const citasDelDia = (b.citas || []).filter(c => c.fecha === fF).sort((a, b) => String(a.hora||'').localeCompare(String(b.hora||'')));
             let html = '';
             
             if (citasDelDia.length === 0) { 
@@ -4886,6 +4917,21 @@ function renderAgendaList() {
                     const tieneAbono = (c.comprobante && c.comprobante.toString().length > 10 && c.comprobante.toString().startsWith('http')) || c.abonoAprobado;
 const btnRecibo = tieneAbono ? `<button type="button" onclick="verComprobanteCita('${c.id}')" class="bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500 hover:text-black px-4 py-2 rounded-lg font-black text-[9px] btn-press uppercase border border-yellow-500/50 transition-all tracking-widest shadow-[0_0_10px_rgba(234,179,8,0.2)] flex items-center gap-1"><span>📄</span> Abono</button>` : '';
 
+                    // 💳 ETIQUETA DE ESTADO DE PAGO (para que el admin sepa si realmente pagó)
+                    let etiquetaPago = '';
+                    const compStr = String(c.comprobante || '');
+                    if (c.abonoAprobado && c.metodoAbono === 'WOMPI') {
+                        etiquetaPago = `<span class="block w-full text-center whitespace-normal break-words text-[9px] font-black uppercase tracking-widest px-2 py-1.5 rounded bg-green-500/20 text-green-400 border border-green-500/50">✅ PAGADO WOMPI${c.valorAbono ? ' $' + Number(c.valorAbono).toLocaleString('es-CO') : ''}</span>`;
+                    } else if (compStr === 'PAGO_EN_PROCESO_WOMPI') {
+                        const minEspera = c.creada ? Math.floor((Date.now() - c.creada) / 60000) : null;
+                        const vencido = minEspera !== null && minEspera >= 20;
+                        etiquetaPago = vencido
+                            ? `<span class="block w-full text-center whitespace-normal break-words text-[9px] font-black uppercase tracking-widest px-2 py-1.5 rounded bg-red-500/20 text-red-400 border border-red-500/50">❌ NO PAGÓ — REVISA Y CANCELA</span>`
+                            : `<span class="block w-full text-center whitespace-normal break-words text-[9px] font-black uppercase tracking-widest px-2 py-1.5 rounded bg-yellow-500/20 text-yellow-400 border border-yellow-500/50">⏳ ESPERANDO PAGO WOMPI</span>`;
+                    } else if (compStr === 'PAGAR_EN_EL_ESTABLECIMIENTO') {
+                        etiquetaPago = `<span class="block w-full text-center whitespace-normal break-words text-[9px] font-black uppercase tracking-widest px-2 py-1.5 rounded bg-zinc-500/20 text-zinc-300 border border-zinc-500/50">💵 PAGA EN EL LOCAL</span>`;
+                    }
+
                     const cStyle = fin ? { bg: 'bg-zinc-600', shadowNode: '', border: 'border-zinc-800', text: 'text-zinc-500', shadowCard: '' } : colores[index % colores.length];
                     const bgCard = fin ? 'bg-[#050810] opacity-60' : `bg-[#0b1121] ${cStyle.shadowCard} hover:-translate-y-1`;
 
@@ -4893,9 +4939,9 @@ const btnRecibo = tieneAbono ? `<button type="button" onclick="verComprobanteCit
                     <div class="relative group transition-all duration-300">
                         <div class="absolute -left-[1.8rem] sm:-left-[2.3rem] top-6 w-4 h-4 rounded-full ${cStyle.bg} ${cStyle.shadowNode} border-4 border-[#060913] z-10"></div>
                         
-                        <div class="p-5 sm:p-6 rounded-2xl border ${cStyle.border} ${bgCard} flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all duration-300"> 
+                        <div class="p-5 sm:p-6 rounded-2xl border ${cStyle.border} ${bgCard} flex flex-col sm:flex-row sm:flex-wrap justify-between items-start sm:items-center gap-4 transition-all duration-300"> 
                             
-                            <div class="flex items-center gap-4 sm:gap-6 w-full sm:w-auto">
+                            <div class="order-1 flex items-center gap-4 sm:gap-6 w-full sm:w-auto min-w-0">
                                 <div class="w-16 shrink-0 text-center">
                                     <span class="text-base sm:text-lg font-black uppercase ${cStyle.text} block tracking-tighter drop-shadow-md">${hora12.split(' ')[0]}</span>
                                     <span class="text-[10px] font-black text-zinc-500 uppercase tracking-widest">${hora12.split(' ')[1]}</span>
@@ -4905,14 +4951,15 @@ const btnRecibo = tieneAbono ? `<button type="button" onclick="verComprobanteCit
                                     ${bData && bData.foto ? `<img src="${bData.foto}" class="w-full h-full object-cover">` : `<span class="text-xl">💈</span>`}
                                 </div>
                                 
-                                <div class="flex flex-col"> 
-                                    <p class="text-lg sm:text-xl font-black uppercase tracking-wider ${fin ? 'text-zinc-600 line-through' : 'text-white'} leading-none mb-1.5 drop-shadow-sm">${c.nombre}</p> 
+                                <div class="flex flex-col min-w-0 break-words"> 
+                                    <p class="text-lg sm:text-xl font-black uppercase tracking-wider break-words ${fin ? 'text-zinc-600 line-through' : 'text-white'} leading-none mb-1.5 drop-shadow-sm">${c.nombre}</p> 
                                     <p class="text-[10px] text-zinc-400 uppercase font-bold tracking-widest">${c.servicio}</p>
                                     <p class="text-[9px] ${cStyle.text} uppercase font-black tracking-[0.2em] mt-1 flex items-center gap-1"><span>👤</span> ${c.barbero}</p> 
                                 </div> 
                             </div> 
                             
-                            <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-end sm:border-l sm:border-zinc-800/50 sm:pl-5 pt-3 sm:pt-0 mt-3 sm:mt-0"> 
+                            ${etiquetaPago ? `<div class="order-2 sm:order-3 w-full basis-full">${etiquetaPago}</div>` : ''}
+                            <div class="order-3 sm:order-2 flex flex-wrap items-center gap-3 w-full sm:w-auto justify-end sm:border-l sm:border-zinc-800/50 sm:pl-5 pt-3 sm:pt-0 mt-3 sm:mt-0"> 
                                 ${!fin ? `
                                     ${btnRecibo} 
                                     <button type="button" onclick="completarCita('${c.id}')" class="bg-green-500 hover:bg-green-400 text-black px-5 py-2 rounded-lg font-black text-[10px] btn-press uppercase transition-all tracking-widest shadow-[0_0_15px_rgba(34,197,94,0.4)]">LISTO ✔</button> 
@@ -6709,7 +6756,7 @@ function calcularPrecioIA(precioBase, idLocal) {
             b.citas.push({ 
                 id: idReserva, nombre: cli, celular: cel, barbero: barb, 
                 servicio: srv, fecha: f, hora: h, estado: 'PENDIENTE', 
-                comprobante: 'PAGO_EN_PROCESO_WOMPI', duracion: totalMinsCarrito 
+                comprobante: 'PAGO_EN_PROCESO_WOMPI', duracion: totalMinsCarrito, creada: Date.now() 
             });
             
             // ⚡ PUENTE SQL: DISPARO A SUPABASE (WOMPI)
@@ -6728,8 +6775,6 @@ function calcularPrecioIA(precioBase, idLocal) {
                 }]).then(({error}) => {
                     if(error) console.error("❌ Error guardando cita Wompi en SQL:", error);
                 });
-                // 🔔 Push al admin: ya NO depende de que el INSERT SQL funcione
-                enviarPushAlAdmin(b, '⏳ Cita en Pago', `${cli} está pagando su cita con ${barb} en Wompi...`);
             }
 
             if (cel && cel.length >= 10) { localStorage.setItem('mi_celular_zeus', cel); }
@@ -6759,6 +6804,30 @@ function calcularPrecioIA(precioBase, idLocal) {
                     throw new Error("Datos incompletos desde el servidor seguro.");
                 }
 
+                // ☁️ Asegurar que la cita ya está en la nube ANTES de salir al banco
+                // (el guardado normal espera 1.5 s y la página se va antes)
+                try {
+                    if (isOnline && b.id_nube) {
+                        const { data: sd } = await supabaseClient.from('stores').select('json_data').eq('id', b.id_nube).single();
+                        const bb = sd && sd.json_data;
+                        const mia = (b.citas || []).find(c => String(c.id) === String(idReserva));
+                        if (bb && mia && !(bb.citas || []).some(c => String(c.id) === String(idReserva))) {
+                            if (!bb.citas) bb.citas = [];
+                            bb.citas.push(mia);
+                            bb.data_version = Date.now();
+                            await supabaseClient.from('stores').update({ json_data: bb }).eq('id', b.id_nube);
+                        }
+                    }
+                } catch (eSube) { console.warn('No se pudo subir la cita antes del banco:', eSube); }
+
+                // 🔔 Push al admin: solo cuando la firma salió bien (el pago realmente se va a abrir)
+                try {
+                    await Promise.race([
+                        enviarPushAlAdmin(b, '⏳ Cita en Pago', `${cli} está pagando su cita con ${barb} en Wompi...`),
+                        new Promise(r => setTimeout(r, 3000))
+                    ]);
+                } catch (e) {}
+
                 const redirectSeguro = encodeURIComponent(window.location.href);
                 const urlWompi = `https://checkout.wompi.co/p/?public-key=${b.wompiPub}&currency=COP&amount-in-cents=${data.amountInCents}&reference=${idReserva}&signature:integrity=${data.signature}&redirect-url=${redirectSeguro}`;
 
@@ -6766,6 +6835,18 @@ function calcularPrecioIA(precioBase, idLocal) {
 
             } catch (err) {
                 console.error("Falla en pasarela cifrada:", err);
+                // 🧹 El pago nunca se abrió: liberamos el turno que habíamos apartado
+                try {
+                    b.citas = (b.citas || []).filter(c => String(c.id) !== String(idReserva));
+                    if (isOnline && typeof supabaseClient !== 'undefined' && b.id_nube) {
+                        supabaseClient.from('appointments').delete()
+                            .eq('store_id', b.id_nube).eq('customer_name', cli)
+                            .eq('appointment_date', f).eq('appointment_time', h)
+                            .eq('receipt_url', 'PAGO_EN_PROCESO_WOMPI').then(() => {});
+                    }
+                    saveDB(true, true);
+                    if (typeof renderKioskoSlots === 'function') renderKioskoSlots();
+                } catch (e2) { console.error('No se pudo liberar el turno:', e2); }
                 Swal.fire({
                     title: 'Falla Bancaria', 
                     html: 'No pudimos abrir el pago. Por favor, usa la opción "PAGAR EN EL ESTABLECIMIENTO".<br><br><span style="font-size:10px;opacity:.6">Detalle técnico: ' + String((err && err.message) || err).replace(/[<>]/g, '') + '</span>',
@@ -7532,6 +7613,40 @@ function calcularPrecioIA(precioBase, idLocal) {
             } catch (e) { console.error('Push: error inesperado', e); }
         }
 
+        // 🔧 Auto-reparación de la antena: si ESTE equipo es el de alertas y la perdió, la recrea sin que el admin haga nada
+        let _reparandoAntena = false;
+        async function repararAntenaPush() {
+            if (_reparandoAntena) return;
+            try {
+                if (localStorage.getItem('zeus_push_dispositivo') !== '1') return;
+                if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+                if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
+                if (typeof bIdx === 'undefined' || bIdx === -1 || !db.barberias[bIdx]) return;
+                if (document.getElementById('view-kiosko')?.classList.contains('active')) return;
+                _reparandoAntena = true;
+                const b = db.barberias[bIdx];
+                const reg = await navigator.serviceWorker.ready;
+                let sub = await reg.pushManager.getSubscription();
+                if (!sub) {
+                    const publicKey = "BHKFJnWSHmcY2Q4o-J93NiUq8SeARR9oDFYLmtaSnud4bBFXiZC4VZzvmCnA5MypqXY-rZdvHwudBGb_mnafQj4";
+                    const padding = '='.repeat((4 - publicKey.length % 4) % 4);
+                    const raw = window.atob((publicKey + padding).replace(/\-/g, '+').replace(/_/g, '/'));
+                    const key = new Uint8Array(raw.length);
+                    for (let i = 0; i < raw.length; ++i) key[i] = raw.charCodeAt(i);
+                    sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: key });
+                    console.log('🔧 Antena Push recreada automáticamente');
+                }
+                const actual = sub.toJSON();
+                if (!b.pushSubscription || b.pushSubscription.endpoint !== actual.endpoint) {
+                    b.pushSubscription = actual;
+                    saveDB(true, true);
+                }
+            } catch (e) { console.warn('Auto-reparación de antena falló:', e); }
+            finally { _reparandoAntena = false; }
+        }
+        setTimeout(repararAntenaPush, 6000);
+        document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') setTimeout(repararAntenaPush, 1500); });
+
         // 🧪 Diagnóstico: revisa permiso, antena local, antena guardada en la nube y envía una prueba
         async function probarNotificacionPush() {
             const b = db.barberias[bIdx];
@@ -7608,8 +7723,9 @@ function calcularPrecioIA(precioBase, idLocal) {
 
         // ☁️ Guardamos el token limpio en la base de datos
         const b = db.barberias[bIdx];
-        b.pushSubscription = sub; 
-        saveDB(true);
+        b.pushSubscription = sub.toJSON(); 
+        try { localStorage.setItem('zeus_push_dispositivo', '1'); } catch(e) {}
+        saveDB(true, true);
         
         // Actualizamos la UI
         const txtStatus = document.getElementById('push-status-txt');
@@ -7639,6 +7755,7 @@ function calcularPrecioIA(precioBase, idLocal) {
 
                 const b = db.barberias[bIdx];
                 b.pushSubscription = null;
+                try { localStorage.removeItem('zeus_push_dispositivo'); } catch(e) {}
                 
                 // 🚀 GUARDADO ÉLITE: Forzamos la subida sin aplastar citas
                 saveDB(true, true);
@@ -9927,7 +10044,7 @@ async function rescatarSuscripcionLocal() {
             }
 
             const hoy = new Date(new Date().getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0];
-            const citasHoy = (b.citas || []).filter(c => c.fecha === hoy && c.estado !== 'CANCELADA' && c.estado !== 'COMPLETADA').sort((a,b) => a.hora.localeCompare(b.hora));
+            const citasHoy = (b.citas || []).filter(c => c.fecha === hoy && c.estado !== 'CANCELADA' && c.estado !== 'COMPLETADA').sort((a,b) => String(a.hora||'').localeCompare(String(b.hora||'')));
             
             const nomEl = document.getElementById('tv-local-nombre'); if(nomEl) nomEl.innerText = b.nombre || 'ZEUS BARBER';
             const telEl = document.getElementById('tv-contacto-tel'); if(telEl) telEl.innerText = b.telefono || b.whatsapp || 'N/A';
@@ -11804,7 +11921,7 @@ function abrirOnboardingManual() {
         function renderMiniAgendaCaja() {
             const b = db.barberias[bIdx]; if(!b) return;
             const hoy = getTodayYMD();
-            const turnosHoy = (b.citas || []).filter(c => c.fecha === hoy && c.estado !== 'CANCELADA').sort((a, b) => a.hora.localeCompare(b.hora));
+            const turnosHoy = (b.citas || []).filter(c => c.fecha === hoy && c.estado !== 'CANCELADA').sort((a, b) => String(a.hora||'').localeCompare(String(b.hora||'')));
             
             const ctn = document.getElementById('caja-mini-agenda');
             if(!ctn) return;
@@ -11841,7 +11958,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.172"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.176"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
@@ -11852,8 +11969,9 @@ function abrirOnboardingManual() {
             if (versionGuardada !== VERSION_ACTUAL) {
                 console.log("¡Actualización detectada por versión! Limpiando caché y recargando...");
                 if ('serviceWorker' in navigator) {
+                    // ⚠️ NO usamos unregister(): desregistrar el Service Worker BORRA la antena Push del celular.
                     const regs = await navigator.serviceWorker.getRegistrations();
-                    for(let reg of regs) await reg.unregister();
+                    for(let reg of regs) { try { await reg.update(); } catch(e) {} }
                 }
                 if ('caches' in window) {
                     const names = await caches.keys();
@@ -11876,8 +11994,9 @@ function abrirOnboardingManual() {
                         if (localLastMod && localLastMod !== lastMod) {
                             console.log("¡GitHub tiene una versión más nueva! Destruyendo caché...");
                             if ('serviceWorker' in navigator) {
+                                // ⚠️ NO usamos unregister(): borraría la antena Push del celular.
                                 const regs = await navigator.serviceWorker.getRegistrations();
-                                for(let reg of regs) await reg.unregister();
+                                for(let reg of regs) { try { await reg.update(); } catch(e) {} }
                             }
                             if ('caches' in window) {
                                 const names = await caches.keys();
