@@ -7703,6 +7703,24 @@ function calcularPrecioIA(precioBase, idLocal) {
             return Swal.fire('No soportado', 'Tu navegador o dispositivo (ej. iPhone antiguo) no soporta notificaciones Push directas.', 'info');
         }
 
+        // 🔔 Permiso: se revisa ANTES de suscribir para dar un mensaje claro
+        if (Notification.permission === 'denied') {
+            return Swal.fire({
+                title: 'Notificaciones bloqueadas 🔕',
+                html: '<div style="text-align:left;font-size:13px;line-height:1.6">' +
+                      '<b>1.</b> Mantén presionado el ícono de la app → <b>Información de la app</b> → <b>Notificaciones</b> → actívalas.<br>' +
+                      '<b>2.</b> En Chrome: menú ⋮ → Configuración → Configuración del sitio → Notificaciones → permite <b>zeusbarberpro.com</b>.<br>' +
+                      '<b>3.</b> Vuelve aquí y toca ACTIVAR otra vez.</div>',
+                icon: 'warning', background: '#0a0a0a', color: '#fff'
+            });
+        }
+        if (Notification.permission === 'default') {
+            const respuesta = await Notification.requestPermission();
+            if (respuesta !== 'granted') {
+                return Swal.fire('Permiso necesario', 'Sin permitir las notificaciones no podemos avisarte de nuevas citas. Toca ACTIVAR y elige "Permitir".', 'info');
+            }
+        }
+
         const reg = await navigator.serviceWorker.ready;
         
         // La misma llave de Supabase
@@ -7738,7 +7756,16 @@ function calcularPrecioIA(precioBase, idLocal) {
 
     } catch(e) {
         console.error("Error Push:", e);
-        Swal.fire('Permiso Denegado', 'Debes dar permisos de notificación en tu navegador (el candadito de arriba).', 'error');
+        const nom = (e && e.name) || 'Error';
+        const msg = String((e && e.message) || e).replace(/[<>]/g, '');
+        Swal.fire({
+            title: nom === 'NotAllowedError' ? 'Permiso Denegado' : 'No se pudo activar',
+            html: (nom === 'NotAllowedError'
+                ? 'Permite las notificaciones: ícono de la app → Información de la app → Notificaciones, y en Chrome → Configuración del sitio → Notificaciones.'
+                : 'Intenta de nuevo. Si sigue igual, cierra la app y ábrela otra vez.') +
+                '<br><br><span style="font-size:10px;opacity:.6">Detalle técnico: ' + nom + ' — ' + msg + '</span>',
+            icon: 'error', background: '#0a0a0a', color: '#fff'
+        });
     }
 }
 
@@ -11958,7 +11985,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.176"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.177"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
