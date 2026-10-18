@@ -1072,9 +1072,9 @@
                         <div class="border-t border-zinc-800 pt-4 flex flex-col min-h-[120px]">
 
 
-                            <div class="flex justify-between items-end mb-2">
-                                <p class="text-[9px] text-zinc-500 uppercase font-black tracking-widest flex items-center gap-2">Resumen de Venta <button type="button" onclick="limpiarCajaPorCompleto()" class="bg-red-900/30 text-red-500 px-2 py-0.5 rounded hover:bg-red-500 hover:text-white transition-colors border border-red-900/50 btn-press flex items-center gap-1"><span class="text-xs">🗑️</span> BORRAR TODO</button></p>
-                                <span class="text-xs font-black text-white bg-black px-2 py-1 rounded border border-zinc-800">Subtotal: <span id="caja-subtotal-badge" class="text-indigo-400">$0</span></span>
+                            <div class="flex flex-wrap justify-between items-end gap-2 mb-2 pr-12 sm:pr-0">
+                                <p class="text-[9px] text-zinc-500 uppercase font-black tracking-widest flex flex-wrap items-center gap-2">Resumen de Venta <button type="button" onclick="limpiarCajaPorCompleto()" class="bg-red-900/30 text-red-500 px-2 py-0.5 rounded hover:bg-red-500 hover:text-white transition-colors border border-red-900/50 btn-press flex items-center gap-1"><span class="text-xs">🗑️</span> BORRAR TODO</button></p>
+                                <span class="text-xs font-black text-white bg-black px-2 py-1 rounded border border-zinc-800 whitespace-nowrap shrink-0">Subtotal: <span id="caja-subtotal-badge" class="text-indigo-400">$0</span></span>
                             </div>
 
                             <div id="caja-carrito-ui" class="flex-1 overflow-y-auto pr-1 space-y-2 scroll-safe bg-black/40 rounded-xl border border-zinc-900 p-2">
@@ -5092,7 +5092,7 @@ const btnRecibo = tieneAbono ? `<button type="button" onclick="verComprobanteCit
         function completarCita(id) {
             const b = db.barberias[bIdx];
             const c = b.citas.find(x => x.id === id);
-            let htmlAdicional = c && c.comprobante ? `<p class="text-xs mt-2 text-yellow-500 font-bold">⚠️ Este cliente tiene un abono registrado.<br>Se descontará en la caja.</p>` : '';
+            let htmlAdicional = c && String(c.comprobante || '').startsWith('http') ? `<p class="text-xs mt-2 text-yellow-500 font-bold">⚠️ Este cliente tiene un abono registrado.<br>Se descontará en la caja.</p>` : '';
 
             Swal.fire({ 
                 title: '¿Terminó el servicio?', 
@@ -11707,12 +11707,24 @@ function abrirOnboardingManual() {
                 const idReserva = `Z-${b.id_nube || b.id}-${Date.now().toString().slice(-6)}`;
 
                 supabaseClient.functions.invoke('generar-firma-wompi', {
-                    body: { monto: totalCobrarCaja, reference: idReserva, store_id: b.id_nube || b.id }
-                }).then(response => {
+                    body: {
+                        modo: 'caja',
+                        reference: idReserva,
+                        store_id: b.id_nube || b.id,
+                        servicios: cajaCart.filter(i => !i.isProd).map(i => i.nom),
+                        productos: cajaCart.filter(i => i.isProd).map(i => i.id),
+                        propina: parseInt(cleanNum(document.getElementById('caja-propina') ? document.getElementById('caja-propina').value : '0')) || 0
+                    }
+                }).then(async response => {
                     const data = response.data;
                     const error = response.error;
 
-                    if (error) throw new Error(error.message);
+                    if (data && data.error) throw new Error(data.error);
+                    if (error) {
+                        let m = error.message;
+                        try { const j = await error.context.json(); if (j && j.error) m = j.error; } catch (e) {}
+                        throw new Error(m);
+                    }
                     if (!data || !data.signature || !data.amountInCents) throw new Error("Datos incompletos.");
 
                     const redirectSeguro = encodeURIComponent("https://zeusbarberpro.com/?kiosk=" + (b.id_nube || b.id)); 
@@ -11738,7 +11750,7 @@ function abrirOnboardingManual() {
 
                 }).catch(err => {
                     console.error("Falla generando link Wompi:", err);
-                    Swal.fire('Falla Bancaria', 'No pudimos conectar con Wompi. Revisa tu internet o intenta de nuevo.', 'error');
+                    Swal.fire('Falla Bancaria', 'No pudimos generar el link de Wompi: ' + String((err && err.message) || 'revisa tu internet') + '. Intenta de nuevo.', 'error');
                 });
             }
 
@@ -12017,7 +12029,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.179"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.180"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
@@ -12233,7 +12245,7 @@ function abrirOnboardingManual() {
 
             if (typeof updateCajaCartUI === 'function') updateCajaCartUI(); 
 
-            if (cita.comprobante && !cita.abonoAprobado) {
+            if (String(cita.comprobante || '').startsWith('http') && !cita.abonoAprobado) {
                 Swal.fire({
                     title: '⚠️ REVISIÓN DE PAGO',
                     html: `
