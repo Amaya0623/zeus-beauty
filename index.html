@@ -506,7 +506,7 @@
 
                     <div>
     <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-2">Tu WhatsApp (Puntos y Alertas):</label>
-    <input type="text" inputmode="numeric" id="kio-celular" onkeyup="verificarClienteKiosko()" placeholder="Ej: 3001234567" class="w-full p-4 mt-1 rounded-2xl bg-black text-white border border-zinc-800 font-bold tracking-widest text-sm focus:border-indigo-500 outline-none transition-colors">
+    <input type="text" inputmode="numeric" id="kio-celular" onkeyup="verificarClienteKiosko(); kioCelularCambio();" placeholder="Ej: 3001234567" class="w-full p-4 mt-1 rounded-2xl bg-black text-white border border-zinc-800 font-bold tracking-widest text-sm focus:border-indigo-500 outline-none transition-colors">
     
     <div id="kio-vip-status-container" class="hidden flex-col items-start mt-2 ml-2">
         <p id="kio-badge-vip" class="text-[10px] text-green-500 font-black uppercase tracking-widest mb-2">👑 Cliente Detectado (Visitas: 0)</p>
@@ -663,6 +663,7 @@
                     <div>
                         <h2 id="admin-utilidad" class="text-5xl sm:text-7xl font-black italic text-green-500 tracking-tighter">0</h2>
                         <p id="admin-iva-recaudado" class="text-xs text-yellow-500 font-bold mt-2 hidden">IMPUESTO Recaudado: 0</p>
+                        <p id="admin-fh-resumen" class="text-xs text-indigo-300 font-bold mt-2 hidden"></p>
                     </div>
                     <div class="bg-black/50 p-6 rounded-3xl space-y-3 border border-zinc-900 shadow-inner flex flex-col justify-center">
                         <div class="flex justify-between text-xs font-bold uppercase text-zinc-400"><span>Efectivo (Bruto):</span> <span class="text-white" id="admin-efectivo">0</span></div>
@@ -1355,6 +1356,47 @@
                                         <span class="text-[8px] text-zinc-500 uppercase font-bold mb-1 ml-1">Duración Citas (Mins)</span>
                                         <input type="text" inputmode="numeric" id="cfg-intervalo" placeholder="Ej: 60" class="w-full p-4 rounded-xl text-sm font-bold text-center border border-zinc-800 bg-[#050505] text-white outline-none focus:border-blue-500">
                                     </div>
+                                </div>
+                            </div>
+
+                            <!-- 🌙 MÓDULO FUERA DE HORARIO (CLIENTES ESPECIALES) -->
+                            <div class="col-span-12 mb-5 p-5 rounded-2xl border border-indigo-900/50 bg-[#111] shadow-inner">
+                                <div class="flex items-center justify-between gap-3 mb-2">
+                                    <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest flex items-center gap-2"><span class="text-lg">🌙</span> Fuera de Horario (Clientes Especiales)</p>
+                                    <label class="flex items-center gap-2 cursor-pointer shrink-0">
+                                        <span class="text-[9px] text-zinc-400 font-black uppercase">Activar</span>
+                                        <input type="checkbox" id="cfg-fh-activo" onchange="fhToggleUI()" class="w-5 h-5 accent-indigo-500">
+                                    </label>
+                                </div>
+                                <p class="text-[9px] text-zinc-500 leading-snug mb-3">Tus clientes fijos podrán agendar en un horario extra (antes de abrir o después de cerrar). Tu horario normal NO cambia para los demás clientes. Si un cliente especial agenda dentro del horario normal, funciona igual que cualquier cliente.</p>
+                                <div id="fh-panel" class="hidden space-y-4">
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
+                                        <div class="flex flex-col"><span class="text-[8px] text-zinc-500 uppercase font-bold mb-1 ml-1">Apertura Especial</span><input type="time" id="cfg-fh-apertura" class="w-full p-4 rounded-xl text-sm font-bold text-center border border-zinc-800 bg-[#050505] text-white outline-none focus:border-indigo-500 appearance-none"></div>
+                                        <div class="flex flex-col"><span class="text-[8px] text-zinc-500 uppercase font-bold mb-1 ml-1">Cierre Especial</span><input type="time" id="cfg-fh-cierre" class="w-full p-4 rounded-xl text-sm font-bold text-center border border-zinc-800 bg-[#050505] text-white outline-none focus:border-indigo-500 appearance-none"></div>
+                                        <div class="flex flex-col"><span class="text-[8px] text-zinc-500 uppercase font-bold mb-1 ml-1">Duración Citas (Mins)</span><input type="text" inputmode="numeric" id="cfg-fh-intervalo" placeholder="Ej: 60" class="w-full p-4 rounded-xl text-sm font-bold text-center border border-zinc-800 bg-[#050505] text-white outline-none focus:border-indigo-500"></div>
+                                    </div>
+                                    <div>
+                                        <span class="text-[8px] text-zinc-500 uppercase font-bold mb-2 ml-1 block">Días en que se permite</span>
+                                        <div id="fh-dias" class="flex flex-wrap gap-2">
+                                            <label class="fh-dia"><input type="checkbox" value="1" class="hidden peer"><span class="block px-3 py-2 rounded-lg border border-zinc-700 text-[10px] font-black text-zinc-400 peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-500 cursor-pointer">LUN</span></label>
+                                            <label class="fh-dia"><input type="checkbox" value="2" class="hidden peer"><span class="block px-3 py-2 rounded-lg border border-zinc-700 text-[10px] font-black text-zinc-400 peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-500 cursor-pointer">MAR</span></label>
+                                            <label class="fh-dia"><input type="checkbox" value="3" class="hidden peer"><span class="block px-3 py-2 rounded-lg border border-zinc-700 text-[10px] font-black text-zinc-400 peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-500 cursor-pointer">MIÉ</span></label>
+                                            <label class="fh-dia"><input type="checkbox" value="4" class="hidden peer"><span class="block px-3 py-2 rounded-lg border border-zinc-700 text-[10px] font-black text-zinc-400 peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-500 cursor-pointer">JUE</span></label>
+                                            <label class="fh-dia"><input type="checkbox" value="5" class="hidden peer"><span class="block px-3 py-2 rounded-lg border border-zinc-700 text-[10px] font-black text-zinc-400 peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-500 cursor-pointer">VIE</span></label>
+                                            <label class="fh-dia"><input type="checkbox" value="6" class="hidden peer"><span class="block px-3 py-2 rounded-lg border border-zinc-700 text-[10px] font-black text-zinc-400 peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-500 cursor-pointer">SÁB</span></label>
+                                            <label class="fh-dia"><input type="checkbox" value="0" class="hidden peer"><span class="block px-3 py-2 rounded-lg border border-zinc-700 text-[10px] font-black text-zinc-400 peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-500 cursor-pointer">DOM</span></label>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span class="text-[8px] text-zinc-500 uppercase font-bold mb-2 ml-1 block">Clientes especiales (por celular)</span>
+                                        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 mb-3">
+                                            <input type="text" id="fh-cli-nombre" placeholder="Nombre" class="sm:col-span-5 p-3 rounded-xl text-sm font-bold border border-zinc-800 bg-[#050505] text-white outline-none focus:border-indigo-500">
+                                            <input type="text" inputmode="numeric" id="fh-cli-cel" placeholder="Celular" class="sm:col-span-4 p-3 rounded-xl text-sm font-bold border border-zinc-800 bg-[#050505] text-white outline-none focus:border-indigo-500">
+                                            <button type="button" onclick="agregarClienteFH()" class="sm:col-span-3 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-[10px] uppercase rounded-xl py-3 btn-press">+ Agregar</button>
+                                        </div>
+                                        <div id="fh-lista" class="space-y-2"></div>
+                                    </div>
+                                    <p class="text-[8px] text-zinc-600 uppercase font-bold">Recuerda presionar GUARDAR al terminar.</p>
                                 </div>
                             </div>
 
@@ -2259,6 +2301,7 @@
                 <div id="cc-admin-view" class="hidden">
                     <div class="bg-black p-6 rounded-3xl border border-zinc-900 mb-6 text-left space-y-4 shadow-inner">
                         <div class="flex justify-between items-center border-b border-zinc-800 pb-3"><span class="text-zinc-400 font-bold text-[10px] uppercase">✂️ Cortes Totales Hoy</span><span id="cc-total-cortes" class="text-white font-black text-xl">0</span></div>
+                        <div id="cc-fh-row" class="hidden flex justify-between items-center border-b border-zinc-800 pb-3"><span class="text-indigo-300 font-bold text-[10px] uppercase">🌙 Fuera de Horario Hoy</span><span id="cc-fh" class="text-indigo-300 font-black text-sm">0</span></div>
                         <div class="flex justify-between items-center"><span class="text-zinc-500 font-bold text-[10px] uppercase">Efectivo Total Hoy 💵</span><span id="cc-efe-hoy" class="text-green-400 font-black text-sm">0</span></div>
                         <div class="flex justify-between items-center border-b border-zinc-800 pb-3"><span class="text-zinc-500 font-bold text-[10px] uppercase">Digital Total Hoy 📱</span><span id="cc-dig-hoy" class="text-blue-400 font-black text-sm">0</span></div>
                         <div class="flex justify-between items-center pt-2 border-t border-zinc-800"><span class="text-white font-black text-[10px] uppercase bg-green-900/40 px-2 py-1 rounded">Caja Final (Efe)</span><span id="cc-efe-final" class="text-green-500 font-black text-3xl tracking-tighter">0</span></div>
@@ -2282,6 +2325,7 @@
                     <div class="flex justify-between"><span class="text-zinc-500 font-bold text-[10px] uppercase">Ventas Brutas</span><span id="cm-ventas" class="text-white font-black"></span></div>
                     <div id="row-cm-iva" class="flex justify-between"><span class="text-yellow-600/80 font-bold text-[10px] uppercase">IMPUESTO/TAX</span><span id="cm-iva" class="text-yellow-500 font-black"></span></div>
                     <div class="flex justify-between"><span class="text-red-500/80 font-bold text-[10px] uppercase">Gastos Totales</span><span id="cm-gastos" class="text-red-500 font-black"></span></div>
+                    <div id="cm-fh-row" class="hidden flex justify-between border-t border-zinc-800 pt-3 mt-3"><span class="text-indigo-300 font-black text-[10px] uppercase">🌙 Fuera de Horario</span><span id="cm-fh" class="text-indigo-300 font-black text-xs">0</span></div>
                     <div class="flex justify-between border-t border-zinc-800 pt-4 mt-3"><span class="text-green-500 font-black text-[10px] uppercase">Utilidad Neta</span><span id="cm-neta" class="text-green-400 font-black text-2xl tracking-tighter"></span></div>
                 </div>
                 <button type="button" onclick="procesarCierreMes()" class="w-full bg-red-600 text-white py-5 rounded-2xl font-black uppercase text-[10px] mb-3 btn-press hover:bg-red-500 transition-colors shadow-lg shadow-red-900/20">Archivar y Generar PDF 📦</button>
@@ -2344,6 +2388,7 @@
                         <option value="CLUB">💳 Clientes con Tarjeta de Puntos</option>
                         <option value="PASS">👑 Clientes con Plan VIP (Mensualidad)</option>
                         <option value="NADA">⚪ Clientes Regulares (Sin Fidelizar)</option>
+                        <option value="FH">🌙 Clientes Fuera de Horario</option>
                     </select>
                 </div>
 
@@ -2584,6 +2629,7 @@ async function hashPIN(pin) {
         let chartMetodosInstance = null; let chartBarberosInstance = null; let chartFranquiciaInstance = null; let _cloudSyncDebounce = null; let timerDebounceClientes = null;
         let tempLat = null; let tempLon = null;
         let abonoValidadoCaja = 0; // Guardará el dinero que el admin aprobó
+        let citaCajaActualId = null; // Cita que se está cobrando ahora en caja (para cerrarla al finalizar la venta)
 
         
 
@@ -2801,6 +2847,21 @@ async function hashPIN(pin) {
             else { s.innerHTML = '🔴 OFFLINE'; s.className = 'text-[8px] text-red-500 font-bold uppercase tracking-widest bg-black px-1.5 py-0.5 rounded border border-red-900/50 animate-pulse'; }
         }
 
+        // ⚠️ Avisa (sin ser molesto) cuando la nube no recibe los datos, y reintenta sola
+        window._syncReintentos = 0; window._syncUltAviso = 0;
+        function reportarFallaSync(motivo, idx) {
+            console.error('❌ Sync falló:', motivo);
+            try { if (db.barberias[idx]) db.barberias[idx].pendientesSync = true; localStorage.setItem(DB_KEY, JSON.stringify(db)); } catch (e) {}
+            if (Date.now() - window._syncUltAviso > 60000 && typeof Swal !== 'undefined') {
+                window._syncUltAviso = Date.now();
+                Swal.fire({ toast: true, position: 'top-end', icon: 'warning', title: 'No se pudo guardar en la nube', text: String(motivo).slice(0, 90) + ' — reintentando…', showConfirmButton: false, timer: 6000, background: '#111', color: '#fff' });
+            }
+            if (window._syncReintentos < 6) {
+                window._syncReintentos++;
+                setTimeout(() => { if (isOnline) saveDB(true); }, 20000 * window._syncReintentos);
+            }
+        }
+
         function saveDB(triggerCloudSync = true, forceConfigUpload = false) {
             let idx = bIdx !== -1 ? bIdx : kiosko_bIdx;
 
@@ -2895,13 +2956,16 @@ async function hashPIN(pin) {
 
                             db.barberias[idx].data_version = Date.now();
 
-                            supabaseClient.from('stores').update({ json_data: db.barberias[idx] }).eq('id', db.barberias[idx].id_nube).then(({ error }) => {
-                                if (!error) {
+                            supabaseClient.from('stores').update({ json_data: db.barberias[idx] }).eq('id', db.barberias[idx].id_nube).select('id').then(({ data: filas, error }) => {
+                                if (!error && filas && filas.length > 0) {
                                     console.log("Nube sincronizada ✅");
+                                    window._syncReintentos = 0;
                                     if (document.getElementById('view-barbero')?.classList.contains('active')) renderBarbero();
+                                } else {
+                                    reportarFallaSync(error ? (error.message || error.code || 'error desconocido') : 'la nube no aceptó el guardado (0 filas)', idx);
                                 }
                             });
-                        } catch(e) { console.error("Error en Escudo de Sync:", e); }
+                        } catch(e) { console.error("Error en Escudo de Sync:", e); reportarFallaSync((e && e.message) || 'error de red', idx); }
                     }
                 }, 1500);
             }
@@ -4284,6 +4348,15 @@ async function actionLogin(pinForzado = null) {
             document.getElementById('admin-bancos').innerText = fMoney(digi);
             document.getElementById('admin-gastos').innerText = "-" + fMoney(tg);
 
+            // 🌙 Resumen de servicios fuera de horario (todo el historial no anulado)
+            try {
+                const fhV = (b.ventas || []).filter(v => v.fueraHorario && !v.esProducto && !v.anulado && v.valor > 0);
+                const fhBox = document.getElementById('admin-fh-resumen');
+                if (fhBox) {
+                    if (fhV.length) { fhBox.innerText = `🌙 FUERA DE HORARIO: ${fhV.length} servicios • ${fMoney(fhV.reduce((a, v) => a + v.valor, 0))}`; fhBox.classList.remove('hidden'); }
+                    else fhBox.classList.add('hidden');
+                }
+            } catch (e) {}
             const iBox = document.getElementById('admin-iva-recaudado');
             if (iBox) { if (iA && totalIva > 0) { iBox.innerText = `IMPUESTO Recaudado: ${fMoney(totalIva)}`; iBox.classList.remove('hidden'); } else { iBox.classList.add('hidden'); } }
 
@@ -4316,6 +4389,8 @@ async function actionLogin(pinForzado = null) {
                 const vServicios = (b.ventas || []).filter(v => (esCajero ? v.cobradoPor === bar.nom : v.barbero === bar.nom) && !v.esProducto && v.barbero !== "ADMIN");
                 const vProductos = (b.ventas || []).filter(v => (esCajero ? v.cobradoPor === bar.nom : v.barbero === bar.nom) && v.esProducto && v.barbero !== "ADMIN");
                 
+                const vFH = vServicios.filter(v => v.fueraHorario);
+                const baseFH = vFH.reduce((a, v) => a + v.valor, 0);
                 const baseServicios = vServicios.reduce((a, v) => a + v.valor, 0); 
                 const baseProductos = vProductos.reduce((a, v) => a + v.valor, 0); 
                 
@@ -4347,6 +4422,7 @@ async function actionLogin(pinForzado = null) {
                         <div class="flex gap-2 mt-2 flex-wrap">
                             <span class="text-[9px] ${bgSrv} px-3 py-1 rounded-lg font-bold">${esCajero ? '🖥️' : '✂️'} ${vServicios.length} Cobros (${cB}%)</span>
                             <span class="text-[9px] ${bgPrd} px-3 py-1 rounded-lg font-bold">🧴 ${vProductos.length} Prods (${cP}%)</span>
+                            ${vFH.length ? `<span class="text-[9px] bg-indigo-600/20 text-indigo-300 px-3 py-1 rounded-lg font-bold">🌙 ${vFH.length} Fuera de horario (${fMoney(baseFH)})</span>` : ''}
                         </div>
                     </div>
                     <div class="text-left md:text-right bg-black/50 p-4 rounded-2xl w-full md:w-auto min-w-[200px] border border-zinc-800/50 shadow-inner">
@@ -4964,6 +5040,7 @@ const btnRecibo = tieneAbono ? `<button type="button" onclick="verComprobanteCit
                                 <div class="flex flex-col min-w-0 break-words"> 
                                     <p class="text-lg sm:text-xl font-black uppercase tracking-wider break-words ${fin ? 'text-zinc-600 line-through' : 'text-white'} leading-none mb-1.5 drop-shadow-sm">${c.nombre}</p> 
                                     <p class="text-[10px] text-zinc-400 uppercase font-bold tracking-widest">${c.servicio}</p>
+                                    ${c.fueraHorario ? '<p class="text-[9px] text-indigo-300 uppercase font-black tracking-widest mt-1">🌙 FUERA DE HORARIO</p>' : ''}
                                     <p class="text-[9px] ${cStyle.text} uppercase font-black tracking-[0.2em] mt-1 flex items-center gap-1"><span>👤</span> ${c.barbero}</p> 
                                 </div> 
                             </div> 
@@ -5017,7 +5094,11 @@ const btnRecibo = tieneAbono ? `<button type="button" onclick="verComprobanteCit
             if (!f || !h || !cli || !barb || agendaServiciosTemp.length === 0) return Swal.fire('Aviso', 'Fecha, hora, cliente, barbero y servicios obligatorios.', 'warning');
 
             const b = db.barberias[bIdx]; const nTime = timeToMins(h); const apertMins = timeToMins(b.horaApertura || "09:00"); const cierrMins = timeToMins(b.horaCierre || "21:00");
-            if (nTime < apertMins || nTime > cierrMins) return Swal.fire('Cerrado', `El local atiende de ${b.horaApertura} a ${b.horaCierre}`, 'error');
+            if (nTime < apertMins || nTime > cierrMins) {
+                const celFH = cleanNum(document.getElementById('agenda-cel').value);
+                const okEspecial = fhAplica(b, celFH, f) && nTime >= timeToMins(b.fueraHorario.apertura || '06:00') && nTime <= timeToMins(b.fueraHorario.cierre || '08:00');
+                if (!okEspecial) return Swal.fire('Cerrado', `El local atiende de ${b.horaApertura} a ${b.horaCierre}`, 'error');
+            }
 
             // 2. 🛡️ REEMPLAZO 2: Calculamos duración buscando los servicios por su nombre
             let totalMinsCarrito = 0; 
@@ -5049,7 +5130,7 @@ const btnRecibo = tieneAbono ? `<button type="button" onclick="verComprobanteCit
             let srvString = agendaServiciosTemp.join(' + ');
             let idCitaNueva = Date.now().toString();
             
-            b.citas.push({ id: idCitaNueva, nombre: cli, celular: cel, barbero: barb, servicio: srvString, fecha: f, hora: h, estado: 'PENDIENTE', duracion: totalMinsCarrito });
+            b.citas.push({ id: idCitaNueva, nombre: cli, celular: cel, barbero: barb, servicio: srvString, fecha: f, hora: h, estado: 'PENDIENTE', duracion: totalMinsCarrito, fueraHorario: flagFH(b, cel, f, h, totalMinsCarrito) });
 
             // ⚡ PUENTE SQL
             if (isOnline && typeof supabaseClient !== 'undefined' && b.id_nube) {
@@ -5458,7 +5539,7 @@ const btnRecibo = tieneAbono ? `<button type="button" onclick="verComprobanteCit
                 return Swal.fire({ title: 'Función Premium ⚡', text: 'Tu Plan BÁSICO no incluye el Kiosko Virtual 24/7. Contacta a Isi Control.', icon: 'info', background: '#0a0a0a', color: '#fff', confirmButtonText: 'Entendido', confirmButtonColor: '#4f46e5' });
             }
 
-            if (!b.barberos || b.barberos.length === 0 || !b.servicios || b.servicios.length === 0) return Swal.fire('Local Incompleto', 'El administrador debe configurar barberos y servicios.', 'warning');
+            if (!b.barberos || b.barberos.length === 0 || !b.servicios || b.servicios.length === 0) return Swal.fire('Local en configuración', 'Este local todavía no tiene barberos o servicios publicados. Si eres el administrador, abre tu panel y presiona SYNC; si eres cliente, intenta de nuevo en unos minutos.', 'info');
             
             document.getElementById('kio-fecha').value = getTodayYMD(); 
             document.getElementById('kio-titulo-local').innerText = b.nombre;
@@ -6124,6 +6205,86 @@ function calcularPrecioIA(precioBase, idLocal) {
             }
         }
 
+        // ==========================================
+        // 🌙 FUERA DE HORARIO (CLIENTES ESPECIALES)
+        // ==========================================
+        function fhEsc(t) { const d = document.createElement('div'); d.textContent = String(t == null ? '' : t); return d.innerHTML; }
+
+        // ¿Este celular es cliente especial y ese día de la semana está permitido?
+        function fhAplica(b, cel, fecha) {
+            const fh = b && b.fueraHorario; if (!fh || !fh.activo) return false;
+            const c = cleanNum(cel || ''); if (!c || !fh.clientes || !fh.clientes[c]) return false;
+            const d = fecha ? new Date(fecha + 'T12:00:00').getDay() : new Date().getDay();
+            const dias = Array.isArray(fh.dias) ? fh.dias : [0, 1, 2, 3, 4, 5, 6];
+            return dias.includes(d);
+        }
+        // ¿La hora cae fuera del horario normal del local?
+        function esFueraDeHorario(b, hora, durMin) {
+            if (!hora) return false;
+            const a = timeToMins(b.horaApertura || "08:00"), c = timeToMins(b.horaCierre || "20:00"), s = timeToMins(hora);
+            return s < a || s >= c || (s + (durMin || 0)) > c;
+        }
+        // Marca de la cita: solo si es cliente especial Y quedó fuera del horario normal
+        function flagFH(b, cel, fecha, hora, durMin) { return !!(fhAplica(b, cel, fecha) && esFueraDeHorario(b, hora, durMin)); }
+
+        let _fhPrev = null;
+        function kioCelularCambio() {
+            const b = db.barberias[kiosko_bIdx]; if (!b) return;
+            const st = fhAplica(b, document.getElementById('kio-celular').value, document.getElementById('kio-fecha') ? document.getElementById('kio-fecha').value : '');
+            if (st !== _fhPrev) { _fhPrev = st; renderKioskoSlots(); }
+        }
+
+        function fhToggleUI() {
+            const on = document.getElementById('cfg-fh-activo') && document.getElementById('cfg-fh-activo').checked;
+            const p = document.getElementById('fh-panel'); if (p) p.classList.toggle('hidden', !on);
+        }
+        function cargarFueraHorarioCfg(b) {
+            const fh = b.fueraHorario || {};
+            const set = (id, v) => { const e = document.getElementById(id); if (e) e.value = v; };
+            const chk = document.getElementById('cfg-fh-activo'); if (chk) chk.checked = !!fh.activo;
+            set('cfg-fh-apertura', fh.apertura || '06:00'); set('cfg-fh-cierre', fh.cierre || '08:00'); set('cfg-fh-intervalo', fh.intervalo || 60);
+            const dias = Array.isArray(fh.dias) ? fh.dias : [0, 1, 2, 3, 4, 5, 6];
+            document.querySelectorAll('#fh-dias input[type=checkbox]').forEach(i => { i.checked = dias.includes(parseInt(i.value)); });
+            fhToggleUI(); renderListaFH(b);
+        }
+        function leerFueraHorarioCfg(b) {
+            if (!document.getElementById('cfg-fh-activo')) return;
+            const prev = b.fueraHorario || {};
+            const dias = [...document.querySelectorAll('#fh-dias input[type=checkbox]')].filter(i => i.checked).map(i => parseInt(i.value));
+            b.fueraHorario = {
+                activo: document.getElementById('cfg-fh-activo').checked,
+                apertura: document.getElementById('cfg-fh-apertura').value || '06:00',
+                cierre: document.getElementById('cfg-fh-cierre').value || '08:00',
+                intervalo: parseInt(cleanNum(document.getElementById('cfg-fh-intervalo').value)) || 60,
+                dias: dias,
+                clientes: prev.clientes || {}
+            };
+        }
+        function renderListaFH(b) {
+            const ctn = document.getElementById('fh-lista'); if (!ctn) return;
+            const cl = (b.fueraHorario && b.fueraHorario.clientes) || {};
+            const ks = Object.keys(cl);
+            ctn.innerHTML = ks.length ? ks.map(k => `<div class="flex items-center justify-between bg-black/50 border border-zinc-800 rounded-xl px-3 py-2"><span class="text-xs font-bold text-white uppercase min-w-0 break-words">${fhEsc(cl[k])} <span class="text-zinc-500 ml-1 whitespace-nowrap">${fhEsc(k)}</span></span><button type="button" onclick="quitarClienteFH('${fhEsc(k)}')" class="text-red-500 font-black px-2 py-1 bg-red-900/20 rounded btn-press">X</button></div>`).join('')
+                : '<p class="text-[9px] text-zinc-600 italic">Aún no hay clientes especiales.</p>';
+        }
+        function agregarClienteFH() {
+            const b = db.barberias[bIdx]; if (!b) return;
+            const nom = cleanStr(document.getElementById('fh-cli-nombre').value).toUpperCase();
+            const cel = cleanNum(document.getElementById('fh-cli-cel').value);
+            if (!nom || cel.length < 10) return Swal.fire('Aviso', 'Escribe el nombre y el celular (10 dígitos).', 'warning');
+            if (!b.fueraHorario) b.fueraHorario = { activo: false, apertura: '06:00', cierre: '08:00', intervalo: 60, dias: [0,1,2,3,4,5,6], clientes: {} };
+            if (!b.fueraHorario.clientes) b.fueraHorario.clientes = {};
+            b.fueraHorario.clientes[cel] = nom;
+            if (!b.clientes) b.clientes = {};
+            if (!b.clientes[cel]) b.clientes[cel] = { nombre: nom, celular: cel, pts: 0, visitas: 0 };
+            document.getElementById('fh-cli-nombre').value = ''; document.getElementById('fh-cli-cel').value = '';
+            renderListaFH(b); saveDB(false);
+        }
+        function quitarClienteFH(cel) {
+            const b = db.barberias[bIdx]; if (!b || !b.fueraHorario || !b.fueraHorario.clientes) return;
+            delete b.fueraHorario.clientes[cel]; renderListaFH(b); saveDB(false);
+        }
+
         // ⏱️ TRADUCTOR DE TIEMPO: Convierte "1h 30m", "45", "1 hora" a minutos matemáticos
         function parseDuracionToMins(durStr) {
             if (!durStr) return 0;
@@ -6160,7 +6321,7 @@ function calcularPrecioIA(precioBase, idLocal) {
             tempServicios.forEach(s => { totalMinsCarrito += parseDuracionToMins(s.dur); });
             if (totalMinsCarrito === 0) totalMinsCarrito = intBase; 
 
-            let html = ''; const ahora = new Date(); const esHoy = fecha === getTodayYMD(); const minAhora = ahora.getHours() * 60 + ahora.getMinutes();
+            let html = ''; const slots = []; const ahora = new Date(); const esHoy = fecha === getTodayYMD(); const minAhora = ahora.getHours() * 60 + ahora.getMinutes();
 
             while(act < fin) {
                 let h = Math.floor(act / 60); let m = act % 60;
@@ -6177,15 +6338,36 @@ function calcularPrecioIA(precioBase, idLocal) {
                         });
 
                         if (!ocupado) {
-                            html += `<button type="button" onclick="seleccionarHoraKio('${horaStr}', this)" class="kio-slot-btn p-3 rounded-xl border border-zinc-800 text-zinc-400 font-black text-xs hover:border-indigo-500 hover:text-indigo-400 transition-colors">${formatTime12h(horaStr)}</button>`;
+                            slots.push([act, `<button type="button" onclick="seleccionarHoraKio('${horaStr}', this)" class="kio-slot-btn p-3 rounded-xl border border-zinc-800 text-zinc-400 font-black text-xs hover:border-indigo-500 hover:text-indigo-400 transition-colors">${formatTime12h(horaStr)}</button>`]);
                         } else {
                             // 🔔 SPRINT 3: BOTÓN DE LISTA DE ESPERA (Naranja)
-                            html += `<button type="button" onclick="unirseListaEspera('${horaStr}')" class="p-2 rounded-xl border border-orange-900/50 bg-orange-900/10 text-orange-500 font-black text-[10px] uppercase hover:bg-orange-600 hover:text-white transition-colors flex flex-col items-center justify-center leading-none gap-1 shadow-inner shadow-orange-900/20 btn-press"><span>${formatTime12h(horaStr)}</span><span class="text-[7px] bg-orange-500 text-black px-1.5 py-0.5 rounded-sm mt-0.5">🔔 Avisarme</span></button>`;
+                            slots.push([act, `<button type="button" onclick="unirseListaEspera('${horaStr}')" class="p-2 rounded-xl border border-orange-900/50 bg-orange-900/10 text-orange-500 font-black text-[10px] uppercase hover:bg-orange-600 hover:text-white transition-colors flex flex-col items-center justify-center leading-none gap-1 shadow-inner shadow-orange-900/20 btn-press"><span>${formatTime12h(horaStr)}</span><span class="text-[7px] bg-orange-500 text-black px-1.5 py-0.5 rounded-sm mt-0.5">🔔 Avisarme</span></button>`]);
                         }
                     }
                 }
                 act += intBase; 
             }
+
+            // 🌙 Horarios especiales (solo si el celular escrito es un cliente especial y el día está permitido)
+            const celKio = cleanNum((document.getElementById('kio-celular') || {}).value || '');
+            if (fhAplica(b, celKio, fecha)) {
+                const fh = b.fueraHorario;
+                let a2 = timeToMins(fh.apertura || '06:00'); const f2 = timeToMins(fh.cierre || '08:00'); const int2 = parseInt(fh.intervalo) || intBase;
+                const yaHay = new Set(slots.map(x => x[0]));
+                while (a2 < f2) {
+                    const fr2 = a2 + totalMinsCarrito;
+                    if (fr2 <= f2 && !yaHay.has(a2) && !(esHoy && a2 <= minAhora)) {
+                        const ocup2 = citasDia.some(c => { let ci = timeToMins(c.hora); let cf = ci + (c.duracion || intBase); return (a2 < cf && fr2 > ci); });
+                        if (!ocup2) {
+                            const hs = `${Math.floor(a2 / 60).toString().padStart(2, '0')}:${(a2 % 60).toString().padStart(2, '0')}`;
+                            slots.push([a2, `<button type="button" onclick="seleccionarHoraKio('${hs}', this)" class="kio-slot-btn p-3 rounded-xl border border-indigo-700/60 bg-indigo-900/10 text-indigo-300 font-black text-xs hover:border-indigo-400 transition-colors flex flex-col items-center leading-none gap-1"><span>${formatTime12h(hs)}</span><span class="text-[7px] uppercase tracking-widest">🌙 Especial</span></button>`]);
+                        }
+                    }
+                    a2 += int2;
+                }
+            }
+            slots.sort((x, y) => x[0] - y[0]);
+            html = slots.map(x => x[1]).join('');
 
             if(html === '') html = `<p class="text-[10px] text-red-500 col-span-3 text-center py-2 font-bold uppercase tracking-widest">Requiere ${totalMinsCarrito}min - Sin espacio 🚫</p>`;
             ctn.innerHTML = html; selectedKioTime = null;
@@ -6641,6 +6823,12 @@ function calcularPrecioIA(precioBase, idLocal) {
                 return Swal.fire('Aviso', 'Sube la foto del comprobante para confirmar.', 'warning');
             }
 
+            // 🌙 Hora fuera del horario normal: solo permitida a clientes especiales (en un día habilitado)
+            if (h && (timeToMins(h) < timeToMins(b.horaApertura || "08:00") || timeToMins(h) >= timeToMins(b.horaCierre || "20:00")) && !fhAplica(b, cel, f)) {
+                try { document.getElementById('modal-pago-anticipado').classList.add('hidden'); } catch (e) {}
+                return Swal.fire({ title: 'Horario no disponible', text: 'Esa hora está fuera del horario de atención. Elige otra hora.', icon: 'warning', background: '#0a0a0a', color: '#fff' });
+            }
+
             const choca = (b.citas || []).find(c => {
                 if(c.barbero !== barb || c.fecha !== f || c.estado === 'CANCELADA') return false;
                 let cInicio = timeToMins(c.hora); let cFin = cInicio + (c.duracion || (b.intervaloCitas || 60));
@@ -6656,7 +6844,7 @@ function calcularPrecioIA(precioBase, idLocal) {
             let comprobanteValor = esEnEstablecimiento ? 'PAGAR_EN_EL_ESTABLECIMIENTO' : comprobanteTemp;
             let idCitaNueva = Date.now().toString();
 
-            b.citas.push({ id: idCitaNueva, nombre: cli, celular: cel, barbero: barb, servicio: srv, fecha: f, hora: h, estado: 'PENDIENTE', comprobante: comprobanteValor, duracion: totalMinsCarrito });
+            b.citas.push({ id: idCitaNueva, nombre: cli, celular: cel, barbero: barb, servicio: srv, fecha: f, hora: h, estado: 'PENDIENTE', comprobante: comprobanteValor, duracion: totalMinsCarrito, fueraHorario: flagFH(b, cel, f, h, totalMinsCarrito) });
             
            // ⚡ PUENTE SQL: DISPARO A SUPABASE DESDE EL KIOSKO
             if (isOnline && typeof supabaseClient !== 'undefined' && b.id_nube) {
@@ -6744,6 +6932,12 @@ function calcularPrecioIA(precioBase, idLocal) {
             tempServicios.forEach(s => { totalMinsCarrito += parseDuracionToMins(s.dur); });
             if (totalMinsCarrito === 0) totalMinsCarrito = (b.intervaloCitas || 60);
 
+            // 🌙 Hora fuera del horario normal: solo permitida a clientes especiales (en un día habilitado)
+            if (h && (timeToMins(h) < timeToMins(b.horaApertura || "08:00") || timeToMins(h) >= timeToMins(b.horaCierre || "20:00")) && !fhAplica(b, cel, f)) {
+                try { document.getElementById('modal-pago-anticipado').classList.add('hidden'); } catch (e) {}
+                return Swal.fire({ title: 'Horario no disponible', text: 'Esa hora está fuera del horario de atención. Elige otra hora.', icon: 'warning', background: '#0a0a0a', color: '#fff' });
+            }
+
             const choca = (b.citas || []).find(c => {
                 if(c.barbero !== barb || c.fecha !== f || c.estado === 'CANCELADA') return false;
                 let cInicio = timeToMins(c.hora); let cFin = cInicio + (c.duracion || (b.intervaloCitas || 60));
@@ -6766,7 +6960,7 @@ function calcularPrecioIA(precioBase, idLocal) {
             b.citas.push({ 
                 id: idReserva, nombre: cli, celular: cel, barbero: barb, 
                 servicio: srv, fecha: f, hora: h, estado: 'PENDIENTE', 
-                comprobante: 'PAGO_EN_PROCESO_WOMPI', duracion: totalMinsCarrito, creada: Date.now() 
+                comprobante: 'PAGO_EN_PROCESO_WOMPI', duracion: totalMinsCarrito, creada: Date.now(), fueraHorario: flagFH(b, cel, f, h, totalMinsCarrito)
             });
             
             // ⚡ PUENTE SQL: DISPARO A SUPABASE (WOMPI)
@@ -6960,7 +7154,7 @@ function calcularPrecioIA(precioBase, idLocal) {
             let html = misTickets.slice(0, 10).map(t => `
                 <div class="bg-black border border-zinc-800 p-3 rounded-xl mb-2 flex justify-between items-center text-left shadow-inner">
                     <div>
-                        <p class="text-[10px] font-black text-white uppercase">${t.fecha}</p>
+                        <p class="text-[10px] font-black text-white uppercase">${t.fecha}${t.fueraHorario ? ' <span class="text-indigo-300">🌙</span>' : ''}</p>
                         <p class="text-[8px] text-zinc-400 mt-0.5">${t.items ? t.items.map(i=>i.nom).join(', ') : 'Servicio'}</p>
                     </div>
                     <span class="text-green-400 font-black text-xs">${fMoney(t.total)}</span>
@@ -7193,7 +7387,7 @@ function calcularPrecioIA(precioBase, idLocal) {
                 // ✨ Botón mágico que solo aparece si la factura tiene una foto guardada
                 let btnEvidencia = t.comprobante ? `<button type="button" onclick="verEvidenciaPago('${t.ticketId}')" class="bg-yellow-600/30 text-yellow-400 border border-yellow-600/50 px-3 py-2 rounded-xl text-[9px] font-black uppercase hover:bg-yellow-600 hover:text-white transition-colors btn-press mb-1">📷 Ver Pago</button>` : '';
                 
-                return `<div class="p-4 rounded-2xl border flex justify-between items-center ${isAnulado ? "bg-red-900/10 opacity-60 border-red-900/30" : "bg-black/50 border-zinc-800"}"> <div> <p class="font-black uppercase text-sm ${isAnulado ? "text-red-500 line-through" : "text-white"}">${t.ticketId} <span class="text-zinc-500 text-[10px] ml-2 no-underline">${t.fecha}</span></p> <p class="text-[10px] text-zinc-400 mt-1">👤 ${t.cliente}</p> <p class="text-[11px] font-black ${isAnulado ? 'text-red-400' : 'text-green-400'} mt-1">${fMoney(t.total)} • ${t.metodo}</p> </div> <div class="flex flex-col gap-1 items-end"> ${isAnulado ? `<span class="text-red-500 font-black text-[10px] uppercase border border-red-500/50 px-2 py-1 rounded">🚫 Anulada</span>` : `${btnEvidencia} <button type="button" onclick="anularFactura('${t.ticketId}')" class="bg-red-900/30 text-red-500 border border-red-900/50 px-3 py-2 rounded-xl text-[9px] font-black uppercase hover:bg-red-600 hover:text-white transition-colors btn-press mb-1">🚫 Anular</button> <button type="button" onclick="reimprimirFactura('${t.ticketId}')" class="bg-blue-600/30 text-blue-400 border border-blue-600/50 px-3 py-2 rounded-xl text-[9px] font-black uppercase hover:bg-blue-600 hover:text-white transition-colors btn-press">🖨️ Imprimir</button>`} </div> </div>`;
+                return `<div class="p-4 rounded-2xl border flex justify-between items-center ${isAnulado ? "bg-red-900/10 opacity-60 border-red-900/30" : "bg-black/50 border-zinc-800"}"> <div> <p class="font-black uppercase text-sm ${isAnulado ? "text-red-500 line-through" : "text-white"}">${t.ticketId} <span class="text-zinc-500 text-[10px] ml-2 no-underline">${t.fecha}</span>${t.fueraHorario ? ' <span class="text-indigo-300 text-[9px] ml-1 no-underline">🌙 FUERA DE HORARIO</span>' : ''}</p> <p class="text-[10px] text-zinc-400 mt-1">👤 ${t.cliente}</p> <p class="text-[11px] font-black ${isAnulado ? 'text-red-400' : 'text-green-400'} mt-1">${fMoney(t.total)} • ${t.metodo}</p> </div> <div class="flex flex-col gap-1 items-end"> ${isAnulado ? `<span class="text-red-500 font-black text-[10px] uppercase border border-red-500/50 px-2 py-1 rounded">🚫 Anulada</span>` : `${btnEvidencia} <button type="button" onclick="anularFactura('${t.ticketId}')" class="bg-red-900/30 text-red-500 border border-red-900/50 px-3 py-2 rounded-xl text-[9px] font-black uppercase hover:bg-red-600 hover:text-white transition-colors btn-press mb-1">🚫 Anular</button> <button type="button" onclick="reimprimirFactura('${t.ticketId}')" class="bg-blue-600/30 text-blue-400 border border-blue-600/50 px-3 py-2 rounded-xl text-[9px] font-black uppercase hover:bg-blue-600 hover:text-white transition-colors btn-press">🖨️ Imprimir</button>`} </div> </div>`;
             }).join('') || `<p class="text-center text-zinc-600 text-xs py-4">No hay facturas registradas.</p>`;
         }
 
@@ -7320,6 +7514,13 @@ function calcularPrecioIA(precioBase, idLocal) {
             const hoy = getTodayYMD();
             const filtroEstatus = document.getElementById('filtro-vip-clientes') ? document.getElementById('filtro-vip-clientes').value : 'ALL';
 
+            // 🌙 Los clientes especiales siempre existen en el directorio (aunque nunca hayan venido)
+            try {
+                const fhC = (b.fueraHorario && b.fueraHorario.clientes) || {};
+                Object.keys(fhC).forEach(k => { if (!cData[k]) cData[k] = { nombre: fhC[k], celular: k, pts: 0, visitas: 0 }; });
+                if (b.fueraHorario && !b.clientes) b.clientes = cData;
+            } catch (e) {}
+            const esFH = k => !!(b.fueraHorario && b.fueraHorario.clientes && b.fueraHorario.clientes[k]);
             let listaKeys = Object.keys(cData);
 // 🛠️ AUTO-PARCHE SUPREMO: Fidelizar clientes antiguos automáticamente
             let actualizados = false;
@@ -7344,6 +7545,8 @@ function calcularPrecioIA(precioBase, idLocal) {
                 lista = lista.filter(k => cData[k].fechaRegistro); // Tienen Tarjeta VIP
             } else if (filtroEstatus === 'PASS') {
                 lista = lista.filter(k => cData[k].planSuscripcion); // Pagan Membresía
+            } else if (filtroEstatus === 'FH') {
+                lista = lista.filter(k => esFH(k)); // Clientes especiales fuera de horario
             } else if (filtroEstatus === 'NADA') {
                 lista = lista.filter(k => !cData[k].fechaRegistro && !cData[k].planSuscripcion); // No están en nada
             }
@@ -7386,6 +7589,7 @@ function calcularPrecioIA(precioBase, idLocal) {
                 ` : '';
 
                 // Etiqueta visual para identificar a los del Club de Fidelización
+                let badgeFH = esFH(k) ? `<span class="text-[7px] bg-indigo-900/40 text-indigo-300 border border-indigo-500/40 px-2 py-0.5 rounded font-black tracking-widest ml-2">🌙 FUERA DE HORARIO</span>` : '';
                 let badgeClub = esClub ? `<span class="text-[7px] bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 px-2 py-0.5 rounded font-black tracking-widest ml-2 shadow-[0_0_10px_rgba(99,102,241,0.2)]">💳 CLUB VIP</span>` : '';
 
 
@@ -7398,6 +7602,7 @@ function calcularPrecioIA(precioBase, idLocal) {
                             <div class="flex items-center flex-wrap gap-2 mt-1">
                                 <span class="text-zinc-500 font-bold text-[10px] tracking-widest">📞 ${c.celular || 'N/A'}</span>
                                 ${badgeClub}
+                                ${badgeFH}
                                 ${esVip && !alertaPlan ? `<span class="text-[7px] font-bold text-yellow-500 border border-yellow-500/50 bg-yellow-900/20 px-2 py-0.5 rounded shadow-[0_0_8px_rgba(234,179,8,0.2)]">PASS: ${c.planSuscripcion}</span>` : ''}
                                 ${alertaPlan}
                             </div>
@@ -7410,10 +7615,24 @@ function calcularPrecioIA(precioBase, idLocal) {
                     
                     <div class="flex gap-2 items-center justify-end border-t border-zinc-800/50 pt-3 mt-1">
                         ${c.celular ? `<button type="button" onclick="window.open('https://wa.me/57${c.celular}', '_blank')" class="bg-[#25D366]/10 text-[#25D366] px-3 py-2 rounded-lg font-black text-[8px] uppercase btn-press border border-[#25D366]/30 hover:bg-[#25D366]/20 transition-all shadow-sm">💬 Chat WP</button>` : ''}
+                        ${(b.fueraHorario && b.fueraHorario.activo !== undefined) || true ? `<button type="button" onclick="toggleClienteFH('${k}')" class="px-3 py-1.5 rounded-lg font-black text-[8px] uppercase btn-press border transition-colors ${esFH(k) ? 'bg-indigo-900/40 text-indigo-300 border-indigo-500/50' : 'bg-zinc-900 text-zinc-400 border-zinc-700'}">🌙 ${esFH(k) ? 'QUITAR F. HORARIO' : 'F. HORARIO'}</button>` : ''}
                         ${btnSuscripcion}
                     </div>
                 </div>`;
             }).join('') || '<p class="text-zinc-500 text-xs italic text-center py-6">No hay clientes con este filtro</p>';
+        }
+
+        // 🌙 Marcar / desmarcar un cliente del directorio como "Fuera de Horario"
+        function toggleClienteFH(k) {
+            const b = db.barberias[bIdx]; if (!b || !b.clientes || !b.clientes[k]) return;
+            if (!b.fueraHorario) b.fueraHorario = { activo: false, apertura: '06:00', cierre: '08:00', intervalo: 60, dias: [0,1,2,3,4,5,6], clientes: {} };
+            if (!b.fueraHorario.clientes) b.fueraHorario.clientes = {};
+            const cel = cleanNum(b.clientes[k].celular || k);
+            if (cel.length < 10) return Swal.fire('Aviso', 'Este cliente no tiene un celular válido de 10 dígitos.', 'warning');
+            if (b.fueraHorario.clientes[cel]) delete b.fueraHorario.clientes[cel];
+            else b.fueraHorario.clientes[cel] = b.clientes[k].nombre || cel;
+            saveDB(true); renderClientes();
+            if (!b.fueraHorario.activo) Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: 'Recuerda ACTIVAR el módulo en Ajustes → Fuera de Horario', showConfirmButton: false, timer: 3500, background: '#111', color: '#fff' });
         }
 
         function exportarClientesCSV() {
@@ -7423,7 +7642,7 @@ function calcularPrecioIA(precioBase, idLocal) {
             if(keys.length === 0) return Swal.fire('Directorio Vacío', 'No hay clientes para exportar', 'info');
             
             // Encabezados del Excel con Fidelización
-            let csvContent = "NOMBRE,CELULAR,PUNTOS,VISITAS,CLUB_FIDELIZACION,ZEUS_PASS,PLAN,VENCE\n";
+            let csvContent = "NOMBRE,CELULAR,PUNTOS,VISITAS,CLUB_FIDELIZACION,ZEUS_PASS,PLAN,VENCE,FUERA_HORARIO\n";
             
             keys.forEach(k => {
                 let c = cData[k];
@@ -7433,7 +7652,8 @@ function calcularPrecioIA(precioBase, idLocal) {
                 let vence = c.planVence || 'N/A';
                 
                 // Formato limpio para Excel (con comillas para evitar errores de comas en los nombres)
-                let row = `"${c.nombre}","${c.celular || ''}","${c.pts || 0}","${c.visitas || 0}","${esClub}","${esPass}","${plan}","${vence}"`;
+                let esFHc = (b.fueraHorario && b.fueraHorario.clientes && b.fueraHorario.clientes[k]) ? 'SI' : 'NO';
+                let row = `"${c.nombre}","${c.celular || ''}","${c.pts || 0}","${c.visitas || 0}","${esClub}","${esPass}","${plan}","${vence}","${esFHc}"`;
                 csvContent += row + "\n";
             });
             
@@ -7833,6 +8053,11 @@ function calcularPrecioIA(precioBase, idLocal) {
                 const vDig = ventas.filter(v => v.tipo !== "Efectivo").reduce((a, v) => a + v.valor + (v.ivaAplicado || 0), 0);
                 const gastos = (b.gastos || []).filter(g => g.fecha === hoy).reduce((a, g) => a + g.valor, 0);
                 document.getElementById('cc-total-cortes').innerText = cortesTot; document.getElementById('cc-efe-hoy').innerText = fMoney(vEfe);
+                try {
+                    const fhH = ventas.filter(v => v.fueraHorario && !v.esProducto && v.valor > 0);
+                    const r = document.getElementById('cc-fh-row');
+                    if (r) { r.classList.toggle('hidden', fhH.length === 0); document.getElementById('cc-fh').innerText = `${fhH.length} • ${fMoney(fhH.reduce((a, v) => a + v.valor, 0))}`; }
+                } catch (e) {}
                 document.getElementById('cc-dig-hoy').innerText = fMoney(vDig); document.getElementById('cc-efe-final').innerText = fMoney(vEfe - gastos);
             } else { 
                 // Barberos o Cajeras con Cierre Ciego activado (Solo declaran lo que cuentan)
@@ -7952,6 +8177,11 @@ function calcularPrecioIA(precioBase, idLocal) {
             const vTot = (b.ventas || []).reduce((a, v) => a + v.valor, 0); const iTot = (b.ventas || []).reduce((a, v) => a + (v.ivaAplicado || 0), 0); const gTot = (b.gastos || []).reduce((a, g) => a + g.valor, 0);
             document.getElementById('cm-ventas').innerText = fMoney(vTot); document.getElementById('cm-iva').innerText = fMoney(iTot);
             document.getElementById('cm-gastos').innerText = `-${fMoney(gTot)}`; document.getElementById('cm-neta').innerText = fMoney(vTot - gTot);
+            try {
+                const fhM = (b.ventas || []).filter(v => v.fueraHorario && !v.esProducto && !v.anulado && v.valor > 0);
+                const r = document.getElementById('cm-fh-row');
+                if (r) { r.classList.toggle('hidden', fhM.length === 0); document.getElementById('cm-fh').innerText = `${fhM.length} • ${fMoney(fhM.reduce((a, v) => a + v.valor, 0))}`; }
+            } catch (e) {}
         }
 
         function procesarCierreMes() {
@@ -8009,7 +8239,7 @@ function calcularPrecioIA(precioBase, idLocal) {
                 doc.setFontSize(18); doc.setFont("helvetica", "bold"); doc.text(`REPORTE FINANCIERO - ${b.nombre}`, pageWidth / 2, currentY, { align: "center" }); currentY += 6;
                 doc.setFontSize(10); doc.setFont("helvetica", "normal"); doc.text(`Generado: ${new Date().toLocaleDateString('es-CO')} ${new Date().toLocaleTimeString('es-CO')}`, pageWidth / 2, currentY, { align: "center" }); currentY += 10;
 
-                let tIng = 0, tGas = 0, tBar = 0, tIva = 0;
+                let tIng = 0, tGas = 0, tBar = 0, tIva = 0; let nFH = 0, vFHtot = 0;
                 const bodyV = (b.ventas || []).map(v => { 
                     let pBar = 0; 
                     if (v.barbero !== "ADMIN") { 
@@ -8025,7 +8255,7 @@ function calcularPrecioIA(precioBase, idLocal) {
                         }
                     } 
                     tIng += v.valor; tIva += (v.ivaAplicado || 0); tBar += pBar; 
-                    let tipo = v.barbero === "ADMIN" && v.valor < 0 ? "DESC." : (v.esProducto ? "PROD." : "SERV."); 
+                    let tipo = v.barbero === "ADMIN" && v.valor < 0 ? "DESC." : (v.esProducto ? "PROD." : "SERV."); if (v.fueraHorario && !v.esProducto) { tipo += " (F.H.)"; nFH++; vFHtot += v.valor; } 
                     return [v.fecha, v.hora, v.barbero, tipo, v.servicio, v.metodo, `${fMoney(v.valor)}`, `${fMoney(v.ivaAplicado || 0)}`, `${fMoney(v.valor + (v.ivaAplicado || 0))}`, `${fMoney(pBar)}`, `${fMoney(v.valor - pBar)}`]; 
                 });
 
@@ -8033,7 +8263,7 @@ function calcularPrecioIA(precioBase, idLocal) {
                 let allRows = bodyV.concat(bodyG); let tNeto = tIng - tGas - tBar;
                 doc.autoTable({ startY: currentY, head: [['Fecha', 'Hora', 'Empleado', 'Tipo', 'Item', 'Método', 'V. Base', 'IMPUESTO', 'Total', 'Comisión', 'Neto Local']], body: allRows, theme: 'striped', headStyles: { fillColor: [79, 70, 229] }, styles: { fontSize: 8 }, });
                 let finalY = doc.lastAutoTable.finalY + 15; if (finalY > 180) { doc.addPage(); finalY = 20; }
-                doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.setTextColor(0, 0, 0); doc.text("RESUMEN DE AUDITORÍA", 14, finalY); doc.setFontSize(10); doc.setFont("helvetica", "normal"); doc.text(`Ingresos Totales (Base): ${fMoney(tIng)}`, 14, finalY + 8); doc.text(`Pago a Barberos: -${fMoney(tBar)}`, 14, finalY + 14); doc.text(`Gastos del Local: -${fMoney(tGas)}`, 14, finalY + 20); doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.setTextColor(22, 163, 74); doc.text(`UTILIDAD NETA (Ganancia Libre): ${fMoney(tNeto)}`, 14, finalY + 30); doc.setFontSize(10); doc.setTextColor(202, 138, 4); doc.text(`IMPUESTOS Recaudados: ${fMoney(tIva)}`, 14, finalY + 38);
+                doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.setTextColor(0, 0, 0); doc.text("RESUMEN DE AUDITORÍA", 14, finalY); doc.setFontSize(10); doc.setFont("helvetica", "normal"); doc.text(`Ingresos Totales (Base): ${fMoney(tIng)}`, 14, finalY + 8); doc.text(`Pago a Barberos: -${fMoney(tBar)}`, 14, finalY + 14); doc.text(`Gastos del Local: -${fMoney(tGas)}`, 14, finalY + 20); doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.setTextColor(22, 163, 74); doc.text(`UTILIDAD NETA (Ganancia Libre): ${fMoney(tNeto)}`, 14, finalY + 30); doc.setFontSize(10); doc.setTextColor(202, 138, 4); doc.text(`IMPUESTOS Recaudados: ${fMoney(tIva)}`, 14, finalY + 38); if (nFH > 0) { doc.setTextColor(79, 70, 229); doc.text(`Servicios FUERA DE HORARIO: ${nFH} (${fMoney(vFHtot)})`, 14, finalY + 46); }
 
                 let pdfName = `ZEUS_FINANZAS_${b.nombre.replace(/\s+/g, '_')}.pdf`;
                 let pdfDataUri = doc.output('datauristring');
@@ -8093,6 +8323,8 @@ function calcularPrecioIA(precioBase, idLocal) {
 
        // --- CEREBRO PARA CARGAR LA CONFIGURACIÓN (A PRUEBA DE ERRORES) ---
        function renderConfig() {
+            // 🔒 Siempre abrir con los campos de cambio de PIN vacíos (y sin autocompletar del navegador)
+            ['cfg-admin-pin', 'cfg-new-admin-pin'].forEach(id => { const e = document.getElementById(id); if (e) { e.value = ''; setTimeout(() => { e.value = ''; }, 300); } });
             const b = db.barberias[bIdx]; if(!b) return;
 
             // 🧹 MAGIA: CERRAR TODOS LOS ACORDEONES AL ENTRAR
@@ -8120,6 +8352,7 @@ function calcularPrecioIA(precioBase, idLocal) {
             setVal('cfg-apertura', b.horaApertura || "08:00");
             setVal('cfg-cierre', b.horaCierre || "20:00");
             setVal('cfg-intervalo', b.intervaloCitas || 60);
+            try { cargarFueraHorarioCfg(b); } catch (e) { console.error(e); }
 
             if (b.logo && document.getElementById('cfg-logo-box')) document.getElementById('cfg-logo-box').innerHTML = `<img src="${b.logo}" class="w-full h-full object-cover absolute inset-0 rounded-[1rem]">`;
             if (b.tvBanner && document.getElementById('cfg-tv-banner-box')) document.getElementById('cfg-tv-banner-box').innerHTML = `<img src="${b.tvBanner}" class="w-full h-full object-cover absolute inset-0 rounded-[1rem]"><span class="relative z-10 text-[8px] font-bold text-white bg-black/50 px-1.5 py-0.5 rounded">OK</span>`;
@@ -8270,6 +8503,7 @@ function calcularPrecioIA(precioBase, idLocal) {
             b.horaApertura = getVal('cfg-apertura') || "08:00";
             b.horaCierre = getVal('cfg-cierre') || "20:00";
             b.intervaloCitas = parseInt(cleanNum(getVal('cfg-intervalo'))) || 60;
+            try { leerFueraHorarioCfg(b); } catch (e) { console.error(e); }
 
             // Redes Sociales
             if(!b.socials) b.socials = {};
@@ -8943,8 +9177,14 @@ function borrarServicio(idx) {
                     body: { store_id: b.id_nube, pin_actual: oldPinInput, pin_nuevo: newPinInput }
                 });
 
-                if (response.error || (response.data && !response.data.success)) {
-                    throw new Error(response.error ? "NETWORK_ERROR" : "PIN_INCORRECTO");
+                let respPin = response.data;
+                if (!respPin && response.error && response.error.context && typeof response.error.context.json === 'function') { try { respPin = await response.error.context.json(); } catch (e) {} }
+                if (response.error || !respPin || !respPin.success) {
+                    const st = response.error && response.error.context && response.error.context.status;
+                    const msgSrv = respPin && (respPin.error || respPin.message);
+                    if (response.error && (response.error.name === 'FunctionsFetchError' || st === 0 || !st)) throw new Error("NETWORK_ERROR");
+                    if (st && st >= 500) { const er = new Error(msgSrv || ('Error del servidor (' + st + ')')); er.servidor = true; throw er; }
+                    const er = new Error(msgSrv || "PIN_INCORRECTO"); er.pin = true; throw er;
                 }
 
                 // 🛡️ Guardado Seguro Local
@@ -8958,8 +9198,10 @@ function borrarServicio(idx) {
                 console.error(e);
                 if (e.message === "NETWORK_ERROR" || e.name === "FunctionsFetchError") {
                     Swal.fire('Error de Red', 'Sin conexión con el servidor. Intenta de nuevo.', 'error');
+                } else if (e.servidor) {
+                    Swal.fire('Error del servidor', 'No se pudo cambiar el PIN: ' + e.message, 'error');
                 } else {
-                    Swal.fire('Error de Seguridad', 'El PIN actual que ingresaste es incorrecto.', 'error');
+                    Swal.fire('No se pudo cambiar el PIN', (e.message && e.message !== 'PIN_INCORRECTO') ? e.message : 'El PIN actual que ingresaste es incorrecto.', 'error');
                 }
             }
         }
@@ -10013,7 +10255,7 @@ async function rescatarSuscripcionLocal() {
                 <div class="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-r from-[#020202] via-[#050505] to-[#020202] border-t border-indigo-900/50 flex justify-between items-center px-4 sm:px-8 z-50 shadow-[0_-5px_20px_rgba(0,0,0,0.8)]">
                     <div class="flex items-center gap-3 h-full">
                         <div class="h-16 w-16 bg-black rounded-full border-2 border-indigo-500 flex items-center justify-center -mt-6 shadow-[0_0_20px_rgba(99,102,241,0.4)] overflow-hidden">
-                            <img src="video.gif" class="w-full h-full object-cover">
+                            <img src="video.gif" class="w-full h-full object-cover" onerror="this.onerror=null;this.replaceWith(Object.assign(document.createElement('span'),{className:'text-2xl',textContent:'⚡'}));">
                         </div>
                         <div class="flex flex-col pb-1">
                             <span class="text-xs font-black text-white tracking-widest uppercase">ISI CONTROL <span class="text-indigo-500">PRO</span></span>
@@ -11332,6 +11574,8 @@ function abrirOnboardingManual() {
             
             let propina = parseInt(cleanNum(document.getElementById('caja-propina') ? document.getElementById('caja-propina').value : '0')) || 0;
             let totalCobrar = subtotal + iva + propina;
+            // 💳 Si el cliente ya abonó (ej. pagó la cita por Wompi), eso se descuenta; lo extra (productos, propina) sí se cobra
+            if (typeof abonoValidadoCaja !== 'undefined' && abonoValidadoCaja > 0) totalCobrar = Math.max(0, totalCobrar - abonoValidadoCaja);
 
             const displayCambio = document.getElementById('caja-cambio');
             if (displayCambio) {
@@ -11447,6 +11691,7 @@ function abrirOnboardingManual() {
         // 🗑️ BOTÓN DE BASURERO: LIMPIAR CAJA POR COMPLETO
         function limpiarCajaPorCompleto() {
             sessionStorage.removeItem('zeus_caja_draft');
+            citaCajaActualId = null; abonoValidadoCaja = 0;
             renderCaja();
         }
 
@@ -11713,7 +11958,8 @@ function abrirOnboardingManual() {
                         store_id: b.id_nube || b.id,
                         servicios: cajaCart.filter(i => !i.isProd).map(i => i.nom),
                         productos: cajaCart.filter(i => i.isProd).map(i => i.id),
-                        propina: parseInt(cleanNum(document.getElementById('caja-propina') ? document.getElementById('caja-propina').value : '0')) || 0
+                        propina: parseInt(cleanNum(document.getElementById('caja-propina') ? document.getElementById('caja-propina').value : '0')) || 0,
+                        descuento: abonoValidadoCaja > 0 ? abonoValidadoCaja : 0
                     }
                 }).then(async response => {
                     const data = response.data;
@@ -11727,6 +11973,7 @@ function abrirOnboardingManual() {
                     }
                     if (!data || !data.signature || !data.amountInCents) throw new Error("Datos incompletos.");
 
+                    vigilarPagoWompiCaja(idReserva, data.amountInCents);
                     const redirectSeguro = encodeURIComponent("https://zeusbarberpro.com/?kiosk=" + (b.id_nube || b.id)); 
                     const linkWompiOficial = `https://checkout.wompi.co/p/?public-key=${b.wompiPub}&currency=COP&amount-in-cents=${data.amountInCents}&reference=${idReserva}&signature:integrity=${data.signature}&redirect-url=${redirectSeguro}`;
 
@@ -11740,7 +11987,7 @@ function abrirOnboardingManual() {
                             
                             <div class="mt-6 bg-blue-900/10 border border-blue-500/30 p-4 rounded-xl text-left">
                                 <p class="text-[9px] text-blue-400 font-black uppercase tracking-widest mb-1 flex items-center gap-1"><span>🛡️</span> MODO SEGURO</p>
-                                <p class="text-[9px] text-zinc-400 leading-tight">Al tocar el botón se abrirá WhatsApp. Cuando el cliente te confirme que ya pagó, <b>vuelve a esta pestaña de Zeus</b> y finaliza la venta.</p>
+                                <p class="text-[9px] text-zinc-400 leading-tight">Al tocar el botón se abrirá WhatsApp. <b>Mantén abierta esta pestaña de Zeus</b>: cuando el cliente pague, Zeus lo detecta solo, te avisa y cierra la venta (y la cita).</p>
                             </div>
                         `,
                         background: '#0a0a0a', color: '#fff',
@@ -11833,7 +12080,7 @@ function abrirOnboardingManual() {
             const barberoSelect = document.getElementById('caja-barbero-select');
             
             if (btnFinalizar && barberoSelect) {
-                if (barberoSelect.value !== "" && cajaCart.length > 0 && cajaMetodoActual !== "") {
+                if (barberoSelect.value !== "" && cajaCart.length > 0 && (cajaMetodoActual !== "" || (abonoValidadoCaja > 0 && totalCobrar === 0))) {
                     let faltaPlata = false;
                     if (cajaMetodoActual === 'Efectivo') {
                         let cambio = cajaRecibidoTotal - totalCobrar;
@@ -11877,6 +12124,35 @@ function abrirOnboardingManual() {
             } catch(e){}
         }
 
+       // 👀 Vigila el pago del link Wompi generado desde caja; al aprobarse avisa y cierra la venta (y la cita)
+        let _wompiCajaTimer = null;
+        function vigilarPagoWompiCaja(reference, amountCents) {
+            if (_wompiCajaTimer) clearInterval(_wompiCajaTimer);
+            const limite = Date.now() + 25 * 60000;
+            let ocupado = false;
+            _wompiCajaTimer = setInterval(async () => {
+                if (Date.now() > limite) { clearInterval(_wompiCajaTimer); _wompiCajaTimer = null; return; }
+                if (ocupado) return; ocupado = true;
+                try {
+                    const { data, error } = await supabaseClient.rpc('estado_pago_wompi', { p_ref: reference });
+                    if (error || !data) return;
+                    if (data.estado === 'APROBADO') {
+                        clearInterval(_wompiCajaTimer); _wompiCajaTimer = null;
+                        try { Swal.close(); } catch (e) {}
+                        try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch (e) {}
+                        const pagado = Number(data.amount_cents) / 100;
+                        const coincide = (calcularCambioCaja() === pagado) && cajaMetodoActual === 'Wompi' && cajaCart.length > 0 && document.getElementById('caja-barbero-select').value !== '';
+                        if (coincide) {
+                            Swal.fire({ title: '💰 ¡PAGO WOMPI RECIBIDO!', text: fMoney(pagado) + ' — cerrando la venta...', icon: 'success', timer: 1800, showConfirmButton: false, background: '#0a0a0a', color: '#fff' })
+                                .then(() => { try { procesarVentaCaja(); } catch (e) { console.error(e); } });
+                        } else {
+                            Swal.fire({ title: '💰 ¡PAGO WOMPI RECIBIDO!', html: 'Entraron <b>' + fMoney(pagado) + '</b>.<br>El carrito cambió: revisa y presiona COBRAR para cerrar la venta.', icon: 'success', background: '#0a0a0a', color: '#fff' });
+                        }
+                    }
+                } catch (e) {} finally { ocupado = false; }
+            }, 5000);
+        }
+
        function procesarVentaCaja() {
             try {
                 const b = db.barberias[bIdx]; 
@@ -11887,8 +12163,11 @@ function abrirOnboardingManual() {
                 if (m === 'Wompi') {
                     metodoReal = 'Transferencia (Wompi)';
                 } else if (m === '') {
-                    return Swal.fire('Falta Método', 'Debes seleccionar cómo pagó el cliente.', 'warning');
+                    if (abonoValidadoCaja > 0 && calcularCambioCaja() === 0) { metodoReal = 'Transferencia (Wompi)'; }
+                    else return Swal.fire('Falta Método', 'Debes seleccionar cómo pagó el cliente.', 'warning');
                 }
+                const citaCobro = (citaCajaActualId && b.citas) ? b.citas.find(c => String(c.id) === String(citaCajaActualId)) : null;
+                const lblAbono = (citaCobro && citaCobro.metodoAbono === 'WOMPI') ? 'Transferencia (Wompi)' : 'Transferencia';
 
                 const barbSelect = document.getElementById('caja-barbero-select').value;
                 let cNom = 'CLIENTE GENERAL'; let cCel = '';
@@ -11915,9 +12194,15 @@ function abrirOnboardingManual() {
                 
                 let propina = parseInt(cleanNum(document.getElementById('caja-propina') ? document.getElementById('caja-propina').value : '0')) || 0;
                 const tV = sV + vI + propina;
+                const abonoUsado = Math.min(abonoValidadoCaja > 0 ? abonoValidadoCaja : 0, sV + vI);
+                let abonoRestante = abonoUsado;
+                // 🌙 ¿Fue un servicio fuera de horario? (cita marcada, o cliente especial atendido fuera del horario normal)
+                const _citaFH = citaCobro || (cCel && b.citas ? b.citas.find(c => c.celular === cCel && c.barbero === barbSelect && c.fecha === fA && c.estado !== 'COMPLETADA' && c.estado !== 'CANCELADA') : null);
+                const _ahoraHHMM = (() => { const d = new Date(); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); })();
+                const fhVenta = !!((_citaFH && _citaFH.fueraHorario) || (fhAplica(b, cCel, fA) && esFueraDeHorario(b, _ahoraHHMM, 0)));
                 const tId = (b.prefijoFactura || "TK-") + (b.consecutivoFactura || 1);
 
-                lastTicketData = { nombreNegocio: b.nombre, fecha: fA, hora: hA, cliente: cNom, celular: cCel, metodo: metodoReal, total: tV, ticketId: tId, items: JSON.parse(JSON.stringify(cajaCart)), pts: ptsActuales, ivaPct: (iA ? b.configIVA.porcentaje : 0), valorIva: vI, subtotal: sV, comprobante: null, cobradoPor: session.nom };
+                lastTicketData = { fueraHorario: fhVenta, nombreNegocio: b.nombre, fecha: fA, hora: hA, cliente: cNom, celular: cCel, metodo: metodoReal, total: tV, ticketId: tId, items: JSON.parse(JSON.stringify(cajaCart)), pts: ptsActuales, ivaPct: (iA ? b.configIVA.porcentaje : 0), valorIva: vI, subtotal: sV, comprobante: null, cobradoPor: session.nom };
                 
                 if (propina > 0) { lastTicketData.items.push({ nom: '💖 Propina Barbero', pre: propina, isProd: false }); }
 
@@ -11927,9 +12212,23 @@ function abrirOnboardingManual() {
 
                 cajaCart.forEach(i => {
                     if (i.isProd) { let px = b.productos.findIndex(p => p.id === i.id); if (px > -1) b.productos[px].stock -= 1; }
-                    let nuevaVenta = { ticketId: tId, barbero: barbSelect, servicio: i.nom, valor: i.pre, ivaAplicado: (iA ? Math.round(i.pre * (b.configIVA.porcentaje / 100)) : 0), metodo: metodoReal, tipo: m === "Efectivo" ? "Efectivo" : "Digital", fecha: fA, hora: hA, esProducto: i.isProd, turnoCerrado: false, cobradoPor: session.nom };
-                    b.ventas.push(nuevaVenta);
-                    nuevasVentasSQL.push(nuevaVenta); // 🚀 LO SUBIMOS AL PUENTE
+                    const ivaItem = (iA ? Math.round(i.pre * (b.configIVA.porcentaje / 100)) : 0);
+                    const totItem = i.pre + ivaItem;
+                    const cubre = Math.min(abonoRestante, totItem); abonoRestante -= cubre;
+                    // Parte del ítem pagada con el abono previo (queda como Wompi/Transferencia) y parte pagada ahora
+                    const partes = [];
+                    if (cubre > 0 && totItem > 0) {
+                        const f = cubre / totItem;
+                        partes.push({ valor: Math.round(i.pre * f), iva: Math.round(ivaItem * f), metodo: lblAbono, tipo: 'Digital' });
+                        if (cubre < totItem) partes.push({ valor: i.pre - Math.round(i.pre * f), iva: ivaItem - Math.round(ivaItem * f), metodo: metodoReal, tipo: m === "Efectivo" ? "Efectivo" : "Digital" });
+                    } else {
+                        partes.push({ valor: i.pre, iva: ivaItem, metodo: metodoReal, tipo: m === "Efectivo" ? "Efectivo" : "Digital" });
+                    }
+                    partes.forEach(p => {
+                        let nuevaVenta = { ticketId: tId, barbero: barbSelect, servicio: i.nom, valor: p.valor, ivaAplicado: p.iva, metodo: p.metodo, tipo: p.tipo, fecha: fA, hora: hA, esProducto: i.isProd, turnoCerrado: false, cobradoPor: session.nom, fueraHorario: fhVenta };
+                        b.ventas.push(nuevaVenta);
+                        nuevasVentasSQL.push(nuevaVenta); // 🚀 LO SUBIMOS AL PUENTE
+                    });
                 });
 
                 if (propina > 0) {
@@ -11949,11 +12248,16 @@ function abrirOnboardingManual() {
 
                 let turnoActualizado = false;
                 if (b.citas) {
-                    const citaAbierta = b.citas.find(c => c.barbero === barbSelect && c.fecha === fA && c.estado !== 'COMPLETADA' && c.estado !== 'CANCELADA');
+                    const abierta = c => c.estado !== 'COMPLETADA' && c.estado !== 'CANCELADA';
+                    // 1) La cita exacta que se cargó a caja con el botón COBRAR
+                    let citaAbierta = citaCajaActualId ? b.citas.find(c => String(c.id) === String(citaCajaActualId) && abierta(c)) : null;
+                    // 2) Si no, la cita de hoy de ese mismo cliente (mismo celular) y barbero
+                    if (!citaAbierta && cCel) citaAbierta = b.citas.find(c => c.celular === cCel && c.barbero === barbSelect && c.fecha === fA && abierta(c));
                     if (citaAbierta) { citaAbierta.estado = 'COMPLETADA'; turnoActualizado = true; saveDB(true); }
                 }
+                citaCajaActualId = null; abonoValidadoCaja = 0;
 
-                document.getElementById('ticket-total').innerText = fMoney(tV); 
+                document.getElementById('ticket-total').innerText = fMoney(Math.max(0, tV - abonoUsado));
                 document.getElementById('ticket-fecha').innerText = `TK N° ${tId} | ${fA}`;
                 
                 const ticketCtn = document.getElementById('ticket-items');
@@ -12029,7 +12333,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.180"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.181"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
@@ -12221,6 +12525,7 @@ function abrirOnboardingManual() {
             if (typeof limpiarBilletesCaja === 'function') limpiarBilletesCaja();
             cajaCart = [];
             abonoValidadoCaja = 0;
+            citaCajaActualId = cita.id;
             
             const inputSearch = document.getElementById('caja-search-cli');
             if (inputSearch) {
