@@ -2715,8 +2715,10 @@ async function hashPIN(pin) {
                 if (e.target.getAttribute('inputmode') === 'numeric') {
                     e.target.value = cleanNum(e.target.value);
                 } else if (e.target.type === 'text') {
-                    // Filtra cualquier intento de inyección de scripts en campos de texto
-                    e.target.value = cleanStr(e.target.value);
+                    // Filtra cualquier intento de inyección de scripts en campos de texto.
+                    // OJO: aquí NO se usa trim(), porque borraría el espacio apenas se escribe ("jhon " -> "jhon").
+                    // El recorte de espacios sobrantes se hace al LEER el campo (cleanStr).
+                    if (/[<>]/.test(e.target.value)) e.target.value = e.target.value.replace(/[<>]/g, '');
                 }
             }
         });
@@ -10023,6 +10025,28 @@ async function rescatarSuscripcionLocal() {
             
             document.body.appendChild(tv);
 
+            // 📺 ESCALA AUTOMÁTICA PARA TV: el diseño está pensado en un lienzo de 1280x720.
+            // En pantallas más grandes (1080p, 4K) se agranda todo en proporción; en pantallas
+            // chicas (ej. 1024x600) se reduce un poco para que quepa todo. En celulares no cambia.
+            window.ajustarEscalaTV = function() {
+                const el = document.getElementById('view-smart-tv'); if (!el) return;
+                const w = window.innerWidth, h = window.innerHeight;
+                let z = 1;
+                if (w >= 900) z = Math.min(w / 1280, h / 720);
+                z = Math.max(0.6, Math.min(z, 4));
+                if (Math.abs(z - 1) < 0.02) {
+                    ['left','top','right','bottom','width','height','transform','transformOrigin'].forEach(p => el.style[p] = '');
+                    return;
+                }
+                el.style.left = '0'; el.style.top = '0'; el.style.right = 'auto'; el.style.bottom = 'auto';
+                el.style.width = (w / z) + 'px'; el.style.height = (h / z) + 'px';
+                el.style.transformOrigin = '0 0'; el.style.transform = 'scale(' + z + ')';
+            };
+            ajustarEscalaTV();
+            window.addEventListener('resize', ajustarEscalaTV);
+            window.addEventListener('orientationchange', () => setTimeout(ajustarEscalaTV, 300));
+
+
             // Le damos un milisegundo al navegador para que dibuje el HTML antes de inyectarle los datos
             setTimeout(() => {
                 if (typeof actualizarSmartTVUI === 'function') actualizarSmartTVUI();
@@ -10222,7 +10246,7 @@ async function rescatarSuscripcionLocal() {
                     <div class="flex items-center gap-3 w-full">
                         <div class="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center font-black text-[10px] sm:text-xs shrink-0 ${enSilla ? 'bg-pink-600 text-white shadow-[0_0_10px_rgba(236,72,153,0.5)]' : 'text-zinc-500 bg-zinc-900'}">${idx + 1}</div>
                         <div class="flex-1 min-w-0 flex justify-between items-center pr-2">
-                            <div class="flex flex-col">
+                            <div class="flex flex-col min-w-0 flex-1 pr-2">
                                 <p class="text-[10px] sm:text-sm font-black uppercase tracking-tighter truncate text-white">${c.nombre}</p>
                                 <p class="text-[7px] text-zinc-500 font-bold uppercase tracking-widest mt-0.5">Con: <span class="text-cyan-400 font-black">${c.barbero}</span></p>
                             </div>
@@ -11993,7 +12017,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.178"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.179"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
