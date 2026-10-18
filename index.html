@@ -3511,13 +3511,21 @@ async function hashPIN(pin) {
 async function verificarRetornoWompi(txId, kioskId, env) {
     Swal.fire({ title: 'Validando con el Banco...', text: 'Verificando transacción segura', allowOutsideClick: false, didOpen: () => { Swal.showLoading() }, background: '#0a0a0a', color: '#fff' });
     
-    const urlWompi = env === 'test' ? `https://sandbox.wompi.co/v1/transactions/${txId}` : `https://production.wompi.co/v1/transactions/${txId}`;
+    const pubLocal = String((db.barberias[kiosko_bIdx] && db.barberias[kiosko_bIdx].wompiPub) || '');
+    const esTest = env === 'test' || pubLocal.startsWith('pub_test_');
+    const urlSandbox = `https://sandbox.wompi.co/v1/transactions/${txId}`;
+    const urlProduccion = `https://production.wompi.co/v1/transactions/${txId}`;
+    const urlWompi = esTest ? urlSandbox : urlProduccion;
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 12000); 
     
     try {
         if (!navigator.onLine) throw new Error("OFFLINE");
-        const response = await fetch(urlWompi, { signal: controller.signal });
+        let response = await fetch(urlWompi, { signal: controller.signal });
+        // Si el ambiente no estaba claro y no la encontró, probamos el otro
+        if (!response.ok && env !== 'test' && env !== 'prod' && !pubLocal) {
+            response = await fetch(esTest ? urlProduccion : urlSandbox, { signal: controller.signal });
+        }
         clearTimeout(timeoutId);
         
         if (!response.ok) throw new Error(`HTTP_ERROR_${response.status}`);
@@ -6828,7 +6836,7 @@ function calcularPrecioIA(precioBase, idLocal) {
                     ]);
                 } catch (e) {}
 
-                const redirectSeguro = encodeURIComponent(window.location.href);
+                const redirectSeguro = encodeURIComponent(window.location.origin + window.location.pathname + '?kiosk=' + (b.id_nube || b.id));
                 const urlWompi = `https://checkout.wompi.co/p/?public-key=${b.wompiPub}&currency=COP&amount-in-cents=${data.amountInCents}&reference=${idReserva}&signature:integrity=${data.signature}&redirect-url=${redirectSeguro}`;
 
                 setTimeout(() => { window.location.href = urlWompi; }, 500);
@@ -11985,7 +11993,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.177"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.178"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
