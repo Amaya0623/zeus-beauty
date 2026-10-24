@@ -177,7 +177,17 @@
         body.tv-mode ::-webkit-scrollbar { display: none; } /* Oculta barras de desplazamiento */
         body.tv-mode .btn-press, body.tv-mode input, body.tv-mode select { display: none !important; } /* Esconde controles */
 
-    </style>
+    
+        /* 📱 Celulares: menos relleno en Ajustes/Admin para que los campos no queden apretados */
+        @media (max-width: 639px) {
+            #view-config { padding: 0.5rem; }
+            #view-config > .glass { padding: 1rem; border-radius: 2rem; }
+            #view-config [id^="acc-"] { padding-left: 0.75rem; padding-right: 0.75rem; }
+            #view-config [id^="acc-"] .p-5 { padding: 0.75rem; }
+            #view-config [id^="acc-"] .p-6 { padding: 0.75rem; }
+            #view-admin { padding: 0.75rem; }
+        }
+</style>
 </head>
 
 <body>
@@ -289,16 +299,16 @@
             </div>
         </nav>
 
-        <section id="view-login" class="view-section active max-w-md mx-auto mt-4 sm:mt-12 p-8 sm:p-10 glass rounded-[3rem] text-center border border-zinc-900 shadow-2xl min-h-[85vh] flex flex-col justify-center relative">
+        <section id="view-login" class="view-section active max-w-md lg:max-w-4xl mx-auto mt-4 sm:mt-12 lg:mt-8 p-8 sm:p-10 lg:px-16 lg:py-12 glass rounded-[3rem] text-center border border-zinc-900 shadow-2xl min-h-[85vh] lg:min-h-0 flex flex-col justify-center relative lg:grid lg:grid-cols-2 lg:gap-x-16 lg:gap-y-2 lg:items-center">
             
-            <div id="contenedor-instalar-pwa" class="hidden w-full flex justify-center mb-6">
+            <div id="contenedor-instalar-pwa" class="hidden w-full flex justify-center mb-6 lg:col-span-2">
                 <button id="btn-instalar-pwa" class="bg-indigo-600 text-white px-6 py-3 rounded-full font-black text-xs uppercase shadow-[0_0_15px_rgba(79,70,229,0.5)] border border-indigo-400/50 flex items-center gap-2 hover:bg-indigo-500 transition-all btn-press">
                     <span id="pwa-icon">📲</span> <span id="pwa-text">INSTALAR ZEUS APP</span>
                 </button>
             </div>
 
 
-            <div id="login-logo-container" class="flex flex-col justify-center mb-8 items-center">
+            <div id="login-logo-container" class="flex flex-col justify-center mb-8 items-center lg:items-start lg:text-left lg:mb-2 lg:col-start-1 lg:row-start-2">
                 <img id="login-custom-logo" alt="Logo de la Barbería" class="hidden w-40 h-40 object-cover rounded-[1.5rem] shadow-lg mb-4" src="">
                 
                 
@@ -311,9 +321,17 @@
                 <p id="beauty-phrase" class="hidden text-[10px] italic text-rose-400 mt-4 mb-4 font-bold tracking-widest">"Belleza que inspira, tecnología que transforma"</p>
             </div>
 
+            <!-- Solo en portátil / PC: lista de beneficios a la izquierda -->
+            <ul id="login-hero" class="hidden lg:flex flex-col gap-3 text-left lg:col-start-1 lg:row-start-3 lg:self-start mt-2">
+                <li class="flex items-center gap-3 text-sm font-bold text-zinc-300"><span class="text-xl w-8 text-center">📅</span> Agenda online para tus clientes, 24/7</li>
+                <li class="flex items-center gap-3 text-sm font-bold text-zinc-300"><span class="text-xl w-8 text-center">💳</span> Cobros con Wompi, QR de banco y efectivo</li>
+                <li class="flex items-center gap-3 text-sm font-bold text-zinc-300"><span class="text-xl w-8 text-center">📊</span> Reportes y nómina automática</li>
+                <li class="flex items-center gap-3 text-sm font-bold text-zinc-300"><span class="text-xl w-8 text-center">📺</span> Pantalla Smart TV para tu sala de espera</li>
+            </ul>
 
 
-            <div class="mt-auto mb-auto">
+
+            <div class="mt-auto mb-auto lg:col-start-2 lg:row-start-2 lg:row-span-2 lg:my-0">
                 <!-- 1. Campo del PIN -->
                 <input type="password" inputmode="numeric" id="login-pin" maxlength="4" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)" aria-label="Ingrese su PIN de acceso" placeholder="••••" class="w-full p-6 rounded-3xl text-center text-4xl font-black mb-6 border border-zinc-800 shadow-inner tracking-[1em] indent-[1em] bg-[#050505] focus:border-indigo-500 outline-none transition-colors text-white">
 
@@ -336,6 +354,8 @@
 
 
 
+                <div id="banner-plan-zeus" class="hidden"></div>
+
                 <!-- 3. Botones Inferiores -->
                 <hr class="border-zinc-800 mb-6">
                 
@@ -356,7 +376,7 @@
                 <div class="flex flex-col items-center"><span class="text-2xl mb-1">📈</span><span class="text-[7px] font-black text-fuchsia-400 uppercase tracking-widest">Gestión</span><span class="text-[6px] text-zinc-500 uppercase mt-1">Control Total<br>Negocio</span></div>
             </div>
 
-            <div class="mt-4 flex flex-col items-center gap-3 border-t border-zinc-800 pt-6">
+            <div class="mt-4 flex flex-col items-center gap-3 border-t border-zinc-800 pt-6 lg:col-span-2 lg:row-start-4 lg:mt-6">
                 <p class="text-[10px] text-yellow-500 cursor-pointer hover:text-yellow-400 uppercase font-black tracking-widest transition-colors flex items-center gap-2 bg-yellow-900/20 px-4 py-2 rounded-full border border-yellow-500/30 shadow-[0_0_15px_rgba(234,179,8,0.2)] btn-press" onclick="abrirOnboardingManual()">⚡ DESCUBRE ZEUS</p>
                 <p class="text-[10px] text-indigo-400 cursor-pointer hover:text-indigo-300 uppercase font-black tracking-widest transition-colors flex items-center gap-2 bg-indigo-900/20 px-4 py-2 rounded-full border border-indigo-500/30 btn-press" onclick="guiaInstalacion()">📲 ¿CÓMO INSTALAR LA APP?</p>
 
@@ -462,6 +482,24 @@
                 </button>
             </div>
             
+            <div id="onb-paso-planes" class="hidden flex-col min-h-screen w-full pb-20">
+                <div class="sticky top-0 z-50 bg-[#050505]/95 backdrop-blur-xl border-b border-zinc-800 p-3 sm:p-5 flex items-center justify-between shadow-lg w-full min-h-[70px]">
+                    <button type="button" onclick="volverDePlanes()" class="text-zinc-400 hover:text-white font-black text-xs sm:text-sm uppercase tracking-widest">⬅ Atrás</button>
+                    <h2 class="text-base sm:text-xl font-black italic uppercase tracking-tighter text-white">Planes Zeus</h2>
+                    <div class="w-16"></div>
+                </div>
+                <div class="max-w-6xl mx-auto w-full px-4 sm:px-8 pt-8 sm:pt-10">
+                    <div class="text-center mb-8 sm:mb-10">
+                        <span class="inline-block text-[10px] sm:text-xs font-black uppercase tracking-widest px-4 py-1.5 rounded-full border border-amber-500/40 bg-amber-900/20 text-amber-300">🎁 15 días de prueba gratis en todos los planes</span>
+                        <h2 id="planes-titulo" class="mt-4 text-3xl sm:text-5xl font-black uppercase tracking-tighter text-white leading-tight">Elige el plan de tu barbería</h2>
+                        <p class="mt-3 text-xs sm:text-sm text-zinc-400 font-bold max-w-xl mx-auto">Pruébalo sin pagar. Al terminar los 15 días solo pagas la mensualidad de tu plan. Puedes cambiar de plan cuando quieras.</p>
+                    </div>
+                    <div id="planes-grid" class="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6 items-stretch"></div>
+                    <div class="text-center mt-10">
+                        <button type="button" onclick="verModulosZeus()" class="text-xs font-black uppercase tracking-widest text-zinc-400 border-b border-zinc-700 pb-1 hover:text-white transition-colors">Ver todos los módulos ➔</button>
+                    </div>
+                </div>
+            </div>
             <div id="modal-feature-detalle" class="hidden fixed inset-0 z-[10000] bg-black/80 backdrop-blur-md flex items-center justify-center p-6 opacity-0 transition-opacity duration-300">
                 <div class="glass p-8 sm:p-10 rounded-[2.5rem] border border-zinc-800 shadow-2xl max-w-sm w-full text-center relative transform scale-95 transition-transform duration-300 bg-[#0a0a0a]" id="modal-feature-content">
                     <button type="button" aria-label="Cerrar detalle" onclick="cerrarDetalleFeature()" class="absolute top-4 right-4 w-8 h-8 bg-black border border-zinc-800 text-zinc-500 rounded-full flex items-center justify-center font-bold btn-press hover:text-white hover:bg-red-500 transition-colors">✕</button>
@@ -1410,11 +1448,11 @@
                                         
                                         <input type="text" id="add-s-nom" placeholder="Nombre (Ej: Corte Clásico)" class="col-span-2 md:col-span-12 p-4 text-sm rounded-xl uppercase font-bold bg-[#050505] border border-zinc-800 w-full text-white outline-none focus:border-green-500">
                                         
-                                        <input type="text" inputmode="numeric" id="add-s-pre" placeholder="Precio ($)" class="col-span-1 md:col-span-4 p-4 text-sm rounded-xl font-bold bg-[#050505] border border-zinc-800 w-full text-white outline-none focus:border-green-500 text-center">
+                                        <input type="text" inputmode="numeric" id="add-s-pre" placeholder="Precio ($)" class="col-span-1 md:col-span-6 p-4 text-sm rounded-xl font-bold bg-[#050505] border border-zinc-800 w-full text-white outline-none focus:border-green-500 text-center">
                                         
-                                        <input type="text" id="add-s-dur" placeholder="Mins (Ej: 45)" class="col-span-1 md:col-span-4 p-4 text-sm rounded-xl font-bold bg-[#050505] border border-zinc-800 w-full text-white outline-none focus:border-green-500 text-center">
+                                        <input type="text" id="add-s-dur" inputmode="numeric" placeholder="Minutos (45)" class="col-span-1 md:col-span-6 p-4 text-sm rounded-xl font-bold bg-[#050505] border border-zinc-800 w-full text-white outline-none focus:border-green-500 text-center">
                                         
-                                        <label class="col-span-2 md:col-span-4 flex items-center justify-center gap-2 bg-[#050505] border border-yellow-900/50 rounded-xl text-[10px] font-black text-yellow-500 uppercase cursor-pointer hover:bg-yellow-900/20 transition-colors p-4">
+                                        <label class="col-span-2 md:col-span-12 flex items-center justify-center gap-2 bg-[#050505] border border-yellow-900/50 rounded-xl text-[10px] font-black text-yellow-500 uppercase cursor-pointer hover:bg-yellow-900/20 transition-colors p-4">
                                             <input type="checkbox" id="add-s-premium" class="accent-yellow-500 w-5 h-5">👑 Destacar
                                         </label>
 
@@ -1486,10 +1524,22 @@
                                                 <input type="time" id="add-b-fin" class="w-full bg-transparent text-white text-sm font-black outline-none text-center cursor-pointer appearance-none">
                                             </div>
                                         </div>
-<input type="text" id="add-b-especialidades" placeholder="Especialidades separadas por coma (Ej: Degradados, Color, Tatuajes)" class="w-full bg-[#050505] border border-zinc-800 p-3.5 rounded-xl text-[10px] font-bold text-white uppercase focus:border-indigo-500 outline-none transition-colors mt-2">
+<input type="text" id="add-b-especialidades" placeholder="Especialidades (Ej: Degradados, Color)" class="w-full bg-[#050505] border border-zinc-800 p-3.5 rounded-xl text-[10px] font-bold text-white uppercase focus:border-indigo-500 outline-none transition-colors mt-2">
 
 
 
+                                        <div class="bg-[#050505] border border-zinc-800 p-3 rounded-xl mt-2">
+                                            <span class="text-[8px] text-zinc-500 uppercase font-bold mb-2 ml-1 block">🛌 Días de descanso (kiosko y caja no lo muestran esos días)</span>
+                                            <div id="bd-dias" class="flex flex-wrap gap-2">
+                                            <label class="bd-dia"><input type="checkbox" value="1" class="hidden peer"><span class="block px-3 py-2 rounded-lg border border-zinc-700 text-[10px] font-black text-zinc-400 peer-checked:bg-amber-600 peer-checked:text-white peer-checked:border-amber-500 cursor-pointer">LUN</span></label>
+                                            <label class="bd-dia"><input type="checkbox" value="2" class="hidden peer"><span class="block px-3 py-2 rounded-lg border border-zinc-700 text-[10px] font-black text-zinc-400 peer-checked:bg-amber-600 peer-checked:text-white peer-checked:border-amber-500 cursor-pointer">MAR</span></label>
+                                            <label class="bd-dia"><input type="checkbox" value="3" class="hidden peer"><span class="block px-3 py-2 rounded-lg border border-zinc-700 text-[10px] font-black text-zinc-400 peer-checked:bg-amber-600 peer-checked:text-white peer-checked:border-amber-500 cursor-pointer">MIÉ</span></label>
+                                            <label class="bd-dia"><input type="checkbox" value="4" class="hidden peer"><span class="block px-3 py-2 rounded-lg border border-zinc-700 text-[10px] font-black text-zinc-400 peer-checked:bg-amber-600 peer-checked:text-white peer-checked:border-amber-500 cursor-pointer">JUE</span></label>
+                                            <label class="bd-dia"><input type="checkbox" value="5" class="hidden peer"><span class="block px-3 py-2 rounded-lg border border-zinc-700 text-[10px] font-black text-zinc-400 peer-checked:bg-amber-600 peer-checked:text-white peer-checked:border-amber-500 cursor-pointer">VIE</span></label>
+                                            <label class="bd-dia"><input type="checkbox" value="6" class="hidden peer"><span class="block px-3 py-2 rounded-lg border border-zinc-700 text-[10px] font-black text-zinc-400 peer-checked:bg-amber-600 peer-checked:text-white peer-checked:border-amber-500 cursor-pointer">SÁB</span></label>
+                                            <label class="bd-dia"><input type="checkbox" value="0" class="hidden peer"><span class="block px-3 py-2 rounded-lg border border-zinc-700 text-[10px] font-black text-zinc-400 peer-checked:bg-amber-600 peer-checked:text-white peer-checked:border-amber-500 cursor-pointer">DOM</span></label>
+                                            </div>
+                                        </div>
                                         <button type="button" onclick="configAddBarbero()" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-black uppercase text-[10px] tracking-widest btn-press transition-colors shadow-lg shadow-indigo-600/20">GUARDAR BARBERO 👤</button>
 
 
@@ -2013,7 +2063,13 @@
                 </div>
             </div>
 
-            <div id="sa-lista" class="space-y-4 max-h-[600px] overflow-y-auto pr-2 pb-10 scroll-safe"></div>
+            <div class="glass p-6 rounded-[2rem] border border-emerald-900/40 space-y-4 mb-6">
+            <p class="text-[10px] font-black uppercase tracking-widest text-emerald-400">💲 Planes y precios (pantalla de bienvenida)</p>
+            <p class="text-[9px] text-zinc-500 font-bold">Cambia nombre, precio, barberos y lo que incluye. Los usuarios nuevos ven estos precios. Para guardar pide el PIN de superadmin.</p>
+            <div id="sa-planes-editor" class="space-y-4"></div>
+            <button type="button" onclick="saGuardarPlanes()" class="w-full bg-emerald-700 hover:bg-emerald-600 text-white py-3 rounded-xl font-black uppercase text-[10px] tracking-widest btn-press">GUARDAR PLANES</button>
+        </div>
+        <div id="sa-lista" class="space-y-4 max-h-[600px] overflow-y-auto pr-2 pb-10 scroll-safe"></div>
         </section>
 
 
@@ -2273,6 +2329,7 @@
                         <input type="text" inputmode="numeric" id="inv-precio" placeholder="Precio Venta" class="w-1/2 p-4 rounded-xl font-black text-sm border border-zinc-800 bg-zinc-950 text-white text-center focus:border-purple-500 outline-none">
                         <input type="text" inputmode="numeric" id="inv-stock" placeholder="Cant. Stock" class="w-1/2 p-4 rounded-xl font-black text-sm border border-zinc-800 bg-zinc-950 text-white text-center focus:border-purple-500 outline-none">
                     </div>
+                    <input type="text" inputmode="numeric" id="inv-stock-min" placeholder="Avisar cuando queden (mín.) · 0 = sin aviso" class="w-full p-4 rounded-xl font-black text-sm border border-zinc-800 bg-zinc-950 text-white text-center mb-4 focus:border-purple-500 outline-none">
                     <button type="button" onclick="registrarProducto()" class="w-full bg-purple-600 hover:bg-purple-500 text-white py-4 rounded-xl font-black uppercase btn-press transition-colors shadow-lg shadow-purple-600/20">AÑADIR / ACTUALIZAR PRODUCTO</button>
                 </div>
                 <div id="inventario-lista" class="space-y-2"></div>
@@ -2778,6 +2835,75 @@ async function hashPIN(pin) {
             return s + ' ' + Number(val).toLocaleString('es-CO');
         }
 
+        // ==========================================
+        // 📱 AYUDAS PARA ESCRIBIR EN CELULAR / PC
+        // ==========================================
+        // 💲 Campos de dinero: se ven como $12.000 (según la moneda del local) y se leen con cleanNum()
+        const CAMPOS_MONEDA = ['add-s-pre', 'inv-precio', 'gasto-val', 'cfg-multas-valor', 'cfg-pago-anticipado-valor'];
+        function fmtMonedaTexto(v) {
+            const n = parseInt(cleanNum(v), 10);
+            if (isNaN(n)) return '';
+            return fMoney(n).replace(/\s+/, '');
+        }
+        function formatearCamposMoneda() {
+            CAMPOS_MONEDA.forEach(id => { const e = document.getElementById(id); if (e && e.value !== '') e.value = fmtMonedaTexto(e.value); });
+        }
+        document.addEventListener('input', (ev) => {
+            const e = ev.target;
+            if (e && e.id && CAMPOS_MONEDA.includes(e.id)) e.value = fmtMonedaTexto(e.value);
+        });
+
+        // ✍️ Sub-pantalla para escribir cómodo en el celular (se ve lo que escribes, sin que el teclado lo tape)
+        const CAMPOS_SUBPANTALLA = ['add-s-nom', 'add-b-nom', 'add-c-nom', 'add-b-especialidades', 'cfg-nombre', 'cfg-direccion', 'gasto-desc', 'inv-nombre'];
+        let _subAbierta = false;
+        function abrirSubpantalla(el) {
+            if (_subAbierta || typeof Swal === 'undefined') return;
+            _subAbierta = true;
+            const esArea = el.tagName === 'TEXTAREA';
+            let titulo = el.getAttribute('data-sub');
+            if (!titulo) { const lab = el.closest('div, label') && el.closest('div, label').querySelector('span, p, label'); titulo = (el.getAttribute('placeholder') || 'Escribir').replace(/\s*\(.*$/, '').trim(); }
+            const mayus = /uppercase/.test(el.className);
+            el.blur();
+            Swal.fire({
+                title: titulo, input: esArea ? 'textarea' : 'text', inputValue: el.value,
+                inputPlaceholder: el.getAttribute('placeholder') || '',
+                inputAttributes: { autocomplete: 'off', autocapitalize: mayus ? 'characters' : 'sentences', maxlength: (el.maxLength > 0 ? el.maxLength : 300) },
+                customClass: { input: (mayus ? 'uppercase ' : '') + 'text-base font-bold', popup: 'rounded-2xl' },
+                position: 'top', heightAuto: false, returnFocus: false,
+                showCancelButton: true, confirmButtonText: 'LISTO ✔', cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#4f46e5', background: '#0a0a0a', color: '#fff',
+                didOpen: () => { const i = Swal.getInput(); if (i) { i.focus(); const l = i.value.length; try { i.setSelectionRange(l, l); } catch (e) {} } }
+            }).then(r => {
+                if (r.isConfirmed) { el.value = r.value; el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); }
+                setTimeout(() => { _subAbierta = false; }, 400);
+            });
+        }
+        document.addEventListener('focusin', (ev) => {
+            const e = ev.target;
+            if (!e || (e.tagName !== 'INPUT' && e.tagName !== 'TEXTAREA')) return;
+            if (window.innerWidth > 767 && e.id !== 'add-b-especialidades') return; // en PC solo especialidades usa sub-pantalla                    // solo celulares
+            if (e.closest('.swal2-container') || e.readOnly || e.disabled || e.hasAttribute('data-nosub')) return;
+            const enAjustes = !!e.closest('#view-config, #view-admin');
+            if ((e.tagName === 'TEXTAREA' && enAjustes) || CAMPOS_SUBPANTALLA.includes(e.id)) abrirSubpantalla(e);
+        });
+
+        // 🔑 Que el navegador NO pregunte "¿Guardar contraseña?" al crear barberos/cajeros/cambiar PIN
+        function ocultarDelGestorClaves() {
+            if (!(window.CSS && CSS.supports && CSS.supports('-webkit-text-security', 'disc'))) return;
+            ['add-b-pin', 'add-c-pin', 'cfg-admin-pin', 'cfg-new-admin-pin', 'sa-pin', 'sa-master-pin'].forEach(id => {
+                const e = document.getElementById(id); if (!e || e.type !== 'password') return;
+                e.type = 'text'; e.style.webkitTextSecurity = 'disc'; e.setAttribute('autocomplete', 'off');
+                e.setAttribute('data-lpignore', 'true'); e.setAttribute('data-1p-ignore', 'true'); e.setAttribute('name', 'zeus-' + id);
+            });
+        }
+        ocultarDelGestorClaves();
+
+        // ⏎ Enter en el campo del PIN = Entrar a Zeus
+        (function () {
+            const p = document.getElementById('login-pin');
+            if (p) p.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') { ev.preventDefault(); actionLogin(); } });
+        })();
+
         function formatTime12h(timeStr) {
             if (!timeStr) return "--:--";
             let c = timeStr.toString().replace(/p\.?\s*m\.?/gi, '').replace(/a\.?\s*m\.?/gi, '').replace(/pm/gi, '').replace(/am/gi, '').trim();
@@ -3266,6 +3392,9 @@ async function hashPIN(pin) {
 
 
         async function crearCuentaNueva() {
+            const planEl = leerPlanElegido();
+            if (!planEl) { abrirPlanesZeus(); return; }
+            const tipoPre = planEl.tipo === 'estetica' ? 'estetica' : 'barberia';
             if (!isOnline) return Swal.fire({ title: 'Sin Internet', text: 'Necesitas conexión para registrar tu local.', icon: 'warning', background: '#0a0a0a', color: '#fff' });
 
             const modalHtml = `
@@ -3276,14 +3405,14 @@ async function hashPIN(pin) {
                 
                 <div class="grid grid-cols-2 gap-3 mb-6">
                     <label class="cursor-pointer">
-                        <input type="radio" id="tipo-barberia" name="tipo_negocio" value="barberia" class="peer sr-only" checked>
+                        <input type="radio" id="tipo-barberia" name="tipo_negocio" value="barberia" class="peer sr-only" ${tipoPre === 'barberia' ? 'checked' : ''}>
                         <div class="p-4 rounded-2xl bg-[#050505] border-2 border-zinc-800 peer-checked:border-indigo-500 peer-checked:bg-indigo-900/30 text-center transition-all hover:border-zinc-600">
                             <span class="text-4xl block mb-2 drop-shadow-md">💈</span>
                             <span class="text-[10px] font-black text-white uppercase tracking-widest">Barbería</span>
                         </div>
                     </label>
                     <label class="cursor-pointer">
-                        <input type="radio" id="tipo-estetica" name="tipo_negocio" value="estetica" class="peer sr-only">
+                        <input type="radio" id="tipo-estetica" name="tipo_negocio" value="estetica" class="peer sr-only" ${tipoPre === 'estetica' ? 'checked' : ''}>
                         <div class="p-4 rounded-2xl bg-[#050505] border-2 border-zinc-800 peer-checked:border-rose-500 peer-checked:bg-rose-900/30 text-center transition-all hover:border-zinc-600">
                             <span class="text-4xl block mb-2 drop-shadow-md">✨</span>
                             <span class="text-[10px] font-black text-white uppercase tracking-widest">Peluquería / Spa</span>
@@ -3346,7 +3475,7 @@ async function hashPIN(pin) {
                         creadoEn: Date.now(), 
                         diasSuscripcion: 15, 
                         bloqueado: false, 
-                        maxBarberos: 5, 
+                        maxBarberos: planEl.barberos, plan: planEl.id, planNombre: planEl.nombre, planPrecio: planEl.precio, 
                         barberos: [], 
                         servicios: [], 
                         productos: [], 
@@ -3368,6 +3497,7 @@ async function hashPIN(pin) {
                     };
                     
                     db.barberias.push(newB);
+                    try { localStorage.removeItem('zeus_plan_elegido'); } catch (e) {}
                     await supabaseClient.from('stores').update({ json_data: newB }).eq('id', data.id);
 
                     bIdx = db.barberias.length - 1;
@@ -4867,7 +4997,7 @@ async function guardarFacturaEnSQL(ticket, storeId) {
                 let nuevasVentasSQL = []; // 🚀 INICIAMOS EL CONTENEDOR DEL PUENTE
 
                 cart.forEach(i => {
-                    if (i.isProd) { let px = b.productos.findIndex(p => p.id === i.id); if (px > -1) b.productos[px].stock -= 1; }
+                    if (i.isProd) { let px = b.productos.findIndex(p => p.id === i.id); if (px > -1) { b.productos[px].stock -= 1; revisarStockProducto(b, b.productos[px]); } }
                     let nuevaVenta = { idVenta: Date.now().toString(36) + Math.random().toString(36).substr(2, 5), ticketId: tId, barbero: session.nom, servicio: i.nom, valor: i.pre, ivaAplicado: (iA ? Math.round(i.pre *                         (b.configIVA.porcentaje / 100)) : 0), metodo: m, tipo: m === "Efectivo" ? "Efectivo" : "Digital", fecha: fA, hora: hA, esProducto: i.isProd, turnoCerrado: false, cobradoPor: session.nom };
                     b.ventas.push(nuevaVenta);
                     nuevasVentasSQL.push(nuevaVenta); // 🚀 LO SUBIMOS AL PUENTE
@@ -5089,6 +5219,9 @@ const btnRecibo = tieneAbono ? `<button type="button" onclick="verComprobanteCit
             const f = document.getElementById('agenda-fecha').value; const h = document.getElementById('agenda-hora').value;
             const cli = cleanStr(document.getElementById('agenda-cli').value).toUpperCase(); const cel = cleanNum(document.getElementById('agenda-cel').value);
             const barb = document.getElementById('agenda-barbero').value;
+
+            const barbObjAg = ((db.barberias[bIdx] && db.barberias[bIdx].barberos) || []).find(x => x.nom === barb);
+            if (barbObjAg && barberoDescansa(barbObjAg, f)) return Swal.fire('Día de descanso', `${barb} descansa ese día. Cambia la fecha o el barbero.`, 'warning');
 
             // 1. 🛡️ REEMPLAZO 1: Validamos con agendaServiciosTemp
             if (!f || !h || !cli || !barb || agendaServiciosTemp.length === 0) return Swal.fire('Aviso', 'Fecha, hora, cliente, barbero y servicios obligatorios.', 'warning');
@@ -6309,6 +6442,10 @@ function calcularPrecioIA(precioBase, idLocal) {
             const b = db.barberias[kiosko_bIdx];
             const citasDia = (b.citas || []).filter(c => c.fecha === fecha && c.barbero === barbero && c.estado !== 'CANCELADA');
             const barberoInfo = b.barberos.find(x => x.nom === barbero);
+            if (barberoInfo && barberoDescansa(barberoInfo, fecha)) {
+                ctn.innerHTML = `<p class="text-[10px] text-amber-400 col-span-3 text-center py-3 font-black uppercase">🛌 ${barbero} descansa ese día. Elige otra fecha u otro barbero.</p>`;
+                selectedKioTime = null; return;
+            }
             
             let hEntrada = (barberoInfo && barberoInfo.horaInicio) ? barberoInfo.horaInicio : (b.horaApertura || "08:00");
             let hSalida = (barberoInfo && barberoInfo.horaFin) ? barberoInfo.horaFin : (b.horaCierre || "20:00");
@@ -7218,6 +7355,7 @@ function calcularPrecioIA(precioBase, idLocal) {
             document.getElementById('inv-nombre').value = "";
             document.getElementById('inv-precio').value = "";
             document.getElementById('inv-stock').value = "";
+            document.getElementById('inv-stock-min').value = "";
             renderInventario();
         }
 
@@ -7227,10 +7365,10 @@ function calcularPrecioIA(precioBase, idLocal) {
         <div class="flex justify-between items-center bg-purple-900/10 p-4 rounded-2xl mb-2 border border-purple-900/30"> 
             <div>
                 <p class="text-[11px] font-black text-white uppercase">${p.nom}</p>
-                <p class="text-[9px] text-zinc-400">Precio: ${fMoney(p.pre)}</p>
+                <p class="text-[9px] text-zinc-400">Precio: ${fMoney(p.pre)} · Mín. aviso: ${minStockProducto(p)}</p>
             </div> 
             <div class="flex items-center gap-2"> 
-                <span class="text-[10px] text-purple-400 font-black bg-black px-2 py-1 rounded-md">Stock: ${p.stock}</span>
+                ${estadoStockBadge(p)}<span class="text-[10px] text-purple-400 font-black bg-black px-2 py-1 rounded-md">Stock: ${p.stock}</span>
                 <button type="button" onclick="editarProducto(${p.id})" class="text-blue-400 font-black text-sm px-2">✏️</button>
                 <button type="button" onclick="borrarProducto(${p.id})" class="text-red-500 font-black text-sm px-2 bg-red-900/20 rounded-lg py-1">X</button> 
             </div> 
@@ -7242,6 +7380,8 @@ function calcularPrecioIA(precioBase, idLocal) {
             const n = cleanStr(document.getElementById('inv-nombre').value).toUpperCase();
             const p = parseInt(cleanNum(document.getElementById('inv-precio').value));
             const s = parseInt(cleanNum(document.getElementById('inv-stock').value));
+            const smTxt = document.getElementById('inv-stock-min').value.trim();
+            const sm = smTxt === '' ? 3 : Math.max(0, parseInt(cleanNum(smTxt)) || 0);
 
             if (!n || isNaN(p)) return Swal.fire('Error', 'Nombre y Precio son obligatorios', 'warning');
 
@@ -7253,12 +7393,14 @@ function calcularPrecioIA(precioBase, idLocal) {
                 let pIdx = db.barberias[bIdx].productos.findIndex(x => x.id.toString() === idX);
                 if (pIdx !== -1) {
                     localIdNuevo = parseInt(idX);
-                    db.barberias[bIdx].productos[pIdx] = { id: localIdNuevo, nom: n, pre: p, stock: s };
+                    db.barberias[bIdx].productos[pIdx] = { ...db.barberias[bIdx].productos[pIdx], id: localIdNuevo, nom: n, pre: p, stock: s, stockMin: sm };
                 }
             } else {
-                db.barberias[bIdx].productos.push({ id: localIdNuevo, nom: n, pre: p, stock: s });
+                db.barberias[bIdx].productos.push({ id: localIdNuevo, nom: n, pre: p, stock: s, stockMin: sm });
             }
 
+            const prodGuardado = db.barberias[bIdx].productos.find(x => x.id === localIdNuevo);
+            if (prodGuardado) revisarStockProducto(db.barberias[bIdx], prodGuardado);
             saveDB(true); 
 
             // ⚡ PUENTE SQL: DISPARO DE PRODUCTOS A SUPABASE
@@ -7282,6 +7424,7 @@ function calcularPrecioIA(precioBase, idLocal) {
             document.getElementById('inv-nombre').value = "";
             document.getElementById('inv-precio').value = "";
             document.getElementById('inv-stock').value = "";
+            document.getElementById('inv-stock-min').value = "";
             Swal.fire({ title: 'Guardado', icon: 'success', toast: true, position: 'top-end', timer: 1500, showConfirmButton: false, background: '#111', color: '#fff' });
         }
 
@@ -7290,8 +7433,9 @@ function calcularPrecioIA(precioBase, idLocal) {
             if (p) {
                 document.getElementById('inv-id').value = p.id;
                 document.getElementById('inv-nombre').value = p.nom;
-                document.getElementById('inv-precio').value = p.pre;
+                document.getElementById('inv-precio').value = fmtMonedaTexto(p.pre);
                 document.getElementById('inv-stock').value = p.stock;
+                document.getElementById('inv-stock-min').value = minStockProducto(p);
             }
         }
 
@@ -7436,7 +7580,7 @@ function calcularPrecioIA(precioBase, idLocal) {
                     t.anuladoPor = session.nom;
                     
                     // Devolvemos el stock al inventario
-                    (t.items || []).forEach(item => { if (item.isProd) { let prod = b.productos.find(p => p.id === item.id); if (prod) prod.stock += 1; } });
+                    (t.items || []).forEach(item => { if (item.isProd) { let prod = b.productos.find(p => p.id === item.id); if (prod) { prod.stock += 1; if (prod.alertaStock && prod.stock > minStockProducto(prod)) prod.alertaStock = null; } } });
                     
                     // 🛡️ TRUCO MAESTRO: En lugar de borrar la venta, la "neutralizamos" a $0. 
                     // Así resta el dinero de la caja para que cuadre, pero deja el chisme entero en el PDF.
@@ -7818,6 +7962,52 @@ function calcularPrecioIA(precioBase, idLocal) {
         // ==========================================
 
         // 🔔 Avisa al admin por Push. Lee la antena desde la nube (no depende de la caché del Kiosko)
+        // 🔔 ALERTA DE STOCK MÍNIMO
+        // Mínimo por defecto = 3. Si el admin lo pone en 0, esa alerta queda apagada para el producto.
+        function minStockProducto(p) { return Number.isFinite(p.stockMin) ? p.stockMin : 3; }
+        function revisarStockProducto(b, prod) {
+            try {
+                if (!b || !prod) return;
+                const min = minStockProducto(prod);
+                const stock = Number(prod.stock) || 0;
+                // Si ya no está bajo, se limpia el aviso para que pueda volver a alertar después
+                if (min <= 0 || stock > min) { prod.alertaStock = null; return; }
+                const nivel = stock <= 0 ? 'agotado' : 'bajo';
+                const hoy = new Date().toLocaleDateString('en-CA'); // AAAA-MM-DD según la hora del equipo
+                const previo = prod.alertaStock || {};
+                // Un aviso por producto y por nivel al día (evita una notificación por cada venta)
+                if (previo.nivel === nivel && previo.fecha === hoy) return;
+                prod.alertaStock = { nivel: nivel, fecha: hoy };
+                const titulo = nivel === 'agotado' ? `🚫 Agotado: ${prod.nom}` : `⚠️ Stock bajo: ${prod.nom}`;
+                const cuerpo = nivel === 'agotado' ? 'No quedan unidades. Hay que reponer.' : `Quedan ${stock} unidad(es). Mínimo configurado: ${min}.`;
+                enviarPushAlAdmin(b, titulo, cuerpo);
+            } catch (e) { console.warn('Alerta de stock falló', e); }
+        }
+        function estadoStockBadge(p) {
+            const min = minStockProducto(p);
+            const stock = Number(p.stock) || 0;
+            if (stock <= 0) return '<span class="text-[9px] font-black text-red-400 bg-red-900/30 px-2 py-1 rounded-md">AGOTADO</span>';
+            if (min > 0 && stock <= min) return '<span class="text-[9px] font-black text-amber-400 bg-amber-900/30 px-2 py-1 rounded-md">BAJO</span>';
+            return '';
+        }
+
+        // 🛌 DÍAS DE DESCANSO DEL BARBERO (0 = domingo, igual que getDay())
+        function diaSemanaDeFecha(ymd) { return new Date(ymd + 'T12:00:00').getDay(); }
+        function barberoDescansa(barb, ymd) {
+            return !!barb && Array.isArray(barb.diasDescanso) && !!ymd && barb.diasDescanso.includes(diaSemanaDeFecha(ymd));
+        }
+        function leerDiasDescanso() {
+            return [...document.querySelectorAll('#bd-dias input[type=checkbox]')].filter(i => i.checked).map(i => parseInt(i.value));
+        }
+        function marcarDiasDescanso(dias) {
+            document.querySelectorAll('#bd-dias input[type=checkbox]').forEach(i => { i.checked = (dias || []).includes(parseInt(i.value)); });
+        }
+        function contarCitasEnDescanso(nombre, dias) {
+            const b = db.barberias[bIdx]; if (!b || !dias || !dias.length) return 0;
+            const hoy = getTodayYMD();
+            return (b.citas || []).filter(c => c.barbero === nombre && c.estado !== 'CANCELADA' && c.fecha >= hoy && dias.includes(diaSemanaDeFecha(c.fecha))).length;
+        }
+
         async function enviarPushAlAdmin(b, title, body) {
             try {
                 if (typeof supabaseClient === 'undefined' || !b) return;
@@ -8353,6 +8543,7 @@ function calcularPrecioIA(precioBase, idLocal) {
             setVal('cfg-cierre', b.horaCierre || "20:00");
             setVal('cfg-intervalo', b.intervaloCitas || 60);
             try { cargarFueraHorarioCfg(b); } catch (e) { console.error(e); }
+            try { formatearCamposMoneda(); } catch (e) {}
 
             if (b.logo && document.getElementById('cfg-logo-box')) document.getElementById('cfg-logo-box').innerHTML = `<img src="${b.logo}" class="w-full h-full object-cover absolute inset-0 rounded-[1rem]">`;
             if (b.tvBanner && document.getElementById('cfg-tv-banner-box')) document.getElementById('cfg-tv-banner-box').innerHTML = `<img src="${b.tvBanner}" class="w-full h-full object-cover absolute inset-0 rounded-[1rem]"><span class="relative z-10 text-[8px] font-bold text-white bg-black/50 px-1.5 py-0.5 rounded">OK</span>`;
@@ -8758,6 +8949,7 @@ function calcularPrecioIA(precioBase, idLocal) {
             const elIni = document.getElementById('add-b-inicio'); if(elIni) elIni.value = b.horaInicio || "08:00";
             const elFin = document.getElementById('add-b-fin'); if(elFin) elFin.value = b.horaFin || "20:00";
             const elEsp = document.getElementById('add-b-especialidades'); if(elEsp) elEsp.value = b.especialidades || "";
+            marcarDiasDescanso(b.diasDescanso || []);
 
             if (b.foto) {
                 fotoBarberoTemp = b.foto;
@@ -8795,10 +8987,17 @@ function calcularPrecioIA(precioBase, idLocal) {
             const hInicio = getValSeguro('add-b-inicio') || "08:00";
             const hFin = getValSeguro('add-b-fin') || "20:00";
             const esp = getValSeguro('add-b-especialidades').toUpperCase();
+            const diasDesc = leerDiasDescanso();
 
             if (!n || !p) return Swal.fire('Faltan Datos', 'El nombre y el PIN son obligatorios.', 'error');
             if (esPinInseguro(p)) return Swal.fire('PIN Inseguro', 'No uses 1234, 1111 ni secuencias fáciles.', 'warning');
             
+            if (idX === "") {
+                const limiteP = limiteBarberosDeLaBarberia(db.barberias[bIdx]);
+                if ((db.barberias[bIdx].barberos || []).length >= limiteP) {
+                    return Swal.fire({ icon: 'warning', title: 'Límite de tu plan', text: `Tu plan permite hasta ${limiteP} ${db.barberias[bIdx].tipoNegocio === 'estetica' ? 'especialistas' : 'barberos'}. Cambia a un plan superior para agregar más.`, background: '#0a0a0a', color: '#fff', confirmButtonColor: '#4f46e5' });
+                }
+            }
             if (!verificarPinUnico(p) && idX === "") {
                 return Swal.fire({
                     icon: 'warning', title: '¡PIN Ocupado! 🔒',
@@ -8808,11 +9007,13 @@ function calcularPrecioIA(precioBase, idLocal) {
             }
             
            if (idX !== "") { 
-                db.barberias[bIdx].barberos[idX] = { ...db.barberias[bIdx].barberos[idX], nom: n, pin: p, comision: c, comisionProd: cP, foto: fotoBarberoTemp, fotoQR: fotoQRBarberoTemp, horaInicio: hInicio, horaFin: hFin, especialidades: esp }; 
+                db.barberias[bIdx].barberos[idX] = { ...db.barberias[bIdx].barberos[idX], nom: n, pin: p, comision: c, comisionProd: cP, foto: fotoBarberoTemp, fotoQR: fotoQRBarberoTemp, horaInicio: hInicio, horaFin: hFin, especialidades: esp, diasDescanso: diasDesc }; 
             } else { 
-                db.barberias[bIdx].barberos.push({ nom: n, pin: p, comision: c, comisionProd: cP, estado: 'LIBRE', foto: fotoBarberoTemp, fotoQR: fotoQRBarberoTemp, horaInicio: hInicio, horaFin: hFin, especialidades: esp }); 
+                db.barberias[bIdx].barberos.push({ nom: n, pin: p, comision: c, comisionProd: cP, estado: 'LIBRE', foto: fotoBarberoTemp, fotoQR: fotoQRBarberoTemp, horaInicio: hInicio, horaFin: hFin, especialidades: esp, diasDescanso: diasDesc }); 
             }
 
+            const citasDesc = contarCitasEnDescanso(n, diasDesc);
+            if (citasDesc > 0) setTimeout(() => Swal.fire({ icon: 'warning', title: 'Citas en días de descanso', text: `${n} tiene ${citasDesc} cita(s) en sus días de descanso. Revísalas en la agenda y reubícalas.`, background: '#111', color: '#fff', confirmButtonColor: '#4f46e5' }), 400);
             saveDB(true);
 
             // ⚡ PUENTE SQL: DISPARO DE BARBERO A SUPABASE
@@ -8843,6 +9044,7 @@ function calcularPrecioIA(precioBase, idLocal) {
             if(document.getElementById('add-b-inicio')) document.getElementById('add-b-inicio').value = ""; 
             if(document.getElementById('add-b-fin')) document.getElementById('add-b-fin').value = "";
             if(document.getElementById('add-b-especialidades')) document.getElementById('add-b-especialidades').value = "";
+            marcarDiasDescanso([]);
             
            fotoBarberoTemp = null; fotoQRBarberoTemp = null;
             
@@ -8961,7 +9163,7 @@ function borrarCajero(idx) {
             const s = db.barberias[bIdx].servicios[i]; 
             document.getElementById('edit-s-id').value = i; 
             document.getElementById('add-s-nom').value = s.nom; 
-            document.getElementById('add-s-pre').value = s.pre;
+            document.getElementById('add-s-pre').value = fmtMonedaTexto(s.pre);
             document.getElementById('add-s-dur').value = s.dur || "";
             document.getElementById('add-s-desc').value = s.desc || ""; 
             const premEl = document.getElementById('add-s-premium'); if (premEl) premEl.checked = s.premium || false;
@@ -9210,7 +9412,8 @@ function borrarServicio(idx) {
 
 
 
-        function renderSuperAdmin() { 
+        function renderSuperAdmin() {
+            asegurarEditorPlanes(); 
             let totalSaaS = 0; let totalPruebas = 0; let totalPremium = 0;
             
             // CARGAR BRANDING
@@ -9309,7 +9512,7 @@ function borrarServicio(idx) {
                             <span class="text-[10px] font-black uppercase text-zinc-400 tracking-widest">Plan Actual:</span>
                             <select onchange="sa_CambiarPlan('${b.id_nube}', this.value)" class="bg-zinc-800 text-white font-black text-[9px] p-2 rounded-lg uppercase outline-none cursor-pointer border border-zinc-700 focus:border-indigo-500">
                                 <option value="BASICO" ${b.plan === 'BASICO' ? 'selected' : ''}>BÁSICO (3 Barb)</option>
-                                <option value="PRO" ${(!b.plan || b.plan === 'PRO') ? 'selected' : ''}>PRO (6 Barb)</option>
+                                <option value="PRO" ${(!b.plan || b.plan === 'PRO') ? 'selected' : ''}>MEDIO (5 Barb)</option>
                                 <option value="ELITE" ${b.plan === 'ELITE' ? 'selected' : ''}>ÉLITE (Ilimitado)</option>
                             </select>
                         </div>
@@ -9841,9 +10044,7 @@ async function rescatarSuscripcionLocal() {
                 bSup.plan = nuevoPlan;
                 
                 // Ajustamos el límite de barberos automáticamente según el plan
-                if(nuevoPlan === 'BASICO') bSup.maxBarberos = 3;
-                else if(nuevoPlan === 'PRO') bSup.maxBarberos = 6;
-                else if(nuevoPlan === 'ELITE') bSup.maxBarberos = 99; // Ilimitado
+                bSup.maxBarberos = limiteBarberosPlan(nuevoPlan);
 
                 await supabaseClient.from('stores').update({ json_data: bSup }).eq('id', idNube);
                 db.barberias[db.barberias.findIndex(x => x.id_nube === idNube)] = bSup; 
@@ -11401,8 +11602,7 @@ function subirFotoClienteVIP(input) {
             tipoNegocioSeleccionado = tipo; 
             
             // 2. Transición de pantallas
-            document.getElementById('onb-paso-1').classList.add('hidden');
-            document.getElementById('onb-paso-2').classList.remove('hidden');
+            mostrarPasoPlanes();
             
             const tituloTxt = document.getElementById('onb-titulo-pitch');
             const overlay = document.getElementById('zeus-onboarding-overlay');
@@ -11470,6 +11670,7 @@ function subirFotoClienteVIP(input) {
         }
 
 function abrirOnboardingManual() {
+            document.getElementById('onb-paso-planes')?.classList.add('hidden');
             const overlay = document.getElementById('zeus-onboarding-overlay');
             if (overlay) {
                 overlay.style.opacity = '1';
@@ -11478,6 +11679,198 @@ function abrirOnboardingManual() {
                 document.getElementById('onb-paso-2').classList.add('hidden');
             }
         }
+
+// 💲 PLANES Y PRECIOS (pantalla para usuarios nuevos + editor del superadmin)
+        // Respaldo por si no hay internet o no existe la tabla zeus_planes. Los precios reales vienen de la nube.
+        const PLANES_DEFAULT = [
+            { id: 'BASICO', nombre: 'Básico', precio: 24900, barberos: 3, destacado: false, activo: true, orden: 1,
+              incluye: ['Agenda de citas', 'Caja y punto de venta (POS)', 'Inventario y control de stock', 'Nómina y comisiones', 'Club VIP y planes de fidelidad', 'Reportes en pantalla', 'Smart TV para mostrar turnos'],
+              noIncluye: ['Kiosko virtual 24/7 para reservas', 'Receta visual con fotos', 'Reportes en PDF y Excel', 'Marketing WhatsApp automático'] },
+            { id: 'PRO', nombre: 'Medio', precio: 29900, barberos: 5, destacado: true, activo: true, orden: 2,
+              incluye: ['Todo lo del plan Básico', 'Kiosko virtual 24/7 para reservas', 'Receta visual con fotos e historial'],
+              noIncluye: ['Reportes en PDF y Excel', 'Marketing WhatsApp automático'] },
+            { id: 'ELITE', nombre: 'Premium', precio: 39900, barberos: 99, destacado: false, activo: true, orden: 3,
+              incluye: ['Todo lo del plan Medio', 'Barberos ilimitados', 'Reportes en PDF y Excel', 'Marketing WhatsApp y reseñas en Google'],
+              noIncluye: [] }
+        ];
+
+        let planesZeusCache = null;
+        function normalizarPlanZeus(p) {
+            return {
+                id: String(p.id), nombre: String(p.nombre || p.id), precio: Number(p.precio) || 0,
+                barberos: Number(p.barberos) || 3, destacado: !!p.destacado, activo: p.activo !== false, orden: Number(p.orden) || 0,
+                incluye: Array.isArray(p.incluye) ? p.incluye : [],
+                noIncluye: Array.isArray(p.noIncluye) ? p.noIncluye : (Array.isArray(p.no_incluye) ? p.no_incluye : [])
+            };
+        }
+        function planesCatalogo() { return planesZeusCache || PLANES_DEFAULT.map(normalizarPlanZeus); }
+        function planesZeusActivos() { return planesCatalogo().filter(p => p.activo).sort((a, b) => a.orden - b.orden); }
+        async function cargarPlanesZeus() {
+            try {
+                if (typeof supabaseClient === 'undefined' || !supabaseClient) throw new Error('sin conexión con la nube');
+                // Si la nube no responde en 4 segundos, se usan los precios de respaldo (no se queda "Cargando")
+                const consulta = supabaseClient.from('zeus_planes').select('*').order('orden');
+                const limite = new Promise((_, rechazar) => setTimeout(() => rechazar(new Error('tiempo agotado')), 4000));
+                const { data, error } = await Promise.race([consulta, limite]);
+                if (error) throw error;
+                if (data && data.length) planesZeusCache = data.map(normalizarPlanZeus);
+            } catch (e) { console.warn('Planes: se usan los precios de respaldo.', e && e.message); }
+            return planesZeusActivos();
+        }
+        function limiteBarberosPlan(planId) { const p = planesCatalogo().find(x => x.id === planId); return p ? p.barberos : 5; }
+        function limiteBarberosDeLaBarberia(b) { return (b && b.maxBarberos) ? b.maxBarberos : 5; }
+        function leerPlanElegido() { try { return JSON.parse(localStorage.getItem('zeus_plan_elegido') || 'null'); } catch (e) { return null; } }
+        function formatoPesos(n) { return '$' + Number(n || 0).toLocaleString('es-CO'); }
+        function etiquetaPersonal(tipo, n) {
+            const quien = tipo === 'estetica' ? 'especialistas' : 'barberos';
+            return n >= 99 ? (quien.charAt(0).toUpperCase() + quien.slice(1) + ' ilimitados') : `Hasta ${n} ${quien}`;
+        }
+
+        async function mostrarPasoPlanes() {
+            ['onb-paso-1', 'onb-paso-2'].forEach(id => { const e = document.getElementById(id); if (e) e.classList.add('hidden'); });
+            const paso = document.getElementById('onb-paso-planes'); if (paso) paso.classList.remove('hidden');
+            const grid = document.getElementById('planes-grid');
+            if (grid) grid.innerHTML = '<p class="col-span-full text-center text-zinc-500 text-xs font-bold uppercase tracking-widest py-12">Cargando planes…</p>';
+            const planes = await cargarPlanesZeus();
+            renderPlanesZeus(planes, tipoNegocioSeleccionado || 'barberia');
+        }
+
+        function renderPlanesZeus(planes, tipo) {
+            const esEst = tipo === 'estetica';
+            const T = esEst ? {
+                titulo: 'Elige el plan de tu spa', chk: 'text-pink-400', acento: 'text-pink-400',
+                fondo: 'bg-[#170816]', borde: 'border-pink-500/30', bordeDest: 'border-pink-400 shadow-[0_0_40px_rgba(236,72,153,0.35)]',
+                cinta: 'bg-gradient-to-r from-[#f472b6] to-[#d946ef] text-white',
+                precio: 'bg-gradient-to-r from-[#f472b6] to-[#d946ef] bg-clip-text text-transparent',
+                boton: 'bg-gradient-to-r from-[#f472b6] to-[#d946ef] text-white shadow-[0_0_20px_rgba(236,72,153,0.4)]'
+            } : {
+                titulo: 'Elige el plan de tu barbería', chk: 'text-emerald-400', acento: 'text-emerald-400',
+                fondo: 'bg-[#0a0a0a]', borde: 'border-zinc-800', bordeDest: 'border-emerald-400 shadow-[0_0_40px_rgba(16,185,129,0.3)]',
+                cinta: 'bg-gradient-to-r from-[#66ff66] to-[#0cd1b8] text-black',
+                precio: 'bg-gradient-to-r from-[#66ff66] to-[#0cd1b8] bg-clip-text text-transparent',
+                boton: 'bg-gradient-to-r from-[#66ff66] to-[#0cd1b8] text-black shadow-[0_0_20px_rgba(102,255,102,0.3)]'
+            };
+            const tit = document.getElementById('planes-titulo'); if (tit) tit.innerText = T.titulo;
+            const grid = document.getElementById('planes-grid'); if (!grid) return;
+            grid.innerHTML = planes.map(p => `
+                <div class="relative flex flex-col ${T.fondo} border-2 ${p.destacado ? T.bordeDest : T.borde} rounded-[2rem] p-6 sm:p-7 ${p.destacado ? 'md:-mt-4 md:mb-4' : ''}">
+                    ${p.destacado ? `<span class="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full ${T.cinta}">⭐ Más elegido</span>` : ''}
+                    <p class="text-[11px] font-black uppercase tracking-[0.25em] ${T.acento} mt-2">${p.nombre}</p>
+                    <p class="text-xs text-zinc-400 font-bold mt-1">${etiquetaPersonal(tipo, p.barberos)}</p>
+                    <div class="mt-5 flex items-end gap-1">
+                        <span class="text-4xl sm:text-5xl font-black tracking-tighter ${T.precio}">${formatoPesos(p.precio)}</span>
+                        <span class="text-xs font-black text-zinc-500 uppercase mb-2">/mes</span>
+                    </div>
+                    <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-1">15 días gratis · luego se cobra</p>
+                    <button type="button" onclick="elegirPlanZeus('${p.id}')" class="mt-6 w-full py-4 rounded-2xl font-black uppercase text-xs tracking-widest btn-press ${T.boton}">Lo quiero · Probar gratis</button>
+                    <ul class="mt-6 space-y-2.5 text-left flex-1">
+                        ${p.incluye.map(x => `<li class="flex gap-2 text-xs text-zinc-200 font-bold"><span class="${T.chk}">✔</span><span>${esEst ? x.replace(/barberos/gi, 'especialistas') : x}</span></li>`).join('')}
+                        ${p.noIncluye.map(x => `<li class="flex gap-2 text-xs text-zinc-600 font-bold"><span>✕</span><span class="line-through">${x}</span></li>`).join('')}
+                    </ul>
+                </div>`).join('');
+        }
+
+        function abrirPlanesZeus() {
+            const guardado = leerPlanElegido();
+            const tipo = tipoNegocioSeleccionado || (guardado && guardado.tipo) || 'barberia';
+            const overlay = document.getElementById('zeus-onboarding-overlay');
+            if (overlay) { overlay.style.opacity = '1'; overlay.classList.remove('hidden'); }
+            seleccionarCaminoOnboarding(tipo);
+        }
+        function volverDePlanes() {
+            document.getElementById('onb-paso-planes').classList.add('hidden');
+            document.getElementById('onb-paso-1').classList.remove('hidden');
+        }
+        function verModulosZeus() {
+            document.getElementById('onb-paso-planes').classList.add('hidden');
+            document.getElementById('onb-paso-2').classList.remove('hidden');
+        }
+
+        function elegirPlanZeus(id) {
+            const p = planesZeusActivos().find(x => x.id === id); if (!p) return;
+            try {
+                localStorage.setItem('zeus_plan_elegido', JSON.stringify({ id: p.id, nombre: p.nombre, precio: p.precio, barberos: p.barberos, tipo: tipoNegocioSeleccionado || 'barberia' }));
+                localStorage.setItem('zeus_onboarding_visto', 'true');
+            } catch (e) {}
+            const overlay = document.getElementById('zeus-onboarding-overlay');
+            if (overlay) overlay.classList.add('hidden');
+            renderBannerPlanZeus();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            Swal.fire({ toast: true, position: 'top', icon: 'success', title: `Plan ${p.nombre} elegido · 15 días gratis`, text: 'Ahora pulsa "Crear Mi Barbería"', showConfirmButton: false, timer: 2600, background: '#111', color: '#fff' });
+        }
+
+        function renderBannerPlanZeus() {
+            const box = document.getElementById('banner-plan-zeus'); if (!box) return;
+            const p = leerPlanElegido();
+            const yaTieneNegocio = typeof db !== 'undefined' && db && db.barberias && db.barberias.length > 0;
+            if (!p || yaTieneNegocio) { box.classList.add('hidden'); box.innerHTML = ''; return; }
+            const esEst = p.tipo === 'estetica';
+            box.classList.remove('hidden');
+            box.innerHTML = `
+                <div class="rounded-2xl border ${esEst ? 'border-pink-500/50 bg-pink-900/20' : 'border-emerald-500/50 bg-emerald-900/20'} p-4 text-left mb-4">
+                    <p class="text-[9px] font-black uppercase tracking-widest ${esEst ? 'text-pink-400' : 'text-emerald-400'}">🎁 Plan elegido · 15 días gratis</p>
+                    <p class="text-sm font-black text-white uppercase mt-1">${p.nombre} · ${formatoPesos(p.precio)}/mes</p>
+                    <p class="text-[10px] text-zinc-400 font-bold mt-0.5">${etiquetaPersonal(esEst ? 'estetica' : 'barberia', p.barberos)}</p>
+                    <button type="button" onclick="abrirPlanesZeus()" class="mt-2 text-[10px] font-black uppercase underline text-zinc-300">Cambiar plan</button>
+                </div>`;
+        }
+
+        // --- Editor de precios (superadmin) ---
+        async function asegurarEditorPlanes() {
+            const cont = document.getElementById('sa-planes-editor');
+            if (!cont || cont.dataset.listo === '1') return;
+            await cargarPlanesZeus();
+            cont.dataset.listo = '1';
+            const campo = 'w-full bg-[#111] border border-zinc-800 p-3 rounded-xl text-xs font-bold text-white outline-none focus:border-emerald-500';
+            cont.innerHTML = planesCatalogo().slice().sort((a, b) => a.orden - b.orden).map(p => `
+                <div class="bg-[#050505] border border-zinc-800 rounded-2xl p-4 space-y-3">
+                    <div class="flex items-center justify-between gap-2 flex-wrap">
+                        <span class="text-[10px] font-black uppercase tracking-widest text-emerald-400">Plan ${p.id}</span>
+                        <div class="flex gap-4 text-[9px] font-black uppercase text-zinc-400">
+                            <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="sp-${p.id}-activo" ${p.activo ? 'checked' : ''} class="accent-emerald-500"> Activo</label>
+                            <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="sp-${p.id}-dest" ${p.destacado ? 'checked' : ''} class="accent-emerald-500"> Destacado</label>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <input id="sp-${p.id}-nombre" value="${p.nombre}" placeholder="Nombre" class="${campo}">
+                        <input id="sp-${p.id}-precio" value="${p.precio}" inputmode="numeric" placeholder="Precio" class="${campo}">
+                        <input id="sp-${p.id}-barb" value="${p.barberos}" inputmode="numeric" placeholder="Barberos (99 = ilimitado)" class="${campo}">
+                    </div>
+                    <textarea id="sp-${p.id}-incluye" rows="4" placeholder="Incluye (una línea por cada ítem)" class="${campo}">${p.incluye.join('\n')}</textarea>
+                    <textarea id="sp-${p.id}-no" rows="3" placeholder="No incluye (una línea por cada ítem)" class="${campo}">${p.noIncluye.join('\n')}</textarea>
+                </div>`).join('');
+        }
+
+        async function saGuardarPlanes() {
+            const cont = document.getElementById('sa-planes-editor');
+            if (!cont || cont.dataset.listo !== '1') return Swal.fire('Espera', 'Los planes aún están cargando.', 'info');
+            const val = id => (document.getElementById(id) || {}).value;
+            const marcado = id => !!(document.getElementById(id) || {}).checked;
+            const lineasDe = id => (val(id) || '').split('\n').map(s => s.trim()).filter(Boolean);
+            const planes = planesCatalogo().map(p => ({
+                id: p.id, orden: p.orden,
+                nombre: (val(`sp-${p.id}-nombre`) || p.nombre).trim(),
+                precio: parseInt(cleanNum(val(`sp-${p.id}-precio`))) || p.precio,
+                barberos: parseInt(cleanNum(val(`sp-${p.id}-barb`))) || p.barberos,
+                destacado: marcado(`sp-${p.id}-dest`), activo: marcado(`sp-${p.id}-activo`),
+                incluye: lineasDe(`sp-${p.id}-incluye`), noIncluye: lineasDe(`sp-${p.id}-no`)
+            }));
+
+            const { value: pin } = await Swal.fire({ title: 'PIN de superadmin', input: 'password', inputAttributes: { inputmode: 'numeric', autocomplete: 'off' }, showCancelButton: true, confirmButtonText: 'Guardar', cancelButtonText: 'Cancelar', confirmButtonColor: '#059669', background: '#0a0a0a', color: '#fff' });
+            if (!pin) return;
+
+            Swal.fire({ title: 'Guardando planes…', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
+            try {
+                const { error } = await supabaseClient.functions.invoke('zeus-planes-guardar', { body: { planes }, headers: { 'x-super-pin': pin } });
+                if (error) throw error;
+                planesZeusCache = planes.map(normalizarPlanZeus);
+                Swal.fire({ title: 'Planes guardados ✅', text: 'Los usuarios nuevos ya verán estos precios.', icon: 'success', background: '#0a0a0a', color: '#fff' });
+            } catch (e) {
+                Swal.fire({ title: 'No se guardó', text: 'Revisa el PIN de superadmin o tu conexión a internet.', icon: 'error', background: '#0a0a0a', color: '#fff' });
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', renderBannerPlanZeus);
 
         // Obligamos al sistema a verificar el onboarding apenas arranca
         window.addEventListener('DOMContentLoaded', verificarOnboarding);
@@ -11604,7 +11997,7 @@ function abrirOnboardingManual() {
            const selectB = document.getElementById('caja-barbero-select');
             if(selectB) {
                 let staffCombo = [];
-                if(b.barberos) staffCombo = staffCombo.concat(b.barberos);
+                if(b.barberos) staffCombo = staffCombo.concat(b.barberos.filter(bar => !barberoDescansa(bar, getTodayYMD())));
                 if(b.cajeros) staffCombo = staffCombo.concat(b.cajeros.map(c => ({...c, esCajero: true})));
                 
                 const barberosList = staffCombo.map(bar => `<option value="${bar.nom}">${bar.esCajero ? '🖥️ CAJERA:' : '💈 BARBERO:'} ${bar.nom}</option>`).join('');
@@ -12211,7 +12604,7 @@ function abrirOnboardingManual() {
                 let nuevasVentasSQL = []; // 🚀 INICIAMOS EL CONTENEDOR DEL PUENTE
 
                 cajaCart.forEach(i => {
-                    if (i.isProd) { let px = b.productos.findIndex(p => p.id === i.id); if (px > -1) b.productos[px].stock -= 1; }
+                    if (i.isProd) { let px = b.productos.findIndex(p => p.id === i.id); if (px > -1) { b.productos[px].stock -= 1; revisarStockProducto(b, b.productos[px]); } }
                     const ivaItem = (iA ? Math.round(i.pre * (b.configIVA.porcentaje / 100)) : 0);
                     const totItem = i.pre + ivaItem;
                     const cubre = Math.min(abonoRestante, totItem); abonoRestante -= cubre;
@@ -12333,7 +12726,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.181"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.182"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
