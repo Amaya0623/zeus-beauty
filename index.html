@@ -31,6 +31,16 @@
     <!-- iOS: Forzar barra de estado negra transparente (se funde con el fondo) -->
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
+    <!-- 📊 Google Analytics 4 (G-R2K6RLPW1L). Las vistas se envían a mano en cada pantalla (send_page_view false) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-R2K6RLPW1L"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){ dataLayer.push(arguments); }
+        // Si este equipo tiene activado "No contar mis visitas", Google lo ignora
+        try { if (localStorage.getItem('zeus_no_contar') === '1') window['ga-disable-G-R2K6RLPW1L'] = true; } catch (e) {}
+        gtag('js', new Date());
+        gtag('config', 'G-R2K6RLPW1L', { send_page_view: false });
+    </script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -689,6 +699,7 @@
                     <p id="admin-utilidad-title" class="text-[10px] text-zinc-500 font-black uppercase tracking-widest">Utilidad Neta</p>
                     <div class="flex gap-2 items-center flex-wrap">
                         <button type="button" onclick="forzarSincronizacionNube()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl font-black text-[10px] uppercase btn-press shadow-lg shadow-blue-600/20 flex items-center gap-2 transition-colors">🔄 Sincronizar</button>
+                        <button type="button" onclick="abrirCambiarPlan()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl font-black text-[10px] uppercase btn-press shadow-lg shadow-indigo-600/20 transition-colors">🚀 Mi plan</button>
 <button type="button" id="btn-regresar-franquicia" onclick="showScreen('view-franquicia'); renderFranquiciaMaster();" class="hidden bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-xl font-black text-[10px] uppercase btn-press shadow-lg shadow-purple-600/20 transition-colors">👑 Franquicia</button>
                         <div class="bg-black py-2 px-4 rounded-xl border border-zinc-800 flex gap-3 items-center shadow-inner">
                             <div id="admin-license-badge" class="px-2 py-1 rounded flex items-center gap-1"><span class="text-[8px] uppercase font-bold text-zinc-400">Licencia:</span><span id="admin-license-days" class="text-[10px] font-black text-green-400">---</span></div>
@@ -2063,7 +2074,14 @@
                 </div>
             </div>
 
-            <div class="glass p-6 rounded-[2rem] border border-emerald-900/40 space-y-4 mb-6">
+            <div class="glass p-6 rounded-[2rem] border border-zinc-800 space-y-3 mb-6">
+            <p class="text-[10px] font-black uppercase tracking-widest text-cyan-400">📊 Analíticas</p>
+            <label class="flex items-start gap-3 cursor-pointer">
+                <input type="checkbox" id="sa-no-contar" class="w-5 h-5 mt-0.5 accent-cyan-500 cursor-pointer" onchange="saToggleNoContar(this.checked)">
+                <span class="text-[10px] font-bold text-zinc-300 leading-relaxed">No contar mis visitas en <b>este equipo</b>. Actívalo en tu celular y en tu computador. Solo afecta al navegador donde lo activas.</span>
+            </label>
+        </div>
+        <div class="glass p-6 rounded-[2rem] border border-emerald-900/40 space-y-4 mb-6">
             <p class="text-[10px] font-black uppercase tracking-widest text-emerald-400">💲 Planes y precios (pantalla de bienvenida)</p>
             <p class="text-[9px] text-zinc-500 font-bold">Cambia nombre, precio, barberos y lo que incluye. Los usuarios nuevos ven estos precios. Para guardar pide el PIN de superadmin.</p>
             <div id="sa-planes-editor" class="space-y-4"></div>
@@ -2239,6 +2257,19 @@
 
 
 
+
+        <div id="modal-cambiar-plan" class="hidden fixed inset-0 z-[100] bg-black/95 flex items-start sm:items-center justify-center p-4 overflow-y-auto">
+            <div class="bg-[#0a0a0a] border border-zinc-800 rounded-[2rem] p-5 sm:p-8 max-w-5xl w-full relative my-6">
+                <button type="button" aria-label="Cerrar" onclick="cerrarCambiarPlan()" class="absolute top-4 right-4 w-8 h-8 bg-black border border-zinc-800 text-zinc-500 rounded-full flex items-center justify-center font-bold text-sm hover:text-white">✕</button>
+                <div class="text-center mb-6 pr-8">
+                    <p class="text-[10px] font-black uppercase tracking-[0.25em] text-indigo-400">Cambiar de plan</p>
+                    <h2 class="mt-2 text-2xl sm:text-3xl font-black uppercase tracking-tighter text-white">Elige tu nuevo plan</h2>
+                    <p id="cp-sub" class="mt-2 text-xs sm:text-sm text-zinc-400 font-bold"></p>
+                </div>
+                <div id="cp-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 items-stretch"></div>
+                <p class="text-center text-[10px] text-zinc-500 font-bold mt-6">Al elegir, tu solicitud llega a Zeus. El cambio se activa cuando confirmamos el pago.</p>
+            </div>
+        </div>
 
         <div id="modal-barberos" class="hidden fixed inset-0 z-[100] bg-black/98 flex items-center justify-center p-6">
             <div class="glass p-8 sm:p-10 rounded-[3rem] border border-blue-900/30 max-w-xl w-full max-h-[90vh] overflow-y-auto relative text-left scroll-safe">
@@ -2869,7 +2900,7 @@ async function hashPIN(pin) {
                 inputPlaceholder: el.getAttribute('placeholder') || '',
                 inputAttributes: { autocomplete: 'off', autocapitalize: mayus ? 'characters' : 'sentences', maxlength: (el.maxLength > 0 ? el.maxLength : 300) },
                 customClass: { input: (mayus ? 'uppercase ' : '') + 'text-base font-bold', popup: 'rounded-2xl' },
-                position: 'top', heightAuto: false, returnFocus: false,
+                position: 'center', heightAuto: false, returnFocus: false,
                 showCancelButton: true, confirmButtonText: 'LISTO ✔', cancelButtonText: 'Cancelar',
                 confirmButtonColor: '#4f46e5', background: '#0a0a0a', color: '#fff',
                 didOpen: () => { const i = Swal.getInput(); if (i) { i.focus(); const l = i.value.length; try { i.setSelectionRange(l, l); } catch (e) {} } }
@@ -4012,7 +4043,16 @@ async function actionLogin(pinForzado = null) {
         // ==========================================
         // 6. NAVEGACIÓN Y MAPA DE LOCALES
         // ==========================================
+        // 📊 Registra una "vista de página" en Google Analytics (si la etiqueta cargó)
+        function registrarVista(nombre) {
+            try {
+                if (typeof gtag !== 'function') return;
+                gtag('event', 'page_view', { page_title: nombre, page_location: location.origin + location.pathname + '#' + nombre, page_path: '/' + nombre });
+            } catch (e) {}
+        }
+
         function showScreen(id) {
+            registrarVista(id);
             detenerAudio();
             document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
             const target = document.getElementById(id); if (target) target.classList.add('active');
@@ -9413,7 +9453,8 @@ function borrarServicio(idx) {
 
 
         function renderSuperAdmin() {
-            asegurarEditorPlanes(); 
+            asegurarEditorPlanes();
+            const chkNC = document.getElementById('sa-no-contar'); if (chkNC) chkNC.checked = saEstadoNoContar(); 
             let totalSaaS = 0; let totalPruebas = 0; let totalPremium = 0;
             
             // CARGAR BRANDING
@@ -9508,6 +9549,10 @@ function borrarServicio(idx) {
     <span>✏️</span> AJUSTAR LICENCIA EXACTA
 </button>
                         
+                        ${b.solicitudPlan ? `<div class="flex justify-between items-center gap-2 bg-amber-900/20 border border-amber-700/50 p-3 rounded-xl mb-2">
+                            <span class="text-[10px] font-black uppercase text-amber-300">📩 Solicita ${b.solicitudPlan.nombre} · ${new Date(b.solicitudPlan.fecha).toLocaleDateString('es-CO')}</span>
+                            <button type="button" onclick="saAprobarSolicitudPlan('${b.id_nube}', '${b.solicitudPlan.plan}', '${b.solicitudPlan.nombre}')" class="bg-amber-600 hover:bg-amber-500 text-black px-3 py-2 rounded-lg text-[10px] font-black uppercase">Aprobar</button>
+                        </div>` : ''}
                         <div class="flex justify-between items-center bg-[#050505] p-3 rounded-xl border border-zinc-900 mb-2">
                             <span class="text-[10px] font-black uppercase text-zinc-400 tracking-widest">Plan Actual:</span>
                             <select onchange="sa_CambiarPlan('${b.id_nube}', this.value)" class="bg-zinc-800 text-white font-black text-[9px] p-2 rounded-lg uppercase outline-none cursor-pointer border border-zinc-700 focus:border-indigo-500">
@@ -10042,6 +10087,7 @@ async function rescatarSuscripcionLocal() {
                 let bSup = store.json_data; 
                 
                 bSup.plan = nuevoPlan;
+                bSup.solicitudPlan = null;
                 
                 // Ajustamos el límite de barberos automáticamente según el plan
                 bSup.maxBarberos = limiteBarberosPlan(nuevoPlan);
@@ -11126,7 +11172,7 @@ async function rescatarSuscripcionLocal() {
             Swal.fire({
                 title: `<span class="text-[18px] font-black text-indigo-400 uppercase tracking-widest flex items-center gap-2">📄 Compromiso de Privacidad Zeus Barber</span>`,
                 html: `
-                    <p class="text-[9px] text-zinc-600 mt-2 text-left">Última actualización: 19 de Abril de 2026</p>
+                    <p class="text-[9px] text-zinc-600 mt-2 text-left">Última actualización: 23 de Octubre de 2026</p>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left mt-6 max-h-[60vh] overflow-y-auto pr-2">
                         <div class="bg-[#0a0a0a] border border-zinc-800 p-5 rounded-2xl flex flex-col gap-2 shadow-inner">
                             <span class="text-3xl">👤</span>
@@ -11147,6 +11193,11 @@ async function rescatarSuscripcionLocal() {
                             <span class="text-3xl">🛠️</span>
                             <p class="text-[10px] font-black text-white uppercase tracking-wider">Tú Eres el Dueño</p>
                             <p class="text-[9px] text-zinc-400 leading-relaxed">El administrador puede eliminar, modificar o exportar tus datos. Solicítalo directamente en el local.</p>
+                        </div>
+                        <div class="bg-[#0a0a0a] border border-zinc-800 p-5 rounded-2xl flex flex-col gap-2 shadow-inner">
+                            <span class="text-3xl">📊</span>
+                            <p class="text-[10px] font-black text-white uppercase tracking-wider">Medición de Uso</p>
+                            <p class="text-[9px] text-zinc-400 leading-relaxed">Usamos <strong class="text-gray-300">Google Analytics</strong> para saber qué pantallas se usan y mejorar la app. Esa medición no te identifica ni guarda tu nombre o teléfono.</p>
                         </div>
                         <div class="bg-[#0a0a0a] border border-zinc-800 p-5 rounded-2xl flex flex-col gap-2 shadow-inner">
                             <span class="text-3xl">📞</span>
@@ -11586,6 +11637,7 @@ function subirFotoClienteVIP(input) {
             // Verificamos si la memoria del celular ya sabe que somos usuarios
             const yaVisto = localStorage.getItem('zeus_onboarding_visto');
             const overlay = document.getElementById('zeus-onboarding-overlay');
+            if (yaVisto !== 'true') registrarVista('bienvenida');
             
             if (yaVisto === 'true') {
                 saltarOnboarding(true); // Lo oculta rápido y en silencio
@@ -11731,6 +11783,7 @@ function abrirOnboardingManual() {
             const paso = document.getElementById('onb-paso-planes'); if (paso) paso.classList.remove('hidden');
             const grid = document.getElementById('planes-grid');
             if (grid) grid.innerHTML = '<p class="col-span-full text-center text-zinc-500 text-xs font-bold uppercase tracking-widest py-12">Cargando planes…</p>';
+            registrarVista('planes');
             const planes = await cargarPlanesZeus();
             renderPlanesZeus(planes, tipoNegocioSeleccionado || 'barberia');
         }
@@ -11815,6 +11868,76 @@ function abrirOnboardingManual() {
                 </div>`;
         }
 
+        // 🚀 CAMBIO DE PLAN DESDE EL ADMIN (el cliente pide, tú apruebas con el pago)
+        function abrirCambiarPlan() {
+            if (bIdx < 0 || !db.barberias[bIdx]) return;
+            document.getElementById('modal-cambiar-plan').classList.remove('hidden');
+            renderCambiarPlan();
+            cargarPlanesZeus().then(renderCambiarPlan);
+        }
+        function cerrarCambiarPlan() { document.getElementById('modal-cambiar-plan').classList.add('hidden'); }
+
+        function renderCambiarPlan() {
+            const b = db.barberias[bIdx]; if (!b) return;
+            const planes = planesZeusActivos();
+            const actual = planes.find(p => p.id === (b.plan || 'PRO'));
+            const nBar = (b.barberos || []).length;
+            const esEst = b.tipoNegocio === 'estetica';
+            const sub = document.getElementById('cp-sub');
+            if (sub) sub.innerText = `Tienes ${nBar} ${esEst ? 'especialistas' : 'barberos'} y tu plan es ${actual ? actual.nombre : '—'}.`;
+            const grid = document.getElementById('cp-grid'); if (!grid) return;
+            grid.innerHTML = planes.map(p => {
+                const esActual = actual && p.id === actual.id;
+                const cabe = nBar <= p.barberos;
+                const sube = actual && p.orden > actual.orden;
+                let boton;
+                if (esActual) boton = `<button type="button" disabled class="mt-5 w-full py-3.5 rounded-xl font-black uppercase text-[10px] tracking-widest bg-zinc-900 text-zinc-500 border border-zinc-800">Tu plan actual</button>`;
+                else if (!cabe) boton = `<button type="button" disabled class="mt-5 w-full py-3.5 rounded-xl font-black uppercase text-[9px] tracking-widest bg-zinc-900 text-zinc-500 border border-zinc-800">Tienes ${nBar}, este plan permite ${p.barberos}</button>`;
+                else boton = `<button type="button" onclick="pedirCambioPlan('${p.id}')" class="mt-5 w-full py-3.5 rounded-xl font-black uppercase text-[10px] tracking-widest bg-gradient-to-r from-[#66ff66] to-[#0cd1b8] text-black btn-press">${sube ? 'Cambiar a' : 'Bajar a'} ${p.nombre}</button>`;
+                return `
+                <div class="relative flex flex-col bg-[#0c0c10] border-2 ${esActual ? 'border-indigo-500' : 'border-zinc-800'} rounded-[1.75rem] p-5 sm:p-6">
+                    ${esActual ? '<span class="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-indigo-600 text-white">Tu plan actual</span>' : ''}
+                    <p class="text-[10px] font-black uppercase tracking-[0.25em] text-emerald-400 mt-2">${p.nombre}</p>
+                    <p class="text-[11px] text-zinc-400 font-bold">${etiquetaPersonal(esEst ? 'estetica' : 'barberia', p.barberos)}</p>
+                    <p class="mt-4 text-3xl font-black tracking-tighter">${formatoPesos(p.precio)}<span class="text-xs text-zinc-500 uppercase ml-1">/mes</span></p>
+                    ${boton}
+                </div>`;
+            }).join('');
+        }
+
+        function pedirCambioPlan(id) {
+            const b = db.barberias[bIdx]; if (!b) return;
+            const planes = planesZeusActivos();
+            const nuevo = planes.find(p => p.id === id); if (!nuevo) return;
+            const actual = planes.find(p => p.id === (b.plan || 'PRO'));
+            b.solicitudPlan = { plan: nuevo.id, nombre: nuevo.nombre, precio: nuevo.precio, fecha: Date.now(), estado: 'PENDIENTE' };
+            try { saveDB(true); } catch (e) {}
+            const msg = `Hola, soy ${b.nombre}. Quiero cambiar mi plan de ${actual ? actual.nombre : 'actual'} a ${nuevo.nombre} (${formatoPesos(nuevo.precio)}/mes).`;
+            const wa = `https://wa.me/573241678090?text=${encodeURIComponent(msg)}`;
+            Swal.fire({
+                title: `Plan ${nuevo.nombre} solicitado`, showConfirmButton: false, showCloseButton: true, background: '#0a0a0a', color: '#fff',
+                html: `<p class="text-xs text-zinc-300 mb-5">Escríbenos o llámanos para confirmar el pago. Cuando lo confirmemos, activamos tu plan.</p>
+                       <a href="${wa}" target="_blank" rel="noopener" class="block w-full bg-[#25D366] text-black py-3 rounded-xl font-black uppercase text-xs mb-3">💬 Escribir por WhatsApp</a>
+                       <a href="tel:+573241678090" class="block w-full bg-zinc-800 text-white py-3 rounded-xl font-black uppercase text-xs">📞 Llamar</a>`
+            });
+            renderCambiarPlan();
+        }
+
+        async function saAprobarSolicitudPlan(idNube, planId, nombre) {
+            if (!planId) return;
+            const r = await Swal.fire({ title: `¿Aprobar plan ${nombre}?`, text: 'Confirma que ya recibiste el pago (Nequi o transferencia).', icon: 'question', showCancelButton: true, confirmButtonText: 'Sí, aprobar', confirmButtonColor: '#d97706', background: '#0a0a0a', color: '#fff' });
+            if (!r.isConfirmed) return;
+            await sa_CambiarPlan(idNube, planId);
+        }
+
+        // 📊 Interruptor "No contar mis visitas" (por navegador/equipo)
+        function saEstadoNoContar() { try { return localStorage.getItem('zeus_no_contar') === '1'; } catch (e) { return false; } }
+        function saToggleNoContar(activo) {
+            try { if (activo) localStorage.setItem('zeus_no_contar', '1'); else localStorage.removeItem('zeus_no_contar'); } catch (e) {}
+            window['ga-disable-G-R2K6RLPW1L'] = !!activo;
+            Swal.fire({ toast: true, position: 'top', icon: 'success', title: activo ? 'Este equipo ya no cuenta visitas' : 'Este equipo vuelve a contar visitas', showConfirmButton: false, timer: 2000, background: '#111', color: '#fff' });
+        }
+
         // --- Editor de precios (superadmin) ---
         async function asegurarEditorPlanes() {
             const cont = document.getElementById('sa-planes-editor');
@@ -11823,9 +11946,14 @@ function abrirOnboardingManual() {
             cont.dataset.listo = '1';
             const campo = 'w-full bg-[#111] border border-zinc-800 p-3 rounded-xl text-xs font-bold text-white outline-none focus:border-emerald-500';
             cont.innerHTML = planesCatalogo().slice().sort((a, b) => a.orden - b.orden).map(p => `
-                <div class="bg-[#050505] border border-zinc-800 rounded-2xl p-4 space-y-3">
+                <details class="group bg-[#050505] border border-zinc-800 rounded-2xl p-4 open:border-emerald-700/60">
+                    <summary class="cursor-pointer list-none [&::-webkit-details-marker]:hidden flex items-center justify-between gap-3">
+                        <span class="text-[10px] font-black uppercase tracking-widest text-emerald-400">${p.nombre} · ${formatoPesos(p.precio)}/mes</span>
+                        <span class="text-zinc-500 text-xs transition-transform group-open:rotate-180">▼</span>
+                    </summary>
+                    <div class="space-y-3 mt-4">
                     <div class="flex items-center justify-between gap-2 flex-wrap">
-                        <span class="text-[10px] font-black uppercase tracking-widest text-emerald-400">Plan ${p.id}</span>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-zinc-500">Plan ${p.id}</span>
                         <div class="flex gap-4 text-[9px] font-black uppercase text-zinc-400">
                             <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="sp-${p.id}-activo" ${p.activo ? 'checked' : ''} class="accent-emerald-500"> Activo</label>
                             <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="sp-${p.id}-dest" ${p.destacado ? 'checked' : ''} class="accent-emerald-500"> Destacado</label>
@@ -11838,7 +11966,8 @@ function abrirOnboardingManual() {
                     </div>
                     <textarea id="sp-${p.id}-incluye" rows="4" placeholder="Incluye (una línea por cada ítem)" class="${campo}">${p.incluye.join('\n')}</textarea>
                     <textarea id="sp-${p.id}-no" rows="3" placeholder="No incluye (una línea por cada ítem)" class="${campo}">${p.noIncluye.join('\n')}</textarea>
-                </div>`).join('');
+                    </div>
+                </details>`).join('');
         }
 
         async function saGuardarPlanes() {
@@ -12726,7 +12855,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.182"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.183"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
