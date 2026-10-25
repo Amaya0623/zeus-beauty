@@ -309,7 +309,7 @@
             </div>
         </nav>
 
-        <section id="view-login" class="view-section active max-w-md lg:max-w-4xl mx-auto mt-4 sm:mt-12 lg:mt-8 p-8 sm:p-10 lg:px-16 lg:py-12 glass rounded-[3rem] text-center border border-zinc-900 shadow-2xl min-h-[85vh] lg:min-h-0 flex flex-col justify-center relative lg:grid lg:grid-cols-2 lg:gap-x-16 lg:gap-y-2 lg:items-center">
+        <section id="view-login" class="view-section active max-w-md lg:max-w-4xl mx-auto mt-4 sm:mt-12 lg:mt-6 p-8 sm:p-10 lg:px-16 lg:py-12 glass rounded-[3rem] text-center border border-zinc-900 shadow-2xl min-h-[85vh] lg:min-h-[calc(100vh-7rem)] flex flex-col justify-center relative lg:grid lg:grid-cols-2 lg:gap-x-16 lg:gap-y-2 lg:items-center lg:content-center">
             
             <div id="contenedor-instalar-pwa" class="hidden w-full flex justify-center mb-6 lg:col-span-2">
                 <button id="btn-instalar-pwa" class="bg-indigo-600 text-white px-6 py-3 rounded-full font-black text-xs uppercase shadow-[0_0_15px_rgba(79,70,229,0.5)] border border-indigo-400/50 flex items-center gap-2 hover:bg-indigo-500 transition-all btn-press">
@@ -3422,6 +3422,19 @@ async function hashPIN(pin) {
 
 
 
+        // 📍 Ubicación al crear el local (para que aparezca marcado en el mapa)
+        let _geoNuevo = null;
+        function capturarUbicacionNuevo() {
+            const st = document.getElementById('geo-estado-nuevo');
+            if (!navigator.geolocation) { if (st) st.innerText = 'Tu celular no soporta GPS'; return; }
+            if (st) st.innerText = 'Buscando tu ubicación...';
+            navigator.geolocation.getCurrentPosition(
+                (p) => { _geoNuevo = { lat: p.coords.latitude, lon: p.coords.longitude }; if (st) st.innerText = '✔ Ubicación capturada'; },
+                () => { _geoNuevo = null; if (st) st.innerText = 'No pudimos obtener la ubicación. Activa el GPS y vuelve a intentar.'; },
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+            );
+        }
+
         async function crearCuentaNueva() {
             const planEl = leerPlanElegido();
             if (!planEl) { abrirPlanesZeus(); return; }
@@ -3462,8 +3475,13 @@ async function hashPIN(pin) {
                     </div>
                 </div>
             </div>
+                <div class="text-center mt-5">
+                    <button type="button" onclick="capturarUbicacionNuevo()" class="w-full py-3 rounded-2xl border border-emerald-700/60 bg-emerald-900/20 text-emerald-300 text-[10px] font-black uppercase tracking-widest">📍 Usar mi ubicación actual</button>
+                    <p id="geo-estado-nuevo" class="text-[9px] text-zinc-500 font-bold mt-2 uppercase tracking-wider">Opcional. Sirve para marcar tu local en el mapa.</p>
+                </div>
         `;
 
+            _geoNuevo = null;
             const { value: formValues } = await Swal.fire({
                 html: modalHtml, focusConfirm: false, showCancelButton: true, confirmButtonText: 'CREAR MI SISTEMA 🚀', cancelButtonText: 'CANCELAR', background: '#111', color: '#fff',
                 customClass: { popup: 'rounded-[3rem] border border-zinc-900 shadow-2xl', confirmButton: 'w-full bg-white hover:bg-gray-200 py-5 rounded-3xl text-sm font-black text-black uppercase italic shadow-lg btn-press transition-colors mt-4 mx-2', cancelButton: 'w-full bg-zinc-900 hover:bg-[#111] py-4 rounded-3xl text-xs font-black uppercase text-zinc-500 btn-press transition-colors mt-2 mx-2', actions: 'flex flex-col w-full mt-6 px-4' }, buttonsStyling: false,
@@ -3477,7 +3495,7 @@ async function hashPIN(pin) {
                     if (esPinInseguro(pin)) { Swal.showValidationMessage('El PIN es muy fácil (No uses 1234, 1111, etc)'); return false; }
                     if (!verificarPinUnico(pin)) { Swal.showValidationMessage('Ese PIN ya está en uso. Por seguridad, inventa uno diferente.'); return false; }
                     
-                    return { nombre, pin, tipo }; // Retornamos el tipo también
+                    return { nombre, pin, tipo, lat: _geoNuevo ? _geoNuevo.lat : null, lon: _geoNuevo ? _geoNuevo.lon : null };
                 }
             });
 
@@ -3527,6 +3545,7 @@ async function hashPIN(pin) {
                         logo: null 
                     };
                     
+                    if (formValues.lat != null && formValues.lon != null) { newB.lat = formValues.lat; newB.lon = formValues.lon; }
                     db.barberias.push(newB);
                     try { localStorage.removeItem('zeus_plan_elegido'); } catch (e) {}
                     await supabaseClient.from('stores').update({ json_data: newB }).eq('id', data.id);
@@ -4342,16 +4361,21 @@ async function actionLogin(pinForzado = null) {
                 let colorTema = esSpa ? 'pink' : 'blue';
 
                 let marker = L.marker([lat, lon]).addTo(miMapaReal);
+                const tieneCoords = !!(parseFloat(config.lat) && parseFloat(config.lon));
+                const linkRuta = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`;
+                window._marcadoresLocales = window._marcadoresLocales || {};
+                window._marcadoresLocales[store.id] = marker;
                 marker.bindPopup(`
                     <div class="text-center p-1" style="font-family: 'Inter', sans-serif;">
                         <b style="color: ${esSpa ? '#ec4899' : '#4f46e5'}; font-size: 14px; text-transform: uppercase;">${store.name}</b><br>
                         <span style="font-size: 11px; color: #666;">${config.direccion || 'Dirección VIP'}</span><br>
                         <a href="${kioLink}" target="_blank" style="margin-top: 8px; display: inline-block; background: ${esSpa ? '#db2777' : '#2563eb'}; color: white; padding: 6px 12px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 12px;">Agendar Turno</a>
+                        ${tieneCoords ? `<br><a href="${linkRuta}" target="_blank" rel="noopener" style="margin-top: 6px; display: inline-block; background: #059669; color: white; padding: 6px 12px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 12px;">🧭 Cómo llegar</a>` : ''}
                     </div>
                 `);
 
                 htmlList += `
-                <div class="bg-[#050505] p-4 rounded-[1.5rem] border border-${colorTema}-900/30 flex justify-between items-center shadow-inner mb-3 transition-transform hover:scale-[1.02] cursor-pointer" onclick="miMapaReal.flyTo([${lat}, ${lon}], 16); setTimeout(()=>marker.openPopup(), 500);">
+                <div class="bg-[#050505] p-4 rounded-[1.5rem] border border-${colorTema}-900/30 flex justify-between items-center shadow-inner mb-3 transition-transform hover:scale-[1.02] cursor-pointer" onclick="miMapaReal.flyTo([${lat}, ${lon}], 16); setTimeout(()=>{ const mk = window._marcadoresLocales && window._marcadoresLocales['${store.id}']; if (mk) mk.openPopup(); }, 500);">
                     <div class="flex items-center gap-4">
                         <div class="w-12 h-12 rounded-full bg-black border-2 border-${colorTema}-500/50 overflow-hidden flex-shrink-0 shadow-[0_0_10px_rgba(${esSpa?'236,72,153':'59,130,246'},0.2)]">
                             ${config.logo ? `<img src="${config.logo}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center text-sm">${icono}</div>`}
@@ -12855,7 +12879,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.183"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.184"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
