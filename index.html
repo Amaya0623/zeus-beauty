@@ -13626,7 +13626,7 @@ async function actionLogin(pinForzado = null) {
             });
 
             if (isLocalStorageBlocked) { Swal.fire({ title: "Modo Protegido", text: "Abre la aplicación desde un servidor web.", icon: "error", background: "#0a0a0a", color: "#fff" }); pinInput.value = ""; return; }
-            if (db.superPIN && pin === db.superPIN) { Swal.close(); bIdx = -1; session = { rol: 'superadmin' }; saveSession(); showScreen('view-superadmin'); pinInput.value = ""; return; }
+            if (db.superPIN && pin === db.superPIN) { Swal.close(); window._superPinSesion = pin; bIdx = -1; session = { rol: 'superadmin' }; saveSession(); showScreen('view-superadmin'); pinInput.value = ""; return; }
 
             const pinHashed = await hashPIN(pin);
 
@@ -19370,7 +19370,7 @@ function borrarServicio(idx) {
                 const { data: store } = await supabaseClient.from('stores').select('*').eq('id', idNube).single();
                 let bSup = store.json_data;
                 bSup.franquiciaActiva = !bSup.franquiciaActiva;
-                await supabaseClient.from('stores').update({ json_data: bSup }).eq('id', idNube);
+                await saEscribirTienda('guardar', { id: idNube, json_data: bSup });
                 db.barberias[db.barberias.findIndex(x => x.id_nube === idNube)] = bSup;
                 saveDB(true);
                 renderSuperAdmin();
@@ -19509,10 +19509,10 @@ function borrarServicio(idx) {
             if (!isOnline) return Swal.fire('Sin Internet', '', 'warning');
             Swal.fire({ title: 'Creando...', didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
             try {
-                const { data, error } = await supabaseClient.from('stores').insert([{ name: n, owner_pin: p }]).select().single();
+                const { data, error } = await saEscribirTienda('crear', { name: n, owner_pin: p });
                 if (error) throw error;
                 const newB = { id: "B-" + Math.random().toString(36).substr(2, 4).toUpperCase(), id_nube: data.id, nombre: n, pinAdmin: p, creadoEn: Date.now(), diasSuscripcion: 15, bloqueado: false, maxBarberos: 5, barberos: [], servicios: [], productos: [], ventas: [], gastos: [], citas: [], tickets: [], clientes: {}, horaApertura: "08:00", horaCierre: "20:00", intervaloCitas: 60, lastActiveClock: Date.now(), moneda: 'COP' };
-                db.barberias.push(newB); await supabaseClient.from('stores').update({ json_data: newB }).eq('id', data.id);
+                db.barberias.push(newB); await saEscribirTienda('guardar', { id: data.id, json_data: newB });
                 saveDB(true); renderSuperAdmin(); Swal.fire('Éxito', '', 'success');
             } catch (e) { Swal.fire('Error', e.message, 'error'); }
         }
@@ -19545,7 +19545,7 @@ function borrarServicio(idx) {
                     if (!bSup.pagosSaaS) bSup.pagosSaaS = [];
                     bSup.pagosSaaS.push({ fecha: getTodayYMD(), valor: parseInt(formValues[0]), metodo: formValues[1], desc: 'Suscripción/Extra' });
                     
-                    await supabaseClient.from('stores').update({ json_data: bSup }).eq('id', idNube);
+                    await saEscribirTienda('guardar', { id: idNube, json_data: bSup });
                     db.barberias[db.barberias.findIndex(x => x.id_nube === idNube)] = bSup; saveDB(true); renderSuperAdmin();
                     Swal.fire('¡Guardado!', 'Ingreso sumado a tus ganancias.', 'success');
                 } catch(e) { Swal.fire('Error', 'Falla de red.', 'error'); }
@@ -19661,7 +19661,7 @@ function escucharResumenFranquicia() {
             try {
                 const { data: store } = await supabaseClient.from('stores').select('*').eq('id', idNube).single();
                 let bSup = store.json_data; bSup.bloqueado = !bSup.bloqueado;
-                await supabaseClient.from('stores').update({ json_data: bSup }).eq('id', idNube);
+                await saEscribirTienda('guardar', { id: idNube, json_data: bSup });
                 db.barberias[db.barberias.findIndex(x => x.id_nube === idNube)] = bSup; saveDB(true); renderSuperAdmin(); Swal.fire('¡Éxito!', '', 'success');
             } catch (e) { Swal.fire('Error', 'No se pudo contactar a la nube', 'error'); }
         }
@@ -19676,7 +19676,7 @@ function escucharResumenFranquicia() {
             const { value: masterPin } = await Swal.fire({ title: '🔑 ULTIMA VALIDACIÓN', text: 'Ingresa el PIN Maestro.', input: 'password', inputAttributes: { autocapitalize: 'off', inputmode: 'numeric' }, showCancelButton: true, confirmButtonColor: '#dc2626', confirmButtonText: 'Borrar Definitivamente', background: '#0a0a0a', color: '#fff' }); if (masterPin !== (db.superPIN || "9999")) return;
             Swal.fire({ title: 'BORRANDO...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
             try {
-                await supabaseClient.from('stores').delete().eq('id', idNube); db.barberias = db.barberias.filter(x => x.id_nube !== idNube); saveDB(true); renderSuperAdmin(); Swal.fire('¡Borrado Exitoso!', '', 'success');
+                await saEscribirTienda('borrar', { id: idNube }); db.barberias = db.barberias.filter(x => x.id_nube !== idNube); saveDB(true); renderSuperAdmin(); Swal.fire('¡Borrado Exitoso!', '', 'success');
             } catch (e) { Swal.fire('Error', 'No se pudo borrar.', 'error'); }
         }
 
@@ -19711,7 +19711,7 @@ function escucharResumenFranquicia() {
                 let bSup = store.json_data;
                 if (bSup.pagosSaaS && bSup.pagosSaaS[idxPago]) {
                     bSup.pagosSaaS.splice(idxPago, 1); // Cortamos el pago del arreglo
-                    await supabaseClient.from('stores').update({ json_data: bSup }).eq('id', idNube);
+                    await saEscribirTienda('guardar', { id: idNube, json_data: bSup });
                     db.barberias[db.barberias.findIndex(x => x.id_nube === idNube)] = bSup; saveDB(true); renderSuperAdmin();
                     Swal.fire({title:'¡Borrado!', text:'El pago desapareció de la contabilidad', icon:'success', timer: 1500, background: '#0a0a0a', color: '#fff', showConfirmButton: false});
                 }
@@ -19773,7 +19773,7 @@ function escucharResumenFranquicia() {
                     bSup.pagosSaaS.push({ fecha: getTodayYMD(), dias: 0, valor: valorCobrado, desc: 'Barbero Adicional' });
                 }
 
-                await supabaseClient.from('stores').update({ json_data: bSup }).eq('id', idNube);
+                await saEscribirTienda('guardar', { id: idNube, json_data: bSup });
                 db.barberias[db.barberias.findIndex(x => x.id_nube === idNube)] = bSup; saveDB(true); renderSuperAdmin();
                 Swal.fire({title:'Límite Modificado', toast:true, position:'top-end', timer:1500, showConfirmButton:false, background: '#0a0a0a', color: '#fff'});
             } catch (e) { Swal.fire('Error', 'No se pudo contactar a la nube', 'error'); }
@@ -19842,6 +19842,21 @@ async function rescatarSuscripcionLocal() {
         // ==========================================
         // 14.5 GESTIÓN DE PLANES (MASTER CONTROL)
         // ==========================================
+        // 🔐 Escrituras de superadmin: pasan por la Edge Function zeus-superadmin-tienda (valida SUPER_PIN)
+        window._superPinSesion = null; // solo en memoria: se pierde al recargar y se vuelve a pedir
+        async function saEscribirTienda(accion, datos) {
+            let pin = window._superPinSesion;
+            if (!pin) {
+                const r = await Swal.fire({ title: 'Confirma tu PIN de superadmin', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 4, autocomplete: 'off' }, showCancelButton: true, confirmButtonText: 'Confirmar', background: '#0a0a0a', color: '#fff' });
+                if (!r.isConfirmed || !r.value) return { data: null, error: { message: 'PIN requerido' } };
+                pin = r.value;
+            }
+            const { data, error } = await supabaseClient.functions.invoke('zeus-superadmin-tienda', { body: { accion, ...datos }, headers: { 'x-super-pin': pin } });
+            if (error) { window._superPinSesion = null; return { data: null, error }; }
+            window._superPinSesion = pin;
+            return { data, error: null };
+        }
+
         async function sa_CambiarPlan(idNube, nuevoPlan) {
             if (!isOnline) return Swal.fire('Error', 'Sin conexión a internet', 'error');
 
@@ -19856,7 +19871,7 @@ async function rescatarSuscripcionLocal() {
                 // Ajustamos el límite de barberos automáticamente según el plan
                 bSup.maxBarberos = limiteBarberosPlan(nuevoPlan);
 
-                await supabaseClient.from('stores').update({ json_data: bSup }).eq('id', idNube);
+                await saEscribirTienda('guardar', { id: idNube, json_data: bSup });
                 db.barberias[db.barberias.findIndex(x => x.id_nube === idNube)] = bSup; 
                 saveDB(true); 
                 renderSuperAdmin();
@@ -20816,7 +20831,7 @@ async function rescatarSuscripcionLocal() {
                                 nData.alertaMsg = msg;
                                 nData.alertaBlock = block;
                                 nData.data_version = Date.now();
-                                await supabaseClient.from('stores').update({ json_data: nData }).eq('id', b.id_nube);
+                                await saEscribirTienda('guardar', { id: b.id_nube, json_data: nData });
                             }
                         }
                         b.alertaMsg = msg;
@@ -20909,7 +20924,7 @@ async function rescatarSuscripcionLocal() {
                                 let nData = data.json_data;
                                 nData.alertaBlock = false;
                                 nData.alertaMsg = "";
-                                await supabaseClient.from('stores').update({ json_data: nData }).eq('id', b.id_nube);
+                                await saEscribirTienda('guardar', { id: b.id_nube, json_data: nData });
                             }
                         }
                     }
@@ -22619,7 +22634,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.185"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.187"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
@@ -22727,7 +22742,7 @@ function abrirOnboardingManual() {
                 bNube.alertaBlock = false;
 
                 // 3. Subimos de vuelta
-                const { error: errUpdate } = await supabaseClient.from('stores').update({ json_data: bNube }).eq('id', idNube);
+                const { error: errUpdate } = await saEscribirTienda('guardar', { id: idNube, json_data: bNube });
                 if (errUpdate) throw errUpdate;
 
                 // 4. Actualizamos el caché local del Master Control
@@ -22779,7 +22794,7 @@ function abrirOnboardingManual() {
                     }
 
                     // 2. Subimos los datos protegidos
-                    const { error: errUpdate } = await supabaseClient.from('stores').update({ json_data: bNube }).eq('id', idNube);
+                    const { error: errUpdate } = await saEscribirTienda('guardar', { id: idNube, json_data: bNube });
                     if (errUpdate) throw errUpdate;
 
                     // 3. Actualizamos memoria local
@@ -22890,7 +22905,6 @@ function abrirOnboardingManual() {
                 }
             }
         }
-        
         window.addEventListener('DOMContentLoaded', verificarSoporteBiometrico);
 
         // 2. Crear y Registrar Huella/FaceID
@@ -23103,6 +23117,7 @@ function abrirOnboardingManual() {
             Swal.fire({title: 'Turno Finalizado', text: `Declaraste: ${fMoney(efeContado)}. ¡Buen descanso!`, icon: 'success', background: '#0a0a0a', color: '#fff'});
         }
       
+
     </script>
 </body>
 </html>
