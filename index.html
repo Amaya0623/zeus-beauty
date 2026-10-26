@@ -19491,17 +19491,12 @@ function borrarServicio(idx) {
                 } catch (ex) { console.error("Error al renderizar gráfica de franquicia", ex); }
             }, 150);
 
-
-
-
         }
 
         // ==========================================
         // 🎙️ RESUMEN DE VOZ CORPORATIVO (FRANQUICIA)
         // ==========================================
         
-
-
         async function saCrearBarberia() {
             const n = document.getElementById('sa-nombre').value.trim().toUpperCase(); const p = cleanNum(document.getElementById('sa-pin').value);
             if (!n || esPinInseguro(p)) return Swal.fire('Error', 'Nombre vacío o PIN inseguro (muy fácil)', 'error');
@@ -19628,11 +19623,6 @@ function escucharResumenFranquicia() {
         }
 
 
-
-
-
-
-
         async function saSincronizarNube() {
             if (!isOnline) return Swal.fire('Error', 'Sin conexión a internet.', 'error');
             Swal.fire({ title: 'Sincronizando...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a0a0a', color: '#fff' });
@@ -19650,10 +19640,6 @@ function escucharResumenFranquicia() {
             } catch (e) { Swal.fire('Error', 'Falla conectando a la nube', 'error'); }
         }
 
-
-
-
-
         async function sa_ForzarBloqueo(idNube) {
             if (!isOnline) return; const b = db.barberias.find(x => x.id_nube === idNube); const accion = b.bloqueado ? "DESBLOQUEAR" : "FORZAR BLOQUEO";
             const { isConfirmed } = await Swal.fire({ title: `¿Desea ${accion}?`, icon: 'warning', showCancelButton: true, confirmButtonColor: b.bloqueado ? '#16a34a' : '#dc2626', background: '#0a0a0a', color: '#fff' }); if (!isConfirmed) return;
@@ -19665,9 +19651,6 @@ function escucharResumenFranquicia() {
                 db.barberias[db.barberias.findIndex(x => x.id_nube === idNube)] = bSup; saveDB(true); renderSuperAdmin(); Swal.fire('¡Éxito!', '', 'success');
             } catch (e) { Swal.fire('Error', 'No se pudo contactar a la nube', 'error'); }
         }
-
-
-
 
 
         async function sa_BorrarInstancia(idNube) {
@@ -20905,44 +20888,61 @@ async function rescatarSuscripcionLocal() {
             }
         }
 
-        // 🚀 NUEVO MOTOR DE DESBLOQUEO (EXTIRPA FANTASMAS DE LA NUBE)
-        async function verificarDesbloqueoMantenimiento(btn) {
-            btn.innerText = "DESTRUYENDO BLOQUEO...";
+        // 🛰️ VIGILANCIA DE ALERTAS, PLAN Y LÍMITE EN LA NUBE (cada 15 s, consulta liviana)
+        // Admin, barberos y kiosko reciben el bloqueo, el mensaje, el plan y el límite de barberos
+        // sin depender de una sincronización completa. Solo el superadmin puede quitar la alerta desde la nube.
+        window.alertaNubeInterval = setInterval(async () => {
             try {
-                // 1. Borramos el bloqueo de la memoria local
-                db.barberias.forEach(b => { b.alertaBlock = false; b.alertaMsg = ""; });
-                if (db.masterConfig) { db.masterConfig.alertaBlock = false; db.masterConfig.alertaMsg = ""; }
-                saveDB(false);
+                if (!navigator.onLine || typeof supabaseClient === 'undefined' || !db || !db.barberias) return;
+                const idx = (typeof bIdx !== 'undefined' && bIdx !== -1) ? bIdx : (typeof kiosko_bIdx !== 'undefined' ? kiosko_bIdx : -1);
+                if (idx === -1 || !db.barberias[idx] || !db.barberias[idx].id_nube) return;
+                const b = db.barberias[idx];
+                const { data: v } = await supabaseClient.from('stores')
+                    .select('a:json_data->>alertaBlock,m:json_data->>alertaMsg,pl:json_data->>plan,mb:json_data->>maxBarberos')
+                    .eq('id', b.id_nube).single();
+                if (!v) return;
+                const nBlock = v.a === 'true';
+                const nMsg = v.m || "";
+                const cambioAlerta = nBlock !== !!b.alertaBlock || nMsg !== (b.alertaMsg || "");
+                const cambioPlan = (!!v.pl && v.pl !== b.plan) || (!!v.mb && String(v.mb) !== String(b.maxBarberos));
+                if (!cambioAlerta && !cambioPlan) return;
 
-                // 2. Extirpamos el fantasma de Supabase con bisturí
+                b.alertaBlock = nBlock;
+                b.alertaMsg = nMsg;
+                if (v.pl) b.plan = v.pl;
+                if (v.mb) b.maxBarberos = parseInt(v.mb) || b.maxBarberos;
+                saveDB(false);
+                verificarAlertasGlobales();
+                if (cambioPlan && session && session.rol === 'admin' && typeof renderAdmin === 'function') renderAdmin();
+            } catch (e) {}
+        }, 15000);
+
+        // 🔓 "INTENTAR DE NUEVO": solo vuelve a leer la nube y recarga. Ya no escribe nada en la nube.
+        // Quitar la alerta es tarea del superadmin (apagando el bloqueo y publicando).
+        async function verificarDesbloqueoMantenimiento(btn) {
+            btn.innerText = "VERIFICANDO...";
+            try {
                 if (navigator.onLine && typeof supabaseClient !== 'undefined') {
-                    for (let i = 0; i < db.barberias.length; i++) {
-                        let b = db.barberias[i];
-                        if (b.id_nube) {
-                            const { data } = await supabaseClient.from('stores').select('json_data').eq('id', b.id_nube).single();
-                            if (data && data.json_data && data.json_data.alertaBlock) {
-                                let nData = data.json_data;
-                                nData.alertaBlock = false;
-                                nData.alertaMsg = "";
-                                await saEscribirTienda('guardar', { id: b.id_nube, json_data: nData });
-                            }
+                    const idx = (bIdx !== -1) ? bIdx : kiosko_bIdx;
+                    const b = idx !== -1 ? db.barberias[idx] : null;
+                    if (b && b.id_nube) {
+                        const { data } = await supabaseClient.from('stores').select('json_data').eq('id', b.id_nube).single();
+                        if (data && data.json_data) {
+                            b.alertaBlock = data.json_data.alertaBlock || false;
+                            b.alertaMsg = data.json_data.alertaMsg || "";
+                            saveDB(false);
                         }
                     }
                 }
-
-                // 3. Limpieza de caché estricta para liberar el celular
                 if ('caches' in window) {
                     const keys = await caches.keys();
                     for (let key of keys) await caches.delete(key);
                 }
-
                 window.location.reload(true);
-            } catch (e) { 
-                window.location.reload(true); 
+            } catch (e) {
+                window.location.reload(true);
             }
         }
-
-        
 
         // =======================================================
         // 📄 POLÍTICAS DE PRIVACIDAD REDISEÑO DE ÉLITE 🔥
@@ -22634,7 +22634,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.187"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.188"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
