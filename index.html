@@ -11051,6 +11051,28 @@ input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:foc
 /* Táctil: no hay "pasar el mouse", así que VER PERFIL se muestra fijo en la tarjeta del kiosko */
 @media (hover: none) { #kiosko-semaforo .kio-vp-touch { display: flex !important; justify-content: center; } }
 </style>
+<style>
+/* v1.217 · Pantallas adaptables: en tablet, laptop y escritorio los paneles usan más ancho (en celular no cambia nada) */
+@media (min-width: 768px) {
+  #view-kiosko { max-width: 44rem; }
+  #view-barbero { max-width: 48rem; }
+}
+@media (min-width: 1024px) {
+  #view-kiosko { max-width: 56rem; }
+  #view-barbero, #view-config { max-width: 64rem; }
+  #view-admin, #view-franquicia { max-width: 72rem; }
+  body[data-vista="view-barbero"] #app-nav, body[data-vista="view-config"] #app-nav { max-width: 64rem; }
+  body[data-vista="view-admin"] #app-nav, body[data-vista="view-franquicia"] #app-nav { max-width: 72rem; }
+}
+@media (min-width: 1536px) {
+  #view-admin, #view-franquicia { max-width: 84rem; }
+  #view-agenda { max-width: 96rem; }
+  #view-caja { max-width: 100rem; }
+  body[data-vista="view-admin"] #app-nav, body[data-vista="view-franquicia"] #app-nav { max-width: 84rem; }
+  body[data-vista="view-agenda"] #app-nav { max-width: 96rem; }
+  body[data-vista="view-caja"] #app-nav { max-width: 100rem; }
+}
+</style>
 </head>
 
 <body>
@@ -11384,7 +11406,7 @@ input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:foc
                     <div id="kio-logo-box" class="hidden w-24 h-24 rounded-full overflow-hidden border-2 border-indigo-500 bg-zinc-950 shadow-lg"><img id="kio-logo-img" alt="Logo de la barbería" class="w-full h-full object-cover"></div>
                     <p id="kio-nombre-local" class="text-xs font-black uppercase tracking-[0.25em] text-white text-center"></p>
                 </div>
-                <h2 id="kio-titulo-local" class="text-3xl font-black italic text-indigo-500 uppercase mb-2 text-center leading-none">RESERVA TU TURNO</h2>
+                <h2 id="kio-titulo-local" class="text-3xl font-black italic text-indigo-500 uppercase mb-2 text-center leading-none">RESERVA TU CITA </h2>
 
                 <p id="kio-subtitulo-estado" class="text-[9px] text-zinc-400 text-center uppercase tracking-widest mb-6">Estado de los barberos en tiempo real</p>
 
@@ -12302,7 +12324,7 @@ input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:foc
                                     <label style="display:flex;flex-direction:column;gap:4px;font-size:9px;font-weight:800;color:#a1a1aa;text-transform:uppercase">Texto<input type="color" id="cfg-col-texto" oninput="previewColoresCfg()" style="height:40px;width:100%;border:0;background:none"></label>
                                 </div>
                                 <div id="cfg-col-preview" style="margin-top:12px;padding:14px;border-radius:16px;border:1px solid #6366f1;background:#050505;color:#fff">
-                                    <p data-pv-titulo style="margin:0 0 10px;font-size:16px;font-weight:900;text-transform:uppercase;color:#6366f1">Reserva tu turno</p>
+                                    <p data-pv-titulo style="margin:0 0 10px;font-size:16px;font-weight:900;text-transform:uppercase;color:#6366f1">Reserva tu cita</p>
                                     <span data-pv-boton style="display:inline-block;padding:10px 16px;border-radius:12px;background:#6366f1;color:#fff;font-size:11px;font-weight:900;text-transform:uppercase">Agendar mi cita</span>
                                 </div>
                                 <p id="cfg-col-aviso" style="display:none;margin:10px 0 0;font-size:11px;color:#fbbf24"></p>
@@ -12778,6 +12800,7 @@ input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:foc
                                 </div>
                                 <p class="text-[8px] text-zinc-500 uppercase font-bold mb-1 mt-3">Plantilla (Usa: {cliente}, {descuento}, {link})</p>
                                 <textarea id="cfg-mkt-msg" rows="3" placeholder="Ej: ¡Hola {cliente}! Hace mucho no te vemos por aquí. Te regalamos un {descuento} en tu próximo corte. Reserva ya en: {link}" class="w-full p-4 rounded-xl text-xs font-bold bg-[#050505] border border-zinc-800 text-white resize-none focus:border-indigo-500 outline-none"></textarea>
+                                <button type="button" onclick="ejecutarRecuperacionISI()" class="w-full mt-3 bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl font-black uppercase text-[10px] btn-press shadow-lg shadow-indigo-600/20 transition-colors flex justify-center items-center gap-2">🤖 Ejecutar Recuperación (WhatsApp)</button>
                             </div>
                         </div>
                     </div>
@@ -15005,6 +15028,7 @@ async function actionLogin(pinForzado = null) {
             } catch (e) {}
             document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
             const target = document.getElementById(id); if (target) target.classList.add('active');
+            document.body.setAttribute('data-vista', id);
 
             const nav = document.getElementById('app-nav'); const isiBtn = document.getElementById('btn-isi-ia');
             if (id === 'view-login' || id === 'view-kiosko' || id === 'view-superadmin') {
@@ -18683,7 +18707,7 @@ function calcularPrecioIA(precioBase, idLocal) {
             const b = db.barberias[bIdx]; const qrCanvas = document.querySelector('#cfg-kiosko-qr canvas');
             if (!qrCanvas) return Swal.fire('Aviso', 'Genera el QR recargando la página.', 'info');
             const imgSrc = qrCanvas.toDataURL("image/png");
-            let html = `<div style="text-align:center; font-family:sans-serif; padding: 20px; color:#000; background:#fff;"><h1 style="font-size:36px; margin-bottom:10px; text-transform:uppercase; font-weight:900;">${b.nombre}</h1><p style="font-size:18px; color:#333; margin-bottom: 20px;">Escanea este código y reserva tu turno sin filas</p><img src="${imgSrc}" style="width:300px; height:300px; margin:0 auto; border: 10px solid #000; border-radius: 20px;"><p style="font-size:14px; margin-top:20px; color:#666;">Zeus Barber Pro Cloud</p></div>`;
+            let html = `<div style="text-align:center; font-family:sans-serif; padding: 20px; color:#000; background:#fff;"><h1 style="font-size:36px; margin-bottom:10px; text-transform:uppercase; font-weight:900;">${b.nombre}</h1><p style="font-size:18px; color:#333; margin-bottom: 20px;">Escanea este código y reserva tu cita sin filas</p><img src="${imgSrc}" style="width:300px; height:300px; margin:0 auto; border: 10px solid #000; border-radius: 20px;"><p style="font-size:14px; margin-top:20px; color:#666;">Zeus Barber Pro Cloud</p></div>`;
             
             document.getElementById('print-area').innerHTML = html; 
             
@@ -19313,6 +19337,46 @@ function calcularPrecioIA(precioBase, idLocal) {
                     });
                 }
             }
+        }
+
+        
+        function ejecutarRecuperacionISI() {
+            const b = db.barberias[bIdx];
+            const cfg = b.configMkt || {};
+            if (!cfg.activo) return Swal.fire('ISI IA desactivado', 'Activa el módulo ISI IA: Recuperar Clientes en Configuración.', 'warning');
+            const plantilla = (cfg.msg || '').trim();
+            if (!plantilla) return Swal.fire('Sin plantilla', 'Escribe una plantilla de mensaje en Configuración → ISI IA.', 'warning');
+            const diasLimite = parseInt(cfg.dias) || 30;
+            const descuento = cfg.desc || '';
+            const link = b.linkReservas || b.linkGoogle || 'https://wa.me/' + (b.celular || '');
+            const ahora = Date.now();
+            const msLimite = diasLimite * 24 * 60 * 60 * 1000;
+            // Filtrar clientes que no han visitado en X días y tienen celular
+            const clientesFiltrados = Object.values(b.clientes || {}).filter(c => {
+                if (!c.celular || c.celular.length < 10) return false;
+                if (!c.ultimaVisita) return true; // nunca ha venido = también los incluye
+                return (ahora - new Date(c.ultimaVisita).getTime()) >= msLimite;
+            });
+            if (clientesFiltrados.length === 0) return Swal.fire('Sin resultados', `No hay clientes con más de ${diasLimite} días sin visitar.`, 'info');
+            Swal.fire({
+                title: `🤖 ISI IA — ${clientesFiltrados.length} clientes`,
+                html: `<p class="text-xs text-zinc-300">Se abrirá WhatsApp para <b class="text-white">${Math.min(clientesFiltrados.length,10)}</b> clientes (máx. 10 a la vez) que llevan más de <b>${diasLimite} días</b> sin visitar.<br><br><span class="text-indigo-400">Permite las ventanas emergentes en tu navegador.</span></p>`,
+                icon: 'question', background: '#111', color: '#fff',
+                showCancelButton: true, confirmButtonText: '🚀 Enviar ahora', cancelButtonText: 'Cancelar', confirmButtonColor: '#6366f1'
+            }).then(r => {
+                if (!r.isConfirmed) return;
+                let enviados = 0;
+                clientesFiltrados.slice(0, 10).forEach((c, i) => {
+                    const nombre = (c.nombre || 'Cliente').split(' ')[0];
+                    const msg = plantilla
+                        .replace(/\{cliente\}/gi, nombre)
+                        .replace(/\{descuento\}/gi, descuento)
+                        .replace(/\{link\}/gi, link);
+                    setTimeout(() => { window.open(`https://wa.me/57${c.celular}?text=${encodeURIComponent(msg)}`, '_blank'); }, i * 1500);
+                    enviados++;
+                });
+                Swal.fire('¡Enviando!', `Abriendo WhatsApp para ${enviados} cliente${enviados>1?'s':''}. Revisa que no estén bloqueadas las ventanas emergentes.`, 'success');
+            });
         }
 
         function enviarMensajeMasivo() {
@@ -24627,7 +24691,7 @@ function abrirOnboardingManual() {
 
 // 🔥 MOTOR DE ACTUALIZACIÓN (MODO KAMIKAZE - DESTRUYE CACHÉ VIEJA AL INSTANTE)
         async function comprobarVersionNube() {
-            const VERSION_ACTUAL = "1.190"; // 👈 Sube este número solo para guiarte tú visualmente
+            const VERSION_ACTUAL = "1.191"; // 👈 Sube este número solo para guiarte tú visualmente
             
             const vLogin = document.getElementById('display-version-login'); if (vLogin) vLogin.innerText = VERSION_ACTUAL;
             const vNav = document.getElementById('display-version-nav'); if (vNav) vNav.innerText = VERSION_ACTUAL;
